@@ -1,0 +1,146 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv'); // Import dotenv
+const app = require('../app'); // Assuming `app` is your Express app
+const http = require('http');
+const https = require('https');
+const Logger = require('../config/logger').getComponentLogger('server'); // Import Winston Logger
+console.log(1)
+
+/**
+ * Load environment variables from .env file
+ */
+dotenv.config();  // Load variables from .env
+
+/**
+ * Get port from environment and store in Express.
+ */
+const port = normalizePort(process.env.PORT || '3000'); // Default port is 3000
+app.set('port', port);
+
+/**
+ * Check if we should use HTTPS (typically in production)
+ * Look for certificates in the environment variables or check paths.
+ */
+const useHttps = process.env.NODE_ENV === 'production' &&
+                 fs.existsSync(path.resolve(__dirname, process.env.SSL_KEY_PATH)) &&
+                 fs.existsSync(path.resolve(__dirname, process.env.SSL_CERT_PATH)) &&
+                 fs.existsSync(path.resolve(__dirname, process.env.SSL_CA_PATH));
+
+/**
+ * Create the server - either HTTP or HTTPS
+ */
+let server;
+if (useHttps) {
+  const sslOptions = {
+    key: fs.readFileSync(path.resolve(__dirname, process.env.SSL_KEY_PATH)),  // SSL private key
+    cert: fs.readFileSync(path.resolve(__dirname, process.env.SSL_CERT_PATH)),  // SSL certificate
+    ca: fs.readFileSync(path.resolve(__dirname, process.env.SSL_CA_PATH)),  // SSL certificate authority
+  };
+  server = https.createServer(sslOptions, app);  // HTTPS server
+} else {
+  server = http.createServer(app);  // HTTP server
+}
+
+/**
+ * Event listener for HTTP/HTTPS server "listening" event.
+ */
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+  const portNum = parseInt(val, 10);
+
+  if (isNaN(portNum)) {
+    // Named pipe
+    return val;
+  }
+
+  if (portNum >= 0) {
+    // Port number
+    return portNum;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+server.on('error', onError);
+
+/**
+ * Handle server errors.
+ */
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    console.log(1)
+    throw error;
+  }
+
+  const bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // Handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      Logger.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      Logger.error(`${bind} is already in use`);
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+function onListening() {
+  const addr = server.address();
+  const bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+
+  Logger.info('Listening on ' + bind);
+
+  // Log the server's URL
+  Logger.info(`Server started on ${useHttps ? 'https' : 'http'}://localhost:${addr.port}`);
+}
+
+/**
+ * Graceful shutdown logic.
+ */
+function gracefulShutdown(signal) {
+  Logger.info(`Received ${signal}, shutting down gracefully...`);
+  server.close(() => {
+    Logger.info('Closed all remaining connections');
+    process.exit(0);
+  });
+
+  // If there's still an active server request, wait a few seconds before forcing exit
+  setTimeout(() => {
+    Logger.error('Force shutdown after timeout');
+    process.exit(1);
+  }, 5000); // Wait 5 seconds before force-shutdown
+}
+
+// Listen to termination signals
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
+/**
+ * Start the server.
+ */
+server.listen(port);
