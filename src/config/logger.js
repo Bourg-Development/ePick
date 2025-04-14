@@ -66,20 +66,4 @@ function getComponentLogger(component) {
         silly: (message, meta = {}) => logger.silly(message, { component, ...meta })
     };
 }
-
-// Simple Express middleware for logging requests
-function loggerMiddleware(req, res, next) {
-    const start = Date.now();
-    res.on('finish', () => {
-        const responseTime = Date.now() - start;
-        logger.info(`${req.method} ${req.url}`, {
-            method: req.method,
-            url: req.url,
-            statusCode: res.statusCode,
-            responseTime
-        });
-    });
-    next();
-}
-
-module.exports = { logger, getComponentLogger, loggerMiddleware };
+module.exports = { logger, getComponentLogger };

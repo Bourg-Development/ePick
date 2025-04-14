@@ -1,0 +1,45 @@
+<div class="login-container">
+    <div class="welcome-header animate-fade-in">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to your account</p>
+        <div class="divider"></div>
+    </div>
+
+    <form class="auth-form animate-slide-up">
+        <div class="form-group">
+            <label for="username">Username <span style="color: var(--blood-red);">*</span></label>
+            <input
+                    type="text"
+                    id="username"
+                    class="form-control"
+                    placeholder="Enter your username"
+            >
+            <div class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password <span style="color: var(--blood-red);">*</span> </label>
+            <input
+                    type="password"
+                    id="password"
+                    class="form-control"
+                    placeholder="Enter your password"
+            >
+            <div class="error-message"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-signin">
+            Sign
+            <span class="material-symbols-outlined">
+                arrow_forward
+            </span>
+        </button>
+    </form>
+    <div style="text-align: center">
+        <a href="/forgot-password" class="forgot-password">
+            Forgot your password?
+        </a>
+    </div>
+</div>
+
+<script src="/static/scripts/pages/auth/login.js" defer></script>

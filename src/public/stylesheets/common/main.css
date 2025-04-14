@@ -1,0 +1,134 @@
+/* ======== Core Styles ======== */
+:root {
+    --blood-red: #e63946;
+    --dark-red: #c1121f;
+    --text-black: #333333;
+    --off-white: #f9f9f9;
+    --light-gray: #e6e6e6;
+    --medium-gray: #666666;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+/* ======== Shared Components ======== */
+h1, h2, h3, h4{
+    font-weight: bold;
+}
+h1{
+    font-size: 32px;
+}
+h2{
+    font-size: 24px;
+}
+h3{
+    font-size: 20px;
+}
+h4{
+    font-size: 18px;
+}
+p, span, a, li, label, input, button, select, textarea {
+    font-size: 16px;
+}
+
+.list-dashed li{
+    list-style: none;
+    padding-left: 10px;
+}
+.list-dashed li::before {
+    content: "– "; /* en dash */
+    position: absolute;
+    margin-left: -1em;
+}
+
+/* Base Link Style */
+a {
+    color: var(--blood-red);
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+/* Hover State */
+a:hover {
+    color: var(--dark-red);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+}
+
+/* Active State */
+a:active {
+    transform: translateY(1px);
+}
+
+/* Focus State */
+a:focus {
+    outline: 2px solid var(--blood-red);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--blood-red);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-red);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+}
+
+/* Forms */
+.form-container {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--medium-gray);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--light-gray);
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--blood-red);
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 10px; }
+.mt-2 { margin-top: 20px; }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | ePick</title>
+    <link rel="icon" type="image/svg+xml" href="/static/media/logos/icon-only.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/stylesheets/common/main.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/auth/auth.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/auth/navbar.css">
+</head>
+<body class="auth-layout">
+<%- include('../partials/auth/navigation/navbar.ejs') %>
+
+<main class="auth-main">
+    <%- body %>
+</main>
+
+<%- include('../partials/auth/navigation/footer.ejs') %>
+
+<script src="/static/scripts/common/authLayout.js"></script>
+</body>
+</html>

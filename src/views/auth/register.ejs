@@ -1,0 +1,85 @@
+<div class="registration-container">
+    <div class="welcome-header">
+        <h1>Complete Your Registration</h1>
+        <p class="subtitle">Set up your employee account</p>
+        <div class="divider"></div>
+    </div>
+
+    <form id="registrationForm" novalidate>
+        <!-- Reference Code Section -->
+        <div id="refCodeSection">
+            <div class="form-group">
+                <label>
+                    Reference Code <span style="color: var(--blood-red);">*</span>
+                </label>
+                <input
+                        type="text"
+                        id="refCode"
+                        class="form-control"
+                        placeholder="XXX-XXX-XXX"
+                        required
+                >
+                <div class="error-message" id="refCodeError"></div>
+            </div>
+            <button
+                    type="button"
+                    id="verifyRefCode"
+                    class="btn btn-primary"
+            >
+                Verify Reference Code
+            </button>
+        </div>
+
+        <!-- Registration Fields (hidden initially) -->
+        <div id="registrationFields" style="display: none;">
+
+            <div class="form-group">
+                <label>Username</label>
+                <input
+                        type="text"
+                        id="username"
+                        class="form-control"
+                        disabled
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Password <span style="color: #e63946;">*</span></label>
+                <input
+                        type="password"
+                        id="password"
+                        class="form-control"
+                        placeholder="Create password"
+                >
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password <span style="color: #e63946;">*</span></label>
+                <input
+                        type="password"
+                        id="confirmPassword"
+                        class="form-control"
+                        placeholder="Confirm password"
+                >
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+
+
+            <div class="password-rules list-dashed">
+                Password must contain:
+                <ul>
+                    <li id="lengthRule">12-50 characters</li>
+                    <li id="upperRule">At least one uppercase letter</li>
+                    <li id="lowerRule">At least one lowercase letter</li>
+                    <li id="numberRule">At least one number</li>
+                </ul>
+            </div>
+
+            <button type="submit" class="btn-signin btn btn-primary">
+                Complete Registration
+            </button>
+        </div>
+    </form>
+</div>
+<script src="/static/scripts/pages/auth/register.js" defer></script>

@@ -1,0 +1,96 @@
+// Validation function
+const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 12 || password.length > 50) errors.push('length');
+    if (!/[A-Z]/.test(password)) errors.push('upper');
+    if (!/[a-z]/.test(password)) errors.push('lower');
+    if (!/\d/.test(password)) errors.push('number');
+    return errors;
+};
+
+document.getElementById('verifyRefCode').addEventListener('click', function() {
+    const refCode = document.getElementById('refCode').value.trim();
+    const errorElement = document.getElementById('refCodeError');
+
+    if (!/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(refCode)) {
+        errorElement.textContent = 'Invalid format. Use XXX-XXX-XXX format';
+        errorElement.style.display = 'block';
+        return;
+    }
+
+    // After successful verification
+    setTimeout(() => {
+        document.getElementById('refCodeSection').style.display = 'none';
+        const registrationFields = document.getElementById('registrationFields');
+        registrationFields.style.display = 'block';
+
+        // Add required attributes dynamically
+        document.getElementById('password').required = true;
+        document.getElementById('confirmPassword').required = true;
+
+        document.getElementById('username').value = 'EMP-'+refCode.replace(/-/g, '');
+    }, 500);
+
+});
+
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
+    });
+
+    let isValid = true;
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+    // Manual validation
+    if (password === '') {
+        document.getElementById('passwordError').textContent = 'Password is required';
+        document.getElementById('passwordError').style.display = 'block';
+        isValid = false;
+    }
+
+    if (confirmPassword === '') {
+        document.getElementById('confirmPasswordError').textContent = 'Confirm Password is required';
+        document.getElementById('confirmPasswordError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Only validate complexity if password isn't empty
+    if (password !== '' && validatePassword(password).length > 0) {
+        document.getElementById('passwordError').textContent = 'Password requirements not met';
+        document.getElementById('passwordError').style.display = 'block';
+        isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+        document.getElementById('confirmPasswordError').style.display = 'block';
+        isValid = false;
+    }
+
+    if (isValid) {
+        // Submit the form
+        alert('Registration successful!');
+        // this.submit(); // Uncomment for real form submission
+    }
+});
+
+// Real-time password validation
+document.getElementById('password').addEventListener('input', function(e) {
+    const password = e.target.value;
+    const errors = validatePassword(password);
+
+    // Update visual indicators
+    document.getElementById('lengthRule').style.color =
+        errors.includes('length') ? '#e63946' : '#666666';
+    document.getElementById('upperRule').style.color =
+        errors.includes('upper') ? '#e63946' : '#666666';
+    document.getElementById('lowerRule').style.color =
+        errors.includes('lower') ? '#e63946' : '#666666';
+    document.getElementById('numberRule').style.color =
+        errors.includes('number') ? '#e63946' : '#666666';
+});
