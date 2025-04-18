@@ -1,17 +1,62 @@
-require('dotenv').config();
+const { Sequelize } = require('sequelize');
+const env = require('./config');
+const logger = require('./logger').getComponentLogger('database');
 
+// Initialize Sequel with secure options
+const sequelize = new Sequelize(env.dbName, env.dbUser, env.dbPassword, {
+    host: env.dbHost,
+    port: env.dbPort,
+    dialect: env.dbDialect,
+    logging: env.nodeEnv === 'development' ? logger.debug : false,
+
+    // Enhanced security for production
+    dialectOptions:{
+        ssl: env.nodeEnv === 'production' ? {
+            require: true,
+            rejectUnauthorized: true, // Validate SSL certificates
+        } : false,
+        // Prevent potential SQL injection vectors
+        options: {
+            encrypt: true,
+            trustServerCertificate: env.nodeEnv !== 'production',
+        }
+    },
+
+    // Connection pool configuration for reliability
+    pool:{
+        max: 10,                    // Maximum number of connections in pool
+        min: 0,                     // Minimum number of connections in pool
+        acquire: 30000,             // Maximum time to acquire a connection
+        idle: 10000,                // Maximum tine if connection can be idle
+        evict: 1000,                // Time between eviction rns for idle production
+        validateConnection: true    // Validate connections before use from pool
+    },
+
+    // Sequelize options for better security
+    define: {
+        // Use underscored naming for consistency
+        underscored: true,
+        // Don't delete records, mark them as deleted instead
+        paranoid: true,
+        // Add created_at and updated_at timestamps
+        timestamps: true,
+        // Lock the table definition to prevent accidents
+        freezeTableName: true,
+    }
+});
+
+// Test database connection function
+async function testConnection(){
+    try{
+        await sequelize.authenticate();
+        logger.info('Database connection has been established successfully.');
+        return true;
+    }catch(error){
+        console.error('Unable to connect to the database', error);
+        return false;
+    }
+}
 module.exports = {
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT || 5432,
-    max: process.env.DB_POOL_MAX || 20,
-    idleTimeoutMillis: process.env.DB_IDLE_TIMEOUT || 30000,
-    connectionTimeoutMillis: process.env.DB_CONN_TIMEOUT || 2000,
-    ssl: process.env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: true,
-        ca: Buffer.from(process.env.DB_CA_CERT, 'base64').toString('ascii')
-    } : false,
-    application_name: 'medical-app'
-};
+    sequelize,
+    testConnection
+}

@@ -7,90 +7,118 @@ const validatePassword = (password) => {
     if (!/\d/.test(password)) errors.push('number');
     return errors;
 };
+document.addEventListener('DOMContentLoaded', () => {
 
-document.getElementById('verifyRefCode').addEventListener('click', function() {
-    const refCode = document.getElementById('refCode').value.trim();
-    const errorElement = document.getElementById('refCodeError');
+    const togglePassword = document.getElementById('password-toggle')
+    const toggleConfirm = document.getElementById('confirm-toggle')
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
 
-    if (!/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(refCode)) {
-        errorElement.textContent = 'Invalid format. Use XXX-XXX-XXX format';
-        errorElement.style.display = 'block';
-        return;
+    if (togglePassword && passwordInput && confirmPasswordInput) {
+        togglePassword.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            const icon = document.querySelector('.password-icon');
+            if (icon) {
+                icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+            }
+        });
+        toggleConfirm.addEventListener('click', () => {
+            const isPassword = confirmPasswordInput.type === 'password';
+            confirmPasswordInput.type = isPassword ? 'text' : 'password';
+            const icon = document.querySelector('.confirm-icon');
+            if (icon) {
+                icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+            }
+        })
     }
 
-    // After successful verification
-    setTimeout(() => {
-        document.getElementById('refCodeSection').style.display = 'none';
-        const registrationFields = document.getElementById('registrationFields');
-        registrationFields.style.display = 'block';
+    document.getElementById('verifyRefCode').addEventListener('click', function() {
+        const refCode = document.getElementById('refCode').value.trim();
+        const errorElement = document.getElementById('refCodeError');
 
-        // Add required attributes dynamically
-        document.getElementById('password').required = true;
-        document.getElementById('confirmPassword').required = true;
+        if (!/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/i.test(refCode)) {
+            errorElement.textContent = 'Invalid format. Use XXX-XXX-XXX format';
+            errorElement.style.display = 'block';
+            return;
+        }
 
-        document.getElementById('username').value = 'EMP-'+refCode.replace(/-/g, '');
-    }, 500);
+        // After successful verification
+        setTimeout(() => {
+            document.getElementById('refCodeSection').style.display = 'none';
+            const registrationFields = document.getElementById('registrationFields');
+            registrationFields.style.display = 'block';
 
-});
+            // Add required attributes dynamically
+            document.getElementById('password').required = true;
+            document.getElementById('confirmPassword').required = true;
 
-document.getElementById('registrationForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+            document.getElementById('username').value = 'EMP-'+refCode.replace(/-/g, '');
+        }, 500);
 
-    // Clear previous errors
-    document.querySelectorAll('.error-message').forEach(el => {
-        el.style.display = 'none';
-        el.textContent = '';
     });
 
-    let isValid = true;
-    const password = document.getElementById('password').value.trim();
-    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    // Manual validation
-    if (password === '') {
-        document.getElementById('passwordError').textContent = 'Password is required';
-        document.getElementById('passwordError').style.display = 'block';
-        isValid = false;
-    }
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.style.display = 'none';
+            el.textContent = '';
+        });
 
-    if (confirmPassword === '') {
-        document.getElementById('confirmPasswordError').textContent = 'Confirm Password is required';
-        document.getElementById('confirmPasswordError').style.display = 'block';
-        isValid = false;
-    }
+        let isValid = true;
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
 
-    // Only validate complexity if password isn't empty
-    if (password !== '' && validatePassword(password).length > 0) {
-        document.getElementById('passwordError').textContent = 'Password requirements not met';
-        document.getElementById('passwordError').style.display = 'block';
-        isValid = false;
-    }
+        // Manual validation
+        if (password === '') {
+            document.getElementById('passwordError').textContent = 'Password is required';
+            document.getElementById('passwordError').style.display = 'block';
+            isValid = false;
+        }
 
-    if (password !== confirmPassword) {
-        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-        document.getElementById('confirmPasswordError').style.display = 'block';
-        isValid = false;
-    }
+        if (confirmPassword === '') {
+            document.getElementById('confirmPasswordError').textContent = 'Confirm Password is required';
+            document.getElementById('confirmPasswordError').style.display = 'block';
+            isValid = false;
+        }
 
-    if (isValid) {
-        // Submit the form
-        alert('Registration successful!');
-        // this.submit(); // Uncomment for real form submission
-    }
-});
+        // Only validate complexity if password isn't empty
+        if (password !== '' && validatePassword(password).length > 0) {
+            document.getElementById('passwordError').textContent = 'Password requirements not met';
+            document.getElementById('passwordError').style.display = 'block';
+            isValid = false;
+        }
+
+        if (password !== confirmPassword) {
+            document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+            document.getElementById('confirmPasswordError').style.display = 'block';
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Submit the form
+            alert('Registration successful!');
+            // this.submit(); // Uncomment for real form submission
+        }
+    });
 
 // Real-time password validation
-document.getElementById('password').addEventListener('input', function(e) {
-    const password = e.target.value;
-    const errors = validatePassword(password);
+    document.getElementById('password').addEventListener('input', function(e) {
+        const password = e.target.value;
+        const errors = validatePassword(password);
 
-    // Update visual indicators
-    document.getElementById('lengthRule').style.color =
-        errors.includes('length') ? '#e63946' : '#666666';
-    document.getElementById('upperRule').style.color =
-        errors.includes('upper') ? '#e63946' : '#666666';
-    document.getElementById('lowerRule').style.color =
-        errors.includes('lower') ? '#e63946' : '#666666';
-    document.getElementById('numberRule').style.color =
-        errors.includes('number') ? '#e63946' : '#666666';
-});
+        // Update visual indicators
+        document.getElementById('lengthRule').style.color =
+            errors.includes('length') ? '#e63946' : '#666666';
+        document.getElementById('upperRule').style.color =
+            errors.includes('upper') ? '#e63946' : '#666666';
+        document.getElementById('lowerRule').style.color =
+            errors.includes('lower') ? '#e63946' : '#666666';
+        document.getElementById('numberRule').style.color =
+            errors.includes('number') ? '#e63946' : '#666666';
+    });
+
+})

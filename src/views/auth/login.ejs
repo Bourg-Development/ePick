@@ -5,12 +5,13 @@
         <div class="divider"></div>
     </div>
 
-    <form class="auth-form animate-slide-up">
+    <form class="auth-form animate-slide-up" action="/api/auth/login" method="post">
         <div class="form-group">
             <label for="username">Username <span style="color: var(--blood-red);">*</span></label>
             <input
                     type="text"
                     id="username"
+                    name="username"
                     class="form-control"
                     placeholder="Enter your username"
             >
@@ -19,24 +20,32 @@
 
         <div class="form-group">
             <label for="password">Password <span style="color: var(--blood-red);">*</span> </label>
-            <input
-                    type="password"
-                    id="password"
-                    class="form-control"
-                    placeholder="Enter your password"
-            >
+            <div class="password-input-container">
+                <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Enter your password"
+                >
+                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <span class="material-symbols-outlined password-icon">
+                        visibility
+                    </span>
+                </button>
+            </div>
             <div class="error-message"></div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-signin">
             Sign
-            <span class="material-symbols-outlined">
+            <span class="material-symbols-outlined confirm-icon">
                 arrow_forward
             </span>
         </button>
     </form>
     <div style="text-align: center">
-        <a href="/forgot-password" class="forgot-password">
+        <a href="/auth/forgot-password" class="forgot-password">
             Forgot your password?
         </a>
     </div>
