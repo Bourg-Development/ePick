@@ -1,62 +1,42 @@
+// config/database.js
 const { Sequelize } = require('sequelize');
-const env = require('./config');
-const logger = require('./logger').getComponentLogger('database');
+const {
+    DB_HOST,
+    DB_PORT,
+    DB_NAME,
+    DB_USER,
+    DB_PASSWORD,
+    DB_SSL,
+    NODE_ENV
+} = require('./environment');
 
-// Initialize Sequel with secure options
-const sequelize = new Sequelize(env.dbName, env.dbUser, env.dbPassword, {
-    host: env.dbHost,
-    port: env.dbPort,
-    dialect: env.dbDialect,
-    logging: env.nodeEnv === 'development' ? logger.debug : false,
-
-    // Enhanced security for production
-    dialectOptions:{
-        ssl: env.nodeEnv === 'production' ? {
+// Configure database connection
+const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+    host: DB_HOST,
+    port: DB_PORT,
+    dialect: 'postgres',
+    logging: NODE_ENV === 'development' ? console.log : false,
+    dialectOptions: {
+        ssl: DB_SSL ? {
             require: true,
-            rejectUnauthorized: true, // Validate SSL certificates
-        } : false,
-        // Prevent potential SQL injection vectors
-        options: {
-            encrypt: true,
-            trustServerCertificate: env.nodeEnv !== 'production',
-        }
+            rejectUnauthorized: false
+        } : false
     },
-
-    // Connection pool configuration for reliability
-    pool:{
-        max: 10,                    // Maximum number of connections in pool
-        min: 0,                     // Minimum number of connections in pool
-        acquire: 30000,             // Maximum time to acquire a connection
-        idle: 10000,                // Maximum tine if connection can be idle
-        evict: 1000,                // Time between eviction rns for idle production
-        validateConnection: true    // Validate connections before use from pool
+    pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
     },
-
-    // Sequelize options for better security
     define: {
-        // Use underscored naming for consistency
         underscored: true,
-        // Don't delete records, mark them as deleted instead
-        paranoid: true,
-        // Add created_at and updated_at timestamps
         timestamps: true,
-        // Lock the table definition to prevent accidents
-        freezeTableName: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
     }
 });
 
-// Test database connection function
-async function testConnection(){
-    try{
-        await sequelize.authenticate();
-        logger.info('Database connection has been established successfully.');
-        return true;
-    }catch(error){
-        console.error('Unable to connect to the database', error);
-        return false;
-    }
-}
 module.exports = {
     sequelize,
-    testConnection
-}
+    Sequelize
+};

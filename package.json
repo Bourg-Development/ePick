@@ -1,39 +1,56 @@
 {
   "name": "medtrack",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/app.js",
   "scripts": {
-    "dev": "nodemon src/bin/www",
-    "start": "node src/bin/www"
+    "dev": "nodemon src/server.js",
+    "start": "node src/bin/www",
+    "migrate": "node src/db/migrations/run-migrations.js",
+    "create-admin": "node src/commands/create-admin.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@simplewebauthn/server": "^13.1.1",
+    "argon2": "^0.41.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "crypto-js": "^4.2.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
     "express-rate-limit": "^7.5.0",
     "express-validator": "^7.2.1",
     "fs": "^0.0.1-security",
+    "geoip-lite": "^1.4.10",
     "helmet": "^8.1.0",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.10.0",
+    "knex": "^3.1.0",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1",
     "pg": "^8.14.1",
+    "pg-hstore": "^2.3.4",
     "pi": "^2.0.5",
+    "qrcode": "^1.5.4",
+    "rate-limit-redis": "^4.2.0",
     "sequelize": "^6.37.7",
+    "speakeasy": "^2.0.0",
     "umzug": "^3.8.2",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "sequelize-cli": "^6.6.2"
   }
 }

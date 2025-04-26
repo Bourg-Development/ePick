@@ -9,13 +9,13 @@ const dotenv = require('dotenv'); // Import dotenv
 const app = require('../app'); // Assuming `app` is your Express app
 const http = require('http');
 const https = require('https');
-const Logger = require('../config/logger').getComponentLogger('server'); // Import Winston Logger
+const Logger = require('../utils/logger').getComponentLogger('server'); // Import Winston Logger
 console.log(1)
 
 /**
- * Load environment variables from .env file
+ * Load environment variables from db.env file
  */
-dotenv.config();  // Load variables from .env
+dotenv.config();  // Load variables from db.env
 
 /**
  * Get port from environment and store in Express.
@@ -50,6 +50,7 @@ if (useHttps) {
 /**
  * Event listener for HTTP/HTTPS server "listening" event.
  */
+Logger.info(port)
 server.on('listening', onListening);
 
 /**
