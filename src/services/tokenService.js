@@ -84,10 +84,17 @@ class TokenService {
                 throw new Error('Token has been revoked');
             }
 
+
+
             return decoded;
         } catch (error) {
             console.error(`Token verification error (${type}):`, error.message);
-            return null;
+
+            if(error.name === 'TokenExpireError'){
+                throw { code: 'TOKEN_EXPIRED', message: 'Token has expired', originalError: error };
+            }
+
+            throw { code: 'TOKEN_INVALID', message: 'Invalid token', originalError: error };
         }
     }
 
