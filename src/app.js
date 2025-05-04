@@ -13,6 +13,7 @@ const cookieParser = require('cookie-parser');
 
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const indexRoutes = require('./routes/indexRoutes');
 const restrictedRoutes = require('./routes/restrictedRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const logService = require('./services/logService');
@@ -20,11 +21,13 @@ const { NODE_ENV, CORS_ORIGIN } = require('./config/environment');
 
 const authMiddleware = require('./middleware/authentication');
 
+
 // Create Express app
 const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'))
+app.set('layout', 'layouts/public');
 
 // Request ID middleware
 app.use((req, res, next) => {
@@ -105,15 +108,11 @@ if (NODE_ENV !== 'test') {
         res.end = function() {
             // Calculate request duration
             const duration = Date.now() - startTime;
-
             // Log request if it's not a health check or static asset
-            if (!req.path.startsWith('/health') && !req.path.startsWith('/static')) {
-                // Only log non-OK responses or significant endpoints
+            if (!req.originalUrl.startsWith('/health') && !req.originalUrl.startsWith('/static')) {
                 if (res.statusCode >= 400 ||
-                    req.path.includes('/auth/') ||
-                    req.path.includes('/admin/')) {
-
-                    // Log the request
+                    req.originalUrl.includes('/auth/') ||
+                    req.originalUrl.includes('/admin/')) {
                     logService.auditLog({
                         eventType: 'http.request',
                         userId: req.auth?.userId || null,
@@ -121,7 +120,7 @@ if (NODE_ENV !== 'test') {
                         deviceFingerprint: req.get('X-Device-Fingerprint') || null,
                         metadata: {
                             method: req.method,
-                            path: req.path,
+                            path: req.originalUrl, // <- updated
                             statusCode: res.statusCode,
                             duration,
                             userAgent: req.headers['user-agent'] || 'unknown',
@@ -130,7 +129,6 @@ if (NODE_ENV !== 'test') {
                     }).catch(err => console.error('Request logging error:', err));
                 }
             }
-
             // Call original end function
             return originalEnd.apply(this, arguments);
         };
@@ -149,7 +147,7 @@ app.use(globalRateLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/restricted', restrictedRoutes);
-
+app.use('/', indexRoutes);
 
 
 // Health check endpoint
