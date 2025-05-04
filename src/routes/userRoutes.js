@@ -2,14 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const authenticate = require('../middleware/authentication');
+const authMiddleware = require('../middleware/authentication');
 const { apiRateLimit } = require('../middleware/rateLimit');
 const validation = require('../middleware/validation');
 
 /**
  * All user routes require authentication
  */
-router.use(authenticate);
+router.use(authMiddleware.authenticate);
 
 /**
  * User profile routes
