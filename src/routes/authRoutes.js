@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const authenticate = require('../middleware/authentication');
+const authMiddleware = require('../middleware/authentication');
 const { authRateLimit } = require('../middleware/rateLimit');
 const validation = require('../middleware/validation');
 
@@ -64,45 +64,45 @@ router.post('/auth-methods',
 
 // Logout
 router.post('/logout',
-    authenticate,
+    authMiddleware.authenticate,
     authController.logout
 );
 
 // Change password
 router.post('/change-password',
-    authenticate,
+    authMiddleware.authenticate,
     validation.validatePasswordChange,
     authController.changePassword
 );
 
 // Setup TOTP for 2FA
 router.post('/setup-totp',
-    authenticate,
+    authMiddleware.authenticate,
     authController.setupTOTP
 );
 
 // Enable TOTP after verification
 router.post('/enable-totp',
-    authenticate,
+    authMiddleware.authenticate,
     validation.validateTOTP,
     authController.enableTOTP
 );
 
 // Check authentication status
 router.get('/status',
-    authenticate,
+    authMiddleware.authenticate,
     authController.checkAuthStatus
 );
 
 // WebAuthn registration - step 1: get options
 router.post('/webauthn-register-options',
-    authenticate,
+    authMiddleware.authenticate,
     authController.requestWebAuthnRegistration
 );
 
 // WebAuthn registration - step 2: verify and save credential
 router.post('/webauthn-register-complete',
-    authenticate,
+    authMiddleware.authenticate,
     validation.validateWebAuthnRegistration,
     authController.completeWebAuthnRegistration
 );
