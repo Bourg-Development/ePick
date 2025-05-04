@@ -7,7 +7,6 @@
     flex-direction: column;
     justify-content: space-between;
     position: fixed;
-    top: 70px;
     left: 0;
     z-index: 99;
 }
@@ -60,7 +59,7 @@
     text-align: center;
 }
 
-.sidebar-menu li a .badge {
+.sidebar-menu li a .count-badge {
     margin-left: auto;
     background-color: var(--blood-red);
     color: white;
@@ -135,7 +134,7 @@
     font-size: 22.5px;
 }
 
-.sidebar.collapsed .badge {
+.sidebar.collapsed .count-badge {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -159,4 +158,18 @@
     right: 5px;
     padding: 2px 5px;
     font-size: 8px;
+}
+
+/* Content area adjustment when sidebar is collapsed */
+.sidebar.collapsed + .content,
+.sidebar.collapsed ~ .content {
+    margin-left: 70px; /* Match collapsed sidebar width */
+    width: calc(100% - 70px);
+}
+/* Optional: For better mobile responsiveness */
+@media (max-width: 768px) {
+    .sidebar.collapsed + .content,
+    .sidebar.collapsed ~ .content {
+        margin-left: 70px;
+    }
 }
