@@ -14,11 +14,11 @@ const authenticate = async (req, res, next) => {
         const token = req.cookies.accessToken; // or similar code to extract the token
 
         if (!token) {
-            console.log(22)
-            return res.status(401).json({
-                success: false,
-                message: 'Authentication required'
-            });
+            return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
+            // return res.status(401).json({
+            //     success: false,
+            //    message: 'Authentication required'
+            // });
         }
 
         // Verify token
@@ -30,6 +30,8 @@ const authenticate = async (req, res, next) => {
                 message: 'Invalid credentials'
             });
         }
+
+
 
         // Extract device fingerprint
         const deviceFingerprint = deviceFingerprintUtil.getFingerprint(req);
@@ -73,12 +75,8 @@ const authenticate = async (req, res, next) => {
             });
         }
 
-        // Update session last activity
-        session.last_activity = new Date();
-        await session.save();
-
-        // Set auth info in request
-        req.auth = {
+        // Store auth info temporarily
+        const authInfo = {
             userId: decoded.userId,
             username: decoded.username,
             role: decoded.role,
@@ -86,6 +84,36 @@ const authenticate = async (req, res, next) => {
             tokenId: decoded.id,
             sessionId: session.id
         };
+
+        // Perform token rotation immediately
+        let newToken;
+        try {
+            newToken = await tokenService.rotateAccessToken(token, { req });
+
+            // Set the new token in a cookie
+            res.cookie('accessToken', newToken.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: newToken.expiresIn * 1000,
+                path: '/'
+            });
+
+            // Update auth info with new token ID
+            authInfo.tokenId = newToken.id;
+
+        } catch (error) {
+
+            if(error.code === 'TOKEN_EXPIRED'){
+                //TODO add validation plus advanced error handling e.g. just invalid token
+
+                return res.redirect('/api/auth/refresh-token')
+            }
+
+            console.error('Token rotation failed:', error);
+        }
+
+        req.auth = authInfo;
 
         return next();
     } catch (error) {
@@ -97,4 +125,25 @@ const authenticate = async (req, res, next) => {
     }
 };
 
-module.exports = authenticate;
+const nonAuth = async (req, res, next) => {
+    const token = req.cookies.accessToken; // or similar code to extract the token
+    if(!token) return next();
+
+    const decoded = await tokenService.verifyToken(token, 'access');
+
+    if (!decoded) return next();
+
+    // Verify session is still valid
+    const session = await db.Session.findOne({
+        where: {
+            token_id: decoded.id,
+            user_id: decoded.userId,
+            is_valid: true
+        }
+    });
+
+    if (!session) return next();
+    return res.redirect('/restricted/dashboard');
+}
+
+module.exports = { authenticate, nonAuth};
