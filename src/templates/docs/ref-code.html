@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePick User Information</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+            background-color: #ffffff;
+            line-height: 1.3;
+            /* A4 size constraints */
+            width: 21cm;
+            height: 29.7cm;
+            margin: 0 auto;
+            overflow: hidden; /* Prevent content from flowing to a second page */
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            height: 100%;
+            padding: 30px 25px;
+            position: relative;
+        }
+
+        /* Letterhead */
+        .letterhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .letterhead-left {
+            text-align: left;
+        }
+
+        .letterhead-right {
+            text-align: right;
+            font-size: 11px;
+            color: #666666;
+            line-height: 1.2;
+        }
+
+        /* Content */
+        .content {
+            margin-bottom: 15px;
+        }
+
+        .salutation {
+            margin-bottom: 15px;
+            font-weight: normal;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .subject {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 1px solid #e6e6e6;
+            padding-bottom: 6px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333333;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 15px;
+            color: #333333;
+        }
+
+        p {
+            margin-bottom: 10px;
+            text-align: justify;
+            font-size: 13px;
+        }
+
+        .info-box {
+            background-color: #f9f9f9;
+            border: 1px solid #e6e6e6;
+            border-radius: 0;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .info-item {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #ffffff;
+            padding: 10px 15px;
+            border: 1px solid #333333;
+            display: inline-block;
+            min-width: 180px;
+            letter-spacing: 1px;
+        }
+
+        .text-link {
+            color: #333333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            border: 1px solid #e63946;
+            color: #e63946;
+            padding: 10px;
+            margin: 15px 0;
+            text-align: left;
+            background-color: #ffffff;
+            font-size: 12px;
+        }
+
+        /* Security Notice */
+        .security-notice {
+            border: 2px solid #c1121f;
+            padding: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #c1121f;
+            background-color: #ffffff;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        .footer {
+            padding-top: 8px;
+            border-top: 1px solid #e6e6e6;
+            text-align: center;
+            font-size: 9px;
+            color: #666666;
+            position: absolute;
+            bottom: 30px;
+            left: 25px;
+            right: 25px;
+        }
+
+        .footer p {
+            margin-bottom: 3px;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .signature {
+            margin: 15px 0;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .signature-title {
+            font-style: italic;
+            color: #666666;
+            font-size: 11px;
+        }
+
+        /* Logo SVG */
+        .svg-logo {
+            width: 135px;
+            height: 65px;
+        }
+
+        /* QR Code Placeholder */
+        .qr-code {
+            width: 110px;
+            height: 110px;
+            background-color: #ffffff;
+            border: 1px solid #333;
+            margin: 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #666;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .container {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="letterhead">
+        <div class="letterhead-left">
+            <svg class="svg-logo" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background - Changed to white -->
+                <rect width="400" height="200" fill="#ffffff"/>
+
+                <!-- Primary Logo -->
+                <g transform="translate(200, 100)">
+                    <!-- Text elements - adjusted for proper horizontal and vertical centering -->
+                    <g transform="translate(-55, 5) scale(0.7)">
+                        <text x="-120" y="0" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#333">e</text>
+                        <text x="15" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">P</text>
+
+                        <!-- i-stem -->
+                        <rect x="95" y="-60" width="18" height="60" fill="#e63946" rx="2" ry="2"/>
+
+                        <!-- Rest of "ck" -->
+                        <text x="125" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">ck</text>
+
+                        <!-- Blood drop -->
+                        <path d="M105,-110 C110,-99 114,-89 116,-80
+                                    C118,-70 112,-63 105,-63
+                                    C98,-63 92,-70 94,-80
+                                    C96,-89 100,-99 105,-110Z"
+                              fill="#c1121f" />
+
+                        <!-- Highlight -->
+                        <path d="M100,-95 C102,-90 105,-87 108,-89"
+                              fill="none"
+                              stroke="white"
+                              stroke-width="3"
+                              stroke-opacity="0.7"
+                              stroke-linecap="round" />
+
+                        <!-- Underline -->
+                        <line x1="-120" y1="30" x2="230" y2="30" stroke="#333" stroke-width="8" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+        <div class="letterhead-right">
+            <p>ePick</p>
+            <p>Fondation J.P. Pescatore</p>
+            <p>info@bourg.dev</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="salutation">
+            <p>Date: <span class="currentDate">{{currentDate}}</span></p>
+            <p>Document ID: <span id="documentId">{{documentId}}</span></p>
+        </div>
+
+        <div class="subject">CONFIDENTIAL: Your ePick Reference Information</div>
+
+        <p>Dear Valued Customer,</p>
+
+        <p>Thank you for choosing ePick for your services. We are pleased to provide you with your unique reference code as detailed below. This code is required to finalize your account creation process.</p>
+
+        <div class="info-box">
+            <div class="info-item">
+                <div class="info-label">Reference Code:</div>
+                <div class="info-value" id="referenceCodeDisplay">{{referenceCode}}</div>
+            </div>
+        </div>
+
+        <p>This reference code will be <strong>immediately invalidated</strong> after you use it to complete your account setup. Please proceed to our secure portal at <strong>epick.fondation.lu</strong> to finalize your account creation using this one-time code.</p>
+
+        <div class="alert-box">
+            <strong>IMPORTANT:</strong> This reference code is for one-time use only and provides temporary access to your account. For security purposes, this code will be invalidated immediately after use.
+        </div>
+
+        <h2>Complete Your Account Setup</h2>
+        <p>To finalize your ePick account creation, please visit our secure portal at <strong>epick.fondation.lu</strong> and enter your reference code when prompted. Alternatively, you may scan the QR code below for quick access.</p>
+
+        <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+            <h2>Secure Access QR Code</h2>
+            <div class="qr-code" id="qrCodeContainer">QR Code for {{referenceCode}}</div>
+            <p style="font-size: 12px; margin-top: 5px;">Scan to access account setup</p>
+        </div>
+
+        <p>If you have any questions or require assistance, please contact our support team at info@bourg.dev.</p>
+
+        <div class="signature">
+            <p>Sincerely,</p>
+            <p class="signature-name">{{user_name}}</p>
+            <p class="signature-title">{{user_role}}</p>
+        </div>
+
+        <div class="security-notice">
+            THIS DOCUMENT CONTAINS CONFIDENTIAL INFORMATION AND MUST BE SECURELY DESTROYED AFTER USE.
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2025 Fondation J.P. Pescatore. All rights reserved.</p>
+        <p>This document was generated on <span class="currentDate">{{currentDate}}</span> | Document ID: {{documentId}}</p>
+    </div>
+</div>
+
+<script>
+    // Function to generate QR code and fill it in.
+    function genQrCode(refCode){
+        document.getElementById('qrCodeContainer').textContent = '';
+
+        let qrcode = new QRCode('qrCodeContainer', {
+            text: `https://epick.fondation.lu/auth/register?refCode=${refCode}`,
+            width: 110,
+            height: 110,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        })
+
+    }
+
+    window.onload = function() {
+        genQrCode('{{referenceCode}}');
+    };
+</script>
+</body>
+</html>
