@@ -20,7 +20,6 @@ class AuthController {
      */
     async login(req, res) {
         try {
-            console.log(req.body)
             // Validate request
             const { username, password } = req.body;
 
