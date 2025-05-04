@@ -9,14 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Collapse by default on mobile
     if (isMobile) {
         sidebar.classList.add('collapsed');
-        content.classList.remove('expanded');
+        sidebarToggle.classList.add('rotated');
+        // We're not toggling 'expanded' class anymore
     }
 
     if (sidebarToggle && sidebar) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
             sidebarToggle.classList.toggle('rotated');
-            content.classList.toggle('expanded');
+            // Removed toggling of 'expanded' class as we're using CSS selectors now
         });
     }
 });
