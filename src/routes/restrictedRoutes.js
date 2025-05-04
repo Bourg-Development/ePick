@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/authentication');
+const authMiddleware = require('../middleware/authentication');
 
-router.use(auth);
+router.use(authMiddleware.authenticate);
 
-router.get('/', (req, res) => {
-    res.render('dashboard/home', { layout: 'layouts/restricted.ejs', title: 'test' });
+router.get('/dashboard', (req, res) => {
+    res.render('dashboard/home', { layout: 'layouts/restricted.ejs', title: 'test', styles: [ '/pages/restricted/dashboard/home.css' ] });
 })
 
 
