@@ -55,6 +55,7 @@ p, span, a, li, label, input, button, select, textarea {
 }
 .list-dashed li::before {
     content: "– "; /* en dash */
+    color: var(--blood-red);
     position: absolute;
     margin-left: -1em;
 }
@@ -142,7 +143,77 @@ a:focus {
     box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
 }
 
+.table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.03);
+}
+
+thead {
+    background-color: var(--blood-red);
+    color: white;
+}
+
+th {
+    text-align: left;
+    padding: 16px;
+    font-weight: 500;
+}
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:nth-child(even) {
+    background-color: var(--off-white);
+}
+
+tbody tr:hover {
+    background-color: var(--light-gray);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background-color: #e6f7ee;
+    color: #27ae60;
+}
+
+.status-badge.pending {
+    background-color: #fff5e6;
+    color: #f39c12;
+}
+
+.status-badge.failed {
+    background-color: #ffeded;
+    color: var(--dark-red);
+}
+
 /* Utility Classes */
 .text-center { text-align: center; }
 .mt-1 { margin-top: 10px; }
 .mt-2 { margin-top: 20px; }
+
+@media (max-width: 768px) {
+    th, td {
+        padding: 12px;
+    }
+}
