@@ -37,6 +37,7 @@ module.exports = {
 
     // Email config
     EMAIL_FROM: process.env.EMAIL_FROM || 'security@example.com',
+    REPLY_TO: process.env.REPLY_TO || 'info@example.com',
     EMAIL_HOST: process.env.EMAIL_HOST || 'smtp.example.com',
     EMAIL_PORT: parseInt(process.env.EMAIL_PORT || '587'),
     EMAIL_USER: process.env.EMAIL_USER || '',
