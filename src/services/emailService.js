@@ -2,6 +2,7 @@
 const nodemailer = require('nodemailer');
 const {
     EMAIL_FROM,
+    REPLY_TO,
     EMAIL_HOST,
     EMAIL_PORT,
     EMAIL_USER,
@@ -9,6 +10,9 @@ const {
     EMAIL_SECURE,
     NODE_ENV
 } = require('../config/environment');
+const path = require("node:path");
+const fs = require('fs');
+const handlebars = require('handlebars');
 
 /**
  * Service for handling email communications
@@ -198,12 +202,12 @@ class EmailService {
             const { email, alertType, eventDetails } = data;
 
             // Generate appropriate subject and content based on alert type
-            let subject, content;
+            let subject, html;
 
             switch (alertType) {
                 case 'suspicious_login':
                     subject = 'Security Alert: Suspicious Login Detected';
-                    content = `
+                    html = `
             <h2>Suspicious Login Detected</h2>
             <p>We detected a login attempt to your account from an unusual location or device.</p>
             <p><strong>Details:</strong></p>
@@ -219,7 +223,7 @@ class EmailService {
 
                 case 'password_changed':
                     subject = 'Security Alert: Password Changed';
-                    content = `
+                    html = `
             <h2>Password Changed</h2>
             <p>The password for your account was recently changed.</p>
             <p><strong>Details:</strong></p>
@@ -232,22 +236,13 @@ class EmailService {
                     break;
 
                 case 'account_locked':
-                    subject = 'Security Alert: Account Locked';
-                    content = `
-            <h2>Account Locked</h2>
-            <p>Your account has been locked due to ${eventDetails.reason || 'security concerns'}.</p>
-            <p><strong>Details:</strong></p>
-            <ul>
-              <li>Time: ${new Date(eventDetails.timestamp).toLocaleString()}</li>
-              <li>Reason: ${eventDetails.reason || 'Multiple failed login attempts'}</li>
-            </ul>
-            <p>Please contact your administrator to unlock your account.</p>
-          `;
+                    subject = `Account ${eventDetails.user_id} locked due to security reasons.`;
+                    html = this._loadEmailTemplate('locked')(eventDetails);
                     break;
 
                 default:
                     subject = 'Security Alert';
-                    content = `
+                    html = `
             <h2>Security Alert</h2>
             <p>A security event was detected related to your account.</p>
             <p>If you have any concerns, please contact your administrator.</p>
@@ -258,16 +253,11 @@ class EmailService {
             const mailOptions = {
                 from: EMAIL_FROM,
                 to: email,
+                replyTo: REPLY_TO,
                 subject,
-                html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            ${content}
-            <p style="color: #666; font-size: 12px; margin-top: 30px;">
-              This is an automated security alert. Please do not reply to this email.
-            </p>
-          </div>
-        `
+                html: html
             };
+            console.log(html)
 
             // Skip actual sending in test mode
             if (NODE_ENV === 'test') {
@@ -287,6 +277,11 @@ class EmailService {
             console.error('Send security alert email error:', error);
             return false;
         }
+    }
+    _loadEmailTemplate(name){
+        const templatePath = path.join('./src/templates/emails', `${name}.html`);
+        const templateSource = fs.readFileSync(templatePath, 'utf-8');
+        return handlebars.compile(templateSource);
     }
 }
 
