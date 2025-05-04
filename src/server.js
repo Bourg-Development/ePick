@@ -3,6 +3,7 @@ const http = require('http');
 const app = require('./app');
 const db = require('./db');
 const { PORT } = require('./config/environment');
+const emailService = require('./services/emailService')
 
 // Get port from environment or default to 3000
 const port = PORT || 3000;
@@ -50,8 +51,10 @@ const startServer = async () => {
         await db.sequelize.authenticate();
         console.log('Database connection established successfully.');
 
+
+
         // Start the server
-        server.listen(port);
+        server.listen(port, '0.0.0.0');
         server.on('error', onError);
         server.on('listening', onListening);
 
