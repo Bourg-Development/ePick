@@ -1,0 +1,155 @@
+<div class="header">
+    <h1>Blood Analysis Management</h1>
+    <div>
+        <button class="btn btn-primary" id="addNewBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px; margin-top: 5px; vertical-align: middle">
+                add
+            </span>
+            Add New Analysis
+        </button>
+        <button class="btn btn-secondary" id="printBtn">
+            <span class="material-symbols-outlined" style="font-size: 25px; margin-top: 5px; vertical-align: middle">
+                print
+            </span>
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search analyses...">
+        <div class="search-suggestions" id="main-search__searchSuggestions"></div>
+    </div>
+    <select class="filter-select" id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="pending">Pending</option>
+        <option value="delayed">Delayed</option>
+        <option value="completed">Completed</option>
+    </select>
+    <select class="filter-select" id="typeFilter">
+        <option value="">All Types</option>
+        <option value="XY">XY</option>
+        <option value="YZ">YZ</option>
+        <option value="ZG">ZG</option>
+        <option value="HG">HG</option>
+    </select>
+</div>
+
+<div class="table-wrapper">
+    <table id="analysisTable">
+        <thead>
+        <tr>
+            <th data-sort="date">
+                Date
+                <span class="material-symbols-outlined">
+                    arrow_downward
+                </span>
+            </th>
+            <th data-sort="name">
+                Patient Name
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="doctor">
+                Doctor
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="room">
+                Room
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Table rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer" id="recordCount">
+    Showing 0 analyses
+</div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add New Analysis</h2>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="analysisForm">
+            <label class="form-label" for="analysisDate">Date</label>
+            <input type="date" class="form-control" id="analysisDate" required>
+
+            <div class="search-box">
+                <label class="form-label" for="patientName">Patient Name</label>
+                <input type="text" class="form-control" id="patientName" required>
+                <div class="search-suggestions" id="add-form-patient__searchSuggestions"></div>
+            </div>
+
+            <label class="form-label" for="patientRoom">Room</label>
+            <input type="text" class="form-control" id="patientRoom" required>
+
+            <div class="search-box">
+                <label class="form-label" for="doctor">Doctor</label>
+                <input type="text" class="form-control" id="doctor" required>
+                <div class="search-suggestions" id="add-form-doctors__searchSuggestions"></div>
+            </div>
+
+            <label class="form-label" for="analysisStatus">Status</label>
+            <select class="form-control" id="analysisStatus">
+                <option value="pending">Pending</option>
+                <option value="delayed">Delayed</option>
+                <option value="completed">Completed</option>
+            </select>
+
+            <label class="form-label" for="analysisType">Type</label>
+            <select class="form-control" id="analysisType">
+                <option value="XY">XY</option>
+                <option value="YZ">YZ</option>
+                <option value="ZG">ZG</option>
+                <option value="HG">HG</option>
+            </select>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Confirm Action</h2>
+            <button class="modal-close" id="closeConfirmBtn">&times;</button>
+        </div>
+        <p id="confirmMessage" style="margin-bottom: 20px;">Are you sure you want to delete this analysis?</p>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
