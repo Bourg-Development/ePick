@@ -21,14 +21,18 @@ const authenticate = async (req, res, next) => {
             // });
         }
 
-        // Verify token
-        const decoded = await tokenService.verifyToken(token, 'access');
+        let decoded;
 
-        if (!decoded) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
+        try{
+            decoded = await tokenService.verifyToken(token, 'access');
+        }catch (e) {
+            if(e.code === 'TOKEN_EXPIRED') {
+                console.log(1)
+                //TODO add validation plus advanced error handling e.g. just invalid token
+                return res.redirect('/api/auth/refresh-token')
+            }
+            console.log(e.originalError)
+            return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
         }
 
 
@@ -103,13 +107,6 @@ const authenticate = async (req, res, next) => {
             authInfo.tokenId = newToken.id;
 
         } catch (error) {
-
-            if(error.code === 'TOKEN_EXPIRED'){
-                //TODO add validation plus advanced error handling e.g. just invalid token
-
-                return res.redirect('/api/auth/refresh-token')
-            }
-
             console.error('Token rotation failed:', error);
         }
 
@@ -128,10 +125,14 @@ const authenticate = async (req, res, next) => {
 const nonAuth = async (req, res, next) => {
     const token = req.cookies.accessToken; // or similar code to extract the token
     if(!token) return next();
+    let decoded;
+    try{
+        decoded = await tokenService.verifyToken(token, 'access');
 
-    const decoded = await tokenService.verifyToken(token, 'access');
+    }catch (e) {
+        return next()
+    }
 
-    if (!decoded) return next();
 
     // Verify session is still valid
     const session = await db.Session.findOne({
