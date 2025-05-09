@@ -4,16 +4,16 @@
             <h3>MAIN MENU</h3>
         </div>
         <ul>
-            <li class="active">
-                <a href="#">
+            <li class="<%- path.endsWith('/dashboard') || path.endsWith('/dashboard/') ? 'active' : null %>">
+                <a href="/restricted/dashboard">
                     <span class="material-symbols-outlined">
                         dashboard
                     </span>
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li class="<%- path.includes('/analyses') ? 'active' : null %>">
+                <a href="/restricted/dashboard/analyses">
                     <span class="material-symbols-outlined">
                         monitoring
                     </span>
@@ -21,7 +21,7 @@
                     <span class="menu-badge">6</span>
                 </a>
             </li>
-            <li>
+            <li class="<%- path.includes('/archive') ? 'active' : null %>">
                 <a href="#">
                     <span class="material-symbols-outlined">
                         orders
@@ -29,7 +29,7 @@
                     <span>Archiv</span>
                 </a>
             </li>
-            <li>
+            <li class="<%- path.includes('/users') ? 'active' : null %>">
                 <a href="#">
                     <span class="material-symbols-outlined">
                         groups
@@ -37,7 +37,7 @@
                     <span>Users</span>
                 </a>
             </li>
-            <li>
+            <li class="<%- path.includes('/organization') ? 'active' : null %>">
                 <a href="#">
                     <span class="material-symbols-outlined">
                         storefront
@@ -45,7 +45,7 @@
                     <span>Company Settings </span>
                 </a>
             </li>
-            <li>
+            <li class="<%- path.startsWith('/settings') ? 'active' : null %>">
                 <a href="#">
                     <span class="material-symbols-outlined">
                         settings
