@@ -66,7 +66,7 @@ class AuthController {
                 httpOnly: true,
                 secure: envConfig.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: result.expiresIn * 1000,
+                maxAge: envConfig.ACCESS_TOKEN_COOKIE_EXPIRY * 1000,
             });
 
             res.cookie('refreshToken', result.refreshToken, {
