@@ -36,6 +36,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// Pass current URL path to frontend
+app.use((req, res, next) => {
+    res.locals.path = req.originalUrl;
+    next();
+})
+
 // Security headers
 app.use(helmet());
 
