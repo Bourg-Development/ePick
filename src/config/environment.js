@@ -24,6 +24,7 @@ module.exports = {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || 'change-me-in-production-access',
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || 'change-me-in-production-refresh',
     ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY || '15m',
+    ACCESS_TOKEN_COOKIE_EXPIRY: process.env.ACCESS_TOKEN_COOKIE_EXPIRY ||'86400',
     REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY || '7d',
 
     // Security config
