@@ -111,6 +111,21 @@ a:focus {
     box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
 }
 
+
+
+.btn-secondary {
+    background-color: white;
+    color: var(--blood-red);
+    border: 1px solid var(--blood-red);
+}
+
+.btn-secondary:hover{
+    background: var(--dark-red);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+    color: white;
+}
+
 /* Forms */
 .form-container {
     max-width: 400px;
@@ -152,8 +167,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     border-radius: 6px;
-    overflow: hidden;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.03);
+    overflow: visible !important;
 }
 
 thead {
@@ -182,6 +197,12 @@ tr:nth-child(even) {
 
 tbody tr:hover {
     background-color: var(--light-gray);
+}
+th .material-symbols-outlined{
+    font-size: 16px;
+}
+th[data-sort]{
+    cursor: pointer;
 }
 
 .status-badge {
