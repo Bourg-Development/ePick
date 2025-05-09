@@ -9,6 +9,18 @@ const validatePassword = (password) => {
 };
 document.addEventListener('DOMContentLoaded', () => {
 
+    const refCode = getQueryParam('refCode');
+    if(refCode){
+        const formattedCode = formatRefCode(refCode);
+        const input = document.getElementById('refCode');
+        if(input){
+            input.value = formattedCode;
+            setTimeout(() => {
+                document.getElementById('verifyRefCode').click();
+            }, 100)
+        }
+    }
+
     const togglePassword = document.getElementById('password-toggle')
     const toggleConfirm = document.getElementById('confirm-toggle')
     const passwordInput = document.getElementById('password');
@@ -120,5 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('numberRule').style.color =
             errors.includes('number') ? '#e63946' : '#666666';
     });
+
+    function getQueryParam(param){
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function formatRefCode(code) {
+        return code.replace(/\D/g, '') // remove non-digits just in case
+            .replace(/(.{3})/g, '$1-') // insert dash every 3 digits
+            .replace(/-$/, ''); // remove trailing dash
+    }
+
 
 })
