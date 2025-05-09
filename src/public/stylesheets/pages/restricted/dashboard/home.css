@@ -1,24 +1,3 @@
-/* ======== General styling ======== */
-
-/* Main Container - Holds Sidebar and Content */
-.main-container {
-    display: flex;
-    min-height: calc(100vh - 70px);
-    width: 100%;
-    position: relative;
-}
-
-/* Content Area - Main Content Section */
-.content {
-    flex: 1;
-    padding: 20px;
-    margin-left: 250px; /* Match sidebar width */
-    width: calc(100% - 250px);
-    transition: margin-left 0.3s ease, width 0.3s ease;
-    min-height: calc(100vh - 70px);
-    background-color: #f4f6f9;
-}
-
 /* ======== Dashboard Layout ======== */
 .dashboard-container {
     width: 100%;
