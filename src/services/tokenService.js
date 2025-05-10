@@ -88,9 +88,7 @@ class TokenService {
 
             return decoded;
         } catch (error) {
-            console.error(`Token verification error (${type}):`, error.message);
-
-            if(error.name === 'TokenExpireError'){
+            if(error.name === 'TokenExpiredError'){
                 throw { code: 'TOKEN_EXPIRED', message: 'Token has expired', originalError: error };
             }
 
