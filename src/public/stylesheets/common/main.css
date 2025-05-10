@@ -95,8 +95,17 @@ a:focus {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-block;
+    display: inline-block; /* Keep this for inline layout */
     text-align: center;
+    height: 48px;
+    vertical-align: top; /* Align buttons at the top */
+}
+
+/* Center the content inside the button */
+.btn {
+    display: inline-flex; /* This keeps them inline but allows flex centering */
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-primary {
