@@ -10,7 +10,6 @@ const path = require("node:path");
 const expressLayouts = require('express-ejs-layouts')
 const cookieParser = require('cookie-parser');
 
-
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const indexRoutes = require('./routes/indexRoutes');
@@ -43,7 +42,9 @@ app.use((req, res, next) => {
 })
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: NODE_ENV !== 'development'
+}));
 
 // CORS configuration
 const corsOptions = {
