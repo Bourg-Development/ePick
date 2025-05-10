@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
-    const content = document.querySelector('.content');
 
     // Check if mobile device
     const isMobile = window.matchMedia("(max-width: 991px)").matches;

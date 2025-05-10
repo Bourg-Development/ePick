@@ -131,7 +131,7 @@
 .sidebar.collapsed li a .material-symbols-outlined {
     display: block;
     margin-right: 0;
-    font-size: 22.5px;
+    font-size: 22px;
 }
 
 .sidebar.collapsed .count-badge {
