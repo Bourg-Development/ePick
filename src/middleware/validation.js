@@ -108,7 +108,7 @@ const validation = {
      * Validate refresh token
      */
     validateRefreshToken(req, res, next) {
-        const { refreshToken } = req.body;
+        const refreshToken  = req.cookies.refreshToken;
 
         if (!refreshToken) {
             return res.status(400).json({
