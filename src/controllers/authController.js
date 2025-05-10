@@ -77,17 +77,8 @@ class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            // Success - send tokens
-            return res.status(200).json({
-                success: true,
-                userId: result.userId,
-                username: result.username,
-                role: result.role,
-                permissions: result.permissions,
-                accessToken: result.accessToken,
-                refreshToken: result.refreshToken,
-                expiresIn: result.expiresIn
-            });
+            // Success - redirect to dashboard
+            return res.status(200).redirect('/restricted/dashboard');
         } catch (error) {
             console.error('Login error:', error);
             return res.status(500).json({
@@ -212,7 +203,15 @@ class AuthController {
             // Process logout
             const result = await authService.logout(tokenId, userId, context);
 
-            return res.status(result.success ? 200 : 400).json(result);
+            // Clear auth Cookies
+            res.clearCookie('refreshToken');
+            res.clearCookie('accessToken');
+
+            if(result.success){
+                return res.status(200).redirect('/');
+            }
+            return res.status(400).json(result);
+
         } catch (error) {
             console.error('Logout error:', error);
             return res.status(500).json({
