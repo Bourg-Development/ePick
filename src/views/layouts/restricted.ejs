@@ -30,9 +30,10 @@
     </main>
 </div>
 
-<script src="/static/scripts/common/main.js"></script>
-<script src="/static/scripts/common/sidebar.js"></script>
-<script src="/static/scripts/common/restricted/main.js"></script>
+<script src="/static/scripts/common/main.js" defer></script>
+<script src="/static/scripts/common/restricted/sidebar.js" defer></script>
+<script src="/static/scripts/common/restricted/navbar.js" defer></script>
+<script src="/static/scripts/common/restricted/main.js" defer></script>
 
 <% if (typeof scripts !== 'undefined') { %>
     <% scripts.forEach(script => { %>
