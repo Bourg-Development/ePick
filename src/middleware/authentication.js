@@ -16,12 +16,7 @@ const authenticate = async (req, res, next) => {
         // Extract token from headers
         const token = req.cookies.accessToken; // or similar code to extract the token
         if (!token) {
-            console.log(44)
-            return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
-            // return res.status(401).json({
-            //     success: false,
-            //    message: 'Authentication required'
-            // });
+            return res.status(401).redirect('/auth/login')
         }
 
         let decoded;
