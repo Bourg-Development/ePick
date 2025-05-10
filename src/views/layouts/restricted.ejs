@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/stylesheets/common/restricted/sidebar.css">
     <link rel="stylesheet" href="/static/stylesheets/common/restricted/navbar.css">
     <link rel="stylesheet" href="/static/stylesheets/common/restricted/main.css">
-<% if (typeof styles !== 'undefined') { %>
+    <% if (typeof styles !== 'undefined') { %>
         <% styles.forEach(style => { %>
             <link rel="stylesheet" href="/static/stylesheets/<%= style %>">
         <% }); %>
@@ -39,5 +39,6 @@
     <% scripts.forEach(script => { %>
         <script src="/static/scripts/<%= script %>"></script>
     <% }); %>
-<% } %></body>
+<% } %>
+</body>
 </html>
