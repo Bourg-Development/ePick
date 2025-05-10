@@ -14,7 +14,7 @@
 /* Banner Container */
 .footer-banner-container {
     width: 100%;
-    height: 150px; /* Set your desired fixed height */
+    height: 180px; /* Set your desired fixed height */
     overflow: hidden;
     position: relative;
 }
@@ -71,7 +71,7 @@
 
 /* Footer Content Container */
 .footer-content-container {
-    background-color: var(--light-gray);
+    background-color: var(--off-white);
     padding: 40px 0;
 }
 
