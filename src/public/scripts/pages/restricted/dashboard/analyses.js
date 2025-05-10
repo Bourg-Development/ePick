@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function showDefaultSuggestions(e) {
         const id = e.currentTarget.id
-        if(searchInput.value.length > 0) return handleSearchInput(e)
+        if(e.target.value.length > 0) return handleSearchInput(e)
         if(id.includes('doctor')){
             if (doctorNames.length > 0){
                 showSuggestions(doctorNames.slice(0, 5), id)
