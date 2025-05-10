@@ -9,12 +9,17 @@
 
     <link rel="icon" type="image/svg+xml" href="/static/media/logos/favico.png">
     <link rel="stylesheet" href="/static/stylesheets/common/main.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/public/navbar.css">
     <link rel="stylesheet" href="/static/stylesheets/common/public/footer.css">
-
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(style => { %>
+            <link rel="stylesheet" href="/static/stylesheets/<%= style %>">
+        <% }); %>
+    <% } %>
 </head>
 <body>
     <header>
-
+        <%- include('../partials/public/navbar.ejs') %>
     </header>
     <main>
         <%- body %>
@@ -22,5 +27,11 @@
     <footer>
         <%- include('../partials/public/footer.ejs') %>
     </footer>
+
+    <% if (typeof scripts !== 'undefined') { %>
+        <% scripts.forEach(script => { %>
+            <script src="/static/scripts/<%= script %>"></script>
+        <% }); %>
+    <% } %>
 </body>
 </html>
