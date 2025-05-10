@@ -12,21 +12,70 @@
 
     <div class="navbar-right">
         <div class="search-box">
-            <i class="fas fa-search"></i>
+            <span class="material-symbols-outlined" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--medium-gray); font-size: 20px;">search</span>
             <input type="text" placeholder="Search...">
         </div>
         <div class="user-profile">
-            <div class="notification-badge">
+            <div class="notification-badge" id="notificationToggle">
                 <span class="material-symbols-outlined">
                     notifications
                 </span>
-                <span class="count-badge">3</span>
+                <span class="count-badge">0</span>
+                <!-- Notification Dropdown Menu -->
+                <div class="dropdown-menu notification-menu" id="notificationMenu">
+                    <div class="menu-header">
+                        <span>Notifications</span>
+                        <a href="#" class="mark-all-read">Mark all as read</a>
+                    </div>
+                    <div class="notification-list">
+                        <!-- Notifications will be populated by JavaScript -->
+                    </div>
+                    <div class="view-all">
+                        <a href="/notifications">View all notifications</a>
+                    </div>
+                </div>
             </div>
-            <div class="avatar">
+            <div class="avatar" id="profileToggle">
                 <span class="material-symbols-outlined">
                     account_circle
                 </span>
+                <!-- Profile Dropdown Menu -->
+                <div class="dropdown-menu profile-menu" id="profileMenu">
+                    <div class="profile-header">
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <span class="material-symbols-outlined">person</span>
+                            </div>
+                            <div class="profile-details">
+                                <h4>John Doe</h4>
+                                <p>john.doe@example.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-menu-list">
+                        <a href="/profile" class="profile-menu-item">
+                            <span class="material-symbols-outlined">person</span>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="/settings" class="profile-menu-item">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span>Settings</span>
+                        </a>
+                        <a href="/help" class="profile-menu-item">
+                            <span class="material-symbols-outlined">help</span>
+                            <span>Help & Support</span>
+                        </a>
+                        <div class="profile-menu-divider"></div>
+                        <a href="/logout" class="profile-menu-item logout">
+                            <span class="material-symbols-outlined">logout</span>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay"></div>
