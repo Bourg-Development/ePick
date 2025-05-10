@@ -88,6 +88,10 @@ a:focus {
     border-radius: 2px;
 }
 
+a.btn{
+    color: var(--off-white);
+}
+
 /* Buttons */
 .btn {
     padding: 12px 20px;
