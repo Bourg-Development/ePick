@@ -63,7 +63,7 @@ router.post('/auth-methods',
  */
 
 // Logout
-router.post('/logout',
+router.get('/logout',
     authMiddleware.authenticate,
     authController.logout
 );
