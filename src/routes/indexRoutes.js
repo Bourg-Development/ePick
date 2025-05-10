@@ -11,10 +11,10 @@ router.use('/auth', (req, res, next) => {
 
 router.get('/auth/login', authMiddleware.nonAuth, indexController.login);
 
-router.get('/auth/register', authMiddleware.nonAuth, indexController.register)
+router.get('/auth/register', authMiddleware.nonAuth, indexController.register);
 
-router.get('/', (req, res) => {
-    res.render('public/home.ejs', { title: 'test' })
-})
+router.get('/auth/logout', authMiddleware.authenticate, indexController.logout);
+
+router.get('/', indexController.home);
 
 module.exports = router;
