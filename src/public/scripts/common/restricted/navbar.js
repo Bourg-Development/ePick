@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function createNotificationItem(notification) {
         const div = document.createElement('div');
         div.className = `notification-item ${notification.unread ? 'unread' : ''}`;
+        div.dataset.notificationId = notification.id; // Store ID for backend calls
 
         div.innerHTML = `
             <div class="notification-icon ${notification.unread ? '' : 'read'}"></div>
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const notificationList = notificationMenu.querySelector('.notification-list');
         const viewAllSection = notificationMenu.querySelector('.view-all');
 
-        // Clear existing notifications (except the sample ones for now)
+        // Clear existing notifications
         notificationList.innerHTML = '';
 
         // Add notifications to the list
@@ -141,17 +142,23 @@ document.addEventListener('DOMContentLoaded', function() {
         closeAllMenus();
     });
 
-    // Close menus when clicking outside
+    // Close menus when clicking outside (but not inside the dropdowns)
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.notification-badge') &&
-            !e.target.closest('.avatar') &&
-            !e.target.closest('.dropdown-menu')) {
-            closeAllMenus();
+        // Don't close if clicking inside the notification toggle or menu
+        if (e.target.closest('#notificationToggle') ||
+            e.target.closest('#notificationMenu') ||
+            e.target.closest('#profileToggle') ||
+            e.target.closest('#profileMenu')) {
+            return;
         }
+        closeAllMenus();
     });
 
-    // Mark notification as read
-    document.addEventListener('click', function(e) {
+    // Handle clicks within the notification menu
+    notificationMenu.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent triggering the document click listener
+
+        // Mark notification as read when clicking on notification item
         const notificationItem = e.target.closest('.notification-item');
         if (notificationItem && notificationItem.classList.contains('unread')) {
             notificationItem.classList.remove('unread');
@@ -174,17 +181,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Here you can add an API call to mark the notification as read in the backend
-            // Example: markNotificationAsRead(notificationId);
+            // Call backend function to mark as read
+            const notificationId = notificationItem.dataset.notificationId;
+            if (notificationId) {
+                markNotificationAsRead(notificationId);
+            }
         }
-    });
 
-    // Mark all notifications as read
-    document.addEventListener('click', function(e) {
+        // Handle "Mark all as read" click
         if (e.target.closest('.mark-all-read')) {
             e.preventDefault();
 
-            const unreadItems = document.querySelectorAll('.notification-item.unread');
+            const unreadItems = notificationMenu.querySelectorAll('.notification-item.unread');
             unreadItems.forEach(item => {
                 item.classList.remove('unread');
                 const icon = item.querySelector('.notification-icon');
@@ -200,8 +208,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 countBadge.style.display = 'none';
             }
 
-            // Here you can add an API call to mark all notifications as read in the backend
-            // Example: markAllNotificationsAsRead();
+            // Call backend function to mark all as read
+            markAllNotificationsAsRead();
+        }
+
+        // Handle "View all notifications" click
+        if (e.target.closest('.view-all a')) {
+            // Let the link work normally, but close the menu
+            closeAllMenus();
+        }
+    });
+
+    // Handle clicks within the profile menu
+    profileMenu.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent triggering the document click listener
+
+        // If a profile menu item link is clicked, let it work and close the menu
+        if (e.target.closest('.profile-menu-item') && !e.target.closest('a')) {
+            const link = e.target.closest('.profile-menu-item');
+            if (link.href) {
+                closeAllMenus();
+            }
         }
     });
 
@@ -218,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchNotifications() {
         try {
             // Replace this with your actual API endpoint
+            // TODO implement actual api endpoint
             const response = await fetch('/api/notifications');
             if (response.ok) {
                 const notifications = await response.json();
@@ -233,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to mark notification as read in backend (to be implemented)
     async function markNotificationAsRead(notificationId) {
         try {
+            //TODO implement actual api endpoint
             const response = await fetch(`/api/notifications/${notificationId}/read`, {
                 method: 'PUT',
                 headers: {
@@ -251,6 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to mark all notifications as read in backend (to be implemented)
     async function markAllNotificationsAsRead() {
         try {
+            // TODO implement actual api endpoint
             const response = await fetch('/api/notifications/mark-all-read', {
                 method: 'PUT',
                 headers: {
