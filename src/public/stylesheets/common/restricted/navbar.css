@@ -142,7 +142,7 @@
 }
 
 /* Dropdown Menus - Default State */
-.dropdown-menu {
+.navbar-menu {
     position: absolute;
     top: calc(100% + 5px);
     right: 0;
@@ -161,7 +161,7 @@
 }
 
 /* Dropdown Menus - Active State */
-.dropdown-menu.active {
+.navbar-menu.active {
     opacity: 1 !important;
     transform: translateY(0) !important;
     visibility: visible !important;
@@ -379,7 +379,7 @@
         gap: 10px;
     }
 
-    .dropdown-menu {
+    .navbar-menu {
         right: -10px;
         min-width: 220px;
     }
@@ -406,7 +406,7 @@
         font-size: 20px;
     }
 
-    .dropdown-menu {
+    .navbar-menu {
         right: 0;
         left: auto;
         transform-origin: top right;
@@ -427,7 +427,7 @@
         font-size: 18px;
     }
 
-    .dropdown-menu {
+    .navbar-menu {
         min-width: 200px;
     }
 }
