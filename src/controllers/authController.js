@@ -122,7 +122,7 @@ class AuthController {
             }
 
             // Extract request context
-            const context = this._getRequestContext(req);
+            const context = AuthController._getRequestContext(req);
 
             // Verify TOTP
             const result = await authService.verifyTOTP(userId, totpCode, context);
@@ -168,7 +168,7 @@ class AuthController {
             }
 
             // Extract request context
-            const context = this._getRequestContext(req);
+            const context = AuthController._getRequestContext(req);
 
             // Verify WebAuthn
             const result = await authService.verifyWebAuthn(userId, credential, context);
@@ -207,7 +207,7 @@ class AuthController {
             const { userId, tokenId } = req.auth;
 
             // Extract request context
-            const context = this._getRequestContext(req);
+            const context = AuthController._getRequestContext(req);
 
             // Process logout
             const result = await authService.logout(tokenId, userId, context);
@@ -229,7 +229,7 @@ class AuthController {
      */
     async refreshToken(req, res) {
         try {
-            const { refreshToken } = req.body;
+            const  refreshToken  = req.cookies.refreshToken;
 
             if (!refreshToken) {
                 return res.status(400).json({
@@ -239,7 +239,7 @@ class AuthController {
             }
 
             // Extract request context
-            const context = this._getRequestContext(req);
+            const context = AuthController._getRequestContext(req);
 
             // Process token refresh
             const result = await authService.refreshToken(refreshToken, context);
@@ -248,13 +248,37 @@ class AuthController {
                 return res.status(401).json(result);
             }
 
-            // Success - send new tokens
-            return res.status(200).json({
-                success: true,
-                accessToken: result.accessToken,
-                refreshToken: result.refreshToken,
-                expiresIn: result.expiresIn
+            res.cookie('accessToken', result.accessToken, {
+                httpOnly: true,
+                secure: envConfig.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: envConfig.ACCESS_TOKEN_COOKIE_EXPIRY * 1000,
             });
+
+            res.cookie('refreshToken', result.refreshToken, {
+                httpOnly: true,
+                secure: envConfig.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/api/auth/refresh-token',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+
+            const redirectUrl = req.query.redirect;
+            if(redirectUrl){
+                return res.status(200).redirect(redirectUrl);
+            }else{
+                // Success - send tokens
+                return res.status(200).json({
+                    success: true,
+                    userId: result.userId,
+                    username: result.username,
+                    role: result.role,
+                    permissions: result.permissions,
+                    accessToken: result.accessToken,
+                    refreshToken: result.refreshToken,
+                    expiresIn: result.expiresIn
+                });
+            }
         } catch (error) {
             console.error('Token refresh error:', error);
             return res.status(500).json({

@@ -32,7 +32,7 @@ router.post('/verify-webauthn',
 );
 
 // Refresh token
-router.post('/refresh-token',
+router.get('/refresh-token',
     authRateLimit,
     validation.validateRefreshToken,
     authController.refreshToken

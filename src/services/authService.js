@@ -408,6 +408,7 @@ class AuthService {
 
             // Update session with new refresh token
             const oldRefreshTokenId = session.refresh_token_id;
+            session.token_id = accessToken.id;
             session.refresh_token_id = newRefreshToken.id;
             session.last_activity = new Date();
             await session.save();

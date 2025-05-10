@@ -3,17 +3,20 @@ const tokenService = require('../services/tokenService');
 const deviceFingerprintUtil = require('../utils/deviceFingerprint');
 const logService = require('../services/logService');
 const db = require('../db');
+const { ACCESS_TOKEN_COOKIE_EXPIRY } = require('../config/environment')
 
 /**
  * Authentication middleware
  * Verifies JWT tokens and sets user authentication context
  */
 const authenticate = async (req, res, next) => {
+    console.log('Auth middleware running on:', req.path);
+    console.log('Cookies in auth middleware:', req.cookies);
     try {
         // Extract token from headers
         const token = req.cookies.accessToken; // or similar code to extract the token
-
         if (!token) {
+            console.log(44)
             return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
             // return res.status(401).json({
             //     success: false,
@@ -29,9 +32,11 @@ const authenticate = async (req, res, next) => {
             if(e.code === 'TOKEN_EXPIRED') {
                 console.log(1)
                 //TODO add validation plus advanced error handling e.g. just invalid token
-                return res.redirect('/api/auth/refresh-token')
+                return res.redirect(`/api/auth/refresh-token?redirect=${encodeURIComponent(req.originalUrl)}`)
             }
-            console.log(e.originalError)
+            console.log(e.code)
+            console.log(e.originalError.name)
+            console.log(2)
             return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
         }
 
@@ -99,7 +104,7 @@ const authenticate = async (req, res, next) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: newToken.expiresIn * 1000,
+                maxAge: ACCESS_TOKEN_COOKIE_EXPIRY * 1000,
                 path: '/'
             });
 
