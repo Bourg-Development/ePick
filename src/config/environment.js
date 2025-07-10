@@ -13,6 +13,7 @@ module.exports = {
     HOST: process.env.HOST || 'localhost',
     BASE_URL: process.env.BASE_URL || 'http://localhost:4000',
     FRONTEND_URL: process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000',
+    SUPPORT_URL: process.env.SUPPORT_URL || 'https://portal.bourg.dev',
 
     // Database config
     DB_HOST: process.env.DB_HOST || 'localhost',

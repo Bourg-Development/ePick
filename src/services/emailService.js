@@ -10,7 +10,8 @@ const {
     EMAIL_PASSWORD,
     EMAIL_SECURE,
     NODE_ENV,
-    FRONTEND_URL
+    FRONTEND_URL,
+    SUPPORT_URL
 } = require('../config/environment');
 const path = require("node:path");
 const fs = require('fs');
@@ -30,7 +31,10 @@ class EmailService {
             auth: {
                 user: EMAIL_USER,
                 pass: EMAIL_PASSWORD
-            }
+            },
+            connectionTimeout: 5000, // 5 seconds connection timeout
+            greetingTimeout: 5000,   // 5 seconds greeting timeout
+            socketTimeout: 10000     // 10 seconds socket timeout
         });
 
         // Test connection in non-production environments
@@ -60,6 +64,24 @@ class EmailService {
             console.error('Full error:', error);
             console.warn('Emails will not be sent until connection is fixed');
         }
+    }
+
+    /**
+     * Get standard template variables for all emails
+     * @private
+     * @returns {Object} Standard template variables
+     */
+    _getBaseTemplateVars() {
+        return {
+            base_url: FRONTEND_URL,
+            login_url: `${FRONTEND_URL}/auth/login`,
+            dashboard_url: `${FRONTEND_URL}/dashboard`,
+            security_center_url: `${FRONTEND_URL}/restricted/security-center`,
+            privacy_policy_url: `${FRONTEND_URL}/privacy-policy`,
+            help_url: SUPPORT_URL,
+            support_url: SUPPORT_URL,
+            website_url: FRONTEND_URL
+        };
     }
 
     /**
@@ -229,13 +251,12 @@ class EmailService {
 
             // Generate HTML content
             const html = template({
+                ...this._getBaseTemplateVars(),
                 user_name: userName || 'User',
                 email,
                 role,
                 organization,
-                created_date: formattedDate,
-                login_url: 'https://epick.fondation.lu/auth/login',
-                help_url: 'https://support.bourg.dev/epick/getting-started'
+                created_date: formattedDate
             });
 
             // Email content
@@ -571,6 +592,7 @@ class EmailService {
 
             // Prepare template data
             const templateData = {
+                ...this._getBaseTemplateVars(),
                 user_name: userName || 'User',
                 email: email,
                 role: role,
@@ -579,9 +601,7 @@ class EmailService {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                }),
-                login_url: `${process.env.APP_URL || 'https://epick.fondation.lu'}/auth/login`,
-                help_url: `${process.env.APP_URL || 'https://epick.fondation.lu'}/help`
+                })
             };
 
             // Generate HTML from template
@@ -829,7 +849,7 @@ class EmailService {
                 <p>The blood analysis results for <strong>${patientName}</strong> are now available.</p>
                 <p><strong>Analysis ID:</strong> ${analysisId}</p>
                 <p>Please log in to your account to view the complete results.</p>
-                <p><a href="${process.env.APP_URL || 'https://epick.fondation.lu'}/dashboard/analyses">View Results</a></p>
+                <p><a href="${FRONTEND_URL}/dashboard/analyses">View Results</a></p>
             `;
 
             const mailOptions = {

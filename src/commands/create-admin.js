@@ -190,19 +190,32 @@ async function createSystemAdminUser() {
 
             await client.query('COMMIT');
 
-            // Send account creation email
+            // Send account creation email with timeout
             try {
+                console.log('\n📧 Attempting to send account creation email...');
                 const emailService = require('../services/emailService');
-                await emailService.sendAccountCreatedEmail({
-                    email: email,
-                    userName: 'System Administrator',
-                    role: 'System Administrator',
-                    organization: 'ePick',
-                    createdDate: new Date()
+                
+                // Create a timeout promise
+                const emailTimeout = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Email sending timeout after 10 seconds')), 10000);
                 });
-                console.log('\n✓ Account creation email sent to:', email);
+                
+                // Race between email sending and timeout
+                await Promise.race([
+                    emailService.sendAccountCreatedEmail({
+                        email: email,
+                        userName: 'System Administrator',
+                        role: 'System Administrator',
+                        organization: 'ePick',
+                        createdDate: new Date()
+                    }),
+                    emailTimeout
+                ]);
+                
+                console.log('✓ Account creation email sent to:', email);
             } catch (emailError) {
-                console.log('\n⚠️  Warning: Could not send account creation email:', emailError.message);
+                console.log('⚠️  Warning: Could not send account creation email:', emailError.message);
+                console.log('   This does not affect the account creation process.');
             }
 
             console.log('\n=== SYSTEM ADMINISTRATOR CREATED SUCCESSFULLY ===');
@@ -230,4 +243,12 @@ async function createSystemAdminUser() {
 }
 
 // Run the script
-createSystemAdminUser();
+createSystemAdminUser()
+    .then(() => {
+        console.log('Script completed successfully.');
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error('Script failed:', error);
+        process.exit(1);
+    });
