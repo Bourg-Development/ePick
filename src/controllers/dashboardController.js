@@ -1,24 +1,24 @@
 module.exports = {
     analyses: (req, res) => {
-        res.render('dashboard/analyses', {title: 'test', styles: [ '/pages/restricted/dashboard/analyses.css' ], scripts: [ '/pages/restricted/dashboard/analyses.js' ] });
+        res.render('dashboard/analyses', {title: 'Analyses - ePick', styles: [ '/pages/restricted/dashboard/analyses.css' ], scripts: [ '/pages/restricted/dashboard/analyses.js' ] });
     },
     users: (req, res) => {
-        res.render('dashboard/users', {title: 'test', styles: [ '/pages/restricted/dashboard/users.css' ], scripts: [ '/pages/restricted/dashboard/users.js' ] });
+        res.render('dashboard/users', {title: 'User Management - ePick', styles: [ '/pages/restricted/dashboard/users.css' ], scripts: [ '/pages/restricted/dashboard/users.js' ] });
     },
     org_settings: (req, res) => {
-        res.render('dashboard/org-settings', {title: 'test', styles: [ '/pages/restricted/dashboard/org-settings.css' ], scripts: [ '/pages/restricted/dashboard/org-settings.js' ] });
+        res.render('dashboard/org-settings', {title: 'Organization Settings - ePick', styles: [ '/pages/restricted/dashboard/org-settings.css' ], scripts: [ '/pages/restricted/dashboard/org-settings.js' ] });
     },
     archive: (req, res) => {
-        res.render('dashboard/archive', {title: 'test', styles: [ '/pages/restricted/dashboard/archive.css' ], scripts: [ '/pages/restricted/dashboard/archive.js' ] });
+        res.render('dashboard/archive', {title: 'Analysis Archive - ePick', styles: [ '/pages/restricted/dashboard/archive.css' ], scripts: [ '/pages/restricted/dashboard/archive.js' ] });
     },
     rooms: (req, res) => {
-        res.render('dashboard/rooms', {title: 'test', styles: [ '/pages/restricted/dashboard/rooms.css' ], scripts: [ '/pages/restricted/dashboard/rooms.js' ] });
+        res.render('dashboard/rooms', {title: 'Room Management - ePick', styles: [ '/pages/restricted/dashboard/rooms.css' ], scripts: [ '/pages/restricted/dashboard/rooms.js' ] });
     },
     services: (req, res) => {
-        res.render('dashboard/services', {title: 'test', styles: [ '/pages/restricted/dashboard/services.css' ], scripts: [ '/pages/restricted/dashboard/services.js' ] });
+        res.render('dashboard/services', {title: 'Service Management - ePick', styles: [ '/pages/restricted/dashboard/services.css' ], scripts: [ '/pages/restricted/dashboard/services.js' ] });
     },
     patients: (req, res) => {
-        res.render('dashboard/patients', {title: 'test', styles: [ '/pages/restricted/dashboard/patients.css' ], scripts: [ '/pages/restricted/dashboard/patients.js' ] });
+        res.render('dashboard/patients', {title: 'Patient Management - ePick', styles: [ '/pages/restricted/dashboard/patients.css' ], scripts: [ '/pages/restricted/dashboard/patients.js' ] });
     },
     security: (req, res) => {
         // Check if user has forensics permissions
@@ -52,7 +52,7 @@ module.exports = {
         }
         
         res.render('dashboard/data-management', {
-            title: 'Data Management', 
+            title: 'Data Management - ePick', 
             styles: [ '/pages/restricted/dashboard/data-management.css' ], 
             scripts: [ '/pages/restricted/dashboard/data-management.js' ]
         });

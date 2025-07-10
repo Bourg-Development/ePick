@@ -14,7 +14,7 @@ module.exports = {
             }
 
             res.render('userArea/profile', {
-                title: 'test',
+                title: 'My Profile - ePick',
                 styles: ['/pages/me/profile.css'],
                 scripts: ['/pages/me/profile.js'],
                 editableProfile: editableProfile
@@ -24,7 +24,7 @@ module.exports = {
 
             // On error, default to non-editable profile
             res.render('userArea/profile', {
-                title: 'test',
+                title: 'My Profile - ePick',
                 styles: ['/pages/me/profile.css'],
                 scripts: ['/pages/me/profile.js'],
                 editableProfile: false
@@ -43,7 +43,7 @@ module.exports = {
             }
 
             res.render('userArea/account', {
-                title: 'Account Settings',
+                title: 'Account Settings - ePick',
                 styles: ['/pages/me/account.css'],
                 scripts: ['/pages/me/account.js'],
                 editableAccount: editableAccount
@@ -59,7 +59,7 @@ module.exports = {
     privacySettings: async (req, res) => {
         try {
             res.render('userArea/privacy', {
-                title: 'Privacy & Security',
+                title: 'Privacy & Security - ePick',
                 styles: ['/pages/me/privacy.css'],
                 scripts: ['/pages/me/privacy.js']
             });
@@ -74,7 +74,7 @@ module.exports = {
     notificationSettings: async (req, res) => {
         try {
             res.render('userArea/notifications', {
-                title: 'Notification Settings',
+                title: 'Notification Settings - ePick',
                 styles: ['/pages/me/notifications.css'],
                 scripts: ['/pages/me/notifications.js']
             });

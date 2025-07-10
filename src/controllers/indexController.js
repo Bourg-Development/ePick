@@ -6,31 +6,31 @@ module.exports = {
         }
         
         res.render('auth/login.ejs', { 
-            title: 'Login',
+            title: 'Login - ePick',
             query: req.query,
             error: error
         });
     },
     register: (req, res, next) => {
-        res.render('auth/register.ejs', { title: 'register' });
+        res.render('auth/register.ejs', { title: 'Register - ePick' });
     },
     logout: (req, res) => {
         res.redirect('/api/auth/logout')
     },
     home: (req, res) => {
-        res.render('public/home.ejs', { title: 'Home', styles: [ '/pages/public/home.css' ], scripts: [ '/pages/public/home.js' ] })
+        res.render('public/home.ejs', { title: 'ePick - Blood Analysis Management System', styles: [ '/pages/public/home.css' ], scripts: [ '/pages/public/home.js' ] })
     },
 
     privacyPolicy: async (req, res) => {
         try {
             res.render('legal/privacy', {
-                title: 'Privacy Policy',
+                title: 'Privacy Policy - ePick',
                 layout: 'layouts/public'
             });
         } catch (error) {
             console.error('Error rendering privacy policy:', error);
             res.status(500).render('errors/500', {
-                title: 'Server Error',
+                title: 'Server Error - ePick',
                 layout: 'layouts/public'
             });
         }
@@ -39,13 +39,13 @@ module.exports = {
     termsOfService: async (req, res) => {
         try {
             res.render('legal/terms', {
-                title: 'Terms of Service',
+                title: 'Terms of Service - ePick',
                 layout: 'layouts/public'
             });
         } catch (error) {
             console.error('Error rendering terms of service:', error);
             res.status(500).render('errors/500', {
-                title: 'Server Error',
+                title: 'Server Error - ePick',
                 layout: 'layouts/public'
             });
         }
@@ -54,13 +54,13 @@ module.exports = {
     compliance: async (req, res) => {
         try {
             res.render('legal/compliance', {
-                title: 'Compliance',
+                title: 'Compliance - ePick',
                 layout: 'layouts/public'
             });
         } catch (error) {
             console.error('Error rendering compliance page:', error);
             res.status(500).render('errors/500', {
-                title: 'Server Error',
+                title: 'Server Error - ePick',
                 layout: 'layouts/public'
             });
         }

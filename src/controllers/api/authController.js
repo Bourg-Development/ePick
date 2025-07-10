@@ -27,7 +27,7 @@ class AuthController {
             if (!username || !password) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/login', {
-                        title: 'Login',
+                        title: 'Login - ePick',
                         error: 'Username and password are required',
                         username: username || ''
                     });
@@ -100,7 +100,7 @@ class AuthController {
             
             if (isHtmlRequest) {
                 return res.status(500).render('auth/login', {
-                    title: 'Login',
+                    title: 'Login - ePick',
                     error: 'Authentication failed. Please try again.',
                     username: req.body.username || ''
                 });
@@ -340,7 +340,7 @@ class AuthController {
             if (!referenceCode || !password || !confirmPassword) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/register', {
-                        title: 'Register',
+                        title: 'Register - ePick',
                         error: 'Reference code and password are required',
                         referenceCode: referenceCode || ''
                     });
@@ -355,7 +355,7 @@ class AuthController {
             if (!referenceCode.match(/^\d{3}-\d{3}-\d{3}$/)) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/register', {
-                        title: 'Register',
+                        title: 'Register - ePick',
                         error: 'Invalid reference code format',
                         referenceCode: referenceCode || ''
                     });
@@ -370,7 +370,7 @@ class AuthController {
             if (password !== confirmPassword) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/register', {
-                        title: 'Register',
+                        title: 'Register - ePick',
                         error: 'Passwords do not match',
                         referenceCode: referenceCode || ''
                     });
@@ -386,7 +386,7 @@ class AuthController {
             if (!passwordValidation.valid) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/register', {
-                        title: 'Register',
+                        title: 'Register - ePick',
                         error: passwordValidation.message,
                         referenceCode: referenceCode || ''
                     });
@@ -410,7 +410,7 @@ class AuthController {
             if (!result.success) {
                 if (isHtmlRequest) {
                     return res.status(400).render('auth/register', {
-                        title: 'Register',
+                        title: 'Register - ePick',
                         error: result.message || 'Registration failed',
                         referenceCode: referenceCode || ''
                     });
@@ -442,7 +442,7 @@ class AuthController {
             console.error('Registration error:', error);
             if (isHtmlRequest) {
                 return res.status(500).render('auth/register', {
-                    title: 'Register',
+                    title: 'Register - ePick',
                     error: 'Registration failed. Please try again.',
                     referenceCode: req.body.referenceCode || ''
                 });
