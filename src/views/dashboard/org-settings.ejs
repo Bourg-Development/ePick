@@ -1,0 +1,1030 @@
+<div class="header">
+    <h1><%= __('settings.title') %></h1>
+    <div class="header-actions">
+        <!-- Export Dropdown -->
+        <% if(permissions.includes('organization_settings.view') || permissions.includes('read.all')) { %>
+            <div class="dropdown-container export-dropdown-container">
+                <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">
+                        download
+                    </span>
+                    <%= __('common.export') %>
+                    <span class="material-symbols-outlined dropdown-arrow">
+                        arrow_drop_down
+                    </span>
+                </button>
+                <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                    <div class="dropdown-item" data-action="export-advanced">
+                        <span class="material-symbols-outlined">settings</span>
+                        <%= __('export.advancedOptions') %>
+                    </div>
+
+                    <!-- Quick Export Modal -->
+                    <div class="modal-overlay" id="quickExportModal">
+                        <div class="modal">
+                            <div class="modal-header">
+                                <h2 id="quickExportTitle"><%= __('export.quickModal.title') %></h2>
+                                <button class="modal-close" id="closeQuickExportModalBtn">&times;</button>
+                            </div>
+                            <form id="quickExportForm">
+                                <!-- Export Info -->
+                                <div class="quick-export-info">
+                                    <div class="export-format-display">
+                                        <span class="material-symbols-outlined">download</span>
+                                        <div class="format-info">
+                                            <strong><%= __('export.quickModal.format') %> <span id="quickExportFormat">CSV</span></strong>
+                                            <small><%= __('export.quickModal.safeColumns') %></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="export-columns-info">
+                                        <strong><%= __('export.quickModal.columnsToExport') %>:</strong>
+                                        <div class="safe-columns-list">
+                                            <span class="column-tag"><%= __('export.quickModal.settingKey') %></span>
+                                            <span class="column-tag"><%= __('export.quickModal.dataType') %></span>
+                                            <span class="column-tag"><%= __('export.quickModal.description') %></span>
+                                            <span class="column-tag"><%= __('export.quickModal.category') %></span>
+                                            <span class="column-tag"><%= __('export.quickModal.createdDate') %></span>
+                                            <span class="column-tag"><%= __('export.quickModal.updatedDate') %></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Password Verification -->
+                                <div class="form-section">
+                                    <label class="form-label" for="quickExportPassword"><%= __('export.modal.password') %> <span class="required"><%= __('modal.required') %></span></label>
+                                    <input type="password" class="form-control" id="quickExportPassword" required placeholder="<%= __('export.modal.passwordPlaceholder') %>" autocomplete="current-password">
+                                    <small class="form-help"><%= __('export.modal.passwordHelp') %></small>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" id="cancelQuickExportBtn"><%= __('common.cancel') %></button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                                        <%= __('export.quickModal.exportNow') %>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-csv">
+                        <span class="material-symbols-outlined">table_view</span>
+                        <%= __('export.quickCsv') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-excel">
+                        <span class="material-symbols-outlined">grid_on</span>
+                        <%= __('export.quickExcel') %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            <%= __('common.refresh') %>
+        </button>
+
+        <% if(permissions.includes('organization_settings.update') || permissions.includes('write.all')) { %>
+            <button class="btn btn-primary" id="saveAllBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    save
+                </span>
+                <%= __('settings.saveAllChanges') %>
+            </button>
+        <% } %>
+    </div>
+</div>
+
+<div class="settings-container">
+    <!-- Analysis Configuration -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">analytics</span>
+                <%= __('settings.analysisConfig.title') %>
+            </h2>
+            <p><%= __('settings.analysisConfig.description') %></p>
+        </div>
+        <div class="card-content">
+            <!-- Analysis Types Management -->
+            <div class="setting-group">
+                <label class="setting-label">
+                    Analysis Types
+                    <span class="setting-critical">
+                        <span class="material-symbols-outlined">lock</span>
+                        Critical
+                    </span>
+                </label>
+                <div class="analysis-types-container">
+                    <div class="analysis-types-list" id="analysisTypesList">
+                        <!-- Analysis types will be populated by JavaScript -->
+                    </div>
+                    <div class="analysis-types-actions">
+                        <button class="btn btn-sm btn-primary" id="addAnalysisTypeBtn">
+                            <span class="material-symbols-outlined">add</span>
+                            Add Analysis Type
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Configure the available analysis types for blood sample processing. Changes will affect all future analysis scheduling.</small>
+                <div class="setting-status" id="status-analysis_types"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="maxAnalysesPerDay">
+                    <%= __('settings.analysisConfig.maxAnalysesPerDay') %>
+                    <small style="font-weight: normal"> <%= __('settings.analysisConfig.perService') %> </small>
+                    <span class="setting-critical">
+                        <span class="material-symbols-outlined">lock</span>
+                        <%= __('settings.critical') %>
+                    </span>
+                </label>
+                <div class="setting-input-group">
+                    <input type="number" class="setting-input" id="maxAnalysesPerDay" min="1" max="1000" data-key="max_analyses_per_day" data-type="integer">
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="max_analyses_per_day">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="max_analyses_per_day">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help"><%= __('settings.analysisConfig.maxAnalysesHelp') %></small>
+                <div class="setting-status" id="status-max_analyses_per_day"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Working Hours Configuration -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">schedule</span>
+                <%= __('settings.workingDays.title') %>
+            </h2>
+            <p><%= __('settings.workingDays.description') %></p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <label class="setting-label" for="workingDays">
+                    <%= __('settings.workingDays.workingDays') %>
+                    <span class="setting-critical">
+                        <span class="material-symbols-outlined">lock</span>
+                        <%= __('settings.critical') %>
+                    </span>
+                </label>
+                <div class="setting-input-group">
+                    <div class="checkbox-group-horizontal" id="workingDaysGroup" data-key="working_days" data-type="json">
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Monday">
+                            <span><%= __('days.monday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Tuesday">
+                            <span><%= __('days.tuesday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Wednesday">
+                            <span><%= __('days.wednesday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Thursday">
+                            <span><%= __('days.thursday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Friday">
+                            <span><%= __('days.friday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Saturday">
+                            <span><%= __('days.saturday') %></span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="Sunday">
+                            <span><%= __('days.sunday') %></span>
+                        </label>
+                    </div>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="working_days">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="working_days">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help"><%= __('settings.workingDays.help') %></small>
+                <div class="setting-status" id="status-working_days"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Features -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">settings</span>
+                <%= __('settings.systemFeatures.title') %>
+            </h2>
+            <p><%= __('settings.systemFeatures.description') %></p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <label class="setting-label" for="notificationEnabled"><%= __('settings.systemFeatures.emailNotifications') %></label>
+                <div class="setting-input-group">
+                    <div class="toggle-switch" data-key="notification_enabled" data-type="boolean">
+                        <input type="checkbox" id="notificationEnabled" class="toggle-input">
+                        <label for="notificationEnabled" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="notification_enabled">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="notification_enabled">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help"><%= __('settings.systemFeatures.emailHelp') %></small>
+                <div class="setting-status" id="status-notification_enabled"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="autoArchiveEnabled"><%= __('settings.systemFeatures.automaticArchiving') %></label>
+                <div class="setting-input-group">
+                    <div class="toggle-switch" data-key="auto_archive_enabled" data-type="boolean">
+                        <input type="checkbox" id="autoArchiveEnabled" class="toggle-input">
+                        <label for="autoArchiveEnabled" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="auto_archive_enabled">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="auto_archive_enabled">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help"><%= __('settings.systemFeatures.archivingHelp') %></small>
+                <div class="setting-status" id="status-auto_archive_enabled"></div>
+            </div>
+
+            <!-- NEW SETTING: Self Service -->
+            <div class="setting-group">
+                <label class="setting-label" for="selfServiceEnabled"><%= __('settings.systemFeatures.selfServiceProfile') %></label>
+                <div class="setting-input-group">
+                    <div class="toggle-switch" data-key="self_service" data-type="boolean">
+                        <input type="checkbox" id="selfServiceEnabled" class="toggle-input">
+                        <label for="selfServiceEnabled" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="self_service">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="self_service">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help"><%= __('settings.systemFeatures.selfServiceHelp') %></small>
+                <div class="setting-status" id="status-self_service"></div>
+            </div>
+
+            <!-- Prescription Notification Settings -->
+            <div class="setting-group">
+                <label class="setting-label" for="prescriptionNotificationEnabled">Prescription Validation Notifications</label>
+                <div class="setting-input-group">
+                    <div class="toggle-switch" data-key="prescription_notification_enabled" data-type="boolean">
+                        <input type="checkbox" id="prescriptionNotificationEnabled" class="toggle-input">
+                        <label for="prescriptionNotificationEnabled" class="toggle-label">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="prescription_notification_enabled">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="prescription_notification_enabled">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Enable notifications to agents when recurring analyses need prescription validation</small>
+                <div class="setting-status" id="status-prescription_notification_enabled"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="prescriptionValidationHours">
+                    Prescription Notification Time Frame
+                    <small style="font-weight: normal"> (hours) </small>
+                </label>
+                <div class="setting-input-group">
+                    <input type="number" class="setting-input" id="prescriptionValidationHours" min="1" max="168" data-key="prescription_validation_notification_hours" data-type="integer">
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-key="prescription_validation_notification_hours">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-key="prescription_validation_notification_hours">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">How many hours before an analysis is due to notify agents about missing prescription validation (1-168 hours)</small>
+                <div class="setting-status" id="status-prescription_validation_notification_hours"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="prescriptionCheckInterval">
+                    Prescription Check Interval
+                </label>
+                <div class="setting-input-group interval-input-group">
+                    <input type="number" class="setting-input interval-value" id="prescriptionCheckIntervalValue" min="1" max="1440" data-key="prescription_check_interval_value" data-type="integer">
+                    <select class="setting-select interval-unit" id="prescriptionCheckIntervalUnit" data-key="prescription_check_interval_unit" data-type="string">
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                    </select>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" data-keys="prescription_check_interval_value,prescription_check_interval_unit">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                        <button class="btn btn-sm btn-secondary reset-btn" data-keys="prescription_check_interval_value,prescription_check_interval_unit">
+                            <span class="material-symbols-outlined">undo</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">How often the system automatically checks for missing prescriptions (1-1440 minutes or 1-24 hours)</small>
+                <div class="setting-status" id="status-prescription_check_interval"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Settings -->
+    <div class="settings-card advanced-card" id="advancedSettingsCard">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">tune</span>
+                <%= __('settings.advanced.title') %>
+            </h2>
+            <p><%= __('settings.advanced.description') %></p>
+            <button class="btn btn-outline toggle-advanced" id="toggleAdvancedBtn">
+                <span class="material-symbols-outlined">expand_more</span>
+                <%= __('settings.advanced.showAdvanced') %>
+            </button>
+        </div>
+        <div class="card-content advanced-content" id="advancedContent">
+            <!-- Advanced settings will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Changes Summary -->
+<div class="changes-summary" id="changesSummary">
+    <div class="summary-content">
+        <div class="summary-header">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span><%= __('settings.unsavedChanges') %></span>
+            <span class="changes-count" id="changesCount">0</span>
+        </div>
+        <div class="summary-actions">
+            <button class="btn btn-secondary" id="discardChangesBtn">
+                <span class="material-symbols-outlined">close</span>
+                <%= __('settings.discardAll') %>
+            </button>
+            <button class="btn btn-primary" id="saveChangesBtn">
+                <span class="material-symbols-outlined">save</span>
+                <%= __('settings.saveAllChanges') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Type Modal -->
+<div class="modal-overlay" id="analysisTypeModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="analysisTypeModalTitle">Add Analysis Type</h2>
+            <button class="modal-close" id="closeAnalysisTypeModalBtn">&times;</button>
+        </div>
+        <form id="analysisTypeForm">
+            <input type="hidden" id="analysisTypeId" value="">
+            
+            <div class="form-section">
+                <label class="form-label" for="analysisTypeCode">Type Code <span class="required">*</span></label>
+                <input type="text" class="form-control" id="analysisTypeCode" required maxlength="10" placeholder="e.g., XY, CBC, GLU" pattern="[A-Z0-9]{1,10}">
+                <small class="form-help">Short code (1-10 characters, uppercase letters and numbers only)</small>
+            </div>
+            
+            <div class="form-section">
+                <label class="form-label" for="analysisTypeName">Type Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="analysisTypeName" required maxlength="100" placeholder="e.g., Complete Blood Count, Glucose Test">
+                <small class="form-help">Full descriptive name for the analysis type</small>
+            </div>
+            
+            <div class="form-section">
+                <label class="form-label" for="analysisTypeDescription">Description</label>
+                <textarea class="form-control" id="analysisTypeDescription" rows="3" maxlength="500" placeholder="Optional description of what this analysis type covers"></textarea>
+                <small class="form-help">Optional detailed description (max 500 characters)</small>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAnalysisTypeBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveAnalysisTypeBtn">Save Analysis Type</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2><%= __('export.organizationSettings') %></h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong><%= __('export.dataPrivacyNotice') %></strong>
+                    <p><%= __('export.orgSettingsWarning') %></p>
+                </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword"><%= __('export.password') %> <span class="required"><%= __('modal.required') %></span></label>
+                <input type="password" class="form-control" id="exportPassword" required placeholder="<%= __('export.passwordPlaceholder') %>" autocomplete="current-password">
+                <small class="form-help"><%= __('export.passwordHelp') %></small>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.format') %> <span class="required"><%= __('modal.required') %></span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong><%= __('export.csvFormat') %></strong>
+                            <small><%= __('export.csvDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong><%= __('export.excelFormat') %></strong>
+                            <small><%= __('export.excelDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong><%= __('export.jsonFormat') %></strong>
+                            <small><%= __('export.jsonDevDescription') %></small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.columnSelection') %></label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn"><%= __('export.selectAll') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn"><%= __('export.selectNone') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn"><%= __('export.safeColumnsOnly') %></button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Current Settings Info -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.settingsScope') %></label>
+                <div class="current-settings" id="currentSettings">
+                    <span class="settings-info"><%= __('export.allOrgSettingsExported') %></span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong><%= __('export.sensitiveDataSelected') %></strong>
+                    <p><%= __('export.orgSensitiveWarning') %></p>
+                </div>
+            </div>
+
+            <!-- Export Progress -->
+            <div class="export-progress" id="exportProgress">
+                <div class="export-spinner"></div>
+                <span><%= __('export.preparingExport') %></span>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    <%= __('export.exportData') %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('modal.confirmChanges') %></h2>
+            <button class="modal-close" id="closeConfirmBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage" style="margin-bottom: 20px;"></p>
+            <div class="changes-preview" id="changesPreview">
+                <!-- Changes will be listed here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelConfirmBtn"><%= __('common.cancel') %></button>
+            <button class="btn btn-primary" id="confirmSaveBtn"><%= __('modal.saveChanges') %></button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .required {
+        color: var(--dark-red);
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Export Dropdown */
+    .export-dropdown-container {
+        position: relative;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .dropdown-arrow {
+        font-size: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    .export-dropdown-container.show .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .export-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        min-width: 240px;
+        margin-top: 4px;
+        background: white;
+        border: 1px solid var(--light-gray);
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: none;
+    }
+
+    .export-dropdown.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
+        border-radius: 4px;
+        margin: 4px 8px;
+    }
+
+    .dropdown-item:hover {
+        background-color: var(--light-gray);
+    }
+
+    .dropdown-item .material-symbols-outlined {
+        color: var(--medium-gray);
+        font-size: 16px;
+    }
+
+    /* Export Modal */
+    .export-modal {
+        max-width: 700px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .export-warning, .sensitive-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .sensitive-warning {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .warning-icon {
+        color: #856404;
+        font-size: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .sensitive-warning .warning-icon {
+        color: #721c24;
+    }
+
+    .warning-content {
+        flex: 1;
+    }
+
+    .warning-content strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .warning-content p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Format Options */
+    .format-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .format-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .format-option:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+    }
+
+    .format-option input[type="radio"] {
+        margin: 4px 0 0 0;
+        flex-shrink: 0;
+    }
+
+    .format-option input[type="radio"]:checked + .format-details {
+        color: #007bff;
+    }
+
+    .format-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .format-details strong {
+        font-weight: 600;
+    }
+
+    .format-details small {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    /* Column Selection */
+    .column-selection-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-outline {
+        background: white;
+        border: 1px solid #e9ecef;
+        color: #495057;
+    }
+
+    .btn-outline:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+        color: #007bff;
+    }
+
+    .column-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px;
+        background: #f8f9fa;
+    }
+
+    .column-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        background: white;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .column-option:hover {
+        background: #e9ecef;
+    }
+
+    .column-option.sensitive {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+    }
+
+    .column-option.sensitive:hover {
+        background: #ffeaa7;
+    }
+
+    .column-option input[type="checkbox"] {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .column-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+    }
+
+    .column-name {
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    .column-description {
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    .column-option.sensitive .column-name {
+        color: #856404;
+    }
+
+    .column-sensitive-indicator {
+        color: #856404;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* Current Settings Display */
+    .current-settings {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .settings-info {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Export Progress */
+    .export-progress {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: #007bff;
+        font-size: 14px;
+        margin-top: 10px;
+        justify-content: center;
+    }
+
+    .export-progress.show {
+        display: flex;
+    }
+
+    .export-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #e9ecef;
+        border-top: 2px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Form Control */
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--light-gray);
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--medium-gray);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+        }
+
+        .header-actions {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .export-modal {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+
+        .column-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .column-selection-header {
+            flex-direction: column;
+        }
+
+        .format-options {
+            gap: 6px;
+        }
+
+        .export-dropdown {
+            right: -20px;
+            min-width: 220px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modal-footer .btn {
+            width: 100%;
+        }
+
+        .column-selection-header .btn {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+    }
+
+    /* Animation for dropdown */
+    .export-dropdown {
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Accessibility Improvements */
+    .column-option:focus-within {
+        outline: 2px solid #007bff;
+        outline-offset: 2px;
+    }
+
+    .format-option:focus-within {
+        outline: 2px solid #007bff;
+        outline-offset: 2px;
+    }
+</style>
+
+<% if (!(permissions.includes('organization_settings.update'))){ %>
+    <script>
+        readOnlyMode = true;
+        function setReadOnlyMode() {
+            // Disable all input elements
+            document.querySelectorAll('.setting-input, .toggle-input').forEach(input => {
+                input.disabled = true;
+                input.style.opacity = '0.6';
+            });
+
+            // Hide all save and action buttons
+            document.querySelectorAll('.save-btn, .reset-btn, #saveAllBtn, #saveChangesBtn').forEach(btn => {
+                btn.style.display = 'none';
+            });
+
+            // Hide changes summary
+            const changesSummary = document.getElementById('changesSummary');
+            if (changesSummary) {
+                changesSummary.style.display = 'none';
+            }
+
+            // Add read-only indicator
+            document.querySelector('.header h1').innerHTML += ' <span style="color: var(--medium-gray); font-size: 16px; font-weight: normal;">(Read Only)</span>';
+
+            console.log('Settings page set to read-only mode');
+        }
+
+        // Set read-only mode when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(setReadOnlyMode, 100);
+        });
+    </script>
+<% } %>

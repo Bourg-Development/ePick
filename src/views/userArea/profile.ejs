@@ -1,0 +1,258 @@
+<div class="header">
+    <h1><%= __('profile.title') %></h1>
+    <div class="header-actions">
+        <% if (editableProfile) { %>
+            <button class="btn btn-primary" id="editProfileBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+                <%= __('profile.editProfile') %>
+            </button>
+        <% } %>
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
+            <%= __('profile.refresh') %>
+        </button>
+    </div>
+</div>
+
+<div class="profile-content">
+    <!-- Profile Header Card -->
+    <div class="profile-header-card">
+        <div class="profile-avatar">
+            <span class="material-symbols-outlined">account_circle</span>
+        </div>
+        <div class="profile-header-info">
+            <h2 id="profileDisplayName"><%= __('profile.loading') %></h2>
+            <p id="profileUsername"><%= __('profile.loading') %></p>
+            <div class="profile-badges">
+                <span class="profile-badge role" id="profileRoleBadge"><%= __('profile.loading') %></span>
+                <div class="twofa-status" id="twofaHeaderStatus"></div>
+            </div>
+        </div>
+        <div class="profile-header-meta">
+            <div class="meta-item">
+                <span class="meta-label"><%= __('profile.memberSince') %></span>
+                <span class="meta-value" id="profileHeaderCreated"><%= __('profile.loading') %></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Information Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h3><%= __('profile.profileInformation.title') %></h3>
+            <span class="card-icon material-symbols-outlined">person</span>
+        </div>
+        <div class="card-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label class="info-label"><%= __('profile.profileInformation.username') %></label>
+                    <div class="info-value" id="profileUsername2"><%= __('profile.loading') %></div>
+                    <small class="info-help"><%= __('profile.profileInformation.usernameHelp') %></small>
+                </div>
+                <div class="info-item">
+                    <label class="info-label"><%= __('profile.profileInformation.fullName') %></label>
+                    <div class="info-value" id="profileFullName"><%= __('profile.loading') %></div>
+                    <small class="info-help"><%= __('profile.profileInformation.fullNameHelp') %></small>
+                </div>
+                <div class="info-item">
+                    <label class="info-label"><%= __('profile.profileInformation.emailAddress') %></label>
+                    <div class="info-value" id="profileEmail"><%= __('profile.loading') %></div>
+                    <small class="info-help"><%= __('profile.profileInformation.emailHelp') %></small>
+                </div>
+                <div class="info-item">
+                    <label class="info-label"><%= __('profile.profileInformation.role') %></label>
+                    <div class="info-value" id="profileRole"><%= __('profile.loading') %></div>
+                    <small class="info-help"><%= __('profile.profileInformation.roleHelp') %></small>
+                </div>
+                <div class="info-item">
+                    <label class="info-label"><%= __('profile.profileInformation.serviceAssignment') %></label>
+                    <div class="info-value" id="profileService"><%= __('profile.loading') %></div>
+                    <small class="info-help"><%= __('profile.profileInformation.serviceHelp') %></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h3><%= __('profile.security.title') %></h3>
+            <span class="card-icon material-symbols-outlined">security</span>
+        </div>
+        <div class="card-content">
+            <div class="security-grid">
+                <div class="security-item">
+                    <div class="security-method">
+                        <span class="material-symbols-outlined">smartphone</span>
+                        <div class="method-details">
+                            <h4><%= __('profile.security.totpAuthenticator') %></h4>
+                            <p><%= __('profile.security.totpDescription') %></p>
+                        </div>
+                    </div>
+                    <div class="method-status">
+                        <span class="status-badge" id="totpStatus"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+                <div class="security-item">
+                    <div class="security-method">
+                        <span class="material-symbols-outlined">key</span>
+                        <div class="method-details">
+                            <h4><%= __('profile.security.webauthn') %></h4>
+                            <p><%= __('profile.security.webauthnDescription') %></p>
+                        </div>
+                    </div>
+                    <div class="method-status">
+                        <span class="status-badge" id="webauthnStatus"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h3><%= __('profile.session.title') %></h3>
+            <div class="card-actions">
+                <button class="btn btn-sm btn-secondary" id="refreshSessionBtn">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="session-info">
+                <div class="session-item">
+                    <span class="session-icon material-symbols-outlined">schedule</span>
+                    <div class="session-details">
+                        <label><%= __('profile.session.sessionStarted') %></label>
+                        <span id="sessionCreated"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+                <div class="session-item">
+                    <span class="session-icon material-symbols-outlined">update</span>
+                    <div class="session-details">
+                        <label><%= __('profile.session.lastActivity') %></label>
+                        <span id="sessionLastActivity"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+                <div class="session-item">
+                    <span class="session-icon material-symbols-outlined">timer</span>
+                    <div class="session-details">
+                        <label><%= __('profile.session.sessionExpires') %></label>
+                        <span id="sessionExpires"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+                <div class="session-item">
+                    <span class="session-icon material-symbols-outlined">location_on</span>
+                    <div class="session-details">
+                        <label><%= __('profile.session.ipAddress') %></label>
+                        <span class="mono" id="sessionIpAddress"><%= __('profile.loading') %></span>
+                    </div>
+                </div>
+                <div class="session-item full-width">
+                    <span class="session-icon material-symbols-outlined">computer</span>
+                    <div class="session-details">
+                        <label>Browser & Device</label>
+                        <span class="mono small" id="sessionUserAgent">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h3>Recent Activity</h3>
+            <div class="card-actions">
+                <button class="btn btn-sm btn-secondary" id="refreshActivityBtn">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="activity-tabs">
+                <button class="activity-tab active" data-tab="logins">Recent Logins</button>
+                <button class="activity-tab" data-tab="failed" id="failedTab" style="display: none;">Failed Attempts</button>
+                <button class="activity-tab" data-tab="password" id="passwordTab" style="display: none;">Password Changes</button>
+            </div>
+
+            <div class="activity-content">
+                <div class="activity-list active" id="recentLogins">
+                    <div class="loading">Loading recent logins...</div>
+                </div>
+                <div class="activity-list" id="failedLogins" style="display: none;"></div>
+                <div class="activity-list" id="passwordChanges" style="display: none;"></div>
+
+                <button class="show-more-btn" id="showMoreBtn" style="display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+                    Show More
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% if (editableProfile) { %>
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" id="closeEditModalBtn">&times;</button>
+            </div>
+            <form id="editProfileForm">
+                <div class="form-section">
+                    <label class="form-label" for="editFullName">Full Name</label>
+                    <input type="text" class="form-control" id="editFullName" maxlength="255" placeholder="Your full name">
+                    <small class="form-help">Your display name for identification</small>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label" for="editEmail">Email Address</label>
+                    <input type="email" class="form-control" id="editEmail" placeholder="your.email@example.com">
+                    <small class="form-help">Used for account communications and notifications</small>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="form-section">
+                    <h3>Two-Factor Authentication</h3>
+                    <div class="twofa-options">
+                        <div class="twofa-option">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="editTotpEnabled" class="form-checkbox">
+                                <label class="form-label" for="editTotpEnabled">Enable TOTP Authenticator</label>
+                            </div>
+                            <small class="form-help">Use apps like Google Authenticator, Authy, or 1Password</small>
+                        </div>
+
+                        <div class="twofa-option">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="editWebauthnEnabled" class="form-checkbox">
+                                <label class="form-label" for="editWebauthnEnabled">Enable WebAuthn/FIDO2</label>
+                            </div>
+                            <small class="form-help">Use security keys, fingerprint, or face recognition</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">save</span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+<% } %>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>

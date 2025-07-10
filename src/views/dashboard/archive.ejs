@@ -1,0 +1,672 @@
+<div class="header">
+    <h1><%= __('archive.title') %></h1>
+    <!-- Debug: Test date formatting -->
+    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
+        Debug: Today formatted = <%= formatDate(new Date()) %> | Date format: <%= userDateFormat %>
+    </div>
+    <div class="header-actions">
+        <!-- Export Dropdown -->
+        <% if(permissions.includes('archived_analyses.export') || permissions.includes('read.all')) { %>
+            <div class="dropdown-container export-dropdown-container">
+                <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                    <%= __('common.export') %>
+                    <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+                </button>
+                <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                    <div class="dropdown-item" data-action="export-advanced">
+                        <span class="material-symbols-outlined">settings</span>
+                        <%= __('export.advancedOptions') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-csv">
+                        <span class="material-symbols-outlined">table_view</span>
+                        <%= __('export.quickCsv') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-json">
+                        <span class="material-symbols-outlined">code</span>
+                        <%= __('export.quickJson') %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+
+
+        <% if(permissions.includes('archived_analyses.cleanup') || permissions.includes('admin.all')) { %>
+            <button class="btn btn-danger" id="cleanupBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    delete_sweep
+                </span>
+                <%= __('archive.cleanup') %>
+            </button>
+        <% } %>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            <%= __('common.refresh') %>
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="<%= __('search.patientDoctorRoom') %>">
+    </div>
+    <select class="filter-select" id="statusFilter">
+        <option value=""><%= __('filter.allStatuses') %></option>
+        <option value="Pending"><%= __('status.pending') %></option>
+        <option value="Delayed"><%= __('status.delayed') %></option>
+        <option value="In Progress"><%= __('status.inProgress') %></option>
+        <option value="Completed"><%= __('status.completed') %></option>
+        <option value="Cancelled"><%= __('status.cancelled') %></option>
+    </select>
+    <select class="filter-select" id="typeFilter">
+        <option value=""><%= __('filter.allTypes') %></option>
+        <!-- Analysis types will be populated by JavaScript -->
+    </select>
+    <select class="filter-select" id="priorityFilter">
+        <option value=""><%= __('filter.allPriorities') %></option>
+        <option value="Low"><%= __('priority.low') %></option>
+        <option value="Normal"><%= __('priority.normal') %></option>
+        <option value="High"><%= __('priority.high') %></option>
+        <option value="Urgent"><%= __('priority.urgent') %></option>
+    </select>
+    <input type="date" class="filter-input" id="analysisStartDateFilter" title="<%= __('filter.analysisStartDate') %>" placeholder="<%= __('filter.analysisStartDate') %>">
+    <input type="date" class="filter-input" id="analysisEndDateFilter" title="<%= __('filter.analysisEndDate') %>" placeholder="<%= __('filter.analysisEndDate') %>">
+    <input type="date" class="filter-input" id="archivedStartDateFilter" title="<%= __('filter.archivedStartDate') %>" placeholder="<%= __('filter.archivedStartDate') %>">
+    <input type="date" class="filter-input" id="archivedEndDateFilter" title="<%= __('filter.archivedEndDate') %>" placeholder="<%= __('filter.archivedEndDate') %>">
+    <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filter.itemsPerPage') %>" min="10" max="100" value="20">
+</div>
+
+<div class="table-wrapper">
+    <table id="archiveTable">
+        <thead>
+        <tr>
+            <th data-sort="analysis_date">
+                <%= __('table.analysisDate') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="archived_at">
+                <%= __('table.archivedDate') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="patient_name">
+                <%= __('table.patient') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="doctor_name">
+                <%= __('table.doctor') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="room_number">
+                <%= __('table.room') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="analysis_type">
+                <%= __('table.type') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="priority">
+                <%= __('table.priority') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="status">
+                <%= __('table.status') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="postponed_count">
+                <%= __('table.postponements') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th>
+                <%= __('table.actions') %>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Table rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <div id="recordCount"><%= __('table.loadingArchive') %></div>
+    <div class="pagination" id="pagination">
+        <!-- Pagination will be populated by JavaScript -->
+    </div>
+</div>
+
+<!-- Archive Details Modal -->
+<div class="modal-overlay" id="archiveDetailsModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('archive.detailsTitle') %></h2>
+            <button class="modal-close" id="closeArchiveDetailsModalBtn">&times;</button>
+        </div>
+        <div class="archive-details-content" id="archiveDetailsContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="closeArchiveDetailsBtn"><%= __('common.close') %></button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Cleanup Modal -->
+<div class="modal-overlay" id="cleanupModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('archive.cleanupTitle') %></h2>
+            <button class="modal-close" id="closeCleanupModalBtn">&times;</button>
+        </div>
+        <form id="cleanupForm">
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong><%= __('archive.deletionWarning') %></strong>
+                    <p><%= __('archive.deletionDescription') %></p>
+                </div>
+            </div>
+
+            <label class="form-label" for="cleanupDays"><%= __('archive.deleteOlderThan') %> <span class="required">*</span></label>
+            <input type="number" class="form-control" id="cleanupDays" required min="365" placeholder="<%= __('archive.minimumDays') %>">
+            <small class="form-help"><%= __('archive.complianceNote') %></small>
+
+            <label class="form-label" for="cleanupReason"><%= __('archive.cleanupReason') %> <span class="required">*</span></label>
+            <textarea class="form-control" id="cleanupReason" rows="3" required placeholder="<%= __('archive.reasonPlaceholder') %>"></textarea>
+            <small class="form-help"><%= __('archive.auditNote') %></small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCleanupBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-danger"><%= __('archive.confirmCleanup') %></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2><%= __('export.archivedAnalyses') %></h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong><%= __('export.medicalDataNotice') %></strong>
+                    <p><%= __('export.medicalDataDescription') %></p>
+                </div>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.format') %> <span class="required">*</span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong><%= __('export.csvFormat') %></strong>
+                            <small><%= __('export.csvDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong><%= __('export.jsonFormat') %></strong>
+                            <small><%= __('export.jsonDescription') %></small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Current Filters Info -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.appliedFilters') %></label>
+                <div class="current-filters" id="currentFilters">
+                    <span class="filter-info"><%= __('export.usingCurrentFilters') %></span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong><%= __('export.sensitiveDataWarning') %></strong>
+                    <p><%= __('export.sensitiveDataDescription') %></p>
+                </div>
+            </div>
+
+            <div class="export-progress" id="exportProgress">
+                <div class="export-spinner"></div>
+                <span><%= __('export.preparing') %></span>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    <%= __('export.exportData') %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<style>
+    .required {
+        color: var(--dark-red);
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .archive-details-content {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 16px 0;
+    }
+
+    .archive-info-section {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .archive-info-section h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        color: #495057;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 8px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .dashboard-modal {
+        max-width: 900px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .dashboard-content {
+        margin: 20px 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .stat-card.total .stat-number {
+        color: #007bff;
+    }
+
+    .stat-card.completed .stat-number {
+        color: #155724;
+    }
+
+    .stat-card.cancelled .stat-number {
+        color: #721c24;
+    }
+
+    .stat-card.postponed .stat-number {
+        color: #856404;
+    }
+
+    .dashboard-table-wrapper {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-table-wrapper h3 {
+        margin: 0;
+        padding: 16px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 16px;
+        color: #495057;
+    }
+
+    #analysisTypesTable,
+    #topDoctorsTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #analysisTypesTable th,
+    #analysisTypesTable td,
+    #topDoctorsTable th,
+    #topDoctorsTable td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #analysisTypesTable th,
+    #topDoctorsTable th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* Priority badges */
+    .priority-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .priority-low {
+        background-color: #e8f5e8;
+        color: #388e3c;
+    }
+
+    .priority-normal {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .priority-high {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .priority-urgent {
+        background-color: #ffebee;
+        color: #d32f2f;
+    }
+
+    /* Status badges (reuse from analyses.css) */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-delayed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-in-progress {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background-color: #f5f5f5;
+        color: #6c757d;
+    }
+
+    .type-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .type-xy {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .type-yz {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .type-zg {
+        background-color: #e8f5e8;
+        color: #388e3c;
+    }
+
+    .type-hg {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    /* Date Display */
+    .archive-date {
+        font-weight: 500;
+        color: #495057;
+        font-size: 13px;
+    }
+
+    .archive-date.recent {
+        color: #007bff;
+        font-weight: 600;
+    }
+
+    .archive-date.old {
+        color: #6c757d;
+    }
+
+    /* Postponement counter */
+    .postponement-count {
+        display: inline-block;
+        background: #e9ecef;
+        color: #495057;
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .postponement-count.high {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .postponement-count.very-high {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Enhanced Search Filters */
+    .filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-width: 200px;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #6c757d;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .search-input {
+        padding-left: 40px;
+        width: 100%;
+        height: 40px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .filter-select,
+    .filter-input {
+        height: 40px;
+        padding: 8px 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        min-width: 120px;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: unset;
+            max-width: unset;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .dashboard-modal {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 1000px;
+        }
+    }
+</style>

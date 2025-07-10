@@ -1,0 +1,354 @@
+<div class="header">
+    <h1>Data Management</h1>
+    <div class="header-actions">
+        <button class="btn btn-secondary" id="refreshHistoryBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Quick Actions Grid -->
+<div class="quick-actions-grid">
+    <div class="action-card" data-action="import">
+        <div class="action-icon">
+            <span class="material-symbols-outlined">file_upload</span>
+        </div>
+        <h3>Import Data</h3>
+        <p>Upload CSV, Excel, or JSON files to import patients, doctors, or analyses</p>
+        <button class="btn btn-primary" id="importDataBtn">
+            <span class="material-symbols-outlined">upload</span>
+            Import
+        </button>
+    </div>
+
+    <div class="action-card" data-action="export">
+        <div class="action-icon">
+            <span class="material-symbols-outlined">file_download</span>
+        </div>
+        <h3>Export Data</h3>
+        <p>Export data to CSV, Excel, or JSON formats with customizable filters</p>
+        <button class="btn btn-primary" id="exportDataBtn">
+            <span class="material-symbols-outlined">download</span>
+            Export
+        </button>
+    </div>
+
+    <div class="action-card" data-action="templates">
+        <div class="action-icon">
+            <span class="material-symbols-outlined">description</span>
+        </div>
+        <h3>Download Templates</h3>
+        <p>Get import templates with proper formatting and required fields</p>
+        <button class="btn btn-secondary" id="templatesBtn">
+            <span class="material-symbols-outlined">download</span>
+            Templates
+        </button>
+    </div>
+
+    <div class="action-card" data-action="history">
+        <div class="action-icon">
+            <span class="material-symbols-outlined">history</span>
+        </div>
+        <h3>Import/Export History</h3>
+        <p>View past import and export operations with detailed logs</p>
+        <button class="btn btn-secondary" id="viewHistoryBtn">
+            <span class="material-symbols-outlined">visibility</span>
+            View History
+        </button>
+    </div>
+</div>
+
+<!-- Import/Export History -->
+<div class="dashboard-section">
+    <div class="section-header">
+        <h2>Recent Operations</h2>
+        <div class="section-actions">
+            <select id="historyTypeFilter" class="filter-select">
+                <option value="">All Operations</option>
+                <option value="import">Imports Only</option>
+                <option value="export">Exports Only</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Entity</th>
+                    <th>Format</th>
+                    <th>Records</th>
+                    <th>Status</th>
+                    <th>User</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                <tr>
+                    <td colspan="8" class="text-center">Loading history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h2>Import Data</h2>
+            <button class="modal-close" id="closeImportBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="importForm" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="importEntityType">Data Type</label>
+                        <select id="importEntityType" class="form-control" required>
+                            <option value="">Select data type...</option>
+                            <option value="patients">Patients</option>
+                            <option value="doctors">Doctors</option>
+                            <option value="analyses">Analyses</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="importFile">Select File</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" id="importFile" name="file" accept=".csv,.xlsx,.xls,.json" required>
+                        <div class="file-upload-content">
+                            <span class="material-symbols-outlined">cloud_upload</span>
+                            <p>Click to browse or drag and drop your file here</p>
+                            <small>Supported formats: CSV, Excel (.xlsx, .xls), JSON</small>
+                        </div>
+                    </div>
+                    <div id="selectedFileInfo" class="selected-file-info" style="display: none;">
+                        <span class="material-symbols-outlined">description</span>
+                        <span id="selectedFileName"></span>
+                        <span id="selectedFileSize"></span>
+                        <button type="button" id="removeFileBtn" class="remove-file-btn">&times;</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="updateExisting">
+                        <span>Update existing records if duplicates are found</span>
+                    </label>
+                    <small class="form-hint">If unchecked, duplicate records will be skipped</small>
+                </div>
+
+                <div id="importPreview" class="import-preview" style="display: none;">
+                    <h4>Import Preview</h4>
+                    <div id="previewContent"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelImportBtn">Cancel</button>
+            <button type="button" class="btn btn-secondary" id="downloadTemplateBtn" style="display: none;">
+                <span class="material-symbols-outlined">download</span>
+                Download Template
+            </button>
+            <button type="submit" class="btn btn-primary" form="importForm" id="startImportBtn">
+                <span class="material-symbols-outlined">upload</span>
+                Start Import
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h2>Export Data</h2>
+            <button class="modal-close" id="closeExportBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="exportForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exportEntityType">Data Type</label>
+                        <select id="exportEntityType" class="form-control" required>
+                            <option value="">Select data type...</option>
+                            <option value="patients">Patients</option>
+                            <option value="doctors">Doctors</option>
+                            <option value="analyses">Analyses</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exportFormat">Export Format</label>
+                        <select id="exportFormat" class="form-control" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel (.xlsx)</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Filters Section -->
+                <div class="filters-section">
+                    <h4>Filters</h4>
+                    
+                    <div class="form-row" id="dateFilters" style="display: none;">
+                        <div class="form-group">
+                            <label for="exportDateFrom">From Date</label>
+                            <input type="date" id="exportDateFrom" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="exportDateTo">To Date</label>
+                            <input type="date" id="exportDateTo" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="createdAfterFilter" style="display: none;">
+                        <label for="exportCreatedAfter">Created After</label>
+                        <input type="date" id="exportCreatedAfter" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Privacy Options -->
+                <div class="privacy-section">
+                    <h4>Privacy & Security</h4>
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="includePersonalData">
+                            <span>Include personal/sensitive data</span>
+                        </label>
+                        <small class="form-hint">Requires special permissions. Unchecked exports will exclude names, contact info, and other sensitive fields.</small>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" form="exportForm">
+                <span class="material-symbols-outlined">download</span>
+                Export Data
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Templates Modal -->
+<div class="modal-overlay" id="templatesModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Download Import Templates</h2>
+            <button class="modal-close" id="closeTemplatesBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Download pre-formatted templates with the correct column headers and sample data:</p>
+            
+            <div class="templates-list">
+                <div class="template-item">
+                    <div class="template-info">
+                        <h4>Patient Import Template</h4>
+                        <p>Includes: name, matricule_national, date_of_birth, gender, contact info</p>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-secondary" data-entity="patients" data-format="csv">
+                            <span class="material-symbols-outlined">download</span>
+                            CSV
+                        </button>
+                        <button class="btn btn-secondary" data-entity="patients" data-format="excel">
+                            <span class="material-symbols-outlined">download</span>
+                            Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="template-item">
+                    <div class="template-info">
+                        <h4>Doctor Import Template</h4>
+                        <p>Includes: full_name, email, specialization, license_number, department</p>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-secondary" data-entity="doctors" data-format="csv">
+                            <span class="material-symbols-outlined">download</span>
+                            CSV
+                        </button>
+                        <button class="btn btn-secondary" data-entity="doctors" data-format="excel">
+                            <span class="material-symbols-outlined">download</span>
+                            Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="template-item">
+                    <div class="template-info">
+                        <h4>Analysis Import Template</h4>
+                        <p>Includes: patient_id, doctor_id, service_id, analysis_date, status</p>
+                    </div>
+                    <div class="template-actions">
+                        <button class="btn btn-secondary" data-entity="analyses" data-format="csv">
+                            <span class="material-symbols-outlined">download</span>
+                            CSV
+                        </button>
+                        <button class="btn btn-secondary" data-entity="analyses" data-format="excel">
+                            <span class="material-symbols-outlined">download</span>
+                            Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeTemplatesModalBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal-overlay" id="progressModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="progressTitle">Processing...</h2>
+        </div>
+        <div class="modal-body">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Initializing...</div>
+            </div>
+            
+            <div id="progressResults" class="progress-results" style="display: none;">
+                <div class="results-summary">
+                    <div class="result-item">
+                        <span class="result-label">Total Records:</span>
+                        <span id="totalRecords">0</span>
+                    </div>
+                    <div class="result-item success">
+                        <span class="result-label">Imported:</span>
+                        <span id="importedRecords">0</span>
+                    </div>
+                    <div class="result-item warning">
+                        <span class="result-label">Skipped:</span>
+                        <span id="skippedRecords">0</span>
+                    </div>
+                    <div class="result-item error">
+                        <span class="result-label">Failed:</span>
+                        <span id="failedRecords">0</span>
+                    </div>
+                </div>
+                
+                <div id="errorDetails" class="error-details" style="display: none;">
+                    <h4>Errors:</h4>
+                    <div id="errorList"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="closeProgressBtn" style="display: none;">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>

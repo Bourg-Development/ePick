@@ -9,8 +9,10 @@ module.exports = {
     NODE_ENV: process.env.NODE_ENV || 'development',
 
     // Server config
-    PORT: process.env.PORT || 3000,
+    PORT: process.env.PORT || 4000,
     HOST: process.env.HOST || 'localhost',
+    BASE_URL: process.env.BASE_URL || 'http://localhost:4000',
+    FRONTEND_URL: process.env.FRONTEND_URL || process.env.BASE_URL || 'http://localhost:4000',
 
     // Database config
     DB_HOST: process.env.DB_HOST || 'localhost',
@@ -38,6 +40,7 @@ module.exports = {
 
     // Email config
     EMAIL_FROM: process.env.EMAIL_FROM || 'security@example.com',
+    EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'ePick System',
     REPLY_TO: process.env.REPLY_TO || 'info@example.com',
     EMAIL_HOST: process.env.EMAIL_HOST || 'smtp.example.com',
     EMAIL_PORT: parseInt(process.env.EMAIL_PORT || '587'),
@@ -53,5 +56,13 @@ module.exports = {
     PASSWORD_REQUIRE_SYMBOL: process.env.PASSWORD_REQUIRE_SYMBOL !== 'false',
 
     // Session settings
-    SESSION_DEVICE_BINDING: process.env.SESSION_DEVICE_BINDING === 'true'
+    SESSION_DEVICE_BINDING: process.env.SESSION_DEVICE_BINDING === 'true',
+
+    // GitHub Integration config
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
+    GITHUB_OWNER: process.env.GITHUB_OWNER || '',
+    GITHUB_REPO: process.env.GITHUB_REPO || '',
+    GITHUB_SYNC_ENABLED: process.env.GITHUB_SYNC_ENABLED === 'true',
+    GITHUB_SYNC_INTERVAL: parseInt(process.env.GITHUB_SYNC_INTERVAL || '3600000'), // 1 hour in ms
+    GITHUB_AUTO_PUBLISH: process.env.GITHUB_AUTO_PUBLISH === 'true'
 };

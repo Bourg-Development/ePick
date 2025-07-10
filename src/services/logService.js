@@ -116,8 +116,7 @@ class LogService {
                 where: whereClause,
                 include: [
                     {
-                        model: db.User,
-                        as: 'User',
+                        association: 'User',
                         attributes: ['id', 'username']
                     }
                 ],
@@ -171,8 +170,7 @@ class LogService {
                 where: whereClause,
                 include: [
                     {
-                        model: db.User,
-                        as: 'User',
+                        association: 'User',
                         attributes: ['id', 'username']
                     }
                 ],
@@ -323,7 +321,56 @@ class LogService {
         }
 
         if (filters.eventType) {
-            whereClause.event_type = filters.eventType;
+            // Support both exact match and prefix matching
+            if (filters.eventType.endsWith('_')) {
+                whereClause.event_type = {
+                    [db.Sequelize.Op.like]: `${filters.eventType}%`
+                };
+            } else {
+                whereClause.event_type = filters.eventType;
+            }
+        }
+
+        // Filter to only meaningful events for regular admins
+        if (filters.meaningfulEventsOnly && Array.isArray(filters.meaningfulEventsOnly)) {
+            // Instead of exact matching, use pattern matching to catch all variations
+            const meaningfulPatterns = [
+                'analysis%',
+                'patient%', 
+                'doctor%',
+                'room%',
+                'user%',
+                'system_update%'
+            ];
+            
+            // Exclude technical/system events
+            const excludePatterns = [
+                'http.%',
+                'auth.%',
+                'token.%',
+                'session.%',
+                'security.%',
+                'api.%',
+                'request.%',
+                'response.%',
+                'login.%',
+                'logout.%'
+            ];
+            
+            whereClause.event_type = {
+                [db.Sequelize.Op.and]: [
+                    {
+                        [db.Sequelize.Op.or]: meaningfulPatterns.map(pattern => ({
+                            [db.Sequelize.Op.like]: pattern
+                        }))
+                    },
+                    {
+                        [db.Sequelize.Op.and]: excludePatterns.map(pattern => ({
+                            [db.Sequelize.Op.notLike]: pattern
+                        }))
+                    }
+                ]
+            };
         }
 
         // Date range filtering

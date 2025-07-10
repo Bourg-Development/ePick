@@ -1,0 +1,185 @@
+/* User Sidebar Styles - Extends base sidebar functionality */
+.sidebar {
+    width: 250px;
+    height: calc(100vh - 70px);
+    background-color: var(--off-white);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    left: 0;
+    z-index: 99;
+}
+
+.sidebar-menu {
+    padding: 20px 0;
+}
+
+.sidebar-header {
+    padding: 0 20px 15px;
+    border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 15px;
+}
+
+.sidebar-header h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--medium-gray);
+}
+
+.sidebar-menu ul {
+    list-style: none;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-black);
+    text-decoration: none;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu li a:hover {
+    background-color: var(--light-gray);
+    color: var(--blood-red);
+    padding-left: 25px;
+}
+
+.sidebar-menu li.active > a {
+    background-color: rgba(230, 57, 70, 0.1);
+    color: var(--blood-red);
+    border-left: 3px solid var(--blood-red);
+}
+
+.sidebar-menu li a .material-symbols-outlined {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Settings Menu Specific Styles */
+.settings-menu .settings-toggle {
+    position: relative;
+}
+
+.settings-menu .expand-icon {
+    margin-left: auto;
+    margin-right: 0;
+    width: 20px;
+    transition: transform 0.3s ease;
+    font-size: 20px;
+}
+
+.settings-menu.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+/* Submenu Styles */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.settings-menu.expanded .submenu {
+    max-height: 300px; /* Adjust based on number of submenu items */
+}
+
+.submenu li a {
+    padding: 10px 20px 10px 50px;
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+.submenu li a:hover {
+    background-color: rgba(230, 57, 70, 0.05);
+    color: var(--blood-red);
+    padding-left: 55px;
+}
+
+.submenu li.active a {
+    background-color: rgba(230, 57, 70, 0.1);
+    color: var(--blood-red);
+    border-left: 3px solid var(--blood-red);
+}
+
+.submenu li a .material-symbols-outlined {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+/* Collapsed State */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-header,
+.sidebar.collapsed span:not(.material-symbols-outlined) {
+    display: none;
+}
+
+.sidebar.collapsed li a {
+    justify-content: center;
+    padding: 15px 0;
+}
+
+.sidebar.collapsed li a .material-symbols-outlined {
+    display: block;
+    margin-right: 0;
+    font-size: 22px;
+}
+
+.sidebar.collapsed .submenu {
+    display: none;
+}
+
+.sidebar.collapsed .expand-icon {
+    display: none !important;
+}
+
+.sidebar.collapsed .settings-menu .expand-icon {
+    display: none !important;
+}
+
+.sidebar.collapsed .settings-menu .settings-toggle .expand-icon {
+    display: none !important;
+}
+
+/* Content area adjustment when sidebar is collapsed */
+.sidebar.collapsed ~ .content,
+.main-container .sidebar.collapsed ~ .content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+}
+
+/* Default content adjustment for expanded sidebar */
+.content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    min-height: calc(100vh - 70px);
+    background-color: #f4f6f9;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .sidebar.collapsed ~ .content,
+    .main-container .sidebar.collapsed ~ .content {
+        margin-left: 70px;
+    }
+}
+
+/* Ensure proper transitions for all states */
+.sidebar,
+.sidebar * {
+    transition-property: all;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+}

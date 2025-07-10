@@ -11,12 +11,9 @@ const { REFERENCE_CODE_EXPIRY_DAYS } = require('../config/environment');
  */
 class ReferenceCodeService {
     /**
-     * Generate a new reference code for user creation
+     * Generate a new reference code for an existing user
      * @param {Object} data - Reference code data
-     * @param {string} data.username - 6-digit numeric username for the new user
-     * @param {number} data.roleId - Role ID for the new user
-     * @param {number} data.serviceId - Service ID for regular staff (optional)
-     * @param {string} data.email - Email for admin accounts (optional)
+     * @param {number} data.userId - ID of existing user to generate code for
      * @param {boolean} data.require2FA - Whether to require 2FA setup (optional)
      * @param {number} data.createdBy - Admin user ID creating this code
      * @param {Object} context - Request context with IP and device info
@@ -25,135 +22,104 @@ class ReferenceCodeService {
     async generateReferenceCode(data, context) {
         try {
             const {
-                username,
-                roleId,
-                serviceId,
-                email,
+                userId,
                 require2FA = false,
                 createdBy
             } = data;
 
-            // Validate username format (6 digits)
-            if (!username.match(/^\d{6}$/)) {
-                return {
-                    success: false,
-                    message: 'Username must be exactly 6 digits'
-                };
-            }
-
-            // Check if username already exists
-            const existingUser = await db.User.findOne({
-                where: { username }
+            // Get user information
+            const user = await db.User.findByPk(userId, {
+                include: [
+                    { association: 'role' },
+                    { association: 'service' }
+                ]
             });
 
-            if (existingUser) {
+            if (!user) {
                 return {
                     success: false,
-                    message: 'Username already exists'
+                    message: 'User not found'
                 };
             }
 
-            // Get role information
-            const role = await db.Role.findByPk(roleId);
-            if (!role) {
-                return { success: false, message: 'Invalid role' };
-            }
-
-            // Validate service ID for regular staff
-            if (role.name !== 'admin' && !serviceId) {
-                return {
-                    success: false,
-                    message: 'Service ID is required for non-admin users'
-                };
-            }
-
-            // Validate email for admin accounts
-            if (role.name === 'admin' && !email) {
-                return {
-                    success: false,
-                    message: 'Email is required for admin accounts'
-                };
-            }
-
-            // Begin transaction
-            const transaction = await db.sequelize.transaction();
-
-            try {
-                // Create pre-registered user
-                const user = await db.User.create({
-                    username,
-                    password_hash: '', // Will be set during registration
-                    salt: '',          // Will be set during registration
-                    role_id: roleId,
-                    service_id: serviceId || null,
-                    email: email || null,
-                    totp_enabled: false,
-                    webauthn_enabled: false,
-                    created_by: createdBy
-                }, { transaction });
-
-                // Generate random code in format xxx-xxx-xxx
-                const code = this._generateCode();
-
-                // Calculate expiry date (default: 7 days)
-                const expiryDays = REFERENCE_CODE_EXPIRY_DAYS || 7;
-                const expiresAt = new Date();
-                expiresAt.setDate(expiresAt.getDate() + expiryDays);
-
-                // Create reference code record
-                const refCode = await db.RefCode.create({
-                    code,
-                    user_id: user.id,
-                    created_by: createdBy,
-                    expires_at: expiresAt,
+            // Check if user already has an active reference code
+            const existingCode = await db.RefCode.findOne({
+                where: {
+                    user_id: userId,
                     status: 'active',
-                    require_2fa: require2FA
-                }, { transaction });
-
-                // Commit transaction
-                await transaction.commit();
-
-                // Log reference code creation
-                await logService.auditLog({
-                    eventType: 'refcode.created',
-                    userId: createdBy,
-                    targetId: user.id,
-                    targetType: 'user',
-                    ipAddress: context.ip,
-                    deviceFingerprint: context.deviceFingerprint,
-                    metadata: {
-                        username,
-                        role: role.name,
-                        expiresAt,
-                        require2FA,
-                        userAgent: context.userAgent
-                    }
-                });
-
-                // If email is provided, send notification
-                if (email) {
-                    await emailService.sendReferenceCode({
-                        email,
-                        code,
-                        expiresAt,
-                        createdByUserId: createdBy
-                    });
+                    expires_at: { [Op.gt]: new Date() }
                 }
+            });
 
+            if (existingCode) {
                 return {
-                    success: true,
-                    code,
-                    userId: user.id,
-                    username,
-                    role: role.name,
-                    expiresAt,
-                    message: 'Reference code generated successfully'
+                    success: false,
+                    message: 'User already has an active reference code'
                 };
-            } catch (error) {
-                // Rollback transaction on error
-                await transaction.rollback();
-                throw error;
             }
+
+            // Check if user already has a password set (indicating they've already registered)
+            if (user.password_hash && user.password_hash.length > 0) {
+                return {
+                    success: false,
+                    message: 'User has already completed registration'
+                };
+            }
+
+            // Generate random code in format xxx-xxx-xxx
+            const code = this._generateCode();
+
+            // Calculate expiry date (default: 7 days)
+            const expiryDays = REFERENCE_CODE_EXPIRY_DAYS || 7;
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + expiryDays);
+
+            // Create reference code record
+            const refCode = await db.RefCode.create({
+                code,
+                user_id: userId,
+                created_by: createdBy,
+                expires_at: expiresAt,
+                status: 'active',
+                require_2fa: require2FA
+            });
+
+            // Log reference code creation
+            await logService.auditLog({
+                eventType: 'refcode.created',
+                userId: createdBy,
+                targetId: userId,
+                targetType: 'user',
+                ipAddress: context.ip,
+                deviceFingerprint: context.deviceFingerprint,
+                metadata: {
+                    username: user.username,
+                    role: user.role.name,
+                    expiresAt,
+                    require2FA,
+                    userAgent: context.userAgent
+                }
+            });
+
+            // If email is provided, send notification
+            if (user.email) {
+                await emailService.sendReferenceCode({
+                    email: user.email,
+                    code,
+                    expiresAt,
+                    createdByUserId: createdBy
+                });
+            }
+
+            return {
+                success: true,
+                code,
+                userId: user.id,
+                username: user.username,
+                role: user.role.name,
+                expiresAt,
+                message: 'Reference code generated successfully'
+            };
         } catch (error) {
             console.error('Reference code generation error:', error);
             await logService.securityLog({
@@ -164,7 +130,7 @@ class ReferenceCodeService {
                 deviceFingerprint: context.deviceFingerprint,
                 metadata: {
                     error: error.message,
-                    username: data.username,
+                    userId: data.userId,
                     userAgent: context.userAgent
                 }
             });
@@ -194,7 +160,7 @@ class ReferenceCodeService {
                 include: [{
                     model: db.User,
                     as: 'TargetUser',
-                    include: [{ model: db.Role }]
+                    include: [{ association: 'role' }]
                 }]
             });
 
@@ -209,7 +175,7 @@ class ReferenceCodeService {
                 success: true,
                 userId: refCode.user_id,
                 username: refCode.TargetUser.username,
-                role: refCode.TargetUser.Role.name,
+                role: refCode.TargetUser.role.name,
                 require2FA: refCode.require_2fa,
                 expiresAt: refCode.expires_at,
                 message: 'Valid reference code'
@@ -244,7 +210,7 @@ class ReferenceCodeService {
                     as: 'TargetUser',
                     attributes: ['id', 'username'],
                     include: [{
-                        model: db.Role,
+                        association: 'role',
                         attributes: ['id', 'name']
                     }]
                 }, {
@@ -262,7 +228,7 @@ class ReferenceCodeService {
                     code: code.code,
                     userId: code.user_id,
                     username: code.TargetUser.username,
-                    role: code.TargetUser.Role.name,
+                    role: code.TargetUser.role.name,
                     createdBy: code.Creator.username,
                     createdAt: code.created_at,
                     expiresAt: code.expires_at,
@@ -342,7 +308,7 @@ class ReferenceCodeService {
         try {
             // Get user information
             const user = await db.User.findByPk(userId, {
-                include: [{ model: db.Role }]
+                include: [{ association: 'role' }]
             });
 
             if (!user) {
@@ -407,7 +373,7 @@ class ReferenceCodeService {
                 deviceFingerprint: context.deviceFingerprint,
                 metadata: {
                     username: user.username,
-                    role: user.Role.name,
+                    role: user.role.name,
                     expiresAt,
                     require2FA,
                     userAgent: context.userAgent

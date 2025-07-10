@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePick Analyses List</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+            background-color: #ffffff;
+            line-height: 1.4;
+            /* A4 size constraints */
+            width: 21cm;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            padding: 20px 25px;
+            position: relative;
+            min-height: 29.7cm;
+        }
+
+        /* Letterhead */
+        .letterhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e6e6e6;
+        }
+
+        .letterhead-left {
+            text-align: left;
+        }
+
+        .letterhead-right {
+            text-align: right;
+            font-size: 11px;
+            color: #666666;
+            line-height: 1.2;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 25px;
+        }
+
+        .document-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #333333;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .document-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .export-date {
+            font-weight: bold;
+        }
+
+        .record-count {
+            background-color: #e63946;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            margin-bottom: 30px;
+            overflow-x: auto;
+            border: 1px solid #e6e6e6;
+            border-radius: 4px;
+        }
+
+        .analyses-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            background-color: #ffffff;
+        }
+
+        .analyses-table thead {
+            background: linear-gradient(to bottom, #333333, #2a2a2a);
+            color: white;
+        }
+
+        .analyses-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            font-size: 11px;
+        }
+
+        .analyses-table th:last-child {
+            border-right: none;
+        }
+
+        .analyses-table tbody tr {
+            border-bottom: 1px solid #e6e6e6;
+            transition: background-color 0.2s ease;
+        }
+
+        .analyses-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .analyses-table tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        .analyses-table td {
+            padding: 10px 8px;
+            border-right: 1px solid #e6e6e6;
+            vertical-align: middle;
+        }
+
+        .analyses-table td:last-child {
+            border-right: none;
+        }
+
+        /* Status Badge Styles */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .status-pending {
+            background-color: #ffc107;
+            color: #856404;
+        }
+
+        .status-completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-in-progress {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .status-cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .status-scheduled {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Type Badge Styles */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background-color: #e63946;
+            color: white;
+        }
+
+        /* Column visibility classes - FIXED */
+        .hide-patient .col-patient { display: none !important; }
+        .hide-room .col-room { display: none !important; }
+        .hide-type .col-type { display: none !important; }
+        .hide-doctor .col-doctor { display: none !important; }
+        .hide-status .col-status { display: none !important; }
+
+        /* Patient ID formatting */
+        .patient-id {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #e63946;
+        }
+
+        .patient-name {
+            color: #333333;
+            font-weight: normal;
+        }
+
+        /* Doctor formatting */
+        .doctor-name {
+            font-weight: 500;
+            color: #333333;
+        }
+
+        /* Room formatting */
+        .room-number {
+            font-weight: bold;
+            color: #e63946;
+            text-align: center;
+        }
+
+        /* Logo SVG */
+        .svg-logo {
+            width: 135px;
+            height: 65px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #e6e6e6;
+            text-align: center;
+            font-size: 9px;
+            color: #666666;
+            position: relative;
+        }
+
+        .footer p {
+            margin-bottom: 3px;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #e6e6e6;
+        }
+
+        .empty-state-message {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-description {
+            font-size: 12px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                width: 210mm;
+            }
+
+            .container {
+                width: 100%;
+                margin: 0;
+                padding: 15mm;
+                min-height: auto;
+            }
+
+            .analyses-table {
+                font-size: 10px;
+            }
+
+            .analyses-table th {
+                font-size: 9px;
+                padding: 8px 6px;
+            }
+
+            .analyses-table td {
+                padding: 6px 6px;
+            }
+
+            .status-badge {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+
+            .type-badge {
+                font-size: 7px;
+                padding: 1px 4px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Letterhead -->
+    <div class="letterhead">
+        <div class="letterhead-left">
+            <svg class="svg-logo" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background -->
+                <rect width="400" height="200" fill="#ffffff"/>
+
+                <!-- Primary Logo -->
+                <g transform="translate(200, 100)">
+                    <!-- Text elements -->
+                    <g transform="translate(-55, 5) scale(0.7)">
+                        <text x="-120" y="0" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#333">e</text>
+                        <text x="15" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">P</text>
+
+                        <!-- i-stem -->
+                        <rect x="95" y="-60" width="18" height="60" fill="#e63946" rx="2" ry="2"/>
+
+                        <!-- Rest of "ck" -->
+                        <text x="125" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">ck</text>
+
+                        <!-- Blood drop -->
+                        <path d="M105,-110 C110,-99 114,-89 116,-80
+                                    C118,-70 112,-63 105,-63
+                                    C98,-63 92,-70 94,-80
+                                    C96,-89 100,-99 105,-110Z"
+                              fill="#c1121f" />
+
+                        <!-- Highlight -->
+                        <path d="M100,-95 C102,-90 105,-87 108,-89"
+                              fill="none"
+                              stroke="white"
+                              stroke-width="3"
+                              stroke-opacity="0.7"
+                              stroke-linecap="round" />
+
+                        <!-- Underline -->
+                        <line x1="-120" y1="30" x2="230" y2="30" stroke="#333" stroke-width="8" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+        <div class="letterhead-right">
+            <p>ePick</p>
+            <p>Fondation J.P. Pescatore</p>
+            <p>analyses@epick.fondation.lu</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1 class="document-title">Analyses List Report</h1>
+        <div class="document-info">
+            <div class="export-date">
+                <span>Generated on: {{export_date}}</span>
+                <span style="margin-left: 20px;">Document ID: {{document_id}}</span>
+            </div>
+            <div class="record-count" id="recordCount">
+                {{total_records}} Records
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table class="analyses-table" id="analysesTable">
+            <thead>
+            <tr>
+                <th class="col-patient">Patient</th>
+                <th class="col-room">Room</th>
+                <th class="col-type">Type</th>
+                <th class="col-doctor">Doctor</th>
+                <th class="col-status">Status</th>
+            </tr>
+            </thead>
+            <tbody id="analysesTableBody">
+            <!-- Sample data rows - replace with your dynamic content -->
+            <tr>
+                <td class="col-patient">
+                    <div class="patient-id">PAT-001</div>
+                    <div class="patient-name">John Doe</div>
+                </td>
+                <td class="col-room">
+                    <div class="room-number">102A</div>
+                </td>
+                <td class="col-type">
+                    <span class="type-badge">Blood</span>
+                </td>
+                <td class="col-doctor">
+                    <div class="doctor-name">Dr. Smith</div>
+                </td>
+                <td class="col-status">
+                    <span class="status-badge status-completed">Completed</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-patient">
+                    <div class="patient-id">PAT-002</div>
+                    <div class="patient-name">Jane Smith</div>
+                </td>
+                <td class="col-room">
+                    <div class="room-number">205B</div>
+                </td>
+                <td class="col-type">
+                    <span class="type-badge">Urine</span>
+                </td>
+                <td class="col-doctor">
+                    <div class="doctor-name">Dr. Johnson</div>
+                </td>
+                <td class="col-status">
+                    <span class="status-badge status-in-progress">In Progress</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-patient">
+                    <div class="patient-id">PAT-003</div>
+                    <div class="patient-name">Bob Wilson</div>
+                </td>
+                <td class="col-room">
+                    <div class="room-number">301C</div>
+                </td>
+                <td class="col-type">
+                    <span class="type-badge">X-Ray</span>
+                </td>
+                <td class="col-doctor">
+                    <div class="doctor-name">Dr. Brown</div>
+                </td>
+                <td class="col-status">
+                    <span class="status-badge status-pending">Pending</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Empty state (hidden by default) -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-message">No analyses found</div>
+            <div class="empty-state-description">There are no analyses to display for the selected criteria.</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 Fondation J.P. Pescatore. All rights reserved.</p>
+        <p>This document was generated on {{export_date}} | Document ID: {{document_id}} | Confidential Medical Data</p>
+    </div>
+</div>
+
+<script>
+    // Function to hide/show columns from backend
+    function toggleColumn(columnName, visible = true) {
+        const className = `hide-${columnName.toLowerCase()}`;
+        const table = document.getElementById('analysesTable');
+
+        if (visible) {
+            table.classList.remove(className);
+        } else {
+            table.classList.add(className);
+        }
+    }
+
+    // Function to hide multiple columns at once
+    function setColumnVisibility(columnConfig) {
+        Object.keys(columnConfig).forEach(column => {
+            toggleColumn(column, columnConfig[column]);
+        });
+    }
+
+    // Function to populate table with data
+    function populateTable(data) {
+        const tbody = document.getElementById('analysesTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const recordCount = document.getElementById('recordCount');
+
+        if (!data || data.length === 0) {
+            tbody.style.display = 'none';
+            emptyState.style.display = 'block';
+            recordCount.textContent = '0 Records';
+            return;
+        }
+
+        tbody.style.display = '';
+        emptyState.style.display = 'none';
+        recordCount.textContent = `${data.length} Record${data.length !== 1 ? 's' : ''}`;
+
+        tbody.innerHTML = data.map(row => `
+            <tr>
+                <td class="col-patient">
+                    <div class="patient-id">${row.patient_id || ''}</div>
+                    <div class="patient-name">${row.patient_name || ''}</div>
+                </td>
+                <td class="col-room">
+                    <div class="room-number">${row.room || ''}</div>
+                </td>
+                <td class="col-type">
+                    <span class="type-badge">${row.type || ''}</span>
+                </td>
+                <td class="col-doctor">
+                    <div class="doctor-name">${row.doctor || ''}</div>
+                </td>
+                <td class="col-status">
+                    <span class="status-badge status-${(row.status || '').toLowerCase().replace(' ', '-')}">${row.status || ''}</span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    setColumnVisibility(JSON.parse('{{column_visibility}}'))
+    populateTable(JSON.parse('{{table_data}}'))
+
+</script>
+</body>
+</html>

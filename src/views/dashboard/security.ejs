@@ -1,0 +1,256 @@
+<div class="header">
+    <h1>Security & Forensics Dashboard</h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
+            Refresh
+        </button>
+        <button class="btn btn-secondary" id="generateReportBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">assessment</span>
+            Generate Report
+        </button>
+        <button class="btn btn-secondary" id="investigateBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+            Investigate
+        </button>
+    </div>
+</div>
+
+<!-- Security Metrics Cards -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-header">
+            <span class="material-symbols-outlined">security</span>
+            <h3>Security Status</h3>
+        </div>
+        <div class="metric-value">
+            <span id="securityStatus" class="status-good">SECURE</span>
+        </div>
+        <div class="metric-details">
+            <small>Last check: <span id="lastSecurityCheck">--</span></small>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <span class="material-symbols-outlined">warning</span>
+            <h3>Active Alerts</h3>
+        </div>
+        <div class="metric-value">
+            <span id="activeAlerts">0</span>
+        </div>
+        <div class="metric-details">
+            <small>High: <span id="highAlerts">0</span> | Medium: <span id="mediumAlerts">0</span></small>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <span class="material-symbols-outlined">people</span>
+            <h3>High-Risk Users</h3>
+        </div>
+        <div class="metric-value">
+            <span id="highRiskUsers">0</span>
+        </div>
+        <div class="metric-details">
+            <small>Requires investigation</small>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <span class="material-symbols-outlined">language</span>
+            <h3>Suspicious IPs</h3>
+        </div>
+        <div class="metric-value">
+            <span id="suspiciousIPs">0</span>
+        </div>
+        <div class="metric-details">
+            <small>Blocked: <span id="blockedIPs">0</span></small>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Security Events -->
+<div class="dashboard-section">
+    <div class="section-header">
+        <h2>Recent Security Events</h2>
+        <div class="section-actions">
+            <select id="eventTypeFilter" class="filter-select">
+                <option value="">All Events</option>
+                <option value="login">Login Events</option>
+                <option value="failed">Failed Attempts</option>
+                <option value="security">Security Events</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Event Type</th>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Risk Level</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="securityEventsTableBody">
+                <tr>
+                    <td colspan="6" class="text-center">Loading security events...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Alert Details -->
+<div class="dashboard-section" id="alertsSection" style="display: none;">
+    <div class="section-header">
+        <h2>Security Alerts</h2>
+    </div>
+    
+    <div id="alertsContainer">
+        <!-- Alerts will be populated here -->
+    </div>
+</div>
+
+<!-- Investigation Modal -->
+<div class="modal-overlay" id="investigationModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h2>Security Investigation</h2>
+            <button class="modal-close" id="closeInvestigationBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="investigationForm">
+                <div class="form-row">
+                <div class="form-group">
+                    <label for="investigationStartDate">Start Date</label>
+                    <input type="datetime-local" id="investigationStartDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="investigationEndDate">End Date</label>
+                    <input type="datetime-local" id="investigationEndDate" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="riskThreshold">Risk Threshold</label>
+                    <select id="riskThreshold" class="form-control">
+                        <option value="3">Low (3+)</option>
+                        <option value="5" selected>Medium (5+)</option>
+                        <option value="7">High (7+)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eventTypesFilter">Event Types</label>
+                    <select id="eventTypesFilter" class="form-control" multiple>
+                        <option value="login">Login Events</option>
+                        <option value="failed">Failed Attempts</option>
+                        <option value="created">Data Creation</option>
+                        <option value="updated">Data Updates</option>
+                        <option value="deleted">Data Deletion</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="specificIPs">Specific IP Addresses (optional)</label>
+                <input type="text" id="specificIPs" class="form-control" placeholder="192.168.1.1, 10.0.0.1">
+                <small class="form-hint">Comma-separated list of IP addresses to investigate</small>
+            </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelInvestigationBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" form="investigationForm">
+                <span class="material-symbols-outlined">search</span>
+                Start Investigation
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Investigation Results Modal -->
+<div class="modal-overlay" id="investigationResultsModal">
+    <div class="modal modal-xl">
+        <div class="modal-header">
+            <h2>Investigation Results</h2>
+            <button class="modal-close" id="closeResultsBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="investigationResults">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="exportResultsBtn">Export Results</button>
+            <button type="button" class="btn btn-primary" id="closeResultsModalBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Report Generation Modal -->
+<div class="modal-overlay" id="reportModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Generate Audit Report</h2>
+            <button class="modal-close" id="closeReportBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="reportForm">
+                <div class="form-row">
+                <div class="form-group">
+                    <label for="reportStartDate">Start Date</label>
+                    <input type="datetime-local" id="reportStartDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="reportEndDate">End Date</label>
+                    <input type="datetime-local" id="reportEndDate" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Report Sections</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="includeUserActivity" checked>
+                        <span>User Activity</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="includeSystemEvents" checked>
+                        <span>System Events</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="includeSecurityEvents" checked>
+                        <span>Security Events</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reportFormat">Format</label>
+                <select id="reportFormat" class="form-control">
+                    <option value="detailed">Detailed Report</option>
+                    <option value="summary">Executive Summary</option>
+                    <option value="compliance">Compliance Report</option>
+                </select>
+            </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelReportBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" form="reportForm">
+                <span class="material-symbols-outlined">assessment</span>
+                Generate Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>

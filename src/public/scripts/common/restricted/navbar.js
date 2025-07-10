@@ -12,11 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    // Load user profile data
+    loadUserProfile();
+
     // Function to create notification item
     function createNotificationItem(notification) {
         const div = document.createElement('div');
         div.className = `notification-item ${notification.unread ? 'unread' : ''}`;
         div.dataset.notificationId = notification.id; // Store ID for backend calls
+
+        // Handle priority styling
+        if (notification.priority && notification.priority !== 'normal') {
+            div.classList.add(`priority-${notification.priority}`);
+        }
+
+        // Handle action required styling
+        if (notification.actionRequired) {
+            div.classList.add('action-required');
+        }
 
         div.innerHTML = `
             <div class="notification-icon ${notification.unread ? '' : 'read'}"></div>
@@ -25,6 +38,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="notification-time">${notification.time}</div>
             </div>
         `;
+
+        // Add click handler for action URL
+        if (notification.actionUrl) {
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', function(e) {
+                e.stopPropagation();
+                window.location.href = notification.actionUrl;
+            });
+        }
 
         return div;
     }
@@ -61,36 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Sample notifications data - replace this with your backend call
-    const sampleNotifications = [
-        {
-            id: 1,
-            text: "New message from John Doe",
-            time: "5 minutes ago",
-            unread: true
-        },
-        {
-            id: 2,
-            text: "Your order has been shipped",
-            time: "1 hour ago",
-            unread: true
-        },
-        {
-            id: 3,
-            text: "Meeting reminder: Team standup in 15 minutes",
-            time: "15 minutes",
-            unread: true
-        },
-        {
-            id: 4,
-            text: "Password changed successfully",
-            time: "2 hours ago",
-            unread: false
-        }
-    ];
 
-    // Initialize notifications - Replace this with your backend call
-    populateNotifications(sampleNotifications);
+    // Initialize notifications - Load from API
+    fetchNotifications();
 
     // Function to close all menus
     function closeAllMenus() {
@@ -241,29 +236,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to fetch notifications from backend (to be implemented)
-    async function fetchNotifications() {
-        try {
-            // Replace this with your actual API endpoint
-            // TODO implement actual api endpoint
-            const response = await fetch('/api/notifications');
-            if (response.ok) {
-                const notifications = await response.json();
-                populateNotifications(notifications);
-            }
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-            // Fall back to sample data if there's an error
-            populateNotifications(sampleNotifications);
+    // Function to format time ago
+    function formatTimeAgo(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInSeconds = Math.floor((now - date) / 1000);
+
+        if (diffInSeconds < 60) {
+            return 'just now';
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < 2592000) {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days} day${days !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString();
         }
     }
 
-    // Function to mark notification as read in backend (to be implemented)
+    // Function to fetch notifications from backend
+    async function fetchNotifications() {
+        try {
+            const response = await fetch('/api/notifications');
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    // Transform API data to match frontend format
+                    const transformedNotifications = result.data.map(notification => ({
+                        id: notification.id,
+                        text: notification.message,
+                        time: formatTimeAgo(notification.created_at),
+                        unread: !notification.is_read,
+                        type: notification.type,
+                        priority: notification.priority,
+                        actionRequired: notification.action_required,
+                        actionUrl: notification.action_url,
+                        title: notification.title
+                    }));
+                    populateNotifications(transformedNotifications);
+                } else {
+                    console.error('Invalid API response format');
+                    populateNotifications([]);
+                }
+            } else {
+                console.error('Failed to fetch notifications:', response.status);
+                populateNotifications([]);
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            // Show empty notifications on error instead of sample data
+            populateNotifications([]);
+        }
+    }
+
+    // Function to mark notification as read in backend
     async function markNotificationAsRead(notificationId) {
         try {
-            //TODO implement actual api endpoint
             const response = await fetch(`/api/notifications/${notificationId}/read`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -277,15 +311,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to mark all notifications as read in backend (to be implemented)
+    // Function to mark all notifications as read in backend
     async function markAllNotificationsAsRead() {
         try {
-            // TODO implement actual api endpoint
-            const response = await fetch('/api/notifications/mark-all-read', {
-                method: 'PUT',
+            // Get all unread notification IDs from current display
+            const unreadItems = notificationMenu.querySelectorAll('.notification-item.unread');
+            const notificationIds = Array.from(unreadItems).map(item => 
+                parseInt(item.dataset.notificationId)
+            ).filter(id => !isNaN(id));
+
+            if (notificationIds.length === 0) {
+                return; // No unread notifications to mark
+            }
+
+            const response = await fetch('/api/notifications/read-multiple', {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    notificationIds: notificationIds
+                })
             });
 
             if (!response.ok) {
@@ -296,10 +342,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // You can call fetchNotifications() instead of populateNotifications(sampleNotifications)
-    // when you have your backend ready:
-    // fetchNotifications();
+    // Load user profile data
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/api/user/profile', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-    // Optionally, set up periodic refresh of notifications
-    // setInterval(fetchNotifications, 30000); // Refresh every 30 seconds
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.profile) {
+                    updateProfileDisplay(data.profile);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    }
+
+    // Update profile display with user data
+    function updateProfileDisplay(userData) {
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        
+        if (profileName) {
+            profileName.textContent = userData.full_name || userData.username || 'User';
+        }
+        if (profileEmail) {
+            profileEmail.textContent = userData.email || 'No email';
+        }
+    }
+
+    // Set up periodic refresh of notifications
+    setInterval(fetchNotifications, 30000); // Refresh every 30 seconds
 });

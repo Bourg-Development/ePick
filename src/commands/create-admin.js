@@ -19,16 +19,7 @@ const dbConfig = {
 
 // Constants
 const PEPPER = process.env.PEPPER || 'change-me-in-production-pepper';
-
-/**
- * Generate a 6-digit username
- * @returns {string} 6-digit numeric username
- */
-const generateUsername = () => {
-    const min = 100000; // 6 digits start at 100000
-    const max = 999999; // 6 digits end at 999999
-    return Math.floor(Math.random() * (max - min + 1) + min).toString();
-};
+const SYSTEM_ADMIN_USERNAME = '000000'; // Default system administrator username
 
 /**
  * Generate a random password
@@ -80,10 +71,10 @@ const hashPassword = async (password, salt) => {
 };
 
 /**
- * Create admin user
+ * Create system administrator user
  */
-async function createAdminUser() {
-    console.log('=== Creating Initial Admin User ===\n');
+async function createSystemAdminUser() {
+    console.log('=== Creating System Administrator User ===\n');
 
     // Create readline interface
     const rl = readline.createInterface({
@@ -101,34 +92,43 @@ async function createAdminUser() {
         await pool.query('SELECT NOW()');
         console.log('Database connection established successfully.');
 
-        // Check if admin role exists
+        // Check if system_admin role exists
         const roleResult = await pool.query(`
-      SELECT id FROM roles WHERE name = 'admin'
+      SELECT id, is_system FROM roles WHERE name = 'system_admin'
     `);
 
         if (roleResult.rows.length === 0) {
-            console.error('Error: Admin role not found. Please run migrations first.');
+            console.error('Error: System Administrator role not found. Please run migrations first.');
             rl.close();
             await pool.end();
             return;
         }
 
-        const adminRoleId = roleResult.rows[0].id;
+        const systemAdminRole = roleResult.rows[0];
+        
+        if (!systemAdminRole.is_system) {
+            console.error('Error: system_admin role is not marked as a system role.');
+            rl.close();
+            await pool.end();
+            return;
+        }
 
-        // Check if admin user already exists
+        const systemAdminRoleId = systemAdminRole.id;
+
+        // Check if system admin user already exists
         const userResult = await pool.query(`
-      SELECT COUNT(*) as count FROM users WHERE role_id = $1
-    `, [adminRoleId]);
+      SELECT COUNT(*) as count FROM users WHERE username = $1
+    `, [SYSTEM_ADMIN_USERNAME]);
 
         if (parseInt(userResult.rows[0].count) > 0) {
-            console.log('Admin user already exists. If you need to create another admin, use the reference code system.');
+            console.log('System Administrator user already exists with username 000000.');
             rl.close();
             await pool.end();
             return;
         }
 
-        // Generate random username
-        const username = generateUsername();
+        // Use predefined system admin username
+        const username = SYSTEM_ADMIN_USERNAME;
 
         // Get email from user input
         const email = await question('Enter admin email: ');
@@ -153,12 +153,12 @@ async function createAdminUser() {
         try {
             await client.query('BEGIN');
 
-            // Insert admin user
+            // Insert system admin user (created_by = NULL for system-created user)
             const userInsertResult = await client.query(`
-        INSERT INTO users (username, password_hash, salt, role_id, email, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+        INSERT INTO users (username, password_hash, salt, role_id, email, created_at, updated_at, created_by)
+        VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)
         RETURNING id
-      `, [username, passwordHash, salt, adminRoleId, email]);
+      `, [username, passwordHash, salt, systemAdminRoleId, email]);
 
             const userId = userInsertResult.rows[0].id;
 
@@ -168,12 +168,50 @@ async function createAdminUser() {
         VALUES ($1, $2, NOW())
       `, [userId, passwordHash]);
 
+            // Log the system admin creation (using the created user ID as system user for logging)
+            await client.query(`
+        INSERT INTO audit_logs (event_type, user_id, target_id, target_type, ip_address, device_fingerprint, metadata, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      `, [
+                'user.system_admin_created',
+                userId, // Use the created user ID as the "system" user for this log
+                userId,
+                'user',
+                '127.0.0.1',
+                'system',
+                JSON.stringify({
+                    username: username,
+                    email: email,
+                    roleId: systemAdminRoleId,
+                    roleName: 'system_admin',
+                    createdBy: 'system_initialization'
+                })
+            ]);
+
             await client.query('COMMIT');
 
-            console.log('\n=== ADMIN USER CREATED SUCCESSFULLY ===');
+            // Send account creation email
+            try {
+                const emailService = require('../services/emailService');
+                await emailService.sendAccountCreatedEmail({
+                    email: email,
+                    userName: 'System Administrator',
+                    role: 'System Administrator',
+                    organization: 'ePick',
+                    createdDate: new Date()
+                });
+                console.log('\n✓ Account creation email sent to:', email);
+            } catch (emailError) {
+                console.log('\n⚠️  Warning: Could not send account creation email:', emailError.message);
+            }
+
+            console.log('\n=== SYSTEM ADMINISTRATOR CREATED SUCCESSFULLY ===');
             console.log(`Username: ${username}`);
             console.log(`Password: ${password}`);
             console.log(`Email: ${email}`);
+            console.log('\n⚠️  IMPORTANT SECURITY NOTICE:');
+            console.log('This is a SYSTEM ADMINISTRATOR account with full system access.');
+            console.log('This account cannot be modified or deleted by regular admins.');
             console.log('\nPLEASE SAVE THIS INFORMATION SECURELY');
             console.log('You will need these credentials to log in to the system.');
             console.log('================================================\n');
@@ -192,4 +230,4 @@ async function createAdminUser() {
 }
 
 // Run the script
-createAdminUser();
+createSystemAdminUser();

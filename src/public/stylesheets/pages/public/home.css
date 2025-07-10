@@ -110,43 +110,66 @@
     color: var(--medium-gray);
 }
 
-/* Product Showcase */
-.product-showcase {
+/* Quick Access Section */
+.quick-access-section {
     padding: 80px 0;
-    background: var(--text-black);
-    color: var(--off-white);
+    background: var(--off-white);
 }
 
-.showcase-content {
+.quick-access-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
 }
 
-.showcase-text h2 {
-    color: var(--off-white);
-    margin-bottom: 20px;
-}
-
-.showcase-text p {
-    font-size: 18px;
-    color: var(--light-gray);
-    margin-bottom: 30px;
-}
-
-.showcase-image {
-    position: relative;
-    background: var(--medium-gray);
-    padding: 25px;
+.access-card {
+    background: white;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid var(--light-gray);
+    transition: all 0.3s ease;
+    display: block;
 }
 
-.showcase-image img {
-    width: 100%;
-    height: auto;
-    display: block;
+.access-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: var(--blood-red);
+    text-decoration: none;
+    color: inherit;
+}
+
+.access-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--blood-red);
+    color: white;
+    border-radius: 15px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    transition: background-color 0.3s ease;
+}
+
+.access-card:hover .access-icon {
+    background: var(--dark-red);
+}
+
+.access-card h3 {
+    margin-bottom: 10px;
+    color: var(--text-black);
+    font-size: 18px;
+}
+
+.access-card p {
+    color: var(--medium-gray);
+    font-size: 14px;
+    margin: 0;
 }
 
 /* Info Boxes */
@@ -253,6 +276,27 @@
 @media (max-width: 1200px) {
     .container {
         padding: 0 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .hero-buttons .btn {
+        width: 200px;
+    }
+    
+    .quick-access-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
     }
 }
 

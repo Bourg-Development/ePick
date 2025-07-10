@@ -1,0 +1,1206 @@
+<div class="header">
+    <h1>Notification Settings</h1>
+    <p>Configure how and when you receive notifications from the system.</p>
+</div>
+
+<div class="settings-container">
+    <!-- Email Notifications -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">email</span>
+                Email Notifications
+            </h2>
+            <p>Control which email notifications you receive</p>
+        </div>
+        <div class="card-content">
+            <div class="notification-availability" id="emailAvailabilityStatus">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <div class="notification-categories" id="emailNotificationCategories" style="display: none;">
+                <div class="notification-category">
+                    <div class="category-header">
+                        <h3>Security Notifications</h3>
+                        <p>Important security events and account changes</p>
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Login Alerts</h4>
+                                <p>Notify me when my account is accessed from a new device or location</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="loginAlertsToggle" class="toggle-input">
+                                    <label for="loginAlertsToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Password Changes</h4>
+                                <p>Notify me when my password is changed</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="passwordChangesToggle" class="toggle-input">
+                                    <label for="passwordChangesToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Two-Factor Authentication Changes</h4>
+                                <p>Notify me when 2FA settings are modified</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="twoFactorChangesToggle" class="toggle-input">
+                                    <label for="twoFactorChangesToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Suspicious Activity</h4>
+                                <p>Notify me about unusual account activity or failed login attempts</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="suspiciousActivityToggle" class="toggle-input">
+                                    <label for="suspiciousActivityToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-category">
+                    <div class="category-header">
+                        <h3>System Notifications</h3>
+                        <p>Updates about system status and maintenance</p>
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>System Maintenance</h4>
+                                <p>Notify me about scheduled maintenance and system updates</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="maintenanceToggle" class="toggle-input">
+                                    <label for="maintenanceToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Feature Updates</h4>
+                                <p>Notify me about new features and system improvements</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="featureUpdatesToggle" class="toggle-input">
+                                    <label for="featureUpdatesToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>System Alerts</h4>
+                                <p>Critical system alerts and service disruptions</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="systemAlertsToggle" class="toggle-input">
+                                    <label for="systemAlertsToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-category">
+                    <div class="category-header">
+                        <h3>Activity Notifications</h3>
+                        <p>Updates about your account activity and data</p>
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Analysis Completion</h4>
+                                <p>Notify me when blood analysis results are available</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="analysisCompletionToggle" class="toggle-input">
+                                    <label for="analysisCompletionToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Data Export Ready</h4>
+                                <p>Notify me when exported data files are ready for download</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="dataExportToggle" class="toggle-input">
+                                    <label for="dataExportToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Report Generation</h4>
+                                <p>Notify me when generated reports are available</p>
+                            </div>
+                            <div class="option-control">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="reportGenerationToggle" class="toggle-input">
+                                    <label for="reportGenerationToggle" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-actions">
+                    <button class="btn btn-primary" id="saveNotificationBtn">
+                        <span class="material-symbols-outlined">save</span>
+                        Save Notification Settings
+                    </button>
+                    <button class="btn btn-secondary" id="resetNotificationBtn">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Reset to Defaults
+                    </button>
+                </div>
+                <div class="setting-status" id="status-notifications"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Mailing Lists -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">mail</span>
+                Mailing Lists
+            </h2>
+            <p>Manage your email newsletter and announcement subscriptions</p>
+        </div>
+        <div class="card-content">
+            <div class="mailing-lists-container" id="mailingListsContainer">
+                <div class="loading-state" id="mailingListsLoading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading your subscriptions...</span>
+                </div>
+                
+                <div class="mailing-lists-content" id="mailingListsContent" style="display: none;">
+                    <div class="mailing-lists-header">
+                        <p>You are currently subscribed to the following mailing lists:</p>
+                    </div>
+                    
+                    <div class="mailing-lists-list" id="mailingListsList">
+                        <!-- Mailing lists will be populated here -->
+                    </div>
+                    
+                    <div class="no-subscriptions" id="noSubscriptions" style="display: none;">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined">unsubscribe</span>
+                            <h3>No Active Subscriptions</h3>
+                            <p>You are not currently subscribed to any mailing lists.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="error-state" id="mailingListsError" style="display: none;">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>Failed to load mailing list subscriptions</span>
+                    <button class="btn btn-secondary retry-btn" id="retryLoadLists">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Preview -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">preview</span>
+                Test Notifications
+            </h2>
+            <p>Test your notification settings</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <div class="test-notifications">
+                    <p>Send test notifications to verify your settings are working correctly:</p>
+                    
+                    <div class="test-options">
+                        <button class="btn btn-secondary test-btn" id="testEmailBtn">
+                            <span class="material-symbols-outlined">email</span>
+                            Send Test Email
+                        </button>
+                        
+                        <button class="btn btn-secondary test-btn" id="testToastBtn">
+                            <span class="material-symbols-outlined">notifications</span>
+                            Show Test Toast
+                        </button>
+                        
+                        <button class="btn btn-secondary test-btn" id="testSoundBtn">
+                            <span class="material-symbols-outlined">volume_up</span>
+                            Test Sound
+                        </button>
+                    </div>
+                </div>
+                <div class="setting-status" id="status-test"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="confirmModalTitle">Confirm Action</h3>
+            <button class="modal-close" onclick="closeConfirmModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message" id="confirmModalMessage"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn-primary" id="confirmModalAction">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Inherit base styles from preferences and add notification-specific styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header h1 {
+    color: var(--text-black);
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.header p {
+    color: var(--medium-gray);
+    margin: 8px 0 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.settings-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--light-gray);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 24px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.card-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-black);
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.card-header .material-symbols-outlined {
+    font-size: 24px;
+    color: var(--blood-red);
+}
+
+.card-header p {
+    color: var(--medium-gray);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.card-content {
+    padding: 24px;
+}
+
+.setting-group {
+    margin-bottom: 32px;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Notification availability status */
+.notification-availability {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-availability.available {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.notification-availability.unavailable {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.notification-availability .material-symbols-outlined {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+/* Notification categories */
+.notification-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.notification-category {
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-header {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.category-header h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.category-header p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--medium-gray);
+    line-height: 1.4;
+}
+
+.notification-options {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notification-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.notification-option:hover {
+    background: #fafafa;
+    border-color: var(--blood-red);
+}
+
+.option-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.option-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--medium-gray);
+    line-height: 1.4;
+}
+
+.option-control {
+    flex-shrink: 0;
+}
+
+/* Toggle switch styles */
+.toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: 0.3s;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: 0.3s;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider {
+    background-color: var(--blood-red);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* Schedule settings */
+.schedule-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.schedule-settings {
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.time-range-setting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.time-label {
+    font-weight: 600;
+    color: var(--text-black);
+    min-width: 100px;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-input {
+    padding: 8px 12px;
+    border: 2px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: var(--blood-red);
+}
+
+.time-separator {
+    color: var(--medium-gray);
+    font-weight: 500;
+}
+
+.timezone-setting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.timezone-label {
+    font-weight: 600;
+    color: var(--text-black);
+    min-width: 100px;
+}
+
+.timezone-select {
+    padding: 8px 12px;
+    border: 2px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.timezone-select:focus {
+    outline: none;
+    border-color: var(--blood-red);
+}
+
+.weekend-setting {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.weekend-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-black);
+    cursor: pointer;
+}
+
+.weekend-option input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Test notifications */
+.test-notifications {
+    text-align: center;
+}
+
+.test-notifications p {
+    margin-bottom: 20px;
+    color: var(--medium-gray);
+}
+
+.test-options {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.test-btn {
+    min-width: 120px;
+}
+
+/* Notification actions */
+.notification-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* Button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--blood-red);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--dark-red);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+}
+
+.btn-secondary {
+    background: var(--light-gray);
+    color: var(--text-black);
+}
+
+.btn-secondary:hover {
+    background: var(--medium-gray);
+    color: white;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.setting-status {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.setting-status.success {
+    color: #27ae60;
+}
+
+.setting-status.error {
+    color: var(--dark-red);
+}
+
+.setting-help {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--medium-gray);
+    line-height: 1.4;
+    font-style: italic;
+}
+
+/* Toast styles */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.toast-icon.success {
+    color: #4caf50;
+}
+
+.toast-icon.error {
+    color: var(--blood-red);
+}
+
+.toast-message {
+    color: var(--text-black);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-header {
+        padding: 20px;
+    }
+
+    .notification-option {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .option-control {
+        align-self: flex-end;
+    }
+
+    .schedule-option {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .time-range-setting {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .timezone-setting {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .notification-actions {
+        flex-direction: column;
+    }
+
+    .test-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .toast {
+        right: 10px;
+        left: 10px;
+        min-width: unset;
+        transform: translateY(-100%);
+    }
+
+    .toast.show {
+        transform: translateY(0);
+    }
+}
+
+/* Loading states */
+.btn.loading .material-symbols-outlined {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Focus states for accessibility */
+.toggle-label:focus-within {
+    outline: 2px solid var(--blood-red);
+    outline-offset: 2px;
+}
+
+.time-input:focus,
+.timezone-select:focus {
+    outline: 2px solid var(--blood-red);
+    outline-offset: 2px;
+}
+
+/* Animation for schedule settings reveal */
+.schedule-settings {
+    transition: all 0.3s ease;
+}
+
+/* Disabled state for unavailable notifications */
+.notification-categories.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.notification-categories.disabled .toggle-input {
+    cursor: not-allowed;
+}
+
+/* Mailing Lists Styles */
+.mailing-lists-container {
+    min-height: 200px;
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    color: var(--medium-gray);
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--light-gray);
+    border-top: 2px solid var(--blood-red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.error-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    color: var(--dark-red);
+    font-size: 14px;
+    text-align: center;
+    flex-direction: column;
+}
+
+.retry-btn {
+    margin-top: 12px;
+}
+
+.mailing-lists-header {
+    margin-bottom: 20px;
+}
+
+.mailing-lists-header p {
+    color: var(--medium-gray);
+    font-size: 14px;
+    margin: 0;
+}
+
+.mailing-lists-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mailing-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.mailing-list-item:hover {
+    background: #fafafa;
+    border-color: var(--blood-red);
+}
+
+.mailing-list-info {
+    flex-grow: 1;
+}
+
+.mailing-list-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-black);
+    margin: 0 0 4px 0;
+}
+
+.mailing-list-description {
+    font-size: 13px;
+    color: var(--medium-gray);
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+}
+
+.mailing-list-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.mailing-list-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.unsubscribe-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.unsubscribe-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.unsubscribe-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.unsubscribe-btn.loading .material-symbols-outlined {
+    animation: spin 1s linear infinite;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--medium-gray);
+}
+
+.empty-state .material-symbols-outlined {
+    font-size: 48px;
+    color: var(--light-gray);
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    color: var(--text-black);
+    margin: 0 0 8px 0;
+}
+
+.empty-state p {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-black);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--light-gray);
+}
+
+.modal-close .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--medium-gray);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-message {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-black);
+    margin: 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--light-gray);
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 20px;
+    }
+    
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+}
+
+/* Highlight Effects */
+.mailing-list-item.highlighted {
+    animation: highlightPulse 1s ease-in-out 3;
+    border-color: var(--blood-red);
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.3);
+}
+
+@keyframes highlightPulse {
+    0% {
+        background-color: white;
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(230, 57, 70, 0.1);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: white;
+        transform: scale(1);
+    }
+}
+
+.settings-card.section-highlighted {
+    animation: sectionHighlight 0.5s ease-in-out;
+    border-color: var(--blood-red);
+    box-shadow: 0 0 30px rgba(230, 57, 70, 0.2);
+}
+
+@keyframes sectionHighlight {
+    0% {
+        transform: translateX(-10px);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>

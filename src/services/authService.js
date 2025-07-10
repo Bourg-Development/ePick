@@ -26,10 +26,13 @@ class AuthService {
         const { ip, deviceFingerprint, userAgent } = context;
 
         try {
-            // Find user by username
+            // Find user by username with correct associations
             const user = await db.User.findOne({
                 where: { username },
-                include: [{ model: db.Role, include: [db.Permission] }]
+                include: [{
+                    association: 'role',
+                    include: [{ association: 'permissions' }]
+                }]
             });
 
             // Generic error for security (prevents username enumeration)
@@ -110,8 +113,8 @@ class AuthService {
                 success: true,
                 userId: user.id,
                 username: user.username,
-                role: user.Role.name,
-                permissions: user.Role.Permissions.map(p => p.name),
+                role: user.role.name,
+                permissions: user.role.permissions.map(p => p.name),
                 ...tokens
             };
         } catch (error) {
@@ -128,6 +131,55 @@ class AuthService {
     }
 
     /**
+     * Verify a user's password (for export operations and sensitive actions)
+     * @param {number} userId - User ID
+     * @param {string} password - Plain text password to verify
+     * @returns {Promise<object>} Verification result
+     */
+    async verifyUserPassword(userId, password) {
+        try {
+            // Find user by ID
+            const user = await db.User.findByPk(userId);
+
+            if (!user) {
+                return {
+                    success: false,
+                    message: 'User not found'
+                };
+            }
+
+            // Check if user has a password set
+            if (!user.password_hash || !user.salt) {
+                return {
+                    success: false,
+                    message: 'User has no password set'
+                };
+            }
+
+            // Verify password
+            const isPasswordValid = await this._verifyPassword(password, user.password_hash, user.salt);
+
+            if (!isPasswordValid) {
+                return {
+                    success: false,
+                    message: 'Invalid password'
+                };
+            }
+
+            return {
+                success: true,
+                message: 'Password verified'
+            };
+        } catch (error) {
+            console.error('Password verification error:', error);
+            return {
+                success: false,
+                message: 'Password verification failed'
+            };
+        }
+    }
+
+    /**
      * Verify TOTP code for 2FA
      * @param {number} userId - User ID
      * @param {string} totpCode - 6-digit TOTP code
@@ -137,7 +189,10 @@ class AuthService {
     async verifyTOTP(userId, totpCode, context) {
         try {
             const user = await db.User.findByPk(userId, {
-                include: [{ model: db.Role, include: [db.Permission] }]
+                include: [{
+                    association: 'role',
+                    include: [{ association: 'permissions' }]
+                }]
             });
 
             if (!user || !user.totp_enabled || !user.totp_secret) {
@@ -184,8 +239,8 @@ class AuthService {
                 success: true,
                 userId: user.id,
                 username: user.username,
-                role: user.Role.name,
-                permissions: user.Role.Permissions.map(p => p.name),
+                role: user.role.name,
+                permissions: user.role.permissions.map(p => p.name),
                 ...tokens
             };
         } catch (error) {
@@ -216,7 +271,10 @@ class AuthService {
         // For this example, we'll assume verification passed
         try {
             const user = await db.User.findByPk(userId, {
-                include: [{ model: db.Role, include: [db.Permission] }]
+                include: [{
+                    association: 'role',
+                    include: [{ association: 'permissions' }]
+                }]
             });
 
             if (!user || !user.webauthn_enabled) {
@@ -243,8 +301,8 @@ class AuthService {
                 success: true,
                 userId: user.id,
                 username: user.username,
-                role: user.Role.name,
-                permissions: user.Role.Permissions.map(p => p.name),
+                role: user.role.name,
+                permissions: user.role.permissions.map(p => p.name),
                 ...tokens
             };
         } catch (error) {
@@ -386,7 +444,10 @@ class AuthService {
 
             // Get the user
             const user = await db.User.findByPk(decoded.userId, {
-                include: [{ model: db.Role, include: [db.Permission] }]
+                include: [{
+                    association: 'role',
+                    include: [{ association: 'permissions' }]
+                }]
             });
 
             if (!user) {
@@ -397,8 +458,8 @@ class AuthService {
             const accessToken = await tokenService.generateToken({
                 userId: user.id,
                 username: user.username,
-                role: user.Role.name,
-                permissions: user.Role.Permissions.map(p => p.name)
+                role: user.role.name,
+                permissions: user.role.permissions.map(p => p.name)
             }, 'access');
 
             const newRefreshToken = await tokenService.generateToken({
@@ -789,8 +850,8 @@ class AuthService {
         const accessToken = await tokenService.generateToken({
             userId: user.id,
             username: user.username,
-            role: user.Role.name,
-            permissions: user.Role.Permissions.map(p => p.name)
+            role: user.role.name,
+            permissions: user.role.permissions.map(p => p.name)
         }, 'access');
 
         // Generate refresh token
@@ -827,12 +888,20 @@ class AuthService {
      * @param {object} context - Request context
      */
     async _handleFailedLogin(user, context) {
+        // Get user with role information
+        const userWithRole = await db.User.findByPk(user.id, {
+            include: [{ association: 'role' }]
+        });
+
+        // Check if user is system admin
+        const isSystemAdmin = userWithRole.role && userWithRole.role.name === 'system_admin';
+
         // Increment failed login attempts
         user.failed_login_attempts = (user.failed_login_attempts || 0) + 1;
         user.last_login_attempt = new Date();
 
-        // Check for account lockout threshold
-        if (user.failed_login_attempts >= 5) { // Configurable threshold
+        // Check for account lockout threshold - but don't lock system admins
+        if (user.failed_login_attempts >= 5 && !isSystemAdmin) { // Configurable threshold
             user.account_locked = true;
             user.account_locked_until = new Date(Date.now() + (15 * 60 * 1000)); // 15 min lockout
 
@@ -847,6 +916,21 @@ class AuthService {
                     userAgent: context.userAgent,
                     failedAttempts: user.failed_login_attempts,
                     lockoutUntil: user.account_locked_until
+                }
+            });
+        } else if (user.failed_login_attempts >= 5 && isSystemAdmin) {
+            // Log excessive failed attempts for system admin without locking
+            await logService.securityLog({
+                eventType: 'user.excessive_failed_attempts',
+                severity: 'high',
+                userId: user.id,
+                ipAddress: context.ip,
+                deviceFingerprint: context.deviceFingerprint,
+                metadata: {
+                    userAgent: context.userAgent,
+                    failedAttempts: user.failed_login_attempts,
+                    role: 'system_admin',
+                    note: 'System admin account - lockout prevented'
                 }
             });
         }

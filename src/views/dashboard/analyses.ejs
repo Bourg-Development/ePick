@@ -1,16 +1,56 @@
 <div class="header">
-    <h1>Blood Analysis Management</h1>
-    <div>
-        <button class="btn btn-primary" id="addNewBtn">
+    <h1><%= __('analysis.title') %></h1>
+    <div class="header-actions">
+        <% if(permissions.includes('analyses.create') || permissions.includes('write.all')) { %>
+            <button class="btn btn-primary" id="addNewBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    science
+                </span>
+                <%= __('analysis.createNew') %>
+            </button>
+        <% } %>
+
+        <!-- Export Dropdown -->
+        <% if(permissions.includes('analyses.view') || permissions.includes('read.all')) { %>
+            <div class="dropdown-container export-dropdown-container">
+                <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                    <%= __('common.export') %>
+                    <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+                </button>
+                <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                    <div class="dropdown-item" data-action="export-advanced">
+                        <span class="material-symbols-outlined">settings</span>
+                        <%= __('export.advancedOptions') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-csv">
+                        <span class="material-symbols-outlined">table_view</span>
+                        <%= __('export.quickCsv') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-excel">
+                        <span class="material-symbols-outlined">grid_on</span>
+                        <%= __('export.quickExcel') %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <button class="btn btn-secondary" id="dashboardBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
-                add
+                dashboard
             </span>
-            Add New Analysis
+            <%= __('common.dashboard') %>
         </button>
-        <button class="btn btn-secondary" id="printBtn">
-            <span class="material-symbols-outlined" style="font-size: 25px;">
-                print
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
             </span>
+            <%= __('common.refresh') %>
         </button>
     </div>
 </div>
@@ -22,61 +62,73 @@
                 search
             </span>
         </span>
-        <input type="text" class="search-input" id="searchInput" placeholder="Search analyses...">
-        <div class="search-suggestions" id="main-search__searchSuggestions"></div>
+        <input type="text" class="search-input" id="searchInput" placeholder="<%= __('filter.searchPlaceholder') %>">
     </div>
     <select class="filter-select" id="statusFilter">
-        <option value="">All Statuses</option>
-        <option value="pending">Pending</option>
-        <option value="delayed">Delayed</option>
-        <option value="completed">Completed</option>
+        <option value=""><%= __('filter.allStatuses') %></option>
+        <option value="Pending"><%= __('status.pending') %></option>
+        <option value="Delayed"><%= __('status.delayed') %></option>
+        <option value="In Progress"><%= __('status.inProgress') %></option>
+        <option value="Completed"><%= __('status.completed') %></option>
+        <option value="Cancelled"><%= __('status.cancelled') %></option>
     </select>
     <select class="filter-select" id="typeFilter">
-        <option value="">All Types</option>
-        <option value="XY">XY</option>
-        <option value="YZ">YZ</option>
-        <option value="ZG">ZG</option>
-        <option value="HG">HG</option>
+        <option value=""><%= __('filter.allTypes') %></option>
+        <!-- Analysis types will be populated by JavaScript -->
     </select>
+    <input type="date" class="filter-input" id="startDateFilter" title="<%= __('filter.startDate') %>">
+    <input type="date" class="filter-input" id="endDateFilter" title="<%= __('filter.endDate') %>">
+    <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filter.itemsPerPage') %>" min="10" max="100" value="20">
 </div>
 
 <div class="table-wrapper">
     <table id="analysisTable">
         <thead>
         <tr>
-            <th data-sort="date">
-                Date
+            <th data-sort="analysis_date">
+                <%= __('table.date') %>
                 <span class="material-symbols-outlined">
-                    arrow_downward
+                    swap_vert
                 </span>
             </th>
-            <th data-sort="name">
-                Patient Name
+            <th data-sort="patient">
+                <%= __('table.patient') %>
                 <span class="material-symbols-outlined">
                     swap_vert
                 </span>
             </th>
             <th data-sort="doctor">
-                Doctor
+                <%= __('table.doctor') %>
                 <span class="material-symbols-outlined">
                     swap_vert
                 </span>
             </th>
             <th data-sort="room">
-                Room
+                <%= __('table.room') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="analysis_type">
+                <%= __('table.type') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="status">
+                <%= __('table.status') %>
                 <span class="material-symbols-outlined">
                     swap_vert
                 </span>
             </th>
             <th>
-                Status
+                <%= __('table.notes') %>
             </th>
+            <% if (permissions.includes('analyses.update')) { %>
             <th>
-                Type
+                <%= __('table.actions') %>
             </th>
-            <th>
-                Actions
-            </th>
+            <% } %>
         </tr>
         </thead>
         <tbody>
@@ -85,55 +137,349 @@
     </table>
 </div>
 
-<div class="table-footer" id="recordCount">
-    Showing 0 analyses
+<div class="table-footer">
+    <div id="recordCount"><%= __('analysis.loading') %></div>
+    <div class="pagination" id="pagination">
+        <!-- Pagination will be populated by JavaScript -->
+    </div>
 </div>
 </main>
 
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="editModal">
+<!-- Add Analysis Modal -->
+<div class="modal-overlay" id="addAnalysisModal">
     <div class="modal">
         <div class="modal-header">
-            <h2 id="modalTitle">Add New Analysis</h2>
-            <button class="modal-close" id="closeModalBtn">&times;</button>
+            <h2><%= __('modal.scheduleAnalysis.title') %></h2>
+            <button class="modal-close" id="closeAddModalBtn">&times;</button>
         </div>
-        <form id="analysisForm">
-            <label class="form-label" for="analysisDate">Date</label>
-            <input type="date" class="form-control" id="analysisDate" required>
+        <form id="addAnalysisForm">
+            <label class="form-label" for="newAnalysisDate"><%= __('modal.analysisDate') %> <span class="required"><%= __('modal.required') %></span></label>
+            <input type="date" class="form-control" id="newAnalysisDate" required>
+            <small class="form-help">Your preferred format: <%= locals.userDateFormat || 'MM/DD/YYYY' %></small>
 
-            <div class="search-box">
-                <label class="form-label" for="patientName">Patient Name</label>
-                <input type="text" class="form-control" id="patientName" required>
-                <div class="search-suggestions" id="add-form-patient__searchSuggestions"></div>
-            </div>
-
-            <label class="form-label" for="patientRoom">Room</label>
-            <input type="text" class="form-control" id="patientRoom" required>
-
-            <div class="search-box">
-                <label class="form-label" for="doctor">Doctor</label>
-                <input type="text" class="form-control" id="doctor" required>
-                <div class="search-suggestions" id="add-form-doctors__searchSuggestions"></div>
-            </div>
-
-            <label class="form-label" for="analysisStatus">Status</label>
-            <select class="form-control" id="analysisStatus">
-                <option value="pending">Pending</option>
-                <option value="delayed">Delayed</option>
-                <option value="completed">Completed</option>
+            <label class="form-label" for="newAnalysisType"><%= __('modal.analysisType') %> <span class="required"><%= __('modal.required') %></span></label>
+            <select class="form-control" id="newAnalysisType" required>
+                <option value=""><%= __('modal.selectType') %></option>
+                <!-- Analysis types will be populated by JavaScript -->
             </select>
 
-            <label class="form-label" for="analysisType">Type</label>
-            <select class="form-control" id="analysisType">
-                <option value="XY">XY</option>
-                <option value="YZ">YZ</option>
-                <option value="ZG">ZG</option>
-                <option value="HG">HG</option>
+            <label class="form-label" for="newAnalysisPatient"><%= __('modal.patient') %> <span class="required"><%= __('modal.required') %></span></label>
+            <!-- This will be replaced by enhanced patient search input via JavaScript -->
+            <select class="form-control" id="newAnalysisPatient" required>
+                <option value=""><%= __('modal.selectPatient') %></option>
+            </select>
+
+            <label class="form-label" for="newAnalysisDoctor"><%= __('modal.doctor') %> <span class="required"><%= __('modal.required') %></span></label>
+            <!-- This will be replaced by enhanced doctor search input via JavaScript -->
+            <select class="form-control" id="newAnalysisDoctor" required>
+                <option value=""><%= __('modal.selectDoctor') %></option>
+            </select>
+
+            <label class="form-label" for="newAnalysisRoom"><%= __('modal.room') %> <span class="required"><%= __('modal.required') %></span></label>
+            <!-- This will be replaced by enhanced room search input via JavaScript -->
+            <select class="form-control" id="newAnalysisRoom" required>
+                <option value=""><%= __('modal.selectRoom') %></option>
+            </select>
+
+            <label class="form-label" for="newAnalysisNotes">Notes</label>
+            <textarea class="form-control" id="newAnalysisNotes" rows="3" placeholder="Optional notes for the analysis"></textarea>
+
+            <!-- Recurring Analysis Section -->
+            <div class="form-section recurring-section">
+                <div class="recurring-header">
+                    <label class="form-checkbox-label">
+                        <input type="checkbox" id="enableRecurring" class="form-checkbox">
+                        <span class="checkmark"></span>
+                        Create Recurring Analysis
+                    </label>
+                    <small class="form-help">Schedule multiple analyses automatically over time</small>
+                </div>
+                
+                <div id="recurringOptions" class="recurring-options" style="display: none;">
+                    <div class="recurring-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="recurrencePattern">Frequency <span class="required">*</span></label>
+                            <select class="form-control" id="recurrencePattern">
+                                <option value="">Select frequency</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="custom">Custom interval</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="customIntervalGroup" style="display: none;">
+                            <label class="form-label" for="intervalDays">Days between analyses <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="intervalDays" min="1" max="365" placeholder="e.g., 3">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="totalOccurrences">Total number of analyses <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="totalOccurrences" min="2" max="100" placeholder="e.g., 5">
+                            <small class="form-help">Including the first analysis</small>
+                        </div>
+                    </div>
+                    
+                    <div class="recurring-preview" id="recurringPreview" style="display: none;">
+                        <h4>Schedule Preview</h4>
+                        <div class="preview-content" id="previewContent">
+                            <!-- Preview will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Schedule Analysis</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update Analysis Status Modal -->
+<div class="modal-overlay" id="updateStatusModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Update Analysis Status</h2>
+            <button class="modal-close" id="closeUpdateStatusModalBtn">&times;</button>
+        </div>
+        <form id="updateStatusForm">
+            <input type="hidden" id="updateStatusAnalysisId">
+
+            <div class="analysis-info-section">
+                <h3>Analysis Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Patient:</span>
+                        <span class="info-value" id="updateStatusPatientName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value" id="updateStatusAnalysisType"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Current Status:</span>
+                        <span class="info-value" id="updateStatusCurrentStatus"></span>
+                    </div>
+                </div>
+            </div>
+
+            <label class="form-label" for="updateStatusNewStatus">New Status <span class="required">*</span></label>
+            <select class="form-control" id="updateStatusNewStatus" required>
+                <option value="">Select status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
             </select>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" id="cancelUpdateStatusBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Dashboard Modal -->
+<div class="modal-overlay" id="dashboardModal">
+    <div class="modal dashboard-modal">
+        <div class="modal-header">
+            <h2>Analysis Dashboard</h2>
+            <button class="modal-close" id="closeDashboardModalBtn">&times;</button>
+        </div>
+        <div class="dashboard-content">
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+            <div class="dashboard-table-wrapper">
+                <h3>Today's Analyses</h3>
+                <table id="dashboardTable">
+                    <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Room</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Dashboard table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="closeDashboardBtn">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Analysis Modal -->
+<div class="modal-overlay" id="cancelAnalysisModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Cancel Analysis</h2>
+            <button class="modal-close" id="closeCancelAnalysisModalBtn">&times;</button>
+        </div>
+        <form id="cancelAnalysisForm">
+            <input type="hidden" id="cancelAnalysisId" value="">
+
+            <div class="analysis-info-section">
+                <h3>Analysis Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Patient:</span>
+                        <span class="info-value" id="cancelAnalysisPatientName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value" id="cancelAnalysisType"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date:</span>
+                        <span class="info-value" id="cancelAnalysisDate"></span>
+                    </div>
+                </div>
+            </div>
+
+            <label class="form-label" for="cancelAnalysisReason">Reason for Cancellation <span class="required">*</span></label>
+            <textarea class="form-control" id="cancelAnalysisReason" rows="4" required placeholder="Please provide a detailed reason for cancelling this analysis..."></textarea>
+            <small class="form-help">This reason will be recorded and may be required for reporting purposes</small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelCancelAnalysisBtn">Keep Analysis</button>
+                <button type="submit" class="btn btn-danger">Cancel Analysis</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add New Doctor Modal -->
+<div class="modal-overlay" id="addDoctorModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add New Doctor</h2>
+            <button class="modal-close" id="closeAddDoctorModalBtn">&times;</button>
+        </div>
+        <form id="addDoctorForm">
+            <input type="hidden" id="doctorSearchInput" value="">
+
+            <label class="form-label" for="newDoctorName">Doctor Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newDoctorName" required maxlength="255" readonly>
+            <small class="form-help">This name was entered in the search field</small>
+
+            <label class="form-label" for="newDoctorSpecialization">Specialization <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="e.g., General Medicine, Cardiology, Neurology">
+            <small class="form-help">Enter the doctor's medical specialization</small>
+
+            <label class="form-label" for="newDoctorPhone">Phone Number</label>
+            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="+1234567890">
+            <small class="form-help">Optional - Doctor's contact phone number</small>
+
+            <label class="form-label" for="newDoctorEmail">Email Address</label>
+            <input type="email" class="form-control" id="newDoctorEmail" placeholder="doctor@hospital.com">
+            <small class="form-help">Optional - Doctor's email address</small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Doctor</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2><%= __('export.analyses') %></h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong><%= __('export.medicalPrivacyNotice') %></strong>
+                    <p><%= __('export.medicalPrivacyWarning') %></p>
+                </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword"><%= __('export.yourPassword') %> <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" required placeholder="<%= __('export.passwordPlaceholder') %>" autocomplete="current-password">
+                <small class="form-help"><%= __('export.passwordHelp') %></small>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.format') %> <span class="required">*</span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong><%= __('export.csvFormat') %></strong>
+                            <small><%= __('export.csvDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong><%= __('export.excelFormat') %></strong>
+                            <small><%= __('export.excelDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong><%= __('export.jsonFormat') %></strong>
+                            <small><%= __('export.jsonDescription') %></small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.columnSelection') %></label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn"><%= __('export.selectAll') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn"><%= __('export.selectNone') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn"><%= __('export.safeColumnsOnly') %></button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Current Filters Info -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.appliedFilters') %></label>
+                <div class="current-filters" id="currentFilters">
+                    <span class="filter-info"><%= __('export.usingCurrentFilters') %></span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong><%= __('export.sensitiveDataSelected') %></strong>
+                    <p><%= __('export.sensitiveDataWarning') %></p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    <%= __('export.exportData') %>
+                </button>
             </div>
         </form>
     </div>
@@ -146,10 +492,408 @@
             <h2>Confirm Action</h2>
             <button class="modal-close" id="closeConfirmBtn">&times;</button>
         </div>
-        <p id="confirmMessage" style="margin-bottom: 20px;">Are you sure you want to delete this analysis?</p>
+        <p id="confirmMessage" style="margin-bottom: 20px;"></p>
         <div class="modal-footer">
             <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
             <button class="btn btn-primary" id="confirmBtn">Confirm</button>
         </div>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<style>
+    .required {
+        color: var(--dark-red);
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .analysis-info-section {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .analysis-info-section h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        color: #495057;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 8px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .dashboard-modal {
+        max-width: 900px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .dashboard-content {
+        margin: 20px 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+    }
+
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .dashboard-table-wrapper {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .dashboard-table-wrapper h3 {
+        margin: 0;
+        padding: 16px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 16px;
+        color: #495057;
+    }
+
+    #dashboardTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #dashboardTable th,
+    #dashboardTable td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #dashboardTable th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-delayed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-in-progress {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background-color: #f5f5f5;
+        color: #6c757d;
+    }
+
+    .type-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    /* Enhanced Search Filters */
+    .filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-width: 200px;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #6c757d;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .search-input {
+        padding-left: 40px;
+        width: 100%;
+        height: 40px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .filter-select,
+    .filter-input {
+        height: 40px;
+        padding: 8px 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        min-width: 120px;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: unset;
+            max-width: unset;
+        }
+
+        .results-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .dashboard-modal {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+    }
+
+    /* Recurring Analysis Styles */
+    .form-section {
+        margin: 20px 0;
+        padding: 16px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+
+    .recurring-header {
+        margin-bottom: 16px;
+    }
+
+    .form-checkbox-label {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 16px;
+        color: #495057;
+        cursor: pointer;
+        margin-bottom: 4px;
+    }
+
+    .form-checkbox {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        accent-color: var(--blood-red);
+        cursor: pointer;
+    }
+
+    .recurring-options {
+        margin-top: 16px;
+    }
+
+    .recurring-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .recurring-preview {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    .recurring-preview h4 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .preview-content {
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .preview-date {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .preview-date:last-child {
+        border-bottom: none;
+    }
+
+    .preview-date-number {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    @media (max-width: 768px) {
+        .recurring-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<% if (!(permissions.includes('analyses.update'))){ %>
+    <script>
+        window.hideActions = true;
+        function hideActionsColumn() {
+            const table = document.getElementById('analysisTable');
+            if (!table) {
+                console.warn('Analysis table not found');
+                return;
+            }
+
+            // Find the Actions column index
+            const headers = table.querySelectorAll('thead th');
+            let actionsColumnIndex = -1;
+
+            headers.forEach((header, index) => {
+                if (header.textContent.trim() === 'Actions') {
+                    actionsColumnIndex = index;
+                }
+            });
+
+            if (actionsColumnIndex === -1) {
+                console.warn('Actions column not found');
+                return;
+            }
+
+            // Hide the header
+            headers[actionsColumnIndex].style.display = 'none';
+
+            // Hide all cells in the actions column
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells[actionsColumnIndex]) {
+                    cells[actionsColumnIndex].style.display = 'none';
+                }
+            });
+
+            console.log('Actions column hidden successfully');
+        }
+        hideActionsColumn();
+    </script>
+<% } else { %>
+    <script>
+        window.hideActions = false;
+    </script>
+<% } %>

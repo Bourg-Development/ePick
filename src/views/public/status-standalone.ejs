@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        /* Status Page Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        .status-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .status-header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .status-subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+        }
+
+        .last-updated {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #95a5a6;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+
+        /* Overall Status */
+        .status-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            margin-bottom: 3rem;
+        }
+
+        .status-card.operational { border-left-color: #27ae60; }
+        .status-card.degraded { border-left-color: #f39c12; }
+        .status-card.partial_outage { border-left-color: #e67e22; }
+        .status-card.major_outage { border-left-color: #e74c3c; }
+        .status-card.maintenance { border-left-color: #9b59b6; }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.operational { background-color: #27ae60; }
+        .status-dot.degraded { background-color: #f39c12; }
+        .status-dot.partial_outage { background-color: #e67e22; }
+        .status-dot.major_outage { background-color: #e74c3c; }
+        .status-dot.maintenance { background-color: #9b59b6; }
+
+        .status-text h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .status-text p {
+            margin: 0;
+            color: #7f8c8d;
+        }
+
+        /* Components */
+        .components-section h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .component-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #ecf0f1;
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .component-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .component-status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .component-status-dot.operational { background-color: #27ae60; }
+        .component-status-dot.degraded { background-color: #f39c12; }
+        .component-status-dot.partial_outage { background-color: #e67e22; }
+        .component-status-dot.major_outage { background-color: #e74c3c; }
+        .component-status-dot.maintenance { background-color: #9b59b6; }
+
+        .component-name h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+
+        .critical-badge {
+            background-color: #e74c3c;
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .component-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .component-status.operational {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .component-status.degraded {
+            background-color: #fef5e7;
+            color: #f39c12;
+        }
+
+        .component-status.partial_outage {
+            background-color: #fdf2e9;
+            color: #e67e22;
+        }
+
+        .component-status.major_outage {
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .component-status.maintenance {
+            background-color: #ebdef0;
+            color: #9b59b6;
+        }
+
+        .component-description {
+            margin: 0 0 1rem 0;
+            font-size: 0.875rem;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .component-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: #95a5a6;
+            flex-wrap: wrap;
+        }
+
+        .error-message {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #fadbd8;
+            border-radius: 4px;
+            border: 1px solid #e74c3c;
+        }
+
+        .error-message small {
+            color: #c0392b;
+            font-size: 0.75rem;
+        }
+
+        /* Footer */
+        .status-footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid #ecf0f1;
+            margin-top: 2rem;
+        }
+
+        .status-footer p {
+            margin: 0.5rem 0;
+            color: #7f8c8d;
+        }
+
+        .status-footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .status-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .auto-refresh label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .status-header h1 {
+                font-size: 2rem;
+            }
+            
+            .last-updated {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .component-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .component-meta {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .components-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="status-header">
+            <h1>ePick System Status</h1>
+            <p class="status-subtitle">Current system status and recent incidents</p>
+            <div class="last-updated">
+                Last updated: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
+                <button class="refresh-btn" onclick="refreshStatus()">
+                    <span>⟳</span> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Overall Status -->
+        <div class="status-card <%= systemStatus.overall_status %>">
+            <div class="status-indicator">
+                <div class="status-dot <%= systemStatus.overall_status %>"></div>
+                <div class="status-text">
+                    <h2><%= helpers.getStatusText(systemStatus.overall_status) %></h2>
+                    <p><%= helpers.getStatusDescription(systemStatus.overall_status) %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Components -->
+        <div class="components-section">
+            <h3>System Components</h3>
+            <div class="components-grid">
+                <% systemStatus.components.forEach(component => { %>
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-name">
+                            <div class="component-status-dot <%= component.status %>"></div>
+                            <h4><%= helpers.formatComponentName(component.component) %></h4>
+                            <% if (component.is_critical) { %>
+                            <span class="critical-badge">Critical</span>
+                            <% } %>
+                        </div>
+                        <div class="component-status <%= component.status %>">
+                            <%= helpers.getStatusText(component.status) %>
+                        </div>
+                    </div>
+                    <% if (component.description) { %>
+                    <p class="component-description"><%= component.description %></p>
+                    <% } %>
+                    <div class="component-meta">
+                        <% if (component.response_time) { %>
+                        <span class="response-time">Response: <%= component.response_time %>ms</span>
+                        <% } %>
+                        <span class="last-checked">
+                            Checked: <%= helpers.formatRelativeTime(component.last_checked) %>
+                        </span>
+                    </div>
+                    <% if (component.error_message && component.status !== 'operational') { %>
+                    <div class="error-message">
+                        <small><%= component.error_message %></small>
+                    </div>
+                    <% } %>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="status-footer">
+            <p>
+                For technical support or to report issues, please contact 
+                <a href="mailto:support@epick.system">support@epick.system</a>
+            </p>
+            <p class="auto-refresh">
+                <label>
+                    <input type="checkbox" id="autoRefresh" checked> 
+                    Auto-refresh every 30 seconds
+                </label>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh functionality
+        let autoRefreshInterval;
+
+        function refreshStatus() {
+            const lastUpdatedElement = document.getElementById('lastUpdated');
+            const refreshBtn = document.querySelector('.refresh-btn');
+            
+            // Show loading state
+            if (refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<span style="animation: spin 1s linear infinite;">⟳</span> Refreshing...';
+            }
+
+            fetch('/status/data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update last updated time
+                        if (lastUpdatedElement) {
+                            lastUpdatedElement.textContent = new Date().toLocaleString();
+                        }
+                        
+                        // Reload page for full update
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        console.error('Failed to refresh status:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing status:', error);
+                })
+                .finally(() => {
+                    // Reset button state
+                    if (refreshBtn) {
+                        refreshBtn.disabled = false;
+                        refreshBtn.innerHTML = '<span>⟳</span> Refresh';
+                    }
+                });
+        }
+
+        // Setup auto-refresh
+        function setupAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            if (!checkbox) return;
+            
+            function toggleAutoRefresh() {
+                if (checkbox.checked) {
+                    autoRefreshInterval = setInterval(refreshStatus, 30000);
+                    localStorage.setItem('statusPageAutoRefresh', 'true');
+                } else {
+                    if (autoRefreshInterval) {
+                        clearInterval(autoRefreshInterval);
+                        autoRefreshInterval = null;
+                    }
+                    localStorage.setItem('statusPageAutoRefresh', 'false');
+                }
+            }
+            
+            // Restore setting
+            const savedSetting = localStorage.getItem('statusPageAutoRefresh');
+            checkbox.checked = savedSetting !== 'false';
+            
+            toggleAutoRefresh();
+            checkbox.addEventListener('change', toggleAutoRefresh);
+        }
+
+        // CSS Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', setupAutoRefresh);
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>

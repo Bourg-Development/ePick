@@ -1,0 +1,95 @@
+<%- include('../layouts/public', { 
+    title: __('common.error'),
+    pageId: 'error-generic'
+}) %>
+
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">
+            <span class="material-symbols-outlined">warning</span>
+        </div>
+        <h1 class="error-title"><%= __('common.error') %></h1>
+        <h2 class="error-message">
+            <% if (typeof error !== 'undefined' && error.message) { %>
+                <%= error.message %>
+            <% } else { %>
+                <%= __('errors.genericError') %>
+            <% } %>
+        </h2>
+        <% if (typeof error !== 'undefined' && error.status) { %>
+            <p class="error-status"><%= __('errors.errorCode') %>: <%= error.status %></p>
+        <% } %>
+        <p class="error-description">
+            <%= __('errors.genericErrorDescription') %>
+        </p>
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">
+                <span class="material-symbols-outlined">home</span>
+                <%= __('common.home') %>
+            </a>
+            <button onclick="history.back()" class="btn btn-secondary">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <%= __('common.back') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.error-content {
+    text-align: center;
+    max-width: 500px;
+}
+
+.error-icon {
+    font-size: 4rem;
+    color: var(--primary-red);
+    margin-bottom: 1rem;
+}
+
+.error-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-red);
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    font-size: 1.5rem;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.error-status {
+    color: var(--medium-gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.error-description {
+    color: var(--medium-gray);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.error-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>

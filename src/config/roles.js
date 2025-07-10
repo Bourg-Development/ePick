@@ -14,6 +14,16 @@ const roles = {
         ]
     },
 
+    // System admin role with full system access (same as admin)
+    system_admin: {
+        name: 'system_admin',
+        description: 'Full system administrator access',
+        permissions: [
+            'read.all', 'write.all', 'read.users', 'write.users', 'read.logs',
+            'manage.refcodes', 'manage.roles', 'access.security'
+        ]
+    },
+
     // Staff role with limited permissions
     staff: {
         name: 'staff',
@@ -47,6 +57,17 @@ const roles = {
         description: 'Read-only access',
         permissions: [
             'read.users', 'read.logs'
+        ]
+    },
+
+    // Caregiver role with nurse-like permissions but no analysis scheduling
+    caregiver: {
+        name: 'caregiver',
+        description: 'Caregiver access without analysis scheduling',
+        permissions: [
+            'patients.view', 'patients.create', 'patients.update',
+            'doctors.view', 'rooms.view', 'analyses.view', 'analyses.update',
+            'services.view', 'recurring_analyses.view'
         ]
     }
 };

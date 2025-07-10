@@ -1,12 +1,13 @@
 .sidebar {
     width: 250px;
-    height: calc(100vh - 70px);
+    height: calc(100vh - 60px); /* Adjusted to match navbar height */
     background-color: var(--off-white);
     box-shadow: 2px 0 10px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: fixed;
+    top: 60px; /* Position below navbar */
     left: 0;
     z-index: 99;
 }
@@ -66,6 +67,89 @@
     border-radius: 10px;
     padding: 2px 8px;
     font-size: 10px;
+}
+
+/* Dropdown menu styles */
+.sidebar-menu li.dropdown {
+    position: relative;
+    overflow: visible; /* Ensure dropdown can expand */
+}
+
+.sidebar-menu li.dropdown .dropdown-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-menu li.dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-menu .dropdown-menu {
+    display: none;
+    background-color: rgba(230, 57, 70, 0.05);
+    margin: 0;
+    padding: 0;
+    position: static; /* Ensure it's in normal document flow */
+    width: 100%;
+    z-index: auto;
+    float: none;
+    clear: both;
+}
+
+.sidebar-menu li.dropdown.open .dropdown-menu {
+    display: block !important;
+}
+
+/* Ensure persistent dropdowns always show expanded state */
+.sidebar-menu li.dropdown.persistent-open .dropdown-menu {
+    display: block !important;
+}
+
+.sidebar-menu li.dropdown.persistent-open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-menu .dropdown-menu li {
+    border-bottom: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-menu .dropdown-menu li a {
+    padding: 8px 15px 8px 45px;
+    font-size: 14px;
+    color: var(--medium-gray);
+    display: block;
+    margin: 0;
+}
+
+.sidebar-menu .dropdown-menu li a:hover {
+    background-color: rgba(230, 57, 70, 0.1);
+    color: var(--blood-red);
+    padding-left: 50px;
+}
+
+.sidebar-menu .dropdown-menu li.active a {
+    background-color: rgba(230, 57, 70, 0.15);
+    color: var(--blood-red);
+}
+
+.sidebar-menu .dropdown-menu li a .material-symbols-outlined {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.sidebar-menu .dropdown-menu li.divider {
+    height: 1px;
+    background-color: var(--light-gray);
+    margin: 2px 20px;
+    padding: 0;
+    line-height: 1px;
+}
+
+.sidebar-menu .dropdown-menu li.divider:hover {
+    background-color: var(--light-gray);
 }
 
 .sidebar-footer {
@@ -139,6 +223,26 @@
     top: 5px;
     right: 5px;
     padding: 2px 5px;
+}
+
+/* Hide dropdown functionality when sidebar is collapsed */
+.sidebar.collapsed .dropdown-menu {
+    display: none !important;
+}
+
+.sidebar.collapsed .dropdown-arrow {
+    display: none !important;
+}
+
+/* Prevent dropdown interaction when collapsed */
+.sidebar.collapsed li.dropdown > a {
+    pointer-events: none;
+    cursor: default;
+}
+
+.sidebar.collapsed li.dropdown > a .material-symbols-outlined {
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .sidebar-menu li a .menu-badge {

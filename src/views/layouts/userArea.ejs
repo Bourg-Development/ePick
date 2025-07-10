@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'en' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- title %> | <%= __('common.appName') %></title>
+    <link rel="icon" type="image/svg+xml" href="/static/media/logos/favico.png">
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/stylesheets/common/main.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/restricted/navbar.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/restricted/main.css">
+    <link rel="stylesheet" href="/static/stylesheets/common/userArea/userSidebar.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(style => { %>
+            <link rel="stylesheet" href="/static/stylesheets/<%= style %>">
+        <% }); %>
+    <% } %>
+</head>
+<body>
+<%- include('../partials/restricted/navigation/navbar.ejs') %>
+
+<div class="main-container">
+    <%- include('../partials/userArea/navigation/userSidebar.ejs') %>
+
+    <main class="content">
+        <%- body %>
+        <!-- Toast container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </main>
+</div>
+
+<%- datePreferencesScript %>
+
+<script src="/static/scripts/common/main.js" defer></script>
+<script src="/static/scripts/common/api.js" defer></script>
+<script src="/static/scripts/common/restricted/navbar.js" defer></script>
+<script src="/static/scripts/common/restricted/main.js" defer></script>
+<script src="/static/scripts/common/userArea/userSidebar.js" defer></script>
+
+<% if (typeof scripts !== 'undefined') { %>
+    <% scripts.forEach(script => { %>
+        <script src="/static/scripts/<%= script %>"></script>
+    <% }); %>
+<% } %>
+</body>
+</html>

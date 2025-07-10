@@ -1,0 +1,542 @@
+<!-- System Administration Page -->
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="page-title">
+                <span class="material-symbols-outlined">computer</span>
+                System Administration
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="refreshStatsBtn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Stats Grid -->
+    <div class="stats-grid">
+        <!-- System Status Card -->
+        <div class="stat-card status-card">
+            <div class="stat-header">
+                <h3>System Status</h3>
+                <span class="status-indicator" id="systemStatus">
+                    <span class="status-dot online"></span>
+                    Online
+                </span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-item">
+                    <span class="stat-label">Uptime</span>
+                    <span class="stat-value" id="systemUptime">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Last Restart</span>
+                    <span class="stat-value" id="lastRestart">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Environment</span>
+                    <span class="stat-value" id="environment">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Stats Card -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Performance</h3>
+                <span class="material-symbols-outlined">monitoring</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-item">
+                    <span class="stat-label">CPU Usage:</span>
+                    <span class="stat-value with-progress">
+                        <span id="cpuUsage">Loading...</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cpuProgress"></div>
+                        </div>
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Memory Usage:</span>
+                    <span class="stat-value with-progress">
+                        <span id="memoryUsage">Loading...</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="memoryProgress"></div>
+                        </div>
+                    </span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Disk Usage:</span>
+                    <span class="stat-value with-progress">
+                        <span id="diskUsage">Loading...</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="diskProgress"></div>
+                        </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Stats Card -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Database</h3>
+                <span class="material-symbols-outlined">database</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-item">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value" id="dbStatus">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Connections:</span>
+                    <span class="stat-value" id="dbConnections">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Size:</span>
+                    <span class="stat-value" id="dbSize">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Stats Card -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3>Application</h3>
+                <span class="material-symbols-outlined">apps</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-item">
+                    <span class="stat-label">Active Sessions:</span>
+                    <span class="stat-value" id="activeSessions">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Users:</span>
+                    <span class="stat-value" id="totalUsers">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active Lists:</span>
+                    <span class="stat-value" id="activeMailingLists">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Control Section -->
+    <div class="content-section">
+        <div class="section-header">
+            <h2>System Control</h2>
+            <p>Manage system-wide settings and operations</p>
+        </div>
+
+        <div class="control-grid">
+            <!-- Maintenance Mode Card -->
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="material-symbols-outlined">build</span>
+                    <h3>Maintenance Mode</h3>
+                </div>
+                <div class="control-content">
+                    <p>Enable maintenance mode to temporarily disable user access for system updates.</p>
+                    <div class="maintenance-status">
+                        <span class="status-text">Maintenance Mode:</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="maintenanceToggle" class="toggle-input">
+                            <label for="maintenanceToggle" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Updates Card -->
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="material-symbols-outlined">update</span>
+                    <h3>System Updates</h3>
+                </div>
+                <div class="control-content">
+                    <p>Manage system updates from GitHub releases or create manual updates.</p>
+                    <div class="update-actions">
+                        <button class="btn btn-primary" id="createUpdateBtn">
+                            <span class="material-symbols-outlined">add</span>
+                            Create Update
+                        </button>
+                        <button class="btn btn-secondary" id="viewUpdatesBtn">
+                            <span class="material-symbols-outlined">list</span>
+                            View Updates
+                        </button>
+                        <button class="btn btn-secondary" id="githubStatusBtn">
+                            <span class="material-symbols-outlined">sync</span>
+                            GitHub Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cache Management Card -->
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="material-symbols-outlined">cached</span>
+                    <h3>Cache Management</h3>
+                </div>
+                <div class="control-content">
+                    <p>Clear application cache to improve performance and update data.</p>
+                    <button class="btn btn-secondary" id="clearCacheBtn">
+                        <span class="material-symbols-outlined">delete_sweep</span>
+                        Clear Cache
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Logs Card -->
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="material-symbols-outlined">description</span>
+                    <h3>System Logs</h3>
+                </div>
+                <div class="control-content">
+                    <p>View and manage system log files for debugging and monitoring.</p>
+                    <div class="log-actions">
+                        <button class="btn btn-secondary" id="viewLogsBtn">
+                            <span class="material-symbols-outlined">visibility</span>
+                            View Logs
+                        </button>
+                        <button class="btn btn-secondary" id="downloadLogsBtn">
+                            <span class="material-symbols-outlined">download</span>
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Shutdown Card -->
+            <div class="control-card danger-card">
+                <div class="control-header">
+                    <span class="material-symbols-outlined">power_settings_new</span>
+                    <h3>System Shutdown</h3>
+                </div>
+                <div class="control-content">
+                    <p>Shutdown the application server. This will disconnect all users and stop the server.</p>
+                    <button class="btn btn-danger" id="shutdownSystemBtn">
+                        <span class="material-symbols-outlined">power_settings_new</span>
+                        Shutdown System
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Monitor Section -->
+    <div class="content-section">
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+            <p>System events and user activity</p>
+        </div>
+
+        <div class="activity-container">
+            <div class="activity-tabs">
+                <button class="tab-btn active" data-tab="system-events">System Events</button>
+                <button class="tab-btn" data-tab="user-activity">User Activity</button>
+                <button class="tab-btn" data-tab="error-logs">Error Logs</button>
+            </div>
+
+            <div class="activity-content">
+                <div class="tab-pane active" id="system-events">
+                    <div class="activity-list" id="systemEventsList">
+                        <div class="loading-placeholder">Loading system events...</div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="user-activity">
+                    <div class="activity-list" id="userActivityList">
+                        <div class="loading-placeholder">Loading user activity...</div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="error-logs">
+                    <div class="activity-list" id="errorLogsList">
+                        <div class="loading-placeholder">Loading error logs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modals -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Log Viewer Modal -->
+<div class="modal" id="logViewerModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>System Logs</h3>
+            <button class="close-btn" onclick="closeLogViewer()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="log-viewer">
+                <div class="log-header">
+                    <select id="logFileSelect" class="form-control">
+                        <option value="combined">Combined Logs</option>
+                        <option value="error">Error Logs</option>
+                        <option value="audit">Audit Logs</option>
+                        <option value="security">Security Logs</option>
+                    </select>
+                    <button class="btn btn-secondary" id="refreshLogsBtn">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Refresh
+                    </button>
+                </div>
+                <div class="log-content" id="logContent">
+                    <pre id="logText">Loading logs...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Create System Update Modal -->
+<div class="modal" id="createUpdateModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>Create System Update</h3>
+            <button class="close-btn" onclick="closeCreateUpdateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createUpdateForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updateVersion">Version *</label>
+                        <input type="text" id="updateVersion" class="form-control" required
+                               placeholder="e.g., 2.1.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="updateReleaseType">Release Type</label>
+                        <select id="updateReleaseType" class="form-control">
+                            <option value="patch">Patch</option>
+                            <option value="minor" selected>Minor</option>
+                            <option value="major">Major</option>
+                            <option value="hotfix">Hotfix</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="updateTitle">Title *</label>
+                    <input type="text" id="updateTitle" class="form-control" required
+                           placeholder="e.g., Enhanced Dashboard and New Analytics">
+                </div>
+
+                <div class="form-group">
+                    <label for="updateDescription">Description</label>
+                    <textarea id="updateDescription" class="form-control" rows="3"
+                              placeholder="Brief description of this update..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updatePriority">Priority</label>
+                        <select id="updatePriority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="updatePopupDuration">Popup Duration (days)</label>
+                        <input type="number" id="updatePopupDuration" class="form-control" value="7" min="1" max="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Changes</label>
+                    <div id="changesContainer">
+                        <div class="change-category" data-category="new">
+                            <div class="category-header">
+                                <label class="category-label">
+                                    <input type="checkbox" class="category-checkbox" value="new">
+                                    <span>New Features</span>
+                                </label>
+                            </div>
+                            <div class="category-items" style="display: none;">
+                                <textarea class="form-control category-textarea" rows="3" 
+                                          placeholder="Enter new features, one per line..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="change-category" data-category="improved">
+                            <div class="category-header">
+                                <label class="category-label">
+                                    <input type="checkbox" class="category-checkbox" value="improved">
+                                    <span>Improvements</span>
+                                </label>
+                            </div>
+                            <div class="category-items" style="display: none;">
+                                <textarea class="form-control category-textarea" rows="3"
+                                          placeholder="Enter improvements, one per line..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="change-category" data-category="fixed">
+                            <div class="category-header">
+                                <label class="category-label">
+                                    <input type="checkbox" class="category-checkbox" value="fixed">
+                                    <span>Bug Fixes</span>
+                                </label>
+                            </div>
+                            <div class="category-items" style="display: none;">
+                                <textarea class="form-control category-textarea" rows="3"
+                                          placeholder="Enter bug fixes, one per line..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="change-category" data-category="security">
+                            <div class="category-header">
+                                <label class="category-label">
+                                    <input type="checkbox" class="category-checkbox" value="security">
+                                    <span>Security Updates</span>
+                                </label>
+                            </div>
+                            <div class="category-items" style="display: none;">
+                                <textarea class="form-control category-textarea" rows="3"
+                                          placeholder="Enter security updates, one per line..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="updateRequiresAck">
+                            <span class="checkmark"></span>
+                            Require user acknowledgment
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="updateShowPopup" checked>
+                            <span class="checkmark"></span>
+                            Show popup notification to users
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUpdateModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">save</span>
+                        Create Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View System Updates Modal -->
+<div class="modal" id="viewUpdatesModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>System Updates</h3>
+            <div class="modal-header-actions">
+                <button class="btn btn-secondary btn-sm" id="refreshUpdatesBtn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Refresh
+                </button>
+                <button class="close-btn" onclick="closeViewUpdatesModal()">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="update-filters">
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select id="updateStatusFilter" class="form-control">
+                        <option value="">All</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Priority:</label>
+                    <select id="updatePriorityFilter" class="form-control">
+                        <option value="">All</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="updates-list" id="updatesList">
+                <div class="loading-state">
+                    <span class="material-symbols-outlined spinning">hourglass_empty</span>
+                    Loading system updates...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Details Modal -->
+<div class="modal" id="updateDetailsModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>Update Details</h3>
+            <button class="close-btn" onclick="closeUpdateDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="updateDetailsContent">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- GitHub Status Modal -->
+<div class="modal" id="githubStatusModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>GitHub Integration Status</h3>
+            <div class="modal-header-actions">
+                <button class="btn btn-secondary btn-sm" id="refreshGitHubStatusBtn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Refresh
+                </button>
+                <button class="close-btn" onclick="closeGitHubStatusModal()">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="githubStatusContent">
+                <div class="loading-state">
+                    <span class="material-symbols-outlined spinning">hourglass_empty</span>
+                    Loading GitHub status...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -136,22 +136,65 @@ const rateLimit = (options = {}) => {
 };
 
 /**
- * Pre-configured rate limiters for common scenarios
+ * Pre-configured rate limiters for different scenarios
  */
 module.exports = {
     // Generic rate limiter
     rateLimit,
 
-    // Authentication endpoints rate limiter (stricter)
+    // ============================================
+    // AUTHENTICATION RATE LIMITERS
+    // ============================================
+
+    // Authentication endpoints rate limiter (very strict)
     authRateLimit: rateLimit({
-        maxRequests: 10,
+        maxRequests: 5,
         windowMs: 60000, // 1 minute
         keyType: 'ip',
         errorMessage: 'Too many authentication attempts, please try again later',
         logType: 'auth'
     }),
 
-    // API endpoints rate limiter (more permissive)
+    refreshRateLimit: rateLimit({
+        maxRequests: 60,
+        windowMs: 60000,
+        keyType: 'ip',
+        errorMessage: 'Too many authentication attempts, please try again later',
+        logType: 'auth'
+    }),
+
+    // 2FA verification rate limiter (strict)
+    twoFactorRateLimit: rateLimit({
+        maxRequests: 10,
+        windowMs: 300000, // 5 minutes
+        keyType: 'ip',
+        errorMessage: 'Too many 2FA attempts, please wait before trying again',
+        logType: '2fa'
+    }),
+
+    // Password change rate limiter
+    passwordChangeRateLimit: rateLimit({
+        maxRequests: 3,
+        windowMs: 300000, // 5 minutes
+        keyType: 'user',
+        errorMessage: 'Too many password change attempts',
+        logType: 'password'
+    }),
+
+    // ============================================
+    // GENERAL API RATE LIMITERS
+    // ============================================
+
+    // General API endpoints rate limiter
+    generalRateLimit: rateLimit({
+        maxRequests: 100,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'API rate limit exceeded, please slow down',
+        logType: 'api'
+    }),
+
+    // API endpoints rate limiter (legacy - kept for compatibility)
     apiRateLimit: rateLimit({
         maxRequests: 60,
         windowMs: 60000, // 1 minute
@@ -160,12 +203,140 @@ module.exports = {
         logType: 'api'
     }),
 
-    // Reference code generation limiter
-    refCodeRateLimit: rateLimit({
+    // ============================================
+    // HEALTHCARE-SPECIFIC RATE LIMITERS
+    // ============================================
+
+    // Patient data access rate limiter (medical privacy protection)
+    patientDataRateLimit: rateLimit({
+        maxRequests: 200,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Patient data access rate limit exceeded',
+        logType: 'patient_data'
+    }),
+
+    // Analysis creation rate limiter (prevent spam scheduling)
+    analysisCreationRateLimit: rateLimit({
+        maxRequests: 30,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Analysis creation rate limit exceeded',
+        logType: 'analysis_creation'
+    }),
+
+    // Critical operations rate limiter (analysis cancellation, status updates)
+    criticalOpsRateLimit: rateLimit({
+        maxRequests: 50,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Critical operations rate limit exceeded',
+        logType: 'critical_ops'
+    }),
+
+    // ============================================
+    // ADMINISTRATIVE RATE LIMITERS
+    // ============================================
+
+    // User management rate limiter
+    userManagementRateLimit: rateLimit({
         maxRequests: 20,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'User management rate limit exceeded',
+        logType: 'user_mgmt'
+    }),
+
+    // Reference code generation limiter (stricter)
+    refCodeRateLimit: rateLimit({
+        maxRequests: 10,
         windowMs: 300000, // 5 minutes
         keyType: 'user',
         errorMessage: 'Reference code generation rate limit exceeded',
         logType: 'refcode'
+    }),
+
+    // Organization settings rate limiter (very strict)
+    settingsRateLimit: rateLimit({
+        maxRequests: 20,
+        windowMs: 300000, // 5 minutes
+        keyType: 'user',
+        errorMessage: 'Settings modification rate limit exceeded',
+        logType: 'settings'
+    }),
+
+    // ============================================
+    // DATA EXPORT & BULK OPERATIONS
+    // ============================================
+
+    // Export operations rate limiter (resource intensive)
+    exportRateLimit: rateLimit({
+        maxRequests: 5,
+        windowMs: 300000, // 5 minutes
+        keyType: 'user',
+        errorMessage: 'Export rate limit exceeded, please wait before generating another export',
+        logType: 'export'
+    }),
+
+    // Bulk operations rate limiter
+    bulkOpsRateLimit: rateLimit({
+        maxRequests: 10,
+        windowMs: 300000, // 5 minutes
+        keyType: 'user',
+        errorMessage: 'Bulk operations rate limit exceeded',
+        logType: 'bulk_ops'
+    }),
+
+    // Archive cleanup rate limiter (very strict - compliance critical)
+    cleanupRateLimit: rateLimit({
+        maxRequests: 2,
+        windowMs: 3600000, // 1 hour
+        keyType: 'user',
+        errorMessage: 'Archive cleanup rate limit exceeded - this is a critical operation',
+        logType: 'cleanup'
+    }),
+
+    // ============================================
+    // SEARCH & REPORTING RATE LIMITERS
+    // ============================================
+
+    // Search operations rate limiter
+    searchRateLimit: rateLimit({
+        maxRequests: 200,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Search rate limit exceeded',
+        logType: 'search'
+    }),
+
+    // Statistics and reporting rate limiter
+    reportingRateLimit: rateLimit({
+        maxRequests: 30,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Reporting rate limit exceeded',
+        logType: 'reporting'
+    }),
+
+    // Dashboard data rate limiter (frequent polling expected)
+    dashboardRateLimit: rateLimit({
+        maxRequests: 500,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Dashboard refresh rate limit exceeded',
+        logType: 'dashboard'
+    }),
+
+    // ============================================
+    // EMERGENCY BYPASS RATE LIMITER
+    // ============================================
+
+    // Emergency operations (very permissive but logged)
+    emergencyRateLimit: rateLimit({
+        maxRequests: 1000,
+        windowMs: 60000, // 1 minute
+        keyType: 'user',
+        errorMessage: 'Even emergency operations have limits',
+        logType: 'emergency'
     })
 };

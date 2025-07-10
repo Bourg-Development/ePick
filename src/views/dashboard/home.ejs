@@ -1,107 +1,252 @@
 <div class="dashboard-container">
-    <h1>Dashboard</h1>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-title-section">
+            <h1 class="dashboard-title">Dashboard</h1>
+            <p class="dashboard-subtitle" id="welcomeMessage">Welcome back</p>
+        </div>
+        <div class="dashboard-actions">
+            <div class="date-range-selector">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span id="dateRangeText">Last 7 days</span>
+                <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+            </div>
+            <button class="btn btn-primary" id="refreshDashboard">
+                <span class="material-symbols-outlined">refresh</span>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-row">
+        <div class="metric-card">
+            <div class="metric-icon analyses">
+                <span class="material-symbols-outlined">biotech</span>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value" id="totalAnalysesToday">0</h3>
+                <p class="metric-label">Today's Analyses</p>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon pending">
+                <span class="material-symbols-outlined">pending_actions</span>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value" id="pendingAnalyses">0</h3>
+                <p class="metric-label">Pending Analyses</p>
+                <span class="metric-change">
+                    <span id="pendingStatus">0 urgent</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon completed">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div class="metric-content">
+                <h3 class="metric-value" id="completionRate">0%</h3>
+                <p class="metric-label">Completion Rate</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main Dashboard Grid -->
     <div class="dashboard-grid">
-        <!-- Small Card 1 -->
-        <div class="dashboard-card card-md">
-            <div class="card-header">
-                <h3>ToDo</h3>
-            </div>
-            <div class="card-body">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Room</th>
-                            <th>Status</th>
-                            <th>Type</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>Jean-Claude Schultz</td>
-                            <td>4125</td>
-                            <td><span class="status-badge pending">Pending</span></td>
-                            <td>XY</td>
-                        </tr>
-                        <tr>
-                            <td>Marie-Anne du Coin</td>
-                            <td>4153</td>
-                            <td><span class="status-badge pending">Pending</span></td>
-                            <td>YZ</td>
-                        </tr>
-                        <tr>
-                            <td>Claude Meier</td>
-                            <td>4178</td>
-                            <td><span class="status-badge failed">Delayed</span></td>
-                            <td>ZG</td>
-                        </tr>
-                        <tr>
-                            <td>Sophie Schneider</td>
-                            <td>4587</td>
-                            <td><span class="status-badge success">Completed</span></td>
-                            <td>HG</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Small Card 2 -->
-        <div class="dashboard-card card-sm">
-            <div class="card-header">
-                <h3>User Info</h3>
-            </div>
-            <div class="card-body">
-                <ul class="list-dashed">
-                    <li>
-                        Current Service : <span style="font-weight: bold"> 1er Etage Nord </span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-
-        <!-- Large Card -->
+        <!-- Today's Schedule Widget -->
         <div class="dashboard-card card-lg">
             <div class="card-header">
-                <h3>TBD</h3>
+                <h3 class="card-title">Today's Schedule</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" id="scheduleViewToggle" title="Toggle view">
+                        <span class="material-symbols-outlined">view_list</span>
+                    </button>
+                    <a href="/restricted/dashboard/analyses" class="btn-link">View All</a>
+                </div>
             </div>
             <div class="card-body">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi id elit eget dolor accumsan rhoncus id id mi. Quisque ac hendrerit lacus. Donec feugiat nisi eu auctor fermentum. Maecenas et cursus ex, ac sodales augue. Integer pretium arcu vitae pulvinar gravida. Aliquam imperdiet urna venenatis dignissim egestas.</p>
+                <div id="scheduleLoader" class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Loading schedule...</p>
+                </div>
+                <div id="scheduleContent" style="display: none;">
+                    <div class="schedule-timeline" id="scheduleTimeline">
+                        <!-- Timeline will be populated by JavaScript -->
+                    </div>
+                    <div class="schedule-list" id="scheduleList" style="display: none;">
+                        <!-- List view will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div id="scheduleEmpty" class="empty-state" style="display: none;">
+                    <span class="material-symbols-outlined">event_busy</span>
+                    <p>No analyses scheduled for today</p>
+                    <a href="/restricted/dashboard/analyses" class="btn btn-sm btn-primary">Schedule Analysis</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Feed (Admin Only) -->
+        <% if(permissions.includes('read.all') || permissions.includes('audit.view')) { %>
+        <div class="dashboard-card card-md" id="recentActivityCard">
+            <div class="card-header">
+                <h3 class="card-title">Recent Activity</h3>
+                <span class="activity-badge" id="activityCount">0</span>
+            </div>
+            <div class="card-body">
+                <div id="activityLoader" class="loader-container">
+                    <div class="spinner"></div>
+                </div>
+                <div id="activityFeed" class="activity-feed" style="display: none;">
+                    <!-- Activity items will be populated by JavaScript -->
+                </div>
+                <div id="activityEmpty" class="empty-state" style="display: none;">
+                    <span class="material-symbols-outlined">history</span>
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Performance Chart -->
+        <div class="dashboard-card card-md">
+            <div class="card-header">
+                <h3 class="card-title">Weekly Performance</h3>
+                <div class="chart-legend">
+                    <span class="legend-item completed">
+                        <span class="legend-dot"></span>
+                        Completed
+                    </span>
+                    <span class="legend-item pending">
+                        <span class="legend-dot"></span>
+                        Pending
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="performanceChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-card card-sm">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <% if(permissions.includes('write.analyses') || permissions.includes('write.all')) { %>
+                    <a href="/restricted/dashboard/analyses" class="quick-action-btn">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <span>Schedule Analysis</span>
+                    </a>
+                    <% } %>
+                    
+                    <% if(permissions.includes('write.patients') || permissions.includes('write.all')) { %>
+                    <a href="/restricted/dashboard/patients" class="quick-action-btn">
+                        <span class="material-symbols-outlined">person_add</span>
+                        <span>Add Patient</span>
+                    </a>
+                    <% } %>
+                    
+                    <% if(permissions.includes('read.analyses') || permissions.includes('read.all')) { %>
+                    <a href="/restricted/dashboard/analyses" class="quick-action-btn">
+                        <span class="material-symbols-outlined">assignment</span>
+                        <span>View Reports</span>
+                    </a>
+                    <% } %>
+                    
+                    <% if(permissions.includes('write.rooms') || permissions.includes('write.all')) { %>
+                    <a href="/restricted/dashboard/rooms" class="quick-action-btn">
+                        <span class="material-symbols-outlined">meeting_room</span>
+                        <span>Manage Rooms</span>
+                    </a>
+                    <% } %>
+                    
+                    <% if(permissions.includes('write.doctors') || permissions.includes('write.all')) { %>
+                    <a href="/restricted/dashboard/doctors" class="quick-action-btn">
+                        <span class="material-symbols-outlined">medical_services</span>
+                        <span>Add Doctor</span>
+                    </a>
+                    <% } %>
+                    
+                    <% if(permissions.includes('write.users') || permissions.includes('write.all')) { %>
+                    <a href="/restricted/dashboard/users" class="quick-action-btn">
+                        <span class="material-symbols-outlined">group_add</span>
+                        <span>Add User</span>
+                    </a>
+                    <% } %>
+                    
+                    <% 
+                    // Check if user has any quick action permissions
+                    const hasQuickActions = permissions.some(p => 
+                        p.includes('write.analyses') || p.includes('write.patients') || 
+                        p.includes('read.analyses') || p.includes('write.rooms') || 
+                        p.includes('write.doctors') || p.includes('write.users') || 
+                        p.includes('write.all') || p.includes('read.all')
+                    );
+                    %>
+                    <% if(!hasQuickActions) { %>
+                    <div class="empty-state">
+                        <span class="material-symbols-outlined">lock</span>
+                        <p>No quick actions available</p>
+                        <small>Contact your administrator for additional permissions</small>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Status -->
+        <div class="dashboard-card card-sm">
+            <div class="card-header">
+                <h3 class="card-title">Service Status</h3>
+            </div>
+            <div class="card-body">
+                <div class="service-status" id="serviceStatus">
+                    <div class="status-item">
+                        <span class="status-indicator active"></span>
+                        <div class="status-info">
+                            <p class="status-name">Current Service</p>
+                            <p class="status-value" id="currentServiceName">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="status-metrics">
+                        <div class="status-metric">
+                            <span class="metric-label">Active Users</span>
+                            <span class="metric-value" id="activeUsers">0</span>
+                        </div>
+                        <div class="status-metric">
+                            <span class="metric-label">Total Rooms</span>
+                            <span class="metric-value" id="totalRooms">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Types Distribution -->
+        <div class="dashboard-card card-sm">
+            <div class="card-header">
+                <h3 class="card-title">Analysis Types</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="analysisTypesChart" height="180"></canvas>
+                <div class="chart-summary" id="analysisSummary">
+                    <!-- Summary will be populated by JavaScript -->
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-grid" style="margin-top: 20px;">
-        <div class="dashboard-card card-sm">
-            <div class="card-header">
-                <h3>Additional Card</h3>
-            </div>
-            <div class="card-body">
-                <p>Add more cards to see the grid adjust automatically.</p>
-            </div>
-        </div>
-
-        <div class="dashboard-card card-sm">
-            <div class="card-header">
-                <h3>Active Users</h3>
-            </div>
-            <div class="card-body">
-                <p> Display active Users (admin only). </p>
-            </div>
-        </div>
-
-        <div class="dashboard-card card-sm">
-            <div class="card-header">
-                <h3>Audit Logs</h3>
-            </div>
-            <div class="card-body">
-                <p>Display Audit logs (admin only).</p>
-            </div>
-        </div>
-
+    <!-- Alerts/Notifications Section -->
+    <div class="dashboard-alerts" id="dashboardAlerts" style="display: none;">
+        <!-- Alerts will be populated by JavaScript -->
     </div>
 </div>
+
+<!-- Hidden elements for Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -1,0 +1,1017 @@
+<div class="header">
+    <h1>Privacy & Security</h1>
+    <p>Manage your security settings, two-factor authentication, and privacy preferences.</p>
+</div>
+
+<div class="settings-container">
+    <!-- Two-Factor Authentication -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">security</span>
+                Two-Factor Authentication
+            </h2>
+            <p>Add an extra layer of security to your account with two-factor authentication</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <div class="twofa-method-card">
+                    <div class="method-header">
+                        <div class="method-info">
+                            <span class="method-icon material-symbols-outlined">smartphone</span>
+                            <div class="method-details">
+                                <h3>TOTP Authenticator</h3>
+                                <p>Use apps like Google Authenticator, Authy, or 1Password</p>
+                            </div>
+                        </div>
+                        <div class="method-status">
+                            <span class="status-badge" id="totpStatus">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="method-actions">
+                        <button class="btn btn-primary" id="manageTotpBtn">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span id="totpActionText">Manage</span>
+                        </button>
+                    </div>
+                    <div class="method-description">
+                        <small>Time-based one-time passwords provide strong security for your account.</small>
+                    </div>
+                </div>
+
+                <div class="twofa-method-card">
+                    <div class="method-header">
+                        <div class="method-info">
+                            <span class="method-icon material-symbols-outlined">security_key</span>
+                            <div class="method-details">
+                                <h3>WebAuthn/FIDO2</h3>
+                                <p>Use security keys, fingerprint, or face recognition</p>
+                            </div>
+                        </div>
+                        <div class="method-status">
+                            <span class="status-badge" id="webauthnStatus">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="method-actions">
+                        <button class="btn btn-primary" id="manageWebauthnBtn">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span id="webauthnActionText">Manage</span>
+                        </button>
+                    </div>
+                    <div class="method-description">
+                        <small>Hardware security keys and biometric authentication for maximum security.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Management -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">devices</span>
+                Session Management
+            </h2>
+            <p>Monitor and manage your active sessions across different devices</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <div class="current-session">
+                    <h3>Current Session</h3>
+                    <div class="session-details">
+                        <div class="session-item">
+                            <span class="session-label">Location:</span>
+                            <span class="session-value" id="currentSessionLocation">Loading...</span>
+                        </div>
+                        <div class="session-item">
+                            <span class="session-label">Device:</span>
+                            <span class="session-value" id="currentSessionDevice">Loading...</span>
+                        </div>
+                        <div class="session-item">
+                            <span class="session-label">Started:</span>
+                            <span class="session-value" id="currentSessionStarted">Loading...</span>
+                        </div>
+                        <div class="session-item">
+                            <span class="session-label">Last Activity:</span>
+                            <span class="session-value" id="currentSessionActivity">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="session-actions">
+                    <button class="btn btn-secondary" id="refreshSessionBtn">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Refresh Session Info
+                    </button>
+                    <button class="btn btn-danger" id="terminateOtherSessionsBtn">
+                        <span class="material-symbols-outlined">logout</span>
+                        Sign Out Other Devices
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Settings -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">visibility</span>
+                Privacy Settings
+            </h2>
+            <p>Control how your information is shared and displayed</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <label class="setting-label">Profile Visibility</label>
+                <div class="privacy-option">
+                    <div class="privacy-info">
+                        <h4>Full Name Display</h4>
+                        <p>Show your full name to other users in the system</p>
+                    </div>
+                    <div class="privacy-control">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="showFullNameToggle" class="toggle-input">
+                            <label for="showFullNameToggle" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="privacy-option">
+                    <div class="privacy-info">
+                        <h4>Email Visibility</h4>
+                        <p>Allow other users to see your email address</p>
+                    </div>
+                    <div class="privacy-control">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="showEmailToggle" class="toggle-input">
+                            <label for="showEmailToggle" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="privacy-option">
+                    <div class="privacy-info">
+                        <h4>Activity Status</h4>
+                        <p>Show when you were last active in the system</p>
+                    </div>
+                    <div class="privacy-control">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="showActivityToggle" class="toggle-input">
+                            <label for="showActivityToggle" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="privacy-actions">
+                    <button class="btn btn-primary" id="savePrivacyBtn">
+                        <span class="material-symbols-outlined">save</span>
+                        Save Privacy Settings
+                    </button>
+                </div>
+                <div class="setting-status" id="status-privacy"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Log -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">history</span>
+                Security Activity
+            </h2>
+            <div class="card-actions">
+                <button class="btn btn-sm btn-secondary" id="refreshSecurityLogBtn">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="security-log-container">
+                <div class="security-log-filters">
+                    <select class="filter-select" id="logTypeFilter">
+                        <option value="all">All Activities</option>
+                        <option value="login">Login Attempts</option>
+                        <option value="password">Password Changes</option>
+                        <option value="2fa">2FA Changes</option>
+                        <option value="security">Security Events</option>
+                    </select>
+                    <select class="filter-select" id="logTimeFilter">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                </div>
+
+                <div class="security-log-list" id="securityLogList">
+                    <div class="loading">Loading security activity...</div>
+                </div>
+
+                <button class="show-more-btn" id="showMoreLogBtn" style="display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+                    Show More
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOTP Setup Modal -->
+<div class="modal-overlay" id="totpModal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="totpModalTitle">Setup TOTP Authenticator</h2>
+            <button class="modal-close" id="closeTotpModalBtn">&times;</button>
+        </div>
+        <div class="modal-content" id="totpModalContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- WebAuthn Setup Modal -->
+<div class="modal-overlay" id="webauthnModal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="webauthnModalTitle">Setup WebAuthn</h2>
+            <button class="modal-close" id="closeWebauthnModalBtn">&times;</button>
+        </div>
+        <div class="modal-content" id="webauthnModalContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<style>
+/* Inherit base styles from preferences and add privacy-specific styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header h1 {
+    color: var(--text-black);
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.header p {
+    color: var(--medium-gray);
+    margin: 8px 0 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.settings-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--light-gray);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.settings-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 24px;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-black);
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.card-header .material-symbols-outlined {
+    font-size: 24px;
+    color: var(--blood-red);
+}
+
+.card-header p {
+    color: var(--medium-gray);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.card-content {
+    padding: 24px;
+}
+
+.setting-group {
+    margin-bottom: 32px;
+}
+
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-label {
+    display: block;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: var(--text-black);
+    font-size: 16px;
+}
+
+/* Two-Factor Authentication Styles */
+.twofa-method-card {
+    padding: 20px;
+    border: 2px solid var(--light-gray);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+}
+
+.twofa-method-card:hover {
+    border-color: var(--blood-red);
+    background: #fafafa;
+}
+
+.twofa-method-card:last-child {
+    margin-bottom: 0;
+}
+
+.method-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.method-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+}
+
+.method-icon {
+    font-size: 24px;
+    color: var(--blood-red);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.method-details h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.method-details p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--medium-gray);
+    line-height: 1.4;
+}
+
+.method-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.enabled {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.disabled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.method-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.method-description {
+    color: var(--medium-gray);
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* Session Management Styles */
+.current-session {
+    margin-bottom: 24px;
+}
+
+.current-session h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.session-details {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.session-item:last-child {
+    margin-bottom: 0;
+}
+
+.session-label {
+    font-weight: 600;
+    color: var(--text-black);
+    font-size: 14px;
+}
+
+.session-value {
+    color: var(--medium-gray);
+    font-size: 14px;
+    text-align: right;
+    max-width: 60%;
+}
+
+.session-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Privacy Settings Styles */
+.privacy-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+}
+
+.privacy-option:hover {
+    background: #fafafa;
+    border-color: var(--blood-red);
+}
+
+.privacy-option:last-child {
+    margin-bottom: 20px;
+}
+
+.privacy-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.privacy-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--medium-gray);
+    line-height: 1.4;
+}
+
+.privacy-control {
+    flex-shrink: 0;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 52px;
+    height: 28px;
+}
+
+.toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-label {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: 0.3s;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: 0.3s;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider {
+    background-color: var(--blood-red);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.privacy-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Security Log Styles */
+.security-log-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.security-log-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 2px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--blood-red);
+}
+
+.security-log-list {
+    min-height: 200px;
+}
+
+.security-log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.security-log-item:hover {
+    background: #fafafa;
+    border-color: var(--blood-red);
+}
+
+.log-item-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.log-item-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.log-item-icon.success {
+    color: #28a745;
+}
+
+.log-item-icon.warning {
+    color: #ffc107;
+}
+
+.log-item-icon.danger {
+    color: #dc3545;
+}
+
+.log-item-details h4 {
+    margin: 0 0 2px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.log-item-details p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.log-item-time {
+    font-size: 12px;
+    color: var(--medium-gray);
+    text-align: right;
+}
+
+.show-more-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed var(--light-gray);
+    background: none;
+    color: var(--medium-gray);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.show-more-btn:hover {
+    border-color: var(--blood-red);
+    color: var(--blood-red);
+}
+
+/* Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background: var(--blood-red);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--dark-red);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(230, 57, 70, 0.3);
+}
+
+.btn-secondary {
+    background: var(--light-gray);
+    color: var(--text-black);
+}
+
+.btn-secondary:hover {
+    background: var(--medium-gray);
+    color: white;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.setting-status {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.setting-status.success {
+    color: #27ae60;
+}
+
+.setting-status.error {
+    color: var(--dark-red);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .modal {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--medium-gray);
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: var(--blood-red);
+}
+
+.modal-content {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Toast styles */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.toast-icon.success {
+    color: #27ae60;
+}
+
+.toast-icon.error {
+    color: var(--dark-red);
+}
+
+.toast-message {
+    color: var(--text-black);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: var(--medium-gray);
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .method-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .method-actions {
+        justify-content: flex-end;
+    }
+
+    .privacy-option {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .privacy-control {
+        align-self: flex-end;
+    }
+
+    .session-actions {
+        flex-direction: column;
+    }
+
+    .security-log-filters {
+        flex-direction: column;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    .session-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .session-value {
+        text-align: left;
+        max-width: 100%;
+    }
+
+    .toast {
+        right: 10px;
+        left: 10px;
+        min-width: unset;
+        transform: translateY(-100%);
+    }
+
+    .toast.show {
+        transform: translateY(0);
+    }
+
+    .modal {
+        width: 95%;
+        margin: 20px;
+    }
+}
+
+/* Loading states */
+.btn.loading .material-symbols-outlined {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Focus states for accessibility */
+.toggle-label:focus-within {
+    outline: 2px solid var(--blood-red);
+    outline-offset: 2px;
+}
+
+.filter-select:focus {
+    outline: 2px solid var(--blood-red);
+    outline-offset: 2px;
+}
+</style>

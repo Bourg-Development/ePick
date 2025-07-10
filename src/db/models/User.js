@@ -14,6 +14,13 @@ module.exports = (sequelize, DataTypes) => {
                 is: /^\d{6}$/ // 6-digit numeric username
             }
         },
+        full_name: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+            validate: {
+                len: [1, 255] // Must be between 1 and 255 characters if provided
+            }
+        },
         password_hash: {
             type: DataTypes.TEXT,
             allowNull: false
@@ -112,6 +119,14 @@ module.exports = (sequelize, DataTypes) => {
         last_device_fingerprint: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        preferred_language: {
+            type: DataTypes.STRING(2),
+            allowNull: true,
+            defaultValue: 'en',
+            validate: {
+                isIn: [['en', 'fr', 'es']]
+            }
         }
     }, {
         tableName: 'users',
@@ -131,6 +146,9 @@ module.exports = (sequelize, DataTypes) => {
             },
             {
                 fields: ['created_by']
+            },
+            {
+                fields: ['full_name'] // Index for searching by name
             }
         ]
     });

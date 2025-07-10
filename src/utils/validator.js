@@ -1,404 +1,322 @@
-// middleware/validation.js
-const validator = require('../utils/validator');
-const logService = require('../services/logService');
+// utils/validator.js
 
 /**
- * Middleware for validating API inputs
+ * Validation utility functions
  */
-const validation = {
+const validator = {
     /**
-     * Validate login request
-     */
-    validateLogin(req, res, next) {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Username and password are required'
-            });
-        }
-
-        // Validate username format (6 digits)
-        const usernameValidation = validator.validateUsername(username);
-        if (!usernameValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: usernameValidation.message
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate TOTP code
-     */
-    validateTOTP(req, res, next) {
-        const { totpCode } = req.body;
-
-        if (!totpCode) {
-            return res.status(400).json({
-                success: false,
-                message: 'TOTP code is required'
-            });
-        }
-
-        // Validate TOTP format
-        const totpValidation = validator.validateTOTPCode(totpCode);
-        if (!totpValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: totpValidation.message
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate WebAuthn authentication
-     */
-    validateWebAuthn(req, res, next) {
-        const { credential } = req.body;
-
-        if (!credential) {
-            return res.status(400).json({
-                success: false,
-                message: 'WebAuthn credential is required'
-            });
-        }
-
-        // Basic structure validation
-        if (!credential.id || !credential.response) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid WebAuthn credential format'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate WebAuthn registration
-     */
-    validateWebAuthnRegistration(req, res, next) {
-        const { credential } = req.body;
-
-        if (!credential) {
-            return res.status(400).json({
-                success: false,
-                message: 'WebAuthn credential is required'
-            });
-        }
-
-        // Basic structure validation
-        if (!credential.id || !credential.rawId || !credential.response || !credential.type) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid WebAuthn credential format'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate refresh token
-     */
-    validateRefreshToken(req, res, next) {
-        const { refreshToken } = req.body;
-
-        if (!refreshToken) {
-            return res.status(400).json({
-                success: false,
-                message: 'Refresh token is required'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate registration request
-     */
-    validateRegistration(req, res, next) {
-        const { referenceCode, password, confirmPassword } = req.body;
-
-        if (!referenceCode || !password || !confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Reference code, password, and password confirmation are required'
-            });
-        }
-
-        // Validate reference code format
-        const refCodeValidation = validator.validateReferenceCode(referenceCode);
-        if (!refCodeValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: refCodeValidation.message
-            });
-        }
-
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Passwords do not match'
-            });
-        }
-
-        // Validate password strength
-        const passwordValidation = validator.validatePassword(password);
-        if (!passwordValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: passwordValidation.message
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate password change request
-     */
-    validatePasswordChange(req, res, next) {
-        const { currentPassword, newPassword, confirmPassword } = req.body;
-
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Current password, new password, and confirmation are required'
-            });
-        }
-
-        // Validate passwords match
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'New passwords do not match'
-            });
-        }
-
-        // Validate password strength
-        const passwordValidation = validator.validatePassword(newPassword);
-        if (!passwordValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: passwordValidation.message
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate reference code generation request
-     */
-    validateReferenceCodeGeneration(req, res, next) {
-        const { username, roleId } = req.body;
-
-        if (!username || !roleId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Username and role ID are required'
-            });
-        }
-
-        // Validate username format
-        const usernameValidation = validator.validateUsername(username);
-        if (!usernameValidation.valid) {
-            return res.status(400).json({
-                success: false,
-                message: usernameValidation.message
-            });
-        }
-
-        // If email is provided, validate format
-        if (req.body.email) {
-            const emailValidation = validator.validateEmail(req.body.email);
-            if (!emailValidation.valid) {
-                return res.status(400).json({
-                    success: false,
-                    message: emailValidation.message
-                });
-            }
-        }
-
-        next();
-    },
-
-    /**
-     * Validate password reset code generation
-     */
-    validatePasswordResetGeneration(req, res, next) {
-        const { targetUserId } = req.body;
-
-        if (!targetUserId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Target user ID is required'
-            });
-        }
-
-        // Ensure it's a valid integer
-        if (!Number.isInteger(parseInt(targetUserId))) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid user ID format'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate role update request
-     */
-    validateRoleUpdate(req, res, next) {
-        const { roleId } = req.body;
-
-        if (!roleId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Role ID is required'
-            });
-        }
-
-        // Ensure it's a valid integer
-        if (!Number.isInteger(parseInt(roleId))) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid role ID format'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate service update request
-     */
-    validateServiceUpdate(req, res, next) {
-        const { serviceId } = req.body;
-
-        // serviceId can be null but if provided must be valid
-        if (serviceId !== undefined && serviceId !== null) {
-            // Ensure it's a valid integer
-            if (!Number.isInteger(parseInt(serviceId))) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Invalid service ID format'
-                });
-            }
-        }
-
-        next();
-    },
-
-    /**
-     * Validate 2FA settings update
-     */
-    validate2FAUpdate(req, res, next) {
-        const { totpEnabled, webauthnEnabled, require2FA } = req.body;
-
-        // Ensure all fields are boolean if provided
-        if (totpEnabled !== undefined && typeof totpEnabled !== 'boolean') {
-            return res.status(400).json({
-                success: false,
-                message: 'TOTP enabled flag must be a boolean'
-            });
-        }
-
-        if (webauthnEnabled !== undefined && typeof webauthnEnabled !== 'boolean') {
-            return res.status(400).json({
-                success: false,
-                message: 'WebAuthn enabled flag must be a boolean'
-            });
-        }
-
-        if (require2FA !== undefined && typeof require2FA !== 'boolean') {
-            return res.status(400).json({
-                success: false,
-                message: 'Require 2FA flag must be a boolean'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate account lock status update
-     */
-    validateLockStatus(req, res, next) {
-        const { locked, reason } = req.body;
-
-        if (locked === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: 'Lock status is required'
-            });
-        }
-
-        // Ensure it's a boolean
-        if (typeof locked !== 'boolean') {
-            return res.status(400).json({
-                success: false,
-                message: 'Lock status must be a boolean'
-            });
-        }
-
-        // Reason is required when locking an account
-        if (locked && !reason) {
-            return res.status(400).json({
-                success: false,
-                message: 'Reason is required when locking an account'
-            });
-        }
-
-        next();
-    },
-
-    /**
-     * Validate username input
+     * Validate username format (6 digits)
+     * @param {string} username - Username to validate
+     * @returns {Object} - Validation result
      */
     validateUsername(username) {
-
         if (!username) {
-            return { valid: false }
+            return { valid: false, message: 'Username is required' };
         }
-        return { valid: true }
-    }
-};
 
-/**
- * Log validation failures
- * @param {Object} req - Express request
- * @param {string} validationType - Type of validation
- * @param {string} reason - Reason for failure
- */
-const logValidationFailure = async (req, validationType, reason) => {
-    try {
-        await logService.securityLog({
-            eventType: 'validation.failed',
-            severity: 'low',
-            userId: req.auth?.userId || null,
-            ipAddress: req.ip,
-            deviceFingerprint: req.get('X-Device-Fingerprint') || null,
-            metadata: {
-                validationType,
-                reason,
-                path: req.path,
-                method: req.method,
-                userAgent: req.headers['user-agent'] || 'unknown'
+        // Username must be exactly 6 digits
+        const usernameRegex = /^\d{6}$/;
+        if (!usernameRegex.test(username)) {
+            return { valid: false, message: 'Username must be exactly 6 digits' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate TOTP code format
+     * @param {string} totpCode - TOTP code to validate
+     * @returns {Object} - Validation result
+     */
+    validateTOTPCode(totpCode) {
+        if (!totpCode) {
+            return { valid: false, message: 'TOTP code is required' };
+        }
+
+        // TOTP code should be 6 digits
+        const totpRegex = /^\d{6}$/;
+        if (!totpRegex.test(totpCode)) {
+            return { valid: false, message: 'TOTP code must be 6 digits' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate reference code format
+     * @param {string} referenceCode - Reference code to validate
+     * @returns {Object} - Validation result
+     */
+
+    validateReferenceCode(referenceCode) {
+        if (!referenceCode) {
+            return { valid: false, message: 'Reference code is required' };
+        }
+
+        // Reference code should be in format XXX-XXX-XXX (9 digits with dashes)
+        const refCodeRegex = /^\d{3}-\d{3}-\d{3}$/;
+        if (!refCodeRegex.test(referenceCode)) {
+            return { valid: false, message: 'Reference code must be in format XXX-XXX-XXX (digits only)' };
+        }
+
+        return { valid: true };
+    },
+    /**
+     * Validate password strength
+     * @param {string} password - Password to validate
+     * @returns {Object} - Validation result
+     */
+    validatePassword(password) {
+        if (!password) {
+            return { valid: false, message: 'Password is required' };
+        }
+
+        // Minimum length requirement
+        if (password.length < 8) {
+            return { valid: false, message: 'Password must be at least 8 characters long' };
+        }
+
+        // Maximum length requirement
+        if (password.length > 128) {
+            return { valid: false, message: 'Password must not exceed 128 characters' };
+        }
+
+        // Must contain at least one lowercase letter
+        if (!/[a-z]/.test(password)) {
+            return { valid: false, message: 'Password must contain at least one lowercase letter' };
+        }
+
+        // Must contain at least one uppercase letter
+        if (!/[A-Z]/.test(password)) {
+            return { valid: false, message: 'Password must contain at least one uppercase letter' };
+        }
+
+        // Must contain at least one digit
+        if (!/\d/.test(password)) {
+            return { valid: false, message: 'Password must contain at least one digit' };
+        }
+
+        // Must contain at least one special character
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            return { valid: false, message: 'Password must contain at least one special character' };
+        }
+
+        // Check for common weak patterns
+        const commonPatterns = [
+            /(.)\1{2,}/, // Three or more repeated characters
+            /123456|654321|abcdef|qwerty|password/i, // Common sequences
+        ];
+
+        for (const pattern of commonPatterns) {
+            if (pattern.test(password)) {
+                return { valid: false, message: 'Password contains common weak patterns' };
             }
-        });
-    } catch (error) {
-        console.error('Failed to log validation failure:', error);
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate email format
+     * @param {string} email - Email to validate
+     * @returns {Object} - Validation result
+     */
+    validateEmail(email) {
+        if (!email) {
+            return { valid: false, message: 'Email is required' };
+        }
+
+        // Basic email format regex - more comprehensive than the simple one
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+        if (!emailRegex.test(email)) {
+            return { valid: false, message: 'Invalid email format' };
+        }
+
+        // Check length constraints
+        if (email.length > 254) {
+            return { valid: false, message: 'Email address is too long' };
+        }
+
+        // Check local part length (before @)
+        const localPart = email.split('@')[0];
+        if (localPart.length > 64) {
+            return { valid: false, message: 'Email local part is too long' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate date format and validity
+     * @param {string} dateString - Date string to validate
+     * @returns {boolean} - True if valid date
+     */
+    isValidDate(dateString) {
+        if (!dateString) {
+            return false;
+        }
+
+        // Try to parse the date
+        const date = new Date(dateString);
+
+        // Check if the date is valid
+        if (isNaN(date.getTime())) {
+            return false;
+        }
+
+        // Check if the date string represents the same date after parsing
+        // This catches invalid dates like "2023-02-30"
+        const isoString = date.toISOString().split('T')[0];
+        const inputDate = new Date(dateString).toISOString().split('T')[0];
+
+        return isoString === inputDate;
+    },
+
+    /**
+     * Validate phone number format
+     * @param {string} phone - Phone number to validate
+     * @returns {Object} - Validation result
+     */
+    validatePhone(phone) {
+        if (!phone) {
+            return { valid: false, message: 'Phone number is required' };
+        }
+
+        // Remove all non-digit characters for validation
+        const cleanPhone = phone.replace(/\D/g, '');
+
+        // Phone should be 8-15 digits (international standard)
+        if (cleanPhone.length < 8 || cleanPhone.length > 15) {
+            return { valid: false, message: 'Phone number must be 8-15 digits' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate national ID format (matricule national)
+     * @param {string} matricule - National ID to validate
+     * @returns {Object} - Validation result
+     */
+    validateMatriculeNational(matricule) {
+        if (!matricule) {
+            return { valid: false, message: 'National ID is required' };
+        }
+
+        // Basic validation - alphanumeric, 5-50 characters
+        const matriculeRegex = /^[A-Za-z0-9]{5,50}$/;
+        if (!matriculeRegex.test(matricule)) {
+            return { valid: false, message: 'National ID must be 5-50 alphanumeric characters' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate room number format
+     * @param {string} roomNumber - Room number to validate
+     * @returns {Object} - Validation result
+     */
+    validateRoomNumber(roomNumber) {
+        if (!roomNumber) {
+            return { valid: false, message: 'Room number is required' };
+        }
+
+        // Room number must be exactly 4 digits
+        const roomRegex = /^\d{4}$/;
+        if (!roomRegex.test(roomNumber)) {
+            return { valid: false, message: 'Room number must be exactly 4 digits' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate integer ID
+     * @param {string|number} id - ID to validate
+     * @returns {Object} - Validation result
+     */
+    validateId(id) {
+        if (!id) {
+            return { valid: false, message: 'ID is required' };
+        }
+
+        const idNum = parseInt(id);
+        if (isNaN(idNum) || idNum <= 0) {
+            return { valid: false, message: 'ID must be a positive integer' };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate string length
+     * @param {string} str - String to validate
+     * @param {number} minLength - Minimum length
+     * @param {number} maxLength - Maximum length
+     * @param {string} fieldName - Field name for error message
+     * @returns {Object} - Validation result
+     */
+    validateStringLength(str, minLength, maxLength, fieldName = 'Field') {
+        if (!str && minLength > 0) {
+            return { valid: false, message: `${fieldName} is required` };
+        }
+
+        if (str && str.length < minLength) {
+            return { valid: false, message: `${fieldName} must be at least ${minLength} characters` };
+        }
+
+        if (str && str.length > maxLength) {
+            return { valid: false, message: `${fieldName} must not exceed ${maxLength} characters` };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate enum value
+     * @param {string} value - Value to validate
+     * @param {Array} validValues - Array of valid values
+     * @param {string} fieldName - Field name for error message
+     * @returns {Object} - Validation result
+     */
+    validateEnum(value, validValues, fieldName = 'Field') {
+        if (!value) {
+            return { valid: false, message: `${fieldName} is required` };
+        }
+
+        if (!validValues.includes(value)) {
+            return { valid: false, message: `${fieldName} must be one of: ${validValues.join(', ')}` };
+        }
+
+        return { valid: true };
+    },
+
+    /**
+     * Validate number range
+     * @param {string|number} value - Value to validate
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     * @param {string} fieldName - Field name for error message
+     * @returns {Object} - Validation result
+     */
+    validateNumberRange(value, min, max, fieldName = 'Field') {
+        if (!value && value !== 0) {
+            return { valid: false, message: `${fieldName} is required` };
+        }
+
+        const num = Number(value);
+        if (isNaN(num)) {
+            return { valid: false, message: `${fieldName} must be a number` };
+        }
+
+        if (num < min || num > max) {
+            return { valid: false, message: `${fieldName} must be between ${min} and ${max}` };
+        }
+
+        return { valid: true };
     }
 };
 
-module.exports = validation;
+module.exports = validator;

@@ -1,0 +1,397 @@
+/* Privacy & Security Page Styles - extends base settings styles */
+
+/* QR Code display for TOTP setup */
+.qr-code-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.qr-code-display {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-code-display canvas,
+.qr-code-display img {
+    display: block;
+    margin: 0 auto;
+}
+
+.backup-codes-container {
+    margin: 20px 0;
+}
+
+.backup-codes-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.backup-code {
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.setup-step {
+    margin: 20px 0;
+    padding: 16px;
+    border-left: 4px solid var(--blood-red);
+    background: #fff5f5;
+    border-radius: 0 8px 8px 0;
+}
+
+.setup-step h4 {
+    margin: 0 0 8px 0;
+    color: var(--dark-red);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.setup-step p {
+    margin: 0;
+    color: #975a5a;
+    line-height: 1.5;
+}
+
+.verification-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    letter-spacing: 2px;
+    margin: 16px 0;
+}
+
+.verification-input:focus {
+    outline: none;
+    border-color: var(--blood-red);
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.secret-key-display {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+    word-break: break-all;
+    margin: 16px 0;
+    user-select: all;
+}
+
+.copy-button {
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* WebAuthn specific styles */
+.webauthn-status {
+    margin: 20px 0;
+}
+
+.webauthn-device {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.webauthn-device:last-child {
+    margin-bottom: 0;
+}
+
+.device-info h5 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.device-info p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.device-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-sm.btn-danger:hover {
+    background: #c82333;
+}
+
+/* Security log styling enhancements */
+.log-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--medium-gray);
+    font-style: italic;
+}
+
+.log-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: var(--medium-gray);
+}
+
+.log-loading .material-symbols-outlined {
+    animation: spin 1s linear infinite;
+    font-size: 24px;
+}
+
+/* Enhanced session management */
+.session-risk-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.session-risk-indicator.low {
+    background: #d4edda;
+    color: #155724;
+}
+
+.session-risk-indicator.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.session-risk-indicator.high {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Progressive disclosure for advanced settings */
+.advanced-settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    border: none;
+    background: none;
+    color: var(--blood-red);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.advanced-settings-toggle:hover {
+    color: var(--dark-red);
+}
+
+.advanced-settings-content {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.advanced-settings-content.show {
+    display: block;
+}
+
+/* Password policy display */
+.password-policy {
+    margin: 16px 0;
+    padding: 12px;
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    border-radius: 0 8px 8px 0;
+}
+
+.password-policy h5 {
+    margin: 0 0 8px 0;
+    color: #0056b3;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.password-policy ul {
+    margin: 0;
+    padding-left: 16px;
+    list-style-type: disc;
+}
+
+.password-policy li {
+    font-size: 13px;
+    color: #495057;
+    margin: 4px 0;
+}
+
+/* IP address formatting */
+.ip-address {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text-black);
+    font-weight: 600;
+}
+
+/* Location display */
+.location-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+.location-info .material-symbols-outlined {
+    font-size: 16px;
+    color: var(--blood-red);
+}
+
+/* Trust this device option */
+.trust-device-option {
+    margin: 16px 0;
+    padding: 12px;
+    background: #e8f5e8;
+    border-radius: 8px;
+    border: 1px solid #c3e6c3;
+}
+
+.trust-device-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #2d5a2d;
+    cursor: pointer;
+}
+
+.trust-device-option input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Device fingerprint display */
+.device-fingerprint {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--medium-gray);
+    word-break: break-all;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .backup-codes-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .qr-code-container {
+        padding: 16px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .webauthn-device {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .device-actions {
+        justify-content: flex-end;
+    }
+    
+    .verification-input {
+        font-size: 18px;
+    }
+}
+
+/* Animation for reveal/hide effects */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 200px;
+        transform: translateY(0);
+    }
+}
+
+.advanced-settings-content.show {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .twofa-method-card {
+        border-width: 3px;
+    }
+    
+    .status-badge {
+        border: 2px solid currentColor;
+    }
+    
+    .toggle-slider {
+        border: 2px solid #000;
+    }
+}

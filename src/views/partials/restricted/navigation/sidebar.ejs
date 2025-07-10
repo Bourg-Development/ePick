@@ -1,7 +1,7 @@
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-menu">
         <div class="sidebar-header">
-            <h3>MAIN MENU</h3>
+            <h3><%= __('navigation.mainMenu') %></h3>
         </div>
         <ul>
             <li class="<%- path.endsWith('/dashboard') || path.endsWith('/dashboard/') ? 'active' : null %>">
@@ -9,50 +9,143 @@
                     <span class="material-symbols-outlined">
                         dashboard
                     </span>
-                    <span>Dashboard</span>
+                    <span><%= __('common.dashboard') %></span>
                 </a>
             </li>
-            <li class="<%- path.includes('/analyses') ? 'active' : null %>">
-                <a href="/restricted/dashboard/analyses">
-                    <span class="material-symbols-outlined">
-                        monitoring
-                    </span>
-                    <span>Analyses</span>
-                    <span class="menu-badge">6</span>
-                </a>
-            </li>
-            <li class="<%- path.includes('/archive') ? 'active' : null %>">
-                <a href="#">
-                    <span class="material-symbols-outlined">
-                        orders
-                    </span>
-                    <span>Archiv</span>
-                </a>
-            </li>
-            <li class="<%- path.includes('/users') ? 'active' : null %>">
-                <a href="#">
-                    <span class="material-symbols-outlined">
-                        groups
-                    </span>
-                    <span>Users</span>
-                </a>
-            </li>
-            <li class="<%- path.includes('/organization') ? 'active' : null %>">
-                <a href="#">
-                    <span class="material-symbols-outlined">
-                        storefront
-                    </span>
-                    <span>Company Settings </span>
-                </a>
-            </li>
-            <li class="<%- path.startsWith('/settings') ? 'active' : null %>">
-                <a href="#">
-                    <span class="material-symbols-outlined">
-                        settings
-                    </span>
-                    <span>Settings</span>
-                </a>
-            </li>
+            <% if(permissions.includes('analyses.view') || permissions.includes('read.all')) { %>
+                <li class="<%- path.includes('/analyses') ? 'active' : null %>">
+                    <a href="/restricted/dashboard/analyses">
+                        <span class="material-symbols-outlined">
+                            monitoring
+                        </span>
+                        <span><%= __('navigation.analyses') %></span>
+                        <span class="menu-badge" id="analysesCounter">0</span>
+                    </a>
+                </li>
+            <% } %>
+            <% if (permissions.includes('archived_analyses.view') || permissions.includes('read.all')){ %>
+                <li class="<%- path.includes('/archive') ? 'active' : null %>">
+                    <a href="/restricted/dashboard/archive">
+                        <span class="material-symbols-outlined">
+                            orders
+                        </span>
+                        <span><%= __('navigation.archive') %></span>
+                    </a>
+                </li>
+            <% } %>
+            <% if (permissions.includes('read.users') || permissions.includes('read.all')) { %>
+                <li class="<%- path.includes('/users') ? 'active' : null %>">
+                    <a href="/restricted/dashboard/users">
+                        <span class="material-symbols-outlined">
+                            groups
+                        </span>
+                        <span><%= __('navigation.users') %></span>
+                    </a>
+                </li>
+            <% } %>
+            <% if (role === 'system_admin') { %>
+                <li class="dropdown <%- path.includes('/administration') ? 'active' : null %>">
+                    <a href="#" class="dropdown-toggle" data-dropdown="administration-menu">
+                        <span class="material-symbols-outlined">
+                            admin_panel_settings
+                        </span>
+                        <span><%= __('navigation.administration') %></span>
+                        <span class="dropdown-arrow material-symbols-outlined">expand_more</span>
+                    </a>
+                    <ul class="dropdown-menu" id="administration-menu">
+                        <li class="<%- path.includes('/mailing-lists') ? 'active' : null %>">
+                            <a href="/restricted/administration/mailing-lists">
+                                <span class="material-symbols-outlined">
+                                    mail
+                                </span>
+                                <span><%= __('navigation.mailingLists') %></span>
+                            </a>
+                        </li>
+                        <li class="<%- path.includes('/email-campaigns') ? 'active' : null %>">
+                            <a href="/restricted/administration/email-campaigns">
+                                <span class="material-symbols-outlined">
+                                    campaign
+                                </span>
+                                <span><%= __('navigation.emailCampaigns') %></span>
+                            </a>
+                        </li>
+                        <li class="<%- path.includes('/mailing-analytics') ? 'active' : null %>">
+                            <a href="/restricted/administration/mailing-analytics">
+                                <span class="material-symbols-outlined">
+                                    analytics
+                                </span>
+                                <span><%= __('navigation.mailingAnalytics') %></span>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="<%- path.includes('/system') ? 'active' : null %>">
+                            <a href="/restricted/administration/system">
+                                <span class="material-symbols-outlined">
+                                    computer
+                                </span>
+                                <span>System</span>
+                            </a>
+                        </li>
+                        <li class="<%- path.includes('/security') ? 'active' : null %>">
+                            <a href="/restricted/dashboard/security">
+                                <span class="material-symbols-outlined">
+                                    security
+                                </span>
+                                <span>Security & Forensics</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            <% } %>
+            <% if (role === 'system_admin' || role === 'admin' || permissions.includes('organization_settings.view') || permissions.includes('read.all')) { %>
+                <li class="dropdown <%- path.includes('/settings') ? 'active' : null %>">
+                    <a href="#" class="dropdown-toggle" data-dropdown="settings-menu">
+                        <span class="material-symbols-outlined">
+                            settings
+                        </span>
+                        <span><%= __('common.settings') %></span>
+                        <span class="dropdown-arrow material-symbols-outlined">expand_more</span>
+                    </a>
+                    <ul class="dropdown-menu" id="settings-menu">
+                        <% if(permissions.includes('organization_settings.view') || permissions.includes('read.all')) { %>
+                            <li class="<%- path.includes('/org-settings') ? 'active' : null %>">
+                                <a href="/restricted/settings/org-settings">
+                                    <span class="material-symbols-outlined">
+                                        storefront
+                                    </span>
+                                    <span><%= __('navigation.companySettings') %></span>
+                                </a>
+                            </li>
+                        <% } %>
+                        <% if (role === 'system_admin' || role === 'admin') { %>
+                            <li class="<%- path.includes('/services') ? 'active' : null %>">
+                                <a href="/restricted/settings/services">
+                                    <span class="material-symbols-outlined">
+                                        business
+                                    </span>
+                                    <span><%= __('dashboard.services.title') %></span>
+                                </a>
+                            </li>
+                            <li class="<%- path.includes('/rooms') ? 'active' : null %>">
+                                <a href="/restricted/settings/rooms">
+                                    <span class="material-symbols-outlined">
+                                        meeting_room
+                                    </span>
+                                    <span><%= __('dashboard.rooms.title') %></span>
+                                </a>
+                            </li>
+                            <li class="<%- path.includes('/patients') ? 'active' : null %>">
+                                <a href="/restricted/settings/patients">
+                                    <span class="material-symbols-outlined">
+                                        people
+                                    </span>
+                                    <span><%= __('dashboard.patients.title') %></span>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </li>
+            <% } %>
         </ul>
     </div>
 

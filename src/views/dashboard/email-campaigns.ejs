@@ -1,0 +1,423 @@
+<%
+// Set page-specific variables
+const pageTitle = __('mailing.campaigns.title');
+const pageStyles = ['/pages/restricted/dashboard/email-campaigns.css'];
+const pageScripts = ['/pages/restricted/dashboard/email-campaigns.js'];
+%>
+
+<div class="page-header">
+    <div class="header-content">
+        <h1 class="page-title">
+            <span class="material-symbols-outlined">campaign</span>
+            <%= __('mailing.campaigns.title') %>
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="createCampaignBtn">
+                <span class="material-symbols-outlined">add</span>
+                <%= __('mailing.campaigns.create') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="search-container">
+            <div class="search-input-group">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="searchInput" placeholder="<%= __('common.search') %>..." class="search-input">
+            </div>
+        </div>
+        <div class="filter-controls">
+            <select id="statusFilter" class="filter-select">
+                <option value="all"><%= __('common.all_status') %></option>
+                <option value="draft">Draft</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="sending">Sending</option>
+                <option value="sent">Sent</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="failed">Failed</option>
+            </select>
+            <select id="listFilter" class="filter-select">
+                <option value="all">All Lists</option>
+                <!-- Populated dynamically -->
+            </select>
+            <select id="typeFilter" class="filter-select">
+                <option value="all"><%= __('common.all_types') %></option>
+                <option value="newsletter">Newsletter</option>
+                <option value="announcement">Announcement</option>
+                <option value="alert">Alert</option>
+                <option value="system">System</option>
+                <option value="marketing">Marketing</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Campaigns Table -->
+    <div class="table-container">
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <span><%= __('common.loading') %>...</span>
+        </div>
+        
+        <table class="data-table" id="campaignsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th><%= __('mailing.campaigns.name') %></th>
+                    <th>List</th>
+                    <th><%= __('mailing.campaigns.subject') %></th>
+                    <th>Type</th>
+                    <th><%= __('mailing.campaigns.status') %></th>
+                    <th>Recipients</th>
+                    <th>Sent Date</th>
+                    <th>Performance</th>
+                    <th><%= __('common.actions') %></th>
+                </tr>
+            </thead>
+            <tbody id="campaignsBody">
+                <!-- Content will be populated by JavaScript -->
+            </tbody>
+        </table>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <span class="material-symbols-outlined">mark_email_unread</span>
+            <h3>No Email Campaigns Found</h3>
+            <p>Create your first email campaign to start communicating with your subscribers.</p>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                <span class="material-symbols-outlined">add</span>
+                Create First Campaign
+            </button>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info">
+            <span id="paginationInfo"></span>
+        </div>
+        <div class="pagination-controls">
+            <button class="btn btn-secondary" id="prevPageBtn" disabled>
+                <span class="material-symbols-outlined">chevron_left</span>
+                <%= __('common.previous') %>
+            </button>
+            <span class="page-numbers" id="pageNumbers"></span>
+            <button class="btn btn-secondary" id="nextPageBtn" disabled>
+                <%= __('common.next') %>
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Campaign Modal -->
+<div class="modal" id="campaignModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2 id="modalTitle"><%= __('mailing.campaigns.create') %></h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="campaignForm">
+            <div class="modal-body">
+                <input type="hidden" id="campaignId" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="campaignList">Mailing List *</label>
+                        <select id="campaignList" name="list_id" required>
+                            <option value="">Select a mailing list</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaignType">Campaign Type *</label>
+                        <select id="campaignType" name="campaign_type">
+                            <option value="announcement">Announcement</option>
+                            <option value="newsletter">Newsletter</option>
+                            <option value="alert">Alert</option>
+                            <option value="system">System</option>
+                            <option value="marketing">Marketing</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="campaignName"><%= __('mailing.campaigns.name') %> *</label>
+                    <input type="text" id="campaignName" name="name" required maxlength="200">
+                    <div class="field-help">Internal name to identify this campaign</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="campaignSubject"><%= __('mailing.campaigns.subject') %> *</label>
+                    <input type="text" id="campaignSubject" name="subject" required maxlength="255">
+                    <div class="field-help">This will appear as the email subject line</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="senderEmail">Sender Email</label>
+                        <input type="email" id="senderEmail" name="sender_email" placeholder="Leave blank for list default">
+                    </div>
+                    <div class="form-group">
+                        <label for="senderName">Sender Name</label>
+                        <input type="text" id="senderName" name="sender_name" maxlength="100" placeholder="Leave blank for list default">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="replyTo">Reply-To Email</label>
+                    <input type="email" id="replyTo" name="reply_to" placeholder="Optional">
+                    <div class="field-help">Where replies to this email should be sent</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Content *</label>
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button type="button" class="tab-button active" data-tab="html">HTML Editor</button>
+                            <button type="button" class="tab-button" data-tab="text">Plain Text</button>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="htmlTab">
+                                <div class="editor-toolbar">
+                                    <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
+                                        <span class="material-symbols-outlined">format_bold</span>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
+                                        <span class="material-symbols-outlined">format_italic</span>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
+                                        <span class="material-symbols-outlined">format_underlined</span>
+                                    </button>
+                                    <div class="toolbar-separator"></div>
+                                    <button type="button" class="toolbar-btn" data-command="h2" title="Heading">
+                                        <span class="material-symbols-outlined">title</span>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" data-command="link" title="Link">
+                                        <span class="material-symbols-outlined">link</span>
+                                    </button>
+                                    <div class="toolbar-separator"></div>
+                                    <button type="button" class="toolbar-btn" data-command="insertVariable" title="Insert Variable">
+                                        <span class="material-symbols-outlined">data_object</span>
+                                    </button>
+                                    <div class="toolbar-separator"></div>
+                                    <div class="components-dropdown">
+                                        <button type="button" class="toolbar-btn dropdown-toggle" id="componentsBtn" title="Insert ePick Components">
+                                            <span class="material-symbols-outlined">widgets</span>
+                                            <span class="dropdown-arrow">▼</span>
+                                        </button>
+                                        <div class="components-menu" id="componentsMenu">
+                                            <div class="components-section">
+                                                <h4>Buttons</h4>
+                                                <div class="component-item" data-component="primary-button">
+                                                    <div class="component-preview">
+                                                        <div class="btn-preview primary">Primary Button</div>
+                                                    </div>
+                                                    <span>Primary Button</span>
+                                                </div>
+                                                <div class="component-item" data-component="secondary-button">
+                                                    <div class="component-preview">
+                                                        <div class="btn-preview secondary">Secondary Button</div>
+                                                    </div>
+                                                    <span>Secondary Button</span>
+                                                </div>
+                                            </div>
+                                            <div class="components-section">
+                                                <h4>Cards</h4>
+                                                <div class="component-item" data-component="info-card">
+                                                    <div class="component-preview">
+                                                        <div class="card-preview">
+                                                            <div class="card-header">📋</div>
+                                                            <div class="card-content">Info Card</div>
+                                                        </div>
+                                                    </div>
+                                                    <span>Information Card</span>
+                                                </div>
+                                                <div class="component-item" data-component="alert-card">
+                                                    <div class="component-preview">
+                                                        <div class="card-preview alert">
+                                                            <div class="card-header">⚠️</div>
+                                                            <div class="card-content">Alert Card</div>
+                                                        </div>
+                                                    </div>
+                                                    <span>Alert Card</span>
+                                                </div>
+                                            </div>
+                                            <div class="components-section">
+                                                <h4>Banners</h4>
+                                                <div class="component-item" data-component="announcement-banner">
+                                                    <div class="component-preview">
+                                                        <div class="banner-preview">📢 Announcement</div>
+                                                    </div>
+                                                    <span>Announcement Banner</span>
+                                                </div>
+                                                <div class="component-item" data-component="feature-banner">
+                                                    <div class="component-preview">
+                                                        <div class="banner-preview feature">✨ New Feature</div>
+                                                    </div>
+                                                    <span>Feature Banner</span>
+                                                </div>
+                                            </div>
+                                            <div class="components-section">
+                                                <h4>Layout</h4>
+                                                <div class="component-item" data-component="divider">
+                                                    <div class="component-preview">
+                                                        <div class="divider-preview"></div>
+                                                    </div>
+                                                    <span>Divider</span>
+                                                </div>
+                                                <div class="component-item" data-component="spacer">
+                                                    <div class="component-preview">
+                                                        <div class="spacer-preview">[ Space ]</div>
+                                                    </div>
+                                                    <span>Spacer</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div contenteditable="true" id="htmlEditor" class="html-editor"></div>
+                                <textarea id="contentHtml" name="content_html" style="display: none;"></textarea>
+                            </div>
+                            <div class="tab-pane" id="textTab">
+                                <textarea id="contentText" name="content_text" rows="15" class="text-editor" placeholder="Enter plain text version of your email..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-help">
+                        Available variables: {{name}} - Recipient's name, {{unsubscribe_url}} - Unsubscribe link
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="scheduledAt">Schedule For Later</label>
+                    <input type="datetime-local" id="scheduledAt" name="scheduled_at">
+                    <div class="field-help">Leave blank to save as draft or send immediately</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                    <%= __('common.cancel') %>
+                </button>
+                <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                    <span class="material-symbols-outlined">save</span>
+                    Save Draft
+                </button>
+                <button type="submit" class="btn btn-primary" id="sendCampaignBtn">
+                    <span class="material-symbols-outlined">send</span>
+                    Send Campaign
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Campaign Details Modal -->
+<div class="modal" id="campaignDetailsModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2>Campaign Details</h2>
+            <button class="close-btn" onclick="closeCampaignDetails()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="campaign-details">
+                <div class="detail-section">
+                    <h3>Campaign Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Name:</label>
+                            <span id="detailName"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Subject:</label>
+                            <span id="detailSubject"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Status:</label>
+                            <span id="detailStatus" class="status-badge"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Type:</label>
+                            <span id="detailType"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Mailing List:</label>
+                            <span id="detailList"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Created By:</label>
+                            <span id="detailCreator"></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Sent Date:</label>
+                            <span id="detailSentDate"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Performance Metrics</h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricRecipients">0</div>
+                            <div class="metric-label">Recipients</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricDelivered">0</div>
+                            <div class="metric-label">Delivered</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricOpened">0</div>
+                            <div class="metric-label">Opened</div>
+                            <div class="metric-rate" id="metricOpenRate">0%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricClicked">0</div>
+                            <div class="metric-label">Clicked</div>
+                            <div class="metric-rate" id="metricClickRate">0%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricBounced">0</div>
+                            <div class="metric-label">Bounced</div>
+                            <div class="metric-rate" id="metricBounceRate">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Email Content</h3>
+                    <div class="email-preview" id="emailPreview">
+                        <!-- Email content will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2>Cancel Campaign</h2>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="warning-icon">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+            <p>Are you sure you want to cancel this campaign?</p>
+            <p class="delete-campaign-name" id="deleteCampaignName"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                <%= __('common.cancel') %>
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                <span class="material-symbols-outlined">cancel</span>
+                Cancel Campaign
+            </button>
+        </div>
+    </div>
+</div>
+

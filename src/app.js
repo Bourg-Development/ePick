@@ -10,15 +10,17 @@ const path = require("node:path");
 const expressLayouts = require('express-ejs-layouts')
 const cookieParser = require('cookie-parser');
 
-const authRoutes = require('./routes/authRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+const apiRoutes = require('./routes/apiRoutes');
 const indexRoutes = require('./routes/indexRoutes');
 const restrictedRoutes = require('./routes/restrictedRoutes');
+const userRoutes = require('./routes/userRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const logService = require('./services/logService');
 const { NODE_ENV, CORS_ORIGIN } = require('./config/environment');
+const { i18nMiddleware } = require('./config/i18n');
 
 const authMiddleware = require('./middleware/authentication');
+const { checkMaintenanceMode } = require('./middleware/maintenanceMode');
 
 
 // Create Express app
@@ -150,10 +152,16 @@ app.use('/static', express.static(path.join(__dirname, 'public')))
 // apply rate limiter to all non static content routes
 app.use(globalRateLimiter);
 
+// i18n middleware (after static content but before routes)
+app.use(i18nMiddleware);
+
+// Maintenance mode check (before routes, will handle auth internally)
+app.use(checkMaintenanceMode);
+
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api', apiRoutes);
 app.use('/restricted', restrictedRoutes);
+app.use('/user', userRoutes);
 app.use('/', indexRoutes);
 
 

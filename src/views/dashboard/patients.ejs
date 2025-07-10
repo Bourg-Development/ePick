@@ -1,0 +1,302 @@
+<div class="header">
+    <h1>Patients Management</h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="createPatientBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                person_add
+            </span>
+            Create Patient
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="dropdown-container export-dropdown-container">
+            <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                Export
+                <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+            </button>
+            <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                <div class="dropdown-item" data-action="export-advanced">
+                    <span class="material-symbols-outlined">settings</span>
+                    Advanced Options
+                </div>
+                <div class="dropdown-item" data-action="export-quick-csv">
+                    <span class="material-symbols-outlined">table_view</span>
+                    Quick Export (CSV)
+                </div>
+                <div class="dropdown-item" data-action="export-quick-excel">
+                    <span class="material-symbols-outlined">grid_on</span>
+                    Quick Export (Excel)
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search patients...">
+    </div>
+    <select class="filter-select" id="filterRoom">
+        <option value="">All Rooms</option>
+        <!-- Populated dynamically -->
+    </select>
+    <select class="filter-select" id="filterDoctor">
+        <option value="">All Doctors</option>
+        <!-- Populated dynamically -->
+    </select>
+    <select class="filter-select" id="filterGender">
+        <option value="">All Genders</option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+        <option value="O">Other</option>
+    </select>
+    <select class="filter-select" id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </select>
+    <input type="number" class="filter-input" id="limitInput" placeholder="Items per page" min="10" max="100" value="20">
+</div>
+
+<div class="table-wrapper">
+    <table id="patientsTable">
+        <thead>
+            <tr>
+                <th data-sort="first_name">
+                    Patient Name
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="matricule_national">
+                    Matricule National
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="date_of_birth">
+                    Date of Birth
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="gender">
+                    Gender
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="room_number">
+                    Room
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="doctor">
+                    Doctor
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="patientsTableBody">
+            <!-- Populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <div id="paginationInfo">Loading...</div>
+    <div class="pagination" id="pagination">
+        <button class="pagination-btn" id="prevPageBtn" disabled>
+            <span class="material-symbols-outlined">chevron_left</span>
+            Previous
+        </button>
+        <span id="currentPageInfo">Page 1 of 1</span>
+        <button class="pagination-btn" id="nextPageBtn" disabled>
+            Next
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    </div>
+</div>
+
+<!-- Create/Edit Patient Modal -->
+<div class="modal-overlay" id="patientModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Create Patient</h2>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="patientForm">
+            <div class="form-group">
+                <label for="firstName">First Name <span class="required">*</span></label>
+                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="First name" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name <span class="required">*</span></label>
+                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Last name" required>
+            </div>
+            <div class="form-group">
+                <label for="matriculeNational">Matricule National <span class="required">*</span></label>
+                <input type="text" id="matriculeNational" name="matriculeNational" class="form-control" placeholder="National ID number" required>
+            </div>
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender <span class="required">*</span></label>
+                <select id="gender" name="gender" class="form-control" required>
+                    <option value="">Select gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="roomId">Room</label>
+                <select id="roomId" name="roomId" class="form-control">
+                    <option value="">Select a room</option>
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="doctorId">Doctor</label>
+                <!-- This will be replaced by enhanced doctor search input via JavaScript -->
+                <select id="doctorId" name="doctorId" class="form-control">
+                    <option value="">Select a doctor</option>
+                    <!-- Will be replaced with enhanced search input -->
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <span id="submitBtnText">Create Patient</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2>Export Patients</h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
+            
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong>Medical Privacy Notice</strong>
+                    <p>This export may contain sensitive patient data. Ensure compliance with privacy regulations and handle data securely.</p>
+                </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword">Your Password <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" name="exportPassword" required placeholder="Enter your password" autocomplete="current-password">
+                <small class="form-help">Required for security verification</small>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label">Export Format <span class="required">*</span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong>CSV (Comma Separated)</strong>
+                            <small>Compatible with Excel, spreadsheet applications</small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong>Excel (.xlsx)</strong>
+                            <small>Native Excel format with formatting</small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong>JSON (Data)</strong>
+                            <small>Structured data format for applications</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label">Column Selection</label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn">Select All</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn">Select None</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn">Safe Columns Only</button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Current Filters Info -->
+            <div class="form-section">
+                <label class="form-label">Applied Filters</label>
+                <div class="current-filters" id="currentFilters">
+                    <span class="filter-info">Using current page filters</span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong>Sensitive Data Selected</strong>
+                    <p>You have selected columns containing sensitive patient information. Please ensure proper handling.</p>
+                </div>
+            </div>
+
+            <!-- Export Progress -->
+            <div class="export-progress" id="exportProgress" style="display: none;">
+                <div class="export-spinner"></div>
+                Exporting...
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    Export Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>

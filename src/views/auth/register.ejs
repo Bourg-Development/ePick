@@ -1,59 +1,87 @@
 <div class="registration-container">
-    <div class="welcome-header">
-        <h1>Complete Your Registration</h1>
-        <p class="subtitle">Set up your employee account</p>
+    <div class="welcome-header animate-fade-in">
+        <h1><%= __('auth.completeRegistration') %></h1>
+        <p class="subtitle"><%= __('auth.setupEmployeeAccount') %></p>
         <div class="divider"></div>
     </div>
 
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-alert animate-shake">
+            <span class="material-symbols-outlined">error</span>
+            <span><%= error %></span>
+        </div>
+    <% } %>
+
     <form id="registrationForm" novalidate>
         <!-- Reference Code Section -->
-        <div id="refCodeSection">
-            <div class="form-group">
+        <div id="refCodeSection" class="form-section animate-slide-up stagger-1">
+            <div class="form-group animate-slide-in-left stagger-2">
                 <label>
-                    Reference Code <span style="color: var(--blood-red);">*</span>
+                    <%= __('auth.referenceCode') %> <span style="color: var(--blood-red);">*</span>
                 </label>
                 <input
                         type="text"
                         id="refCode"
-                        class="form-control"
-                        placeholder="XXX-XXX-XXX"
+                        class="form-control ref-code-input"
                         required
+                        maxlength="11"
+                        value="<%= typeof referenceCode !== 'undefined' ? referenceCode : '' %>"
                 >
+                <small class="form-help"><%= __('auth.enterRefCode') %></small>
                 <div class="error-message" id="refCodeError"></div>
             </div>
             <button
                     type="button"
                     id="verifyRefCode"
-                    class="btn btn-primary"
+                    class="btn btn-primary animate-scale-in stagger-3"
             >
-                Verify Reference Code
+                <%= __('auth.verifyRefCode') %>
             </button>
         </div>
 
         <!-- Registration Fields (hidden initially) -->
-        <div id="registrationFields" style="display: none;">
+        <div id="registrationFields" class="form-section hidden">
 
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input
-                        type="text"
-                        id="username"
-                        class="form-control"
-                        disabled
-                >
+            <!-- User Information Display -->
+            <div class="user-info-card animate-scale-in stagger-1">
+                <h3><%= __('auth.accountInformation') %></h3>
+                <div class="info-row">
+                    <span class="info-label"><%= __('user.username') %>:</span>
+                    <span class="info-value" id="username-display"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><%= __('user.role') %>:</span>
+                    <span class="info-value" id="userRole"></span>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password <span style="color: #e63946;">*</span></label>
+            <!-- 2FA Notice (hidden by default) -->
+            <div id="twoFANotice" class="notice-card animate-bounce-in stagger-2" style="display: none;">
+                <div class="notice-icon">
+                    <span class="material-symbols-outlined">security</span>
+                </div>
+                <div class="notice-content">
+                    <strong><%= __('auth.twoFactorRequired') %></strong>
+                    <p><%= __('auth.twoFactorNotice') %></p>
+                </div>
+            </div>
+
+            <!-- Hidden username field for form submission -->
+            <input type="hidden" id="username" name="username">
+
+            <!-- Password Fields -->
+            <div class="form-group animate-slide-in-left stagger-3">
+                <label for="password"><%= __('auth.password') %> <span style="color: #e63946;">*</span></label>
                 <div class="password-input-container">
                     <input
                             type="password"
                             id="password"
                             class="form-control"
-                            placeholder="Create password"
+                            placeholder="<%= __('auth.createPassword') %>"
+                            autocomplete="new-password"
                     >
                     <button id="password-toggle" type="button" class="toggle-password" aria-label="Toggle password visibility">
-                        <span class="material-symbols-outlined">
+                        <span class="material-symbols-outlined password-icon">
                             visibility
                         </span>
                     </button>
@@ -61,40 +89,333 @@
                 <div class="error-message" id="passwordError"></div>
             </div>
 
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password <span style="color: #e63946;">*</span></label>
+            <div class="form-group animate-slide-in-right stagger-4">
+                <label for="confirmPassword"><%= __('auth.confirmPassword') %> <span style="color: #e63946;">*</span></label>
                 <div class="password-input-container">
                     <input
                             type="password"
                             id="confirmPassword"
                             class="form-control"
-                            placeholder="Confirm password"
+                            placeholder="<%= __('auth.confirmPasswordPlaceholder') %>"
+                            autocomplete="new-password"
                     >
                     <button id="confirm-toggle" type="button" class="toggle-password" aria-label="Toggle password visibility">
-                        <span class="material-symbols-outlined">
+                        <span class="material-symbols-outlined confirm-icon">
                             visibility
                         </span>
                     </button>
                 </div>
-
                 <div class="error-message" id="confirmPasswordError"></div>
             </div>
 
-
-            <div class="password-rules list-dashed">
-                Password must contain:
+            <!-- Password Rules -->
+            <div class="password-rules list-dashed animate-slide-in-left stagger-5">
+                <%= __('auth.passwordRules') %>
                 <ul>
-                    <li id="lengthRule">12-50 characters</li>
-                    <li id="upperRule">At least one uppercase letter</li>
-                    <li id="lowerRule">At least one lowercase letter</li>
-                    <li id="numberRule">At least one number</li>
+                    <li id="lengthRule"><%= __('auth.passwordRule12to50') %></li>
+                    <li id="upperRule"><%= __('auth.passwordRuleUppercase') %></li>
+                    <li id="lowerRule"><%= __('auth.passwordRuleLowercase') %></li>
+                    <li id="numberRule"><%= __('auth.passwordRuleNumber') %></li>
                 </ul>
             </div>
 
-            <button type="submit" class="btn-signin btn btn-primary">
-                Complete Registration
+            <!-- Registration Error Container -->
+            <div class="error-message" id="registrationError" style="display: none;"></div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-signin btn btn-primary animate-scale-in stagger-6">
+                <%= __('auth.completeRegistrationButton') %>
             </button>
         </div>
     </form>
 </div>
+
+<style>
+    .user-info-card {
+        background: var(--off-white);
+        border: 1px solid var(--light-gray);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .user-info-card h3 {
+        margin: 0 0 15px 0;
+        color: var(--text-black);
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-weight: 500;
+        color: var(--medium-gray);
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--text-black);
+    }
+
+    .notice-card {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 20px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .notice-icon {
+        color: #856404;
+        flex-shrink: 0;
+    }
+
+    .notice-content {
+        flex: 1;
+    }
+
+    .notice-content strong {
+        color: #856404;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .notice-content p {
+        margin: 0;
+        color: #856404;
+        font-size: 14px;
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--medium-gray);
+    }
+
+    .password-input-container {
+        position: relative;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--medium-gray);
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .toggle-password:hover {
+        color: var(--text-black);
+    }
+
+    .password-rules {
+        background: var(--off-white);
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 16px 0;
+        font-size: 14px;
+        color: var(--medium-gray);
+    }
+
+    .password-rules ul {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+    }
+
+    .password-rules li {
+        margin-bottom: 4px;
+        transition: color 0.2s ease;
+    }
+
+    .error-message {
+        color: var(--blood-red);
+        font-size: 14px;
+        margin-top: 8px;
+        display: none;
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .form-control {
+        padding-right: 48px; /* Make room for toggle button */
+    }
+
+    .form-control[type="hidden"] {
+        padding-right: 12px; /* Reset padding for hidden field */
+    }
+
+    /* Enhanced styling for masked reference code input */
+    .ref-code-input {
+        font-family: 'Courier New', Consolas, monospace !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        letter-spacing: 3px !important;
+        text-align: center !important;
+        background-color: var(--off-white) !important;
+        border: 2px solid var(--medium-gray) !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        color: var(--text-black) !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 8px rgba(102, 102, 102, 0.1) !important;
+        text-transform: uppercase;
+    }
+
+    .ref-code-input:focus {
+        border-color: var(--text-black) !important;
+        background-color: var(--off-white) !important;
+        box-shadow: 0 0 0 0.25rem rgba(51, 51, 51, 0.25), 0 4px 12px rgba(51, 51, 51, 0.2) !important;
+        outline: none !important;
+    }
+
+    .ref-code-input::selection {
+        background-color: rgba(51, 51, 51, 0.3);
+    }
+
+    /* Style for the reference code section */
+    #refCodeSection {
+        background: linear-gradient(135deg, var(--off-white) 0%, var(--off-white) 100%);
+        border: 1px solid var(--light-gray);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    #refCodeSection .form-group {
+        margin-bottom: 20px;
+    }
+
+    #refCodeSection .form-group label {
+        font-weight: 600;
+        color: var(--text-black);
+        margin-bottom: 12px;
+        display: block;
+        font-size: 16px;
+    }
+
+    /* Enhanced verify button styling */
+    #verifyRefCode {
+        width: 100%;
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        background: linear-gradient(135deg, var(--blood-red) 0%, var(--dark-red) 100%);
+        border: none;
+        border-radius: 10px;
+        color: var(--off-white);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+    }
+
+    #verifyRefCode:hover {
+        background: linear-gradient(135deg, var(--dark-red) 0%, var(--blood-red) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+    }
+
+    #verifyRefCode:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
+    }
+
+    #verifyRefCode:disabled {
+        background: linear-gradient(135deg, var(--light-gray) 0%, var(--light-gray) 100%);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 8px rgba(230, 230, 230, 0.2);
+        color: var(--medium-gray);
+    }
+
+    /* Visual styling for completed digits vs underscores */
+    .ref-code-input {
+        background-image: none !important;
+    }
+
+    /* Loading state for buttons */
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+        pointer-events: none;
+    }
+
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid transparent;
+        border-top-color: var(--off-white);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .notice-card {
+            flex-direction: column;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .ref-code-input {
+            font-size: 18px !important;
+            letter-spacing: 2px !important;
+            padding: 14px 16px !important;
+        }
+
+        #verifyRefCode {
+            font-size: 14px;
+            padding: 12px 24px;
+        }
+
+        #refCodeSection {
+            padding: 20px;
+        }
+    }
+</style>
+
 <script src="/static/scripts/pages/auth/register.js" defer></script>

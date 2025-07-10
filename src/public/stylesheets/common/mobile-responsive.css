@@ -1,0 +1,731 @@
+/* ======== Mobile Responsive Enhancements ======== */
+
+/* Base Mobile Breakpoints */
+@media (max-width: 768px) {
+    /* Ensure body allows horizontal scrolling within containers */
+    body {
+        overflow-x: hidden; /* Prevent body scroll but allow children to scroll */
+        width: 100vw;
+        max-width: 100vw;
+    }
+    /* Navigation adjustments */
+    .navbar {
+        padding: 10px 15px;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 60px !important;
+        z-index: 1002 !important;
+        box-sizing: border-box;
+    }
+    
+    .navbar .logo-container img {
+        width: 100px;
+        height: auto;
+    }
+    
+    .navbar-right {
+        gap: 10px;
+    }
+    
+    .navbar .search-box {
+        display: none; /* Hide search on mobile */
+    }
+    
+    .navbar-menu {
+        position: fixed !important;
+        top: 60px !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        background: white;
+        border-top: 1px solid var(--light-gray);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    
+    .navbar-menu.active {
+        display: block;
+    }
+    
+    /* Sidebar responsive behavior */
+    .sidebar {
+        position: fixed !important;
+        left: -250px !important;
+        top: 60px !important;
+        width: 250px !important;
+        height: calc(100vh - 60px) !important;
+        background: var(--off-white) !important;
+        transition: left 0.3s ease;
+        z-index: 1001;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar.collapsed {
+        left: -250px !important; /* Keep sidebar hidden on mobile */
+        width: 250px !important; /* Maintain full width */
+    }
+    
+    .sidebar.active {
+        left: 0 !important;
+    }
+    
+    /* Hide collapse functionality on mobile */
+    .sidebar.active .sidebar-header,
+    .sidebar.active .sidebar-footer,
+    .sidebar.active span {
+        display: block !important;
+    }
+    
+    .sidebar.active li a {
+        justify-content: flex-start !important;
+        padding: 12px 20px !important;
+    }
+    
+    .sidebar.active li a .material-symbols-outlined {
+        margin-right: 10px !important;
+        font-size: 20px !important;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    /* Main container and content adjustments */
+    .main-container {
+        padding-top: 60px; /* Account for fixed navbar */
+        margin-left: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden; /* Prevent container from causing horizontal scroll */
+        box-sizing: border-box;
+    }
+    
+    .content {
+        padding: 15px 15px 15px 15px;
+        margin-left: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        min-height: calc(100vh - 60px);
+        overflow-x: visible; /* Allow table containers to scroll */
+        box-sizing: border-box;
+        position: relative;
+    }
+    
+    /* Prevent body scroll when sidebar is open */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    /* Typography adjustments */
+    h1 { font-size: 24px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    h4 { font-size: 16px; }
+    
+    /* Button adjustments */
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+        min-height: 36px; /* Touch-friendly but not too large */
+        min-width: 36px;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 12px;
+        min-height: 32px;
+        min-width: 32px;
+    }
+    
+    .btn-group {
+        flex-direction: row;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-group .btn {
+        flex: 1 1 auto;
+        min-width: 60px;
+    }
+    
+    /* Action buttons in tables */
+    .table-actions {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+    
+    .table-actions .btn {
+        font-size: 11px;
+        padding: 4px 8px;
+        min-height: 28px;
+        min-width: 28px;
+        flex: 0 0 auto;
+    }
+    
+    /* Form improvements */
+    .form-container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+    
+    .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .form-group {
+        width: 100%;
+        margin-right: 0;
+    }
+    
+    /* Table responsive behavior - simplified and working */
+    .table-container, .table-wrapper {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch;
+        margin: 10px 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        position: relative;
+        border: none;
+        border-radius: 0;
+        background: white;
+        /* Force scrollbar to always be visible */
+        scrollbar-width: auto;
+        scrollbar-color: #999 #f0f0f0;
+        /* Ensure container can scroll */
+        display: block;
+    }
+    
+    .table-container::-webkit-scrollbar, .table-wrapper::-webkit-scrollbar {
+        height: 12px;
+        -webkit-appearance: none;
+    }
+    
+    .table-container::-webkit-scrollbar-track, .table-wrapper::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 6px;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb, .table-wrapper::-webkit-scrollbar-thumb {
+        background: #999;
+        border-radius: 6px;
+        border: 2px solid #f0f0f0;
+    }
+    
+    .table-container::-webkit-scrollbar-thumb:hover, .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #666;
+    }
+    
+    table {
+        min-width: 800px !important;
+        width: 800px !important;
+        table-layout: auto !important;
+        margin: 0;
+        border-collapse: collapse;
+        background: white;
+        display: table;
+    }
+    
+    th, td {
+        padding: 8px 6px;
+        font-size: 11px;
+        white-space: nowrap;
+        border-right: 1px solid #eee;
+        min-width: 80px;
+        vertical-align: middle;
+    }
+    
+    /* First column (usually ID or name) - make it wider */
+    th:first-child, td:first-child {
+        min-width: 120px;
+        font-weight: 500;
+    }
+    
+    /* Actions column - smaller width */
+    th:last-child, td:last-child {
+        min-width: 100px;
+        text-align: center;
+        border-right: none;
+    }
+    
+    /* Table header styling */
+    thead th {
+        background-color: var(--blood-red);
+        color: white;
+        font-weight: 500;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    /* Hide less important columns on mobile */
+    .mobile-hidden {
+        display: none !important;
+    }
+    
+    /* Card-based table view for very small screens */
+    .table-cards {
+        display: none;
+    }
+    
+    /* Modal adjustments */
+    .modal {
+        padding: 15px;
+        align-items: flex-start;
+        padding-top: 50px;
+    }
+    
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 8px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 1;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .modal-footer {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+    
+    /* Notification adjustments */
+    .notification {
+        left: 15px;
+        right: 15px;
+        top: 15px;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+    
+    /* Toast adjustments */
+    .toast-container {
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+    }
+    
+    .toast {
+        width: 100%;
+        max-width: none;
+    }
+    
+    /* Dashboard grid adjustments */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 0;
+    }
+    
+    .dashboard-card {
+        margin: 0;
+        border-radius: 8px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 24px;
+    }
+    
+    .stat-card .stat-label {
+        font-size: 12px;
+    }
+    
+    /* Search and filter adjustments */
+    .search-filters {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-item {
+        width: 100%;
+    }
+    
+    /* Pagination adjustments */
+    .pagination {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .pagination .page-item {
+        margin: 0 2px;
+    }
+    
+    .pagination .page-link {
+        padding: 8px 12px;
+        font-size: 14px;
+        min-width: 40px;
+    }
+    
+    /* Action buttons in tables */
+    .table-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .table-actions .btn {
+        font-size: 12px;
+        padding: 6px 10px;
+        min-height: 32px;
+    }
+    
+    /* Utility classes for mobile */
+    .mobile-hidden {
+        display: none;
+    }
+    
+    .mobile-only {
+        display: block;
+    }
+    
+    .mobile-full-width {
+        width: 100%;
+    }
+    
+    .mobile-center {
+        text-align: center;
+    }
+    
+    .mobile-stack {
+        flex-direction: column;
+    }
+    
+    .mobile-no-padding {
+        padding: 0;
+    }
+    
+    .mobile-small-text {
+        font-size: 12px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .content {
+        padding: 10px;
+    }
+    
+    h1 { font-size: 20px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+    h4 { font-size: 14px; }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .form-control {
+        padding: 10px 12px;
+        font-size: 15px;
+    }
+    
+    .modal {
+        padding: 10px;
+        padding-top: 30px;
+    }
+    
+    .modal-content {
+        border-radius: 6px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .notification {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        font-size: 13px;
+        padding: 12px 15px;
+    }
+    
+    /* Switch to card view for tables on very small screens */
+    .table-container {
+        display: none;
+    }
+    
+    .table-cards {
+        display: block;
+    }
+    
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid var(--light-gray);
+    }
+    
+    .table-card-header {
+        font-weight: bold;
+        color: var(--blood-red);
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .table-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .table-card-row:last-child {
+        border-bottom: none;
+    }
+    
+    .table-card-label {
+        font-weight: 500;
+        color: var(--medium-gray);
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    
+    .table-card-value {
+        font-weight: normal;
+        text-align: right;
+    }
+    
+    .table-card-actions {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--light-gray);
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+    }
+    
+    .table-card-actions .btn {
+        font-size: 11px;
+        padding: 4px 8px;
+        min-height: 28px;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .sidebar {
+        width: 240px;
+        left: -240px;
+    }
+    
+    .modal {
+        padding-top: 20px;
+    }
+    
+    .modal-content {
+        max-height: calc(100vh - 40px);
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+    
+    a:hover {
+        text-decoration: none;
+    }
+    
+    a:active {
+        background-color: rgba(230, 57, 70, 0.1);
+    }
+    
+    .table-row:hover {
+        background-color: transparent;
+    }
+    
+    .table-row:active {
+        background-color: var(--light-gray);
+    }
+    
+    /* Increase touch targets */
+    .btn, .form-control, .nav-link {
+        min-height: 44px;
+    }
+    
+    .table-actions .btn {
+        min-height: 36px;
+        min-width: 36px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar, .navbar, .modal, .notification, .toast-container {
+        display: none !important;
+    }
+    
+    .main-container {
+        margin-left: 0 !important;
+    }
+    
+    .content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .table-container {
+        overflow: visible !important;
+    }
+    
+    .table-cards {
+        display: none !important;
+    }
+    
+    .table-container {
+        display: block !important;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .form-control {
+        border: 2px solid var(--medium-gray);
+    }
+    
+    .form-control:focus {
+        border: 2px solid var(--blood-red);
+    }
+    
+    .table-card {
+        border: 2px solid var(--light-gray);
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .notification {
+        transition: none;
+    }
+    
+    .sidebar {
+        transition: none;
+    }
+    
+    .modal {
+        transition: none;
+    }
+}
+
+/* Desktop-only utilities */
+@media (min-width: 769px) {
+    .mobile-hidden {
+        display: block;
+    }
+    
+    .mobile-only {
+        display: none;
+    }
+    
+    .desktop-hidden {
+        display: none;
+    }
+    
+    .navbar-toggle {
+        display: none;
+    }
+    
+    .sidebar-overlay {
+        display: none !important;
+    }
+}

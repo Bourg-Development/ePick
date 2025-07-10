@@ -1,0 +1,83 @@
+{
+  "name": "ePick - Medical Laboratory Management System",
+  "short_name": "ePick",
+  "description": "Comprehensive medical laboratory management system for healthcare professionals",
+  "start_url": "/restricted/dashboard",
+  "display": "standalone",
+  "background_color": "#f9f9f9",
+  "theme_color": "#e63946",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/static/media/logos/primary-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/media/logos/primary-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "healthcare", "productivity", "business"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "screenshots": [
+    {
+      "src": "/static/media/screenshots/dashboard-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/static/media/screenshots/dashboard-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View laboratory dashboard",
+      "url": "/restricted/dashboard",
+      "icons": [
+        {
+          "src": "/static/media/icons/dashboard-shortcut.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Analyses",
+      "short_name": "Analyses",
+      "description": "View laboratory analyses",
+      "url": "/restricted/dashboard/analyses",
+      "icons": [
+        {
+          "src": "/static/media/icons/analyses-shortcut.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "short_name": "Users",
+      "description": "Manage system users",
+      "url": "/restricted/dashboard/users",
+      "icons": [
+        {
+          "src": "/static/media/icons/users-shortcut.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

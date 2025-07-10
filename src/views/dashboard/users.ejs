@@ -1,0 +1,1380 @@
+<div class="header">
+    <h1><%= __('users.title') %></h1>
+    <div class="header-actions">
+        <% if(permissions.includes('write.users') || permissions.includes('write.all')) { %>
+            <button class="btn btn-primary" id="addNewBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    person_add
+                </span>
+                <%= __('users.addNewUser') %>
+            </button>
+        <% } %>
+
+        <!-- Export Dropdown -->
+        <% if(permissions.includes('read.users') || permissions.includes('read.all')) { %>
+            <div class="dropdown-container export-dropdown-container">
+                <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                    <%= __('common.export') %>
+                    <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+                </button>
+                <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                    <div class="dropdown-item" data-action="export-advanced">
+                        <span class="material-symbols-outlined">settings</span>
+                        <%= __('export.advancedOptions') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-csv">
+                        <span class="material-symbols-outlined">table_view</span>
+                        <%= __('export.quickCsv') %>
+                    </div>
+                    <div class="dropdown-item" data-action="export-quick-excel">
+                        <span class="material-symbols-outlined">grid_on</span>
+                        <%= __('export.quickExcel') %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            <%= __('common.refresh') %>
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="<%= __('filter.searchUsername') %>">
+    </div>
+    <select class="filter-select" id="roleFilter">
+        <option value=""><%= __('filter.allRoles') %></option>
+        <!-- Populated dynamically -->
+    </select>
+    <select class="filter-select" id="serviceFilter">
+        <option value=""><%= __('filter.allServices') %></option>
+        <!-- Populated dynamically -->
+    </select>
+    <select class="filter-select" id="statusFilter">
+        <option value=""><%= __('filter.allStatuses') %></option>
+        <option value="active"><%= __('status.active') %></option>
+        <option value="locked"><%= __('status.locked') %></option>
+    </select>
+    <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filter.itemsPerPage') %>" min="10" max="100" value="20">
+</div>
+
+<div class="table-wrapper">
+    <table id="userTable">
+        <thead>
+        <tr>
+            <th data-sort="username">
+                <%= __('table.username') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="full_name">
+                <%= __('table.fullName') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="email">
+                <%= __('table.email') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="role">
+                <%= __('table.role') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="service">
+                <%= __('table.service') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th data-sort="created_at">
+                <%= __('table.created') %>
+                <span class="material-symbols-outlined">
+                    swap_vert
+                </span>
+            </th>
+            <th>
+                <%= __('table.status') %>
+            </th>
+            <th>
+                <%= __('table.registration') %>
+            </th>
+            <th>
+                <%= __('table.twoFA') %>
+            </th>
+            <th>
+                <%= __('table.actions') %>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Table rows will be populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <div id="recordCount"><%= __('table.loadingUsers') %></div>
+    <div class="pagination" id="pagination">
+        <!-- Pagination will be populated by JavaScript -->
+    </div>
+</div>
+</main>
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="addUserModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('users.addNewUser') %></h2>
+            <button class="modal-close" id="closeAddModalBtn">&times;</button>
+        </div>
+        <form id="addUserForm">
+            <label class="form-label" for="newUsername"><%= __('users.username6Digits') %> <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newUsername" required pattern="[0-9]{6}" maxlength="6" placeholder="<%= __('users.usernamePlaceholder') %>">
+
+            <label class="form-label" for="newUserFullName"><%= __('users.fullName') %></label>
+            <input type="text" class="form-control" id="newUserFullName" maxlength="255" placeholder="<%= __('users.fullNamePlaceholder') %>">
+            <small class="form-help"><%= __('users.fullNameHelp') %></small>
+
+            <label class="form-label" for="newUserRole"><%= __('user.role') %> <span class="required">*</span></label>
+            <select class="form-control" id="newUserRole" required>
+                <option value=""><%= __('users.selectRole') %></option>
+                <!-- Populated dynamically -->
+            </select>
+
+            <label class="form-label" for="newUserService"><%= __('user.service') %> </label>
+            <!-- This will be replaced by enhanced service search input via JavaScript -->
+            <select class="form-control" id="newUserService">
+                <option value=""><%= __('users.noService') %></option>
+                <!-- Will be replaced with enhanced search input -->
+            </select>
+            <small class="form-help"><%= __('users.serviceHelp') %></small>
+
+            <label class="form-label" for="newUserEmail"><%= __('user.email') %></label>
+            <input type="email" class="form-control" id="newUserEmail" placeholder="<%= __('users.emailPlaceholder') %>">
+            <small class="form-help"><%= __('users.emailHelp') %></small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary"><%= __('users.createUser') %></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2><%= __('export.users') %></h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong><%= __('export.privacyNotice') %></strong>
+                    <p><%= __('export.piiWarning') %></p>
+                </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword"><%= __('export.password') %> <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" name="exportPassword" autocomplete="new-password" required placeholder="<%= __('export.passwordPlaceholder') %>">
+                <small class="form-help"><%= __('export.passwordHelp') %></small>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.format') %> <span class="required">*</span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong><%= __('export.csvFormat') %></strong>
+                            <small><%= __('export.csvDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong><%= __('export.excelFormat') %></strong>
+                            <small><%= __('export.excelDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong><%= __('export.jsonFormat') %></strong>
+                            <small><%= __('export.jsonDevDescription') %></small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.columnSelection') %></label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn"><%= __('export.selectAll') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn"><%= __('export.selectNone') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn"><%= __('export.safeColumnsOnly') %></button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Current Filters Info -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.appliedFilters') %></label>
+                <div class="current-filters" id="currentFilters">
+                    <span class="filter-info"><%= __('export.usingCurrentFilters') %></span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong><%= __('export.sensitiveDataSelected') %></strong>
+                    <p><%= __('export.sensitiveDataWarning') %></p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    <%= __('export.exportData') %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="passwordModalTitle"><%= __('modal.passwordRequired') %></h2>
+            <button class="modal-close" id="closePasswordModalBtn">&times;</button>
+        </div>
+        <form id="passwordForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
+            <div class="password-info">
+                <p id="passwordModalMessage"><%= __('modal.passwordMessage') %></p>
+            </div>
+
+            <label class="form-label" for="passwordModalInput"><%= __('modal.password') %> <span class="required">*</span></label>
+            <input type="password" class="form-control" id="passwordModalInput" name="passwordModalInput" autocomplete="new-password" required placeholder="<%= __('modal.passwordPlaceholder') %>">
+            <small class="form-help"><%= __('modal.passwordHelp') %></small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPasswordBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="confirmPasswordBtn"><%= __('common.confirm') %></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Generate Reference Code Modal -->
+<div class="modal-overlay" id="generateRefCodeModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('users.generateRefCode') %></h2>
+            <button class="modal-close" id="closeGenerateRefCodeModalBtn">&times;</button>
+        </div>
+        <form id="generateRefCodeForm">
+            <input type="hidden" id="refCodeUserId">
+
+            <div class="user-info-section">
+                <h3><%= __('users.userInformation') %></h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><%= __('users.username') %>:</span>
+                        <span class="info-value" id="refCodeUserName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><%= __('users.fullName') %>:</span>
+                        <span class="info-value" id="refCodeUserFullName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><%= __('users.role') %>:</span>
+                        <span class="info-value" id="refCodeUserRole"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><%= __('users.email') %>:</span>
+                        <span class="info-value" id="refCodeUserEmail"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="refCodeRequire2FA" class="form-checkbox">
+                <label class="form-label" for="refCodeRequire2FA"><%= __('users.require2FAAfterReg') %></label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelGenerateRefCodeBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary"><%= __('users.generateRefCode') %></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="editModalTitle"><%= __('users.editUser') %></h2>
+            <button class="modal-close" id="closeEditModalBtn">&times;</button>
+        </div>
+        <form id="editUserForm">
+            <input type="hidden" id="editUserId">
+
+            <label class="form-label" for="editUserFullName"><%= __('users.fullName') %></label>
+            <input type="text" class="form-control" id="editUserFullName" maxlength="255" placeholder="<%= __('users.fullNamePlaceholder') %>">
+            <small class="form-help"><%= __('users.fullNameHelp') %></small>
+
+            <label class="form-label" for="editUserRole"><%= __('users.role') %></label>
+            <select class="form-control" id="editUserRole" required>
+                <!-- Populated dynamically -->
+            </select>
+
+            <label class="form-label" for="editUserService"><%= __('users.service') %></label>
+            <!-- This will be replaced by enhanced service search input via JavaScript -->
+            <select class="form-control" id="editUserService">
+                <option value=""><%= __('users.noService') %></option>
+                <!-- Will be replaced with enhanced search input -->
+            </select>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="editUserTotpEnabled" class="form-checkbox">
+                <label class="form-label" for="editUserTotpEnabled"><%= __('users.totpEnabled') %></label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="editUserWebauthnEnabled" class="form-checkbox">
+                <label class="form-label" for="editUserWebauthnEnabled"><%= __('users.webauthnEnabled') %></label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="editUserRequire2FA" class="form-checkbox">
+                <label class="form-label" for="editUserRequire2FA"><%= __('users.require2FANextLogin') %></label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelEditBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary"><%= __('users.updateUser') %></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reference Code Display Modal -->
+<div class="modal-overlay" id="refCodeModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('users.refCodeGenerated') %></h2>
+            <button class="modal-close" id="closeRefCodeModalBtn">&times;</button>
+        </div>
+        <div class="ref-code-content">
+            <div class="ref-code-info">
+                <p><strong><%= __('users.refCodeFor') %>:</strong> <span id="refCodeUsername"></span></p>
+                <p><strong><%= __('users.registrationUrl') %>:</strong></p>
+                <div class="url-display" id="registrationUrl"></div>
+            </div>
+            <div class="ref-code-display-container">
+                <label><%= __('users.referenceCode') %>:</label>
+                <div class="ref-code-display" id="refCodeDisplay"></div>
+            </div>
+            <p class="ref-code-expires"><strong><%= __('users.expires') %>:</strong> <span id="refCodeExpires"></span></p>
+
+            <div class="ref-code-actions">
+                <button class="btn btn-secondary" id="copyRefCodeBtn">
+                    <span class="material-symbols-outlined">content_copy</span>
+                    <%= __('users.copyCode') %>
+                </button>
+                <button class="btn btn-secondary" id="copyUrlBtn">
+                    <span class="material-symbols-outlined">link</span>
+                    <%= __('users.copyUrl') %>
+                </button>
+                <button class="btn btn-primary" style="min-width: 200px;" id="printRefCodeBtn">
+                    <span class="material-symbols-outlined">link</span>
+                    <%= __('users.printCode') %>
+                </button>
+
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="closeRefCodeBtn"><%= __('common.close') %></button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2><%= __('modal.confirmAction') %></h2>
+            <button class="modal-close" id="closeConfirmBtn">&times;</button>
+        </div>
+        <p id="confirmMessage" style="margin-bottom: 20px;"></p>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelConfirmBtn"><%= __('common.cancel') %></button>
+            <button class="btn btn-primary" id="confirmBtn"><%= __('common.confirm') %></button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
+
+<style>
+    .required {
+        color: var(--dark-red);
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .user-info-section {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .user-info-section h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        color: #495057;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 8px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .ref-code-info {
+        margin-bottom: 20px;
+    }
+
+    .ref-code-display-container {
+        margin: 20px 0;
+    }
+
+    .ref-code-display-container label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .ref-code-display {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: 'Courier New', monospace;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 2px;
+        color: #495057;
+        user-select: all;
+    }
+
+    .url-display {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 14px;
+        word-break: break-all;
+        color: #495057;
+        user-select: all;
+    }
+
+    .ref-code-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }
+
+    .ref-code-actions .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .ref-code-expires {
+        color: #856404;
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin: 16px 0;
+        font-size: 14px;
+    }
+
+    .registration-badge {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .registration-pending {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .registration-completed {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 16px 0;
+    }
+
+    .form-checkbox {
+        width: auto;
+        margin: 0;
+    }
+
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* Export Dropdown */
+    .export-dropdown-container {
+        position: relative;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .dropdown-arrow {
+        font-size: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    .export-dropdown-container.show .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+
+    .export-dropdown {
+        right: 0;
+        min-width: 200px;
+    }
+
+    /* Export Modal */
+    .export-modal {
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .export-warning, .sensitive-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .sensitive-warning {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .warning-icon {
+        color: #856404;
+        font-size: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .sensitive-warning .warning-icon {
+        color: #721c24;
+    }
+
+    .warning-content {
+        flex: 1;
+    }
+
+    .warning-content strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .warning-content p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Format Options */
+    .format-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .format-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .format-option:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+    }
+
+    .format-option input[type="radio"] {
+        margin: 4px 0 0 0;
+        flex-shrink: 0;
+    }
+
+    .format-option input[type="radio"]:checked + .format-details {
+        color: #007bff;
+    }
+
+    .format-details {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .format-details strong {
+        font-weight: 600;
+    }
+
+    .format-details small {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    /* Column Selection */
+    .column-selection-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-outline {
+        background: white;
+        border: 1px solid #e9ecef;
+        color: #495057;
+    }
+
+    .btn-outline:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+        color: #007bff;
+    }
+
+    .column-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 12px;
+        background: #f8f9fa;
+    }
+
+    .column-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        background: white;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .column-option:hover {
+        background: #e9ecef;
+    }
+
+    .column-option.sensitive {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+    }
+
+    .column-option.sensitive:hover {
+        background: #ffeaa7;
+    }
+
+    .column-option input[type="checkbox"] {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .column-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+    }
+
+    .column-name {
+        font-weight: 500;
+        font-size: 13px;
+    }
+
+    .column-description {
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    .column-option.sensitive .column-name {
+        color: #856404;
+    }
+
+    .column-sensitive-indicator {
+        color: #856404;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* Current Filters */
+    .current-filters {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .filter-info {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .filter-tag {
+        display: inline-block;
+        background: #e9ecef;
+        color: #495057;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin: 2px 4px 2px 0;
+    }
+
+    /* Password Modal Specific */
+    .password-info {
+        background: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+    .password-info p {
+        margin: 0;
+        color: #0066cc;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    /* Full Name Display Styles */
+    .user-full-name {
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .user-full-name-empty {
+        color: #868e96;
+        font-style: italic;
+        font-size: 14px;
+    }
+
+    /* Enhanced Search Filters */
+    .filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-width: 200px;
+        flex: 1;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        color: #6c757d;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .search-input {
+        padding-left: 40px;
+        width: 100%;
+        height: 40px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .filter-select,
+    .filter-input {
+        height: 40px;
+        padding: 8px 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 14px;
+        min-width: 120px;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    /* Enhanced Service Selection Styles */
+    .service-search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .service-search-input {
+        flex: 1;
+        padding-right: 40px; /* Make room for clear button */
+    }
+
+    .service-clear-btn {
+        position: absolute;
+        right: 8px;
+        top: 35%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6c757d;
+        padding: 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    .service-clear-btn:hover {
+        opacity: 1;
+        background: #f8f9fa;
+    }
+
+    .service-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1000;
+        margin-top: 2px;
+    }
+
+    .service-option {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background-color 0.2s ease;
+    }
+
+    .service-option:last-child {
+        border-bottom: none;
+    }
+
+    .service-option:hover {
+        background: #f8f9fa;
+    }
+
+    .service-option-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .service-option-name {
+        font-weight: 600;
+        color: #495057;
+        font-size: 14px;
+    }
+
+    .service-option-email {
+        font-size: 13px;
+        color: #6c757d;
+        font-family: monospace;
+    }
+
+    .service-option-description {
+        font-size: 12px;
+        color: #868e96;
+        font-style: italic;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Enhanced Service Display in Table */
+    .service-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .service-name {
+        font-weight: 500;
+        color: #495057;
+        font-size: 14px;
+    }
+
+    .service-email {
+        font-size: 12px;
+        color: #6c757d;
+        font-family: monospace;
+    }
+
+    .service-none {
+        color: #868e96;
+        font-style: italic;
+        font-size: 14px;
+    }
+
+    /* Service Stats Styles */
+    .service-stats {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 12px;
+        margin: 12px 0;
+    }
+
+    .service-stats h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .service-stats p {
+        margin: 4px 0;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    /* Table Responsiveness */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-actions {
+            flex-wrap: wrap;
+        }
+
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: unset;
+            max-width: unset;
+        }
+
+        .ref-code-actions {
+            flex-direction: column;
+        }
+
+        .ref-code-actions .btn {
+            flex: none;
+        }
+
+        .ref-code-display {
+            font-size: 18px;
+        }
+
+        .service-option-content {
+            gap: 2px;
+        }
+
+        .service-option-name {
+            font-size: 13px;
+        }
+
+        .service-option-email {
+            font-size: 12px;
+        }
+
+        .service-option-description {
+            font-size: 11px;
+        }
+
+        .service-dropdown {
+            max-height: 200px;
+        }
+
+        .column-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .column-selection-header {
+            flex-direction: column;
+        }
+
+        .format-options {
+            gap: 6px;
+        }
+
+        .export-modal {
+            margin: 10px;
+            max-width: calc(100% - 20px);
+        }
+    }
+
+    /* Loading and Error States */
+    .service-search-input.loading {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z'%3E%3CanimateTransform attributeName='transform' dur='0.75s' repeatCount='indefinite' type='rotate' values='0 12 12;360 12 12'/%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 40px center;
+        background-size: 16px;
+    }
+
+    /* Accessibility Improvements */
+    .service-option:focus {
+        outline: 2px solid #007bff;
+        outline-offset: -2px;
+        background: #e7f3ff;
+    }
+
+    .service-clear-btn:focus {
+        outline: 2px solid #007bff;
+        outline-offset: 2px;
+    }
+
+    /* Animation for dropdown */
+    .service-dropdown {
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Enhanced Search Input Styling */
+    .search-box {
+        flex: 1;
+        max-width: 400px;
+    }
+
+    /* Export Progress Indicator */
+    .export-progress {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: #007bff;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .export-progress.show {
+        display: flex;
+    }
+
+    .export-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #e9ecef;
+        border-top: 2px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<% if (!(permissions.includes('write.users'))){ %>
+    <script>
+        hideActions = true;
+        function hideActionsColumn() {
+            const table = document.getElementById('userTable');
+            if (!table) {
+                console.warn('User table not found');
+                return;
+            }
+
+            // Find the Actions column index
+            const headers = table.querySelectorAll('thead th');
+            let actionsColumnIndex = -1;
+
+            headers.forEach((header, index) => {
+                if (header.textContent.trim() === '<%= __('table.actions') %>') {
+                    actionsColumnIndex = index;
+                }
+            });
+
+            if (actionsColumnIndex === -1) {
+                console.warn('Actions column not found');
+                return;
+            }
+
+            // Hide the header
+            headers[actionsColumnIndex].style.display = 'none';
+
+            // Hide all cells in the actions column
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells[actionsColumnIndex]) {
+                    cells[actionsColumnIndex].style.display = 'none';
+                }
+            });
+
+            console.log('Actions column hidden successfully');
+        }
+        hideActionsColumn();
+    </script>
+<% } %>
+
+<!-- User Details Popup -->
+<div id="userDetailsPopup" class="user-details-popup-overlay" style="display: none;">
+    <div class="user-details-popup">
+        <div class="popup-header">
+            <h3><%= __('users.userDetails') %></h3>
+            <button class="close-btn" id="closeUserDetailsBtn">&times;</button>
+        </div>
+        
+        <div class="popup-body">
+            <!-- User Basic Info -->
+            <div class="user-info-section">
+                <h4><%= __('users.basicInfo') %></h4>
+                <div class="user-info-grid">
+                    <div class="info-item">
+                        <label><%= __('table.username') %>:</label>
+                        <span id="userDetailUsername"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.fullName') %>:</label>
+                        <span id="userDetailFullName"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.email') %>:</label>
+                        <span id="userDetailEmail"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.role') %>:</label>
+                        <span id="userDetailRole"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.service') %>:</label>
+                        <span id="userDetailService"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.status') %>:</label>
+                        <span id="userDetailStatus"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.lastLogin') %>:</label>
+                        <span id="userDetailLastLogin"></span>
+                    </div>
+                    <div class="info-item">
+                        <label><%= __('table.createdAt') %>:</label>
+                        <span id="userDetailCreatedAt"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Audit Log Section -->
+            <div class="audit-log-section">
+                <div class="audit-log-header">
+                    <h4><%= __('users.auditLog') %></h4>
+                    <div class="audit-controls">
+                        <select id="auditEventFilter">
+                            <option value=""><%= __('filter.allEvents') %></option>
+                            <option value="analysis_">Analysis Actions</option>
+                            <option value="patient_">Patient Management</option>
+                            <option value="doctor_">Doctor Management</option>
+                            <option value="room_">Room Management</option>
+                            <option value="user_">User Account Actions</option>
+                            <option value="system_">System Operations</option>
+                        </select>
+                        <button class="btn btn-sm btn-secondary" id="refreshAuditBtn">
+                            <span class="material-symbols-outlined">refresh</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="audit-log-container">
+                    <div id="auditLogLoading" class="loading-spinner" style="display: none;">
+                        <span class="material-symbols-outlined rotating">refresh</span>
+                        <%= __('common.loading') %>...
+                    </div>
+                    
+                    <div id="auditLogEmpty" class="empty-state" style="display: none;">
+                        <span class="material-symbols-outlined">history</span>
+                        <p><%= __('users.noAuditLogs') %></p>
+                    </div>
+                    
+                    <div id="auditLogTable" class="audit-table-wrapper">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th><%= __('audit.timestamp') %></th>
+                                    <th><%= __('audit.event') %></th>
+                                    <th><%= __('audit.target') %></th>
+                                    <th><%= __('audit.details') %></th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination-controls" id="auditPagination" style="display: none;">
+                        <button class="btn btn-sm btn-secondary" id="auditPrevBtn" disabled>
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <span id="auditPageInfo">Page 1 of 1</span>
+                        <button class="btn btn-sm btn-secondary" id="auditNextBtn" disabled>
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

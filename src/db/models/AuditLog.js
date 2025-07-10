@@ -72,3 +72,6 @@ module.exports = (sequelize, DataTypes) => {
     });
 };
 
+// Note: Associations are defined in the database index.js file
+// AuditLog.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+

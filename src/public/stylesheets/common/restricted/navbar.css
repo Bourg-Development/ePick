@@ -172,6 +172,57 @@
     max-height: 350px;
 }
 
+/* Notification Type Icons */
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.notification-icon .material-symbols-outlined {
+    font-size: 18px;
+    color: white;
+}
+
+/* Specific notification type styles */
+.notification-icon.prescription-icon {
+    background-color: var(--blood-red);
+}
+
+.notification-icon.analysis-icon {
+    background-color: #2196f3;
+}
+
+.notification-icon.system-icon {
+    background-color: #4caf50;
+}
+
+.notification-icon.default-icon {
+    background-color: var(--medium-gray);
+}
+
+/* Priority indicators */
+.notification-icon.urgent {
+    background-color: var(--blood-red);
+    box-shadow: 0 0 8px rgba(230, 57, 70, 0.4);
+    animation: pulse-urgent 2s infinite;
+}
+
+.notification-icon.high {
+    background-color: #ff9800;
+    box-shadow: 0 0 6px rgba(255, 152, 0, 0.3);
+}
+
+@keyframes pulse-urgent {
+    0% { box-shadow: 0 0 8px rgba(230, 57, 70, 0.4); }
+    50% { box-shadow: 0 0 15px rgba(230, 57, 70, 0.8); }
+    100% { box-shadow: 0 0 8px rgba(230, 57, 70, 0.4); }
+}
+
 .notification-menu .menu-header {
     padding: 15px 20px;
     border-bottom: 1px solid var(--light-gray);
@@ -198,13 +249,63 @@
 }
 
 .notification-item {
-    padding: 15px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
     transition: background-color 0.2s ease;
+    max-width: 320px;
+}
+
+/* Notification content styling */
+.notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.notification-text {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--medium-gray);
+}
+
+.action-required {
+    display: inline-block;
+    background-color: #ffeaa7;
+    color: #d63031;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notification-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    background-color: var(--blood-red);
+    border-radius: 50%;
+    margin-top: 8px;
+}
+
+.notification-action .material-symbols-outlined {
+    font-size: 14px;
+    color: white;
 }
 
 .notification-item:hover {
@@ -215,6 +316,7 @@
     background-color: #f0f8ff;
 }
 
+/* Notification icon styling */
 .notification-icon {
     width: 10px;
     height: 10px;
@@ -225,6 +327,20 @@
 }
 
 .notification-icon.read {
+    background-color: var(--medium-gray);
+}
+
+/* Legacy notification dot - only show for old-style notifications */
+.notification-dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--blood-red);
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.notification-dot.read {
     background-color: transparent;
 }
 
@@ -233,14 +349,18 @@
 }
 
 .notification-text {
-    font-size: 14px;
+    font-size: 13px;
     color: #333;
+    line-height: 1.3;
     margin-bottom: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .notification-time {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--medium-gray);
+    font-weight: 500;
 }
 
 .notification-menu .view-all {
@@ -259,6 +379,35 @@
 
 .notification-menu .view-all a:hover {
     text-decoration: underline;
+}
+
+/* Empty notification state */
+.notification-list:empty::after {
+    content: "No notifications";
+    display: block;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--medium-gray);
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Priority notification styling */
+.notification-item.priority-high {
+    border-left: 4px solid #fd7e14;
+}
+
+.notification-item.priority-urgent {
+    border-left: 4px solid #dc3545;
+}
+
+/* Legacy high priority notification borders */
+.notification-item.high-priority {
+    border-left: 4px solid #fd7e14;
+}
+
+.notification-item.urgent-priority {
+    border-left: 4px solid #dc3545;
 }
 
 /* Profile Menu */

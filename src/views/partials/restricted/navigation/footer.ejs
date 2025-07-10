@@ -1,0 +1,74 @@
+<!-- Restricted Area Footer -->
+<footer class="restricted-footer">
+    <div class="footer-content">
+        <div class="footer-left">
+            <p>&copy; 2025 Fondation Pescatore. <%= __('footer.allRightsReserved') %></p>
+        </div>
+        <div class="footer-right">
+            <div class="footer-links">
+                <a href="#"><%= __('footer.privacyPolicy') %></a>
+                <span class="separator">|</span>
+                <a href="#"><%= __('footer.termsOfService') %></a>
+                <span class="separator">|</span>
+                <a href="#"><%= __('navigation.helpAndSupport') %></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.restricted-footer {
+    background-color: var(--white);
+    border-top: 1px solid var(--light-gray);
+    padding: 1rem 2rem;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-left p {
+    color: var(--medium-gray);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.footer-right .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-right .footer-links a {
+    color: var(--medium-gray);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+}
+
+.footer-right .footer-links a:hover {
+    color: var(--primary-red);
+}
+
+.footer-right .separator {
+    color: var(--light-gray);
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+</style>

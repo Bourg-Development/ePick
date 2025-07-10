@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Maintenance - ePick</title>
+    <style>
+        /* Reset styles for email clients */
+        body, p, h1, h2, h3, h4, h5, h6, table, td {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(to right, #e63946, #333333);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-circle-1 {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            top: -60px;
+            left: -60px;
+        }
+
+        .header-circle-2 {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            bottom: -40px;
+            right: -20px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: white;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .maintenance-badge {
+            background-color: #ff6b35;
+            color: white;
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+        }
+
+        .maintenance-badge.reminder {
+            background-color: #ffc107;
+            color: #333333;
+        }
+
+        .maintenance-badge.cancelled {
+            background-color: #28a745;
+        }
+
+        .maintenance-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .maintenance-message {
+            margin-bottom: 25px;
+            font-size: 16px;
+            color: #555555;
+        }
+
+        .maintenance-details-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #e63946;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .details-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .details-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .details-label {
+            font-weight: bold;
+            color: #666666;
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .details-value {
+            color: #333333;
+            flex-grow: 1;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-low {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .priority-medium {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .priority-high {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .priority-critical {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .impact-notice {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .impact-notice.no-impact {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+        }
+
+        .impact-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e6e6e6;
+            margin: 30px 0;
+        }
+
+        .additional-info {
+            padding: 0 30px 30px;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333333;
+        }
+
+        .info-list {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .info-list li {
+            margin-bottom: 8px;
+            color: #555555;
+        }
+
+        .contact-info {
+            background-color: #f9f9f9;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .contact-info strong {
+            color: #333333;
+        }
+
+        .info-link {
+            color: #e63946;
+            text-decoration: none;
+        }
+
+        .info-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            background-color: #333333;
+            padding: 25px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .footer-logo {
+            margin-bottom: 15px;
+        }
+
+        .footer-text {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #e63946;
+        }
+
+        @media (max-width: 600px) {
+            .details-row {
+                flex-direction: column;
+            }
+
+            .details-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .impact-notice {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .container {
+                margin: 10px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-circle-1"></div>
+        <div class="header-circle-2"></div>
+        <div class="header-content">
+            <div class="header-icon">🔧</div>
+            <h1 class="header-title">System Maintenance</h1>
+            <p class="header-subtitle">{{notification_type_description}}</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="maintenance-badge {{badge_class}}">{{badge_text}}</div>
+
+        <h2 class="maintenance-title">{{title}}</h2>
+
+        <div class="maintenance-message">
+            <p>{{main_message}}</p>
+        </div>
+
+        <div class="maintenance-details-box">
+            <div class="details-row">
+                <div class="details-label">Maintenance Type:</div>
+                <div class="details-value">{{maintenance_type_display}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Scheduled Start:</div>
+                <div class="details-value">{{scheduled_start}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Scheduled End:</div>
+                <div class="details-value">{{scheduled_end}}</div>
+            </div>
+            {{#if estimated_duration}}
+            <div class="details-row">
+                <div class="details-label">Estimated Duration:</div>
+                <div class="details-value">{{estimated_duration}}</div>
+            </div>
+            {{/if}}
+            <div class="details-row">
+                <div class="details-label">Priority:</div>
+                <div class="details-value">
+                    <span class="priority-badge priority-{{priority}}">{{priority}}</span>
+                </div>
+            </div>
+        </div>
+
+        {{#if description}}
+        <div class="details-row" style="margin-bottom: 20px;">
+            <div class="details-label" style="width: 100%; margin-bottom: 10px;">Description:</div>
+            <div class="details-value" style="width: 100%; background-color: #f9f9f9; padding: 15px; border-radius: 4px;">{{description}}</div>
+        </div>
+        {{/if}}
+
+        {{#if affects_availability}}
+        <div class="impact-notice">
+            <div class="impact-icon">⚠️</div>
+            <div>
+                <strong>Service Impact:</strong> This maintenance will affect system availability. The ePick platform will be temporarily unavailable during the maintenance window.
+            </div>
+        </div>
+        {{else}}
+        <div class="impact-notice no-impact">
+            <div class="impact-icon">✅</div>
+            <div>
+                <strong>No Service Impact:</strong> This maintenance is expected to be performed without affecting system availability.
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="additional-info">
+        <div class="info-section">
+            <h3 class="info-title">What to Expect</h3>
+            <ul class="info-list">
+                {{#if affects_availability}}
+                <li>The ePick platform will be temporarily unavailable</li>
+                <li>You will not be able to access your account during maintenance</li>
+                <li>Any ongoing activities will be safely interrupted</li>
+                <li>All data remains secure and will be available after maintenance</li>
+                {{else}}
+                <li>The maintenance will be performed in the background</li>
+                <li>You should not experience any service interruptions</li>
+                <li>In rare cases, you might notice brief performance improvements</li>
+                {{/if}}
+                <li>We will send updates if there are any changes to the schedule</li>
+            </ul>
+        </div>
+
+        {{#if notes}}
+        <div class="info-section">
+            <h3 class="info-title">Additional Notes</h3>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; color: #555555;">
+                {{notes}}
+            </div>
+        </div>
+        {{/if}}
+
+        <div class="contact-info">
+            <p><strong>Need Help?</strong> If you have questions about this maintenance or experience any issues, please contact our support team at <a href="mailto:support@epick.lu" class="info-link">support@epick.lu</a></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <svg width="100" height="40" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(200, 100)">
+                    <g transform="translate(-55, 5) scale(0.5)">
+                        <text x="-120" y="0" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="white">e</text>
+                        <text x="15" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">P</text>
+                        <rect x="95" y="-60" width="18" height="60" fill="#e63946" rx="2" ry="2"/>
+                        <text x="125" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">ck</text>
+                        <path d="M105,-110 C110,-99 114,-89 116,-80 C118,-70 112,-63 105,-63 C98,-63 92,-70 94,-80 C96,-89 100,-99 105,-110Z" fill="#c1121f" />
+                        <line x1="-120" y1="30" x2="230" y2="30" stroke="white" stroke-width="8" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <p class="footer-text">This is an automated notification from ePick about scheduled system maintenance.</p>
+
+        <div class="footer-links">
+            <a href="{{dashboard_url}}">Dashboard</a> |
+            <a href="https://epick.fondation.lu/privacy-policy">Privacy Policy</a> |
+            <a href="https://support.bourg.dev">Help Center</a>
+        </div>
+
+        <p class="footer-text" style="margin-top:15px;">© 2025 Fondation J.P. Pescatore. All Rights Reserved.</p>
+    </div>
+</div>
+</body>
+</html>

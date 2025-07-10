@@ -1,198 +1,103 @@
-// controllers/userController.js
-const userService = require('../services/userService');
-const logService = require('../services/logService');
-const deviceFingerprintUtil = require('../utils/deviceFingerprint');
+const organizationSettingsService = require('../services/organizationSettingsService');
 
-/**
- * Controller for user management operations
- */
-class UserController {
-    /**
-     * Get user profile for authenticated user
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async getProfile(req, res) {
+module.exports = {
+    profile: async (req, res) => {
         try {
-            const { userId } = req.auth;
+            // Get the self_service setting to determine if profile is editable
+            const selfServiceSetting = await organizationSettingsService.getSetting('self_service');
 
-            // Get user profile
-            const result = await userService.getUserById(userId);
+            // Default to false if setting doesn't exist or there's an error
+            let editableProfile = false;
 
-            if (!result.success) {
-                return res.status(404).json(result);
+            if (selfServiceSetting.success && selfServiceSetting.setting) {
+                editableProfile = selfServiceSetting.setting.value;
             }
 
-            // Return profile data (excluding sensitive info)
-            return res.status(200).json({
-                success: true,
-                profile: {
-                    id: result.data.id,
-                    username: result.data.username,
-                    role: result.data.Role?.name,
-                    email: result.data.email,
-                    totpEnabled: result.data.totp_enabled,
-                    webauthnEnabled: result.data.webauthn_enabled,
-                    createdAt: result.data.created_at,
-                    lastLogin: result.data.last_login
-                }
+            res.render('userArea/profile', {
+                title: 'test',
+                styles: ['/pages/me/profile.css'],
+                scripts: ['/pages/me/profile.js'],
+                editableProfile: editableProfile
             });
         } catch (error) {
-            console.error('Get profile error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to retrieve profile'
+            console.error('Error loading profile page:', error);
+
+            // On error, default to non-editable profile
+            res.render('userArea/profile', {
+                title: 'test',
+                styles: ['/pages/me/profile.css'],
+                scripts: ['/pages/me/profile.js'],
+                editableProfile: false
             });
         }
-    }
+    },
 
-    /**
-     * Update user profile information
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async updateProfile(req, res) {
+    accountSettings: async (req, res) => {
         try {
-            const { userId } = req.auth;
-            const { email } = req.body;
+            // Get the self_service setting to determine if account is editable
+            const selfServiceSetting = await organizationSettingsService.getSetting('self_service');
+            let editableAccount = false;
 
-            // Only email can be updated by the user themselves
-            if (!email) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'No profile data to update'
-                });
+            if (selfServiceSetting.success && selfServiceSetting.setting) {
+                editableAccount = selfServiceSetting.setting.value;
             }
 
-            // Extract request context
-            const context = this._getRequestContext(req);
-
-            // Update profile
-            const result = await userService.updateUserEmail(userId, email, context);
-
-            return res.status(result.success ? 200 : 400).json(result);
+            res.render('userArea/account', {
+                title: 'Account Settings',
+                styles: ['/pages/me/account.css'],
+                scripts: ['/pages/me/account.js'],
+                editableAccount: editableAccount
+            });
         } catch (error) {
-            console.error('Update profile error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to update profile'
+            console.error('Error loading account settings page:', error);
+            res.status(500).render('errors/500', {
+                title: 'Server Error'
             });
         }
-    }
+    },
 
-    /**
-     * Get user's session information
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async getSessionInfo(req, res) {
+    privacySettings: async (req, res) => {
         try {
-            const { userId, sessionId } = req.auth;
-
-            // Get current session info
-            const result = await userService.getSessionInfo(userId, sessionId);
-
-            if (!result.success) {
-                return res.status(404).json(result);
-            }
-
-            return res.status(200).json(result);
+            res.render('userArea/privacy', {
+                title: 'Privacy & Security',
+                styles: ['/pages/me/privacy.css'],
+                scripts: ['/pages/me/privacy.js']
+            });
         } catch (error) {
-            console.error('Get session info error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to retrieve session information'
+            console.error('Error loading privacy settings page:', error);
+            res.status(500).render('errors/500', {
+                title: 'Server Error'
             });
         }
-    }
+    },
 
-    /**
-     * Get user's authentication activity
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async getAuthActivity(req, res) {
+    notificationSettings: async (req, res) => {
         try {
-            const { userId } = req.auth;
-
-            // Get recent authentication activity
-            const result = await userService.getUserAuthActivity(userId);
-
-            return res.status(200).json(result);
+            res.render('userArea/notifications', {
+                title: 'Notification Settings',
+                styles: ['/pages/me/notifications.css'],
+                scripts: ['/pages/me/notifications.js']
+            });
         } catch (error) {
-            console.error('Get auth activity error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to retrieve authentication activity'
+            console.error('Error loading notification settings page:', error);
+            res.status(500).render('errors/500', {
+                title: 'Server Error'
             });
         }
-    }
+    },
 
-    /**
-     * Get user preferences
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async getPreferences(req, res) {
+    preferences: async (req, res) => {
         try {
-            const { userId } = req.auth;
-
-            // Get user preferences
-            const result = await userService.getUserPreferences(userId);
-
-            return res.status(200).json(result);
+            res.render('userArea/preferences', {
+                title: 'Preferences',
+                styles: [],
+                scripts: ['/pages/me/preferences.js']
+            });
         } catch (error) {
-            console.error('Get preferences error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to retrieve user preferences'
+            console.error('Error loading preferences page:', error);
+            res.status(500).render('errors/500', {
+                title: 'Server Error'
             });
         }
-    }
-
-    /**
-     * Update user preferences
-     * @param {Object} req - Express request
-     * @param {Object} res - Express response
-     */
-    async updatePreferences(req, res) {
-        try {
-            const { userId } = req.auth;
-            const { preferences } = req.body;
-
-            if (!preferences) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Preferences data is required'
-                });
-            }
-
-            // Update preferences
-            const result = await userService.updateUserPreferences(userId, preferences);
-
-            return res.status(result.success ? 200 : 400).json(result);
-        } catch (error) {
-            console.error('Update preferences error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to update preferences'
-            });
-        }
-    }
-
-    /**
-     * Extract request context information
-     * @private
-     * @param {Object} req - Express request
-     * @returns {Object} Request context
-     */
-    _getRequestContext(req) {
-        return {
-            ip: req.ip,
-            deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
-            userAgent: req.headers['user-agent'] || 'unknown'
-        };
     }
 }
-
-module.exports = new UserController();

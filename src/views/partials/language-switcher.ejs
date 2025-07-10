@@ -1,0 +1,146 @@
+<div class="language-switcher">
+    <div class="dropdown">
+        <button class="dropdown-toggle" type="button" id="languageDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="material-symbols-outlined">language</span>
+            <span class="current-lang">
+                <% if (locale === 'en') { %>EN<% } %>
+                <% if (locale === 'fr') { %>FR<% } %>
+                <% if (locale === 'es') { %>ES<% } %>
+            </span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="languageDropdown">
+            <a class="dropdown-item <%= locale === 'en' ? 'active' : '' %>" href="?lang=en" data-lang="en">
+                <img src="/static/media/flags/en.svg" alt="<%= __('languages.english') %>" class="flag-icon"> <%= __('languages.english') %>
+            </a>
+            <a class="dropdown-item <%= locale === 'fr' ? 'active' : '' %>" href="?lang=fr" data-lang="fr">
+                <img src="/static/media/flags/fr.svg" alt="<%= __('languages.francais') %>" class="flag-icon"> <%= __('languages.francais') %>
+            </a>
+            <a class="dropdown-item <%= locale === 'es' ? 'active' : '' %>" href="?lang=es" data-lang="es">
+                <img src="/static/media/flags/es.svg" alt="<%= __('languages.espanol') %>" class="flag-icon"> <%= __('languages.espanol') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.language-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.language-switcher .dropdown-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color, #333);
+    transition: all 0.2s ease;
+}
+
+.language-switcher .dropdown-toggle:hover {
+    background: var(--hover-bg, #f5f5f5);
+}
+
+.language-switcher .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.language-switcher .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    margin-top: 4px;
+    display: none;
+    z-index: 1000;
+}
+
+.language-switcher .dropdown-menu.show {
+    display: block;
+}
+
+.language-switcher .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: var(--text-color, #333);
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.language-switcher .dropdown-item:hover {
+    background: var(--hover-bg, #f5f5f5);
+}
+
+.language-switcher .dropdown-item.active {
+    background: var(--primary-color, #007bff);
+    color: white;
+}
+
+.language-switcher .flag-icon {
+    width: 20px;
+    height: 15px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.querySelector('.language-switcher .dropdown-toggle');
+    const menu = document.querySelector('.language-switcher .dropdown-menu');
+    
+    if (dropdown && menu) {
+        dropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+            menu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.language-switcher')) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // Handle language change
+        const langItems = document.querySelectorAll('.language-switcher .dropdown-item');
+        langItems.forEach(item => {
+            item.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const lang = this.getAttribute('data-lang');
+                
+                // If user is authenticated, save preference
+                const isAuthenticated = document.cookie.includes('accessToken');
+                if (isAuthenticated) {
+                    try {
+                        await fetch('/api/user/language', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ language: lang })
+                        });
+                    } catch (err) {
+                        console.error('Failed to save language preference:', err);
+                    }
+                }
+                
+                // Redirect with new language
+                const url = new URL(window.location);
+                url.searchParams.set('lang', lang);
+                window.location.href = url.toString();
+            });
+        });
+    }
+});
+</script>

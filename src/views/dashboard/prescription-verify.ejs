@@ -1,0 +1,107 @@
+<main class="main-content">
+    <div class="page-header">
+        <h1>Verify Prescription</h1>
+        <p class="subtitle">Confirm that a valid prescription has been received for this recurring analysis</p>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading analysis details...</p>
+    </div>
+
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <div id="contentArea" style="display: none;">
+        <!-- Patient and Analysis Information -->
+        <div class="info-card">
+            <h2>Analysis Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Patient Name:</label>
+                    <span id="patientName"></span>
+                </div>
+                <div class="info-item">
+                    <label>Patient Matricule:</label>
+                    <span id="patientMatricule"></span>
+                </div>
+                <div class="info-item">
+                    <label>Doctor:</label>
+                    <span id="doctorName"></span>
+                </div>
+                <div class="info-item">
+                    <label>Analysis Type:</label>
+                    <span id="analysisType"></span>
+                </div>
+                <div class="info-item">
+                    <label>Recurrence Pattern:</label>
+                    <span id="recurrencePattern"></span>
+                </div>
+                <div class="info-item">
+                    <label>Next Due Date:</label>
+                    <span id="nextDueDate" class="highlight"></span>
+                </div>
+                <div class="info-item">
+                    <label>Progress:</label>
+                    <span id="progress"></span>
+                </div>
+                <div class="info-item">
+                    <label>Status:</label>
+                    <span id="status"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Prescriptions -->
+        <div class="prescriptions-card">
+            <h2>Existing Prescriptions</h2>
+            <div id="existingPrescriptions">
+                <p class="no-data">No prescriptions found for this recurring analysis.</p>
+            </div>
+        </div>
+
+        <!-- Prescription Verification Form -->
+        <div class="verification-card">
+            <h2>Verify New Prescription</h2>
+            <p class="instruction">Please confirm that you have received a valid prescription from the patient for this recurring analysis.</p>
+            
+            <form id="prescriptionForm">
+                <div class="form-group">
+                    <label for="prescriptionNumber">Prescription Number <span class="required">*</span></label>
+                    <input type="text" id="prescriptionNumber" name="prescriptionNumber" required 
+                           placeholder="Enter the prescription reference number">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="validFrom">Valid From <span class="required">*</span></label>
+                        <input type="date" id="validFrom" name="validFrom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="validUntil">Valid Until <span class="required">*</span></label>
+                        <input type="date" id="validUntil" name="validUntil" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalAnalysesPrescribed">Number of Analyses Prescribed <span class="required">*</span></label>
+                    <input type="number" id="totalAnalysesPrescribed" name="totalAnalysesPrescribed" 
+                           min="1" required placeholder="How many analyses does this prescription cover?">
+                </div>
+
+                <div class="form-group">
+                    <label for="validationNotes">Validation Notes</label>
+                    <textarea id="validationNotes" name="validationNotes" rows="3" 
+                              placeholder="Add any relevant notes about this prescription (optional)"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">verified</span>
+                        Verify Prescription
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

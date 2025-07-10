@@ -1,0 +1,164 @@
+<div class="status-page">
+    <div class="container">
+        <!-- Header with ePick branding -->
+        <div class="status-header">
+            <div class="brand-section">
+                <img src="/static/media/logos/primary-logo.png" alt="ePick" class="status-logo">
+                <div class="brand-text">
+                    <h1>System Status</h1>
+                    <p class="status-subtitle">Real-time system health monitoring</p>
+                </div>
+            </div>
+            <div class="last-updated">
+                Last updated: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
+                <button class="refresh-btn" onclick="refreshStatus()">
+                    <i class="refresh-icon">⟳</i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Overall Status -->
+        <div class="overall-status">
+            <div class="status-card <%= systemStatus.overall_status %>">
+                <div class="status-indicator">
+                    <div class="status-dot <%= systemStatus.overall_status %>"></div>
+                    <div class="status-text">
+                        <h2><%= helpers.getStatusText(systemStatus.overall_status) %></h2>
+                        <p><%= helpers.getStatusDescription(systemStatus.overall_status) %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Incidents -->
+        <% if (activeIncidents && activeIncidents.length > 0) { %>
+        <div class="incidents-section">
+            <h3>Active Incidents</h3>
+            <% activeIncidents.forEach(incident => { %>
+            <div class="incident-card <%= incident.severity %>">
+                <div class="incident-header">
+                    <div class="incident-title">
+                        <span class="incident-severity <%= incident.severity %>"><%= incident.severity.toUpperCase() %></span>
+                        <h4><%= incident.title %></h4>
+                    </div>
+                    <div class="incident-status <%= incident.status %>">
+                        <%= incident.status.replace('_', ' ').toUpperCase() %>
+                    </div>
+                </div>
+                <div class="incident-content">
+                    <p><%= incident.description %></p>
+                    <div class="incident-meta">
+                        <span class="incident-time">Started: <%= new Date(incident.started_at).toLocaleString() %></span>
+                        <% if (incident.affected_components && incident.affected_components.length > 0) { %>
+                        <span class="affected-components">
+                            Affected: <%= incident.affected_components.join(', ') %>
+                        </span>
+                        <% } %>
+                    </div>
+                </div>
+                <% if (incident.updates && incident.updates.length > 0) { %>
+                <div class="incident-updates">
+                    <h5>Recent Updates</h5>
+                    <% incident.updates.slice(0, 3).forEach(update => { %>
+                    <div class="update-item">
+                        <div class="update-status <%= update.status %>"><%= update.status.replace('_', ' ') %></div>
+                        <div class="update-content">
+                            <p><%= update.message %></p>
+                            <span class="update-time"><%= new Date(update.created_at).toLocaleString() %></span>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <% } %>
+            </div>
+            <% }) %>
+        </div>
+        <% } %>
+
+        <!-- System Components -->
+        <div class="components-section">
+            <h3>System Components</h3>
+            <div class="components-grid">
+                <% systemStatus.components.forEach(component => { %>
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-name">
+                            <div class="component-status-dot <%= component.status %>"></div>
+                            <h4><%= helpers.formatComponentName(component.component) %></h4>
+                            <% if (component.is_critical) { %>
+                            <span class="critical-badge">Critical</span>
+                            <% } %>
+                        </div>
+                        <div class="component-status <%= component.status %>">
+                            <%= helpers.getStatusText(component.status) %>
+                        </div>
+                    </div>
+                    <% if (component.description) { %>
+                    <p class="component-description"><%= component.description %></p>
+                    <% } %>
+                    <div class="component-meta">
+                        <% if (component.response_time) { %>
+                        <span class="response-time">Response: <%= component.response_time %>ms</span>
+                        <% } %>
+                        <span class="last-checked">
+                            Checked: <%= helpers.formatRelativeTime(component.last_checked) %>
+                        </span>
+                    </div>
+                    <% if (component.error_message && component.status !== 'operational') { %>
+                    <div class="error-message">
+                        <small><%= component.error_message %></small>
+                    </div>
+                    <% } %>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Recent Incidents -->
+        <% if (recentIncidents && recentIncidents.length > 0) { %>
+        <div class="recent-incidents-section">
+            <h3>Recent Incidents (Last 7 Days)</h3>
+            <div class="recent-incidents-list">
+                <% recentIncidents.forEach(incident => { %>
+                <div class="recent-incident-item">
+                    <div class="recent-incident-header">
+                        <span class="incident-severity-badge <%= incident.severity %>"><%= incident.severity %></span>
+                        <h5><%= incident.title %></h5>
+                        <span class="incident-status-badge <%= incident.status %>"><%= incident.status %></span>
+                    </div>
+                    <div class="recent-incident-meta">
+                        <span class="incident-date"><%= new Date(incident.started_at).toLocaleDateString() %></span>
+                        <% if (incident.duration) { %>
+                        <span class="incident-duration">Duration: <%= helpers.formatDuration(incident.duration) %></span>
+                        <% } %>
+                        <% if (incident.affected_components && incident.affected_components.length > 0) { %>
+                        <span class="affected-components">Affected: <%= incident.affected_components.join(', ') %></span>
+                        <% } %>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+
+
+        <!-- Footer -->
+        <div class="status-footer">
+            <p>
+                For technical support or to report issues, please contact 
+                <a href="mailto:support@epick.system">support@epick.system</a>
+            </p>
+            <p class="auto-refresh">
+                <label>
+                    <input type="checkbox" id="autoRefresh" checked> 
+                    Auto-refresh every 30 seconds
+                </label>
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Include status page specific styles and scripts -->
+<link rel="stylesheet" href="/static/stylesheets/pages/public/status.css">
+<script src="/static/scripts/pages/public/status.js"></script>

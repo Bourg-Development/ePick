@@ -1,0 +1,259 @@
+<div class="header">
+    <h1>Services Management</h1>
+    <div class="header-actions">
+        <button class="btn btn-primary" id="createServiceBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                add_business
+            </span>
+            Create Service
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="dropdown-container export-dropdown-container">
+            <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                Export
+                <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+            </button>
+            <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                <div class="dropdown-item" data-action="export-advanced">
+                    <span class="material-symbols-outlined">settings</span>
+                    Advanced Options
+                </div>
+                <div class="dropdown-item" data-action="export-quick-csv">
+                    <span class="material-symbols-outlined">table_view</span>
+                    Quick Export (CSV)
+                </div>
+                <div class="dropdown-item" data-action="export-quick-excel">
+                    <span class="material-symbols-outlined">grid_on</span>
+                    Quick Export (Excel)
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            Refresh
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search services...">
+    </div>
+    <select class="filter-select" id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </select>
+    <input type="number" class="filter-input" id="limitInput" placeholder="Items per page" min="10" max="100" value="20">
+</div>
+
+<div class="table-wrapper">
+    <table id="servicesTable">
+        <thead>
+            <tr>
+                <th data-sort="name">
+                    Service Name
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="email">
+                    Email
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="room_count">
+                    Rooms
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="user_count">
+                    Users
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="active">
+                    Status
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="servicesTableBody">
+            <!-- Populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <div id="recordCount">Loading...</div>
+    <div class="pagination" id="pagination">
+        <!-- Populated by JavaScript -->
+    </div>
+</div>
+
+<!-- Create/Edit Service Modal -->
+<div class="modal-overlay" id="serviceModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Create Service</h2>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="serviceForm">
+            <div class="form-group">
+                <label for="serviceName">Service Name <span class="required">*</span></label>
+                <input type="text" id="serviceName" name="serviceName" class="form-control" placeholder="e.g., Cardiology" required>
+            </div>
+            <div class="form-group">
+                <label for="serviceEmail">Email <span class="required">*</span></label>
+                <input type="email" id="serviceEmail" name="serviceEmail" class="form-control" placeholder="e.g., cardiology@hospital.com" required>
+            </div>
+            <div class="form-group">
+                <label for="serviceDescription">Description</label>
+                <textarea id="serviceDescription" name="serviceDescription" class="form-control" rows="3" placeholder="Brief description of the service"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="serviceActive" name="serviceActive" checked>
+                    <span>Active</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="canViewAllAnalyses" name="canViewAllAnalyses">
+                    <span>Can view all analyses</span>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <span id="submitBtnText">Create Service</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal export-modal">
+        <div class="modal-header">
+            <h2>Export Services</h2>
+            <button class="modal-close" id="closeExportModalBtn">&times;</button>
+        </div>
+        <form id="exportForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
+            <!-- PII Warning -->
+            <div class="export-warning">
+                <span class="material-symbols-outlined warning-icon">warning</span>
+                <div class="warning-content">
+                    <strong>Data Security Notice</strong>
+                    <p>This export contains service and organizational information. Ensure proper handling of business data.</p>
+                </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword">Your Password <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" name="exportPassword" required placeholder="Enter your password" autocomplete="current-password">
+                <small class="form-help">Required for security verification</small>
+            </div>
+
+            <!-- Export Format -->
+            <div class="form-section">
+                <label class="form-label">Export Format <span class="required">*</span></label>
+                <div class="format-options">
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="csv" checked>
+                        <span class="format-details">
+                            <strong>CSV</strong>
+                            <small>Comma-separated values, compatible with Excel</small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong>Excel</strong>
+                            <small>Professional formatted spreadsheet with branding</small>
+                        </span>
+                    </label>
+                    <label class="format-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <span class="format-details">
+                            <strong>JSON</strong>
+                            <small>JavaScript Object Notation for developers</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label">Column Selection</label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn">Select All</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn">Select None</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn">Safe Columns Only</button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Current Filters Info -->
+            <div class="form-section">
+                <label class="form-label">Applied Filters</label>
+                <div class="current-filters" id="currentFilters">
+                    <span class="filter-info">Using current filters</span>
+                </div>
+            </div>
+
+            <!-- Sensitive Data Warning -->
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
+                <span class="material-symbols-outlined warning-icon">error</span>
+                <div class="warning-content">
+                    <strong>Sensitive Data Selected</strong>
+                    <p>You have selected columns that may contain sensitive information. Ensure compliance with data protection regulations.</p>
+                </div>
+            </div>
+
+            <!-- Export Progress -->
+            <div class="export-progress" id="exportProgress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-text">Preparing export...</div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="executeExportBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                    Export Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>

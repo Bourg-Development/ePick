@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true
         },
+        can_view_all_analyses: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
@@ -50,6 +55,21 @@ module.exports = (sequelize, DataTypes) => {
             }
         ]
     });
+
+    // Define associations
+    Service.associate = function(models) {
+        // Service has many Users
+        Service.hasMany(models.User, {
+            foreignKey: 'service_id',
+            as: 'users'
+        });
+
+        // Service has many Rooms
+        Service.hasMany(models.Room, {
+            foreignKey: 'service_id',
+            as: 'rooms'
+        });
+    };
 
     return Service;
 };

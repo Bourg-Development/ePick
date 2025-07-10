@@ -1,0 +1,309 @@
+<%
+// Set page-specific variables
+const pageTitle = __('mailing.lists.title');
+const pageStyles = ['/pages/restricted/dashboard/mailing-lists.css'];
+const pageScripts = ['/pages/restricted/dashboard/mailing-lists.js'];
+%>
+
+<div class="page-header">
+    <div class="header-content">
+        <h1 class="page-title">
+            <span class="material-symbols-outlined">mail</span>
+            <%= __('mailing.lists.title') %>
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="createListBtn">
+                <span class="material-symbols-outlined">add</span>
+                <%= __('mailing.lists.create') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <!-- Filters and Search -->
+    <div class="filters-section">
+        <div class="search-container">
+            <div class="search-input-group">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="searchInput" placeholder="<%= __('common.search') %>..." class="search-input">
+            </div>
+        </div>
+        <div class="filter-controls">
+            <select id="statusFilter" class="filter-select">
+                <option value="all"><%= __('common.all_status') %></option>
+                <option value="active"><%= __('common.active') %></option>
+                <option value="inactive"><%= __('common.inactive') %></option>
+            </select>
+            <select id="typeFilter" class="filter-select">
+                <option value="all"><%= __('common.all_types') %></option>
+                <option value="internal"><%= __('mailing.lists.internal') %></option>
+                <option value="external"><%= __('mailing.lists.external') %></option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Mailing Lists Table -->
+    <div class="table-container">
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <span><%= __('common.loading') %>...</span>
+        </div>
+        
+        <table class="data-table" id="mailingListsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th><%= __('mailing.lists.name') %></th>
+                    <th><%= __('mailing.lists.description') %></th>
+                    <th><%= __('mailing.lists.type') %></th>
+                    <th><%= __('mailing.lists.subscribers') %></th>
+                    <th><%= __('mailing.lists.status') %></th>
+                    <th><%= __('mailing.lists.created') %></th>
+                    <th><%= __('common.actions') %></th>
+                </tr>
+            </thead>
+            <tbody id="mailingListsBody">
+                <!-- Content will be populated by JavaScript -->
+            </tbody>
+        </table>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <span class="material-symbols-outlined">mail_outline</span>
+            <h3><%= __('mailing.lists.empty.title') %></h3>
+            <p><%= __('mailing.lists.empty.description') %></p>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                <span class="material-symbols-outlined">add</span>
+                <%= __('mailing.lists.create_first') %>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" id="paginationContainer" style="display: none;">
+        <div class="pagination-info">
+            <span id="paginationInfo"></span>
+        </div>
+        <div class="pagination-controls">
+            <button class="btn btn-secondary" id="prevPageBtn" disabled>
+                <span class="material-symbols-outlined">chevron_left</span>
+                <%= __('common.previous') %>
+            </button>
+            <span class="page-numbers" id="pageNumbers"></span>
+            <button class="btn btn-secondary" id="nextPageBtn" disabled>
+                <%= __('common.next') %>
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Mailing List Modal -->
+<div class="modal" id="mailingListModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle"><%= __('mailing.lists.create') %></h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="mailingListForm">
+            <div class="modal-body">
+                <input type="hidden" id="listId" name="id">
+                
+                <div class="form-group">
+                    <label for="listName"><%= __('mailing.lists.name') %> *</label>
+                    <input type="text" id="listName" name="name" required maxlength="100">
+                    <div class="field-help"><%= __('mailing.lists.name.help') %></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="listDescription"><%= __('mailing.lists.description') %></label>
+                    <textarea id="listDescription" name="description" rows="3" maxlength="500"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="senderEmail"><%= __('mailing.lists.sender_email') %></label>
+                        <input type="email" id="senderEmail" name="sender_email" placeholder="<%= process.env.EMAIL_FROM || 'system@example.com' %>">
+                        <div class="field-help"><%= __('mailing.lists.sender_email.help') %></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="senderName"><%= __('mailing.lists.sender_name') %></label>
+                        <input type="text" id="senderName" name="sender_name" maxlength="100">
+                        <div class="field-help"><%= __('mailing.lists.sender_name.help') %></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="isInternal" name="is_internal">
+                            <span class="checkmark"></span>
+                            Internal List
+                        </label>
+                        <div class="field-help">Internal lists can only have internal users and services as subscribers. External lists allow all subscriber types including external email addresses.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="requiresApproval" name="subscription_requires_approval">
+                            <span class="checkmark"></span>
+                            <%= __('mailing.lists.requires_approval') %>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxSubscribers"><%= __('mailing.lists.max_subscribers') %></label>
+                    <input type="number" id="maxSubscribers" name="max_subscribers" min="1" max="100000">
+                    <div class="field-help"><%= __('mailing.lists.max_subscribers.help') %></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="autoSubscribeRoles"><%= __('mailing.lists.auto_subscribe_roles') %></label>
+                    <div class="checkbox-group" id="autoSubscribeRoles">
+                        <!-- Role checkboxes will be populated by JavaScript -->
+                    </div>
+                    <div class="field-help"><%= __('mailing.lists.auto_subscribe_roles.help') %></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                    <%= __('common.cancel') %>
+                </button>
+                <button type="submit" class="btn btn-primary" id="saveListBtn">
+                    <span class="material-symbols-outlined">save</span>
+                    <%= __('common.save') %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Subscribers Modal -->
+<div class="modal" id="subscribersModal">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h2><%= __('mailing.subscribers.manage') %> - <span id="subscribersListName"></span></h2>
+            <button class="close-btn" onclick="closeSubscribersModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="subscribers-actions">
+                <button type="button" class="btn btn-primary" onclick="showAddSubscriberModal()">
+                    <span class="material-symbols-outlined">person_add</span>
+                    Add Subscriber
+                </button>
+                <div class="search-box">
+                    <input type="text" id="subscriberSearch" placeholder="Search subscribers..." onkeyup="searchSubscribers()">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+            </div>
+            
+            <div class="subscribers-list" id="subscribersList">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Subscriber Modal -->
+<div class="modal" id="addSubscriberModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Subscriber</h2>
+            <button class="close-btn" onclick="closeAddSubscriberModal()">&times;</button>
+        </div>
+        <form id="addSubscriberForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Subscriber Type</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="subscriberType" value="user" checked onchange="toggleSubscriberType()">
+                            <span class="radio-mark"></span>
+                            Internal User
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="subscriberType" value="service" onchange="toggleSubscriberType()">
+                            <span class="radio-mark"></span>
+                            Service
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="subscriberType" value="external" onchange="toggleSubscriberType()">
+                            <span class="radio-mark"></span>
+                            External Email
+                        </label>
+                    </div>
+                </div>
+
+                <div id="userSelector" class="subscriber-type-section">
+                    <div class="form-group">
+                        <label for="userSelect">Select User</label>
+                        <select id="userSelect" name="user_id">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="serviceSelector" class="subscriber-type-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="serviceSelect">Select Service</label>
+                        <select id="serviceSelect" name="service_id">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="externalInput" class="subscriber-type-section" style="display: none;">
+                    <div class="form-group">
+                        <label for="externalEmail">Email Address *</label>
+                        <input type="email" id="externalEmail" name="external_email" placeholder="user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="externalName">Name</label>
+                        <input type="text" id="externalName" name="external_name" placeholder="Full Name">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddSubscriberModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Add Subscriber
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h2><%= __('mailing.lists.delete.title') %></h2>
+            <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="warning-icon">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+            <p><%= __('mailing.lists.delete.confirm') %></p>
+            <p class="delete-list-name" id="deleteListName"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                <%= __('common.cancel') %>
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <span class="material-symbols-outlined">delete</span>
+                <%= __('common.delete') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined" id="toastIcon"></span>
+        <span class="toast-message" id="toastMessage"></span>
+    </div>
+</div>

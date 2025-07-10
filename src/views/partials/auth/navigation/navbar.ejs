@@ -3,7 +3,8 @@
         <img src="/static/media/logos/primary-logo.svg" alt="Logo" width="125">
     </a>
     <div class="auth-actions">
-        <a href="/auth/login" class="btn btn-outline">Sign In</a>
-        <a href="/auth/register" class="btn btn-primary ml-2">Register</a>
+        <%- include('../../language-switcher') %>
+        <a href="/auth/login" class="btn btn-secondary"><%= __('common.login') %></a>
+        <a href="/auth/register" class="btn btn-primary ml-2"><%= __('common.register') %></a>
     </div>
 </nav>

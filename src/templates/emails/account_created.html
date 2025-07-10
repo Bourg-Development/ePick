@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ePick</title>
+    <style>
+        /* Reset styles for email clients */
+        body, p, h1, h2, h3, h4, h5, h6, table, td {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(to right, #e63946, #333333);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-circle-1 {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            top: -60px;
+            left: -60px;
+        }
+
+        .header-circle-2 {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            bottom: -40px;
+            left: 40px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            color: white;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .welcome-badge {
+            background-color: #28a745;
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .welcome-message {
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .account-details-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #e63946;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .details-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .details-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .details-label {
+            font-weight: bold;
+            color: #666666;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .details-value {
+            color: #333333;
+            flex-grow: 1;
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .action-button {
+            display: inline-block;
+            background-color: #e63946;
+            color: white;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: #c1121f;
+        }
+
+        .secondary-button {
+            display: inline-block;
+            border: 2px solid #333333;
+            color: #333333;
+            background-color: transparent;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background-color: #333333;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e6e6e6;
+            margin: 30px 0;
+        }
+
+        .info-section {
+            background-color: #f9f9f9;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .info-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333333;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .additional-info {
+            padding: 0 30px 30px;
+        }
+
+        .info-link {
+            color: #e63946;
+            text-decoration: none;
+            position: relative;
+            padding: 0.2em 0;
+        }
+
+        .info-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0.1em;
+            background-color: #e63946;
+            opacity: 0;
+            transition: opacity 300ms, transform 300ms;
+        }
+
+        .info-link:hover::after,
+        .info-link:focus::after {
+            opacity: 1;
+            transform: translate3d(0, 0.2em, 0);
+        }
+
+        .info-list {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .info-list li {
+            margin-bottom: 10px;
+        }
+
+        .security-notice {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background-color: #333333;
+            padding: 25px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .footer-logo {
+            margin-bottom: 15px;
+        }
+
+        .footer-text {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #e63946;
+        }
+
+        @media (max-width: 600px) {
+            .details-row {
+                flex-direction: column;
+            }
+
+            .details-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .secondary-button {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-circle-1"></div>
+        <div class="header-circle-2"></div>
+        <div class="header-content">
+            <img alt="ePick logo" src='data:image/svg+xml;base64,ICAgICAgICAgICAgPHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgNDAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgICAgICAgICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwMCwgMTAwKSI+CiAgICAgICAgICAgICAgICAgICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU1LCA1KSBzY2FsZSgwLjcpIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHRleHQgeD0iLTEyMCIgeT0iMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj5lPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8dGV4dCB4PSIxNSIgeT0iMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj5QPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8cmVjdCB4PSI5NSIgeT0iLTYwIiB3aWR0aD0iMTgiIGhlaWdodD0iNjAiIGZpbGw9IndoaXRlIiByeD0iMiIgcnk9IjIiLz4KICAgICAgICAgICAgICAgICAgICAgICAgPHRleHQgeD0iMTI1IiB5PSIwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiPmNrPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTA1LC0xMTAgQzExMCwtOTkgMTE0LC04OSAxMTYsLTgwIEMxMTgsLTcwIDExMiwtNjMgMTA1LC02MyBDOTgsLTYzIDkyLC03MCA5NCwtODAgQzk2LC04OSAxMDAsLTk5IDEwNSwtMTEwWiIgZmlsbD0id2hpdGUiIC8+CiAgICAgICAgICAgICAgICAgICAgICAgIDxsaW5lIHgxPSItMTIwIiB5MT0iMzAiIHgyPSIyMzAiIHkyPSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI4IiAvPgogICAgICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9zdmc+Cg=='/>            
+            <h1 class="header-title">Welcome to ePick</h1>
+            <p class="header-subtitle">Your Account Has Been Created</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="welcome-badge">New Account</div>
+
+        <h2 class="welcome-title">Your ePick Account is Ready!</h2>
+
+        <div class="welcome-message">
+            <p>Hello {{user_name}},</p>
+            <p>Welcome to ePick! Your account has been successfully created. You now have access to our platform and all its features designed to help you manage blood analysis data efficiently and securely.</p>
+        </div>
+
+        <div class="account-details-box">
+            <div class="details-row">
+                <div class="details-label">Full Name:</div>
+                <div class="details-value">{{user_name}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Email Address:</div>
+                <div class="details-value">{{email}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Account Type:</div>
+                <div class="details-value">{{role}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Organization:</div>
+                <div class="details-value">{{organization}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Created Date:</div>
+                <div class="details-value">{{created_date}}</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{login_url}}" class="action-button">Login to Your Account</a>
+            <a href="{{help_url}}" class="secondary-button">Get Started Guide</a>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="additional-info">
+        <h3 class="info-title">What You Can Do With ePick</h3>
+        <ul class="info-list">
+            <li>Access and manage blood analysis reports</li>
+            <li>Track patient data and history</li>
+            <li>Collaborate with healthcare professionals</li>
+            <li>Generate comprehensive reports and insights</li>
+            <li>Ensure data security and compliance</li>
+        </ul>
+
+        <h3 class="info-title" style="margin-top:25px;">Important Security Information</h3>
+        <ul class="info-list">
+            <li>Your account is protected with industry-standard security measures</li>
+            <li>We recommend enabling two-factor authentication for added security</li>
+            <li>Never share your login credentials with anyone</li>
+            <li>Report any suspicious activity immediately</li>
+        </ul>
+
+        <div class="security-notice">
+            <p><strong>Note:</strong> If you did not create this account or believe this email was sent in error, please contact our security team immediately at <a href="mailto:security@epick.lu" class="info-link">security@epick.lu</a></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <svg width="100" height="40" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(200, 100)">
+                    <g transform="translate(-55, 5) scale(0.5)">
+                        <text x="-120" y="0" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="white">e</text>
+                        <text x="15" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">P</text>
+                        <rect x="95" y="-60" width="18" height="60" fill="#e63946" rx="2" ry="2"/>
+                        <text x="125" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">ck</text>
+                        <path d="M105,-110 C110,-99 114,-89 116,-80 C118,-70 112,-63 105,-63 C98,-63 92,-70 94,-80 C96,-89 100,-99 105,-110Z" fill="#c1121f" />
+                        <line x1="-120" y1="30" x2="230" y2="30" stroke="white" stroke-width="8" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <p class="footer-text">This is an automated notification from ePick. You received this email because an account was created with this email address.</p>
+
+        <div class="footer-links">
+            <a href="{{login_url}}">Login</a> |
+            <a href="https://epick.fondation.lu/privacy-policy">Privacy Policy</a> |
+            <a href="https://support.bourg.dev">Help Center</a>
+        </div>
+
+        <p class="footer-text" style="margin-top:15px;">© 2025 Fondation J.P. Pescatore. All Rights Reserved.</p>
+    </div>
+</div>
+</body>
+</html>

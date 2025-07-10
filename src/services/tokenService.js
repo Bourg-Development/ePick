@@ -13,6 +13,15 @@ const {
  * Service for token generation, verification and management
  */
 class TokenService {
+    constructor() {
+        // In-memory lock for token rotations to prevent race conditions
+        this.rotationLocks = new Set();
+        
+        // Clean up stale locks every 5 minutes
+        setInterval(() => {
+            this.rotationLocks.clear();
+        }, 5 * 60 * 1000);
+    }
     /**
      * Generate a JWT token
      * @param {Object} payload - Token payload
@@ -158,17 +167,60 @@ class TokenService {
     }
 
     /**
+     * Check if a token was recently rotated to prevent race conditions
+     * @param {string} tokenId - Token ID to check
+     * @returns {Promise<boolean>} True if recently rotated
+     */
+    async checkRecentRotation(tokenId) {
+        try {
+            // Check if this token was blacklisted in the last 30 seconds
+            const recentBlacklist = await db.BlacklistedToken.findOne({
+                where: {
+                    token_id: tokenId,
+                    blacklisted_at: {
+                        [db.Sequelize.Op.gte]: new Date(Date.now() - 30000) // Last 30 seconds
+                    }
+                }
+            });
+
+            return !!recentBlacklist;
+        } catch (error) {
+            console.error('Error checking recent rotation:', error);
+            return false;
+        }
+    }
+
+    /**
      * Rotate an access token
      * @param {string} currentToken - Current access token
      * @param {Object} context - Request context
      * @returns {Promise<Object>} New token info
      */
     async rotateAccessToken(currentToken, context) {
+        let decoded;
+        
         try {
             // Verify current token
-            const decoded = await this.verifyToken(currentToken, 'access');
+            decoded = await this.verifyToken(currentToken, 'access');
             if (!decoded) {
                 throw new Error('Invalid token');
+            }
+
+            // Check if this token is already being rotated
+            if (this.rotationLocks.has(decoded.id)) {
+                throw new Error('Token rotation already in progress');
+            }
+
+            // Add lock for this token
+            this.rotationLocks.add(decoded.id);
+
+            // Double-check if token was already blacklisted (race condition protection)
+            const isBlacklisted = await db.BlacklistedToken.findOne({
+                where: { token_id: decoded.id }
+            });
+
+            if (isBlacklisted) {
+                throw new Error('Token already blacklisted');
             }
 
             // Blacklist current token
@@ -199,6 +251,11 @@ class TokenService {
         } catch (error) {
             console.error('Token rotation error:', error);
             throw new Error('Failed to rotate token');
+        } finally {
+            // Always clean up the lock
+            if (decoded && decoded.id) {
+                this.rotationLocks.delete(decoded.id);
+            }
         }
     }
 

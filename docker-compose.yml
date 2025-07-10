@@ -1,0 +1,17 @@
+# version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: epick_postgres
+    environment:
+      POSTGRES_DB: epick_dev
+      POSTGRES_USER: epick_dev
+      POSTGRES_PASSWORD: epick_fjpp
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

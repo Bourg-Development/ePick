@@ -10,6 +10,7 @@ class DeviceFingerprintUtil {
      * @param {Object} req - Express request object
      * @returns {string} Device fingerprint hash
      */
+
     getFingerprint(req) {
         // Try to get fingerprint from header first (if client-side fingerprinting is used)
         const clientFingerprint = req.get('X-Device-Fingerprint');
@@ -27,19 +28,25 @@ class DeviceFingerprintUtil {
      * @returns {string} Server-generated fingerprint
      */
     generateServerFingerprint(req) {
-        // Collect data points to use for fingerprinting
+        // Use more stable data points that don't vary between navigation and fetch
         const dataPoints = [
-            req.headers['user-agent'] || '',
-            req.headers['accept-language'] || '',
-            req.headers['accept-encoding'] || '',
-            req.headers['accept'] || '',
-            req.ip // IP address
+            req.ip, // IP address - most stable
+            this.normalizeUserAgent(req.headers['user-agent'] || ''), // Normalized UA
+            req.headers['accept-language'] || '', // Usually consistent
         ];
 
-        // Add additional browser-specific headers if available
-        if (req.headers['sec-ch-ua']) dataPoints.push(req.headers['sec-ch-ua']);
-        if (req.headers['sec-ch-ua-platform']) dataPoints.push(req.headers['sec-ch-ua-platform']);
-        if (req.headers['sec-ch-ua-mobile']) dataPoints.push(req.headers['sec-ch-ua-mobile']);
+        // Only add browser-specific headers if they exist (more lenient)
+        // These are often missing in fetch requests, so make them optional
+        const optionalHeaders = [
+            req.headers['sec-ch-ua'],
+            req.headers['sec-ch-ua-platform'],
+            req.headers['sec-ch-ua-mobile']
+        ];
+
+        // Only include optional headers that are actually present
+        optionalHeaders.forEach(header => {
+            if (header) dataPoints.push(header);
+        });
 
         // Hash the data points to create a fingerprint
         const fingerprintData = dataPoints.join('||');
@@ -49,6 +56,19 @@ class DeviceFingerprintUtil {
             .digest('hex');
     }
 
+    /**
+     * Normalize user agent to ignore minor variations
+     * @param {string} userAgent
+     * @returns {string} Normalized user agent
+     */
+    normalizeUserAgent(userAgent) {
+        // Remove version numbers that might change frequently
+        return userAgent
+            .replace(/Chrome\/[\d.]+/g, 'Chrome/XXX')
+            .replace(/Safari\/[\d.]+/g, 'Safari/XXX')
+            .replace(/Firefox\/[\d.]+/g, 'Firefox/XXX')
+            .replace(/Edge\/[\d.]+/g, 'Edge/XXX');
+    }
     /**
      * Validate if a fingerprint matches expected value
      * @param {string} providedFingerprint - Fingerprint provided by client

@@ -24,9 +24,54 @@ const requirePermission = (requiredPermissions) => {
             }
 
             const { userId, username, role, permissions: userPermissions } = req.auth;
+            
+            // Debug logging for permission issues
+            console.log('Authorization check:', {
+                userId,
+                username, 
+                role,
+                userPermissions,
+                requiredPermissions: permissions,
+                path: req.path
+            });
 
-            // Admin role has full access to everything
-            if (role === 'admin') {
+            // Check if any required permission is a system permission
+            const hasSystemPermission = permissions.some(permission => 
+                permission.startsWith('system.')
+            );
+
+            // If system permission is required, only system_admin can access
+            if (hasSystemPermission && role !== 'system_admin') {
+                // Log system permission denial
+                await logService.securityLog({
+                    eventType: 'authorization.system_permission_denied',
+                    severity: 'high',
+                    userId,
+                    ipAddress: req.ip,
+                    deviceFingerprint: req.get('X-Device-Fingerprint') || null,
+                    metadata: {
+                        username,
+                        role,
+                        requiredPermissions: permissions,
+                        path: req.path,
+                        method: req.method,
+                        userAgent: req.headers['user-agent'] || 'unknown'
+                    }
+                });
+
+                return res.status(403).json({
+                    success: false,
+                    message: 'System permission required'
+                });
+            }
+
+            // System admin has full access to everything
+            if (role === 'system_admin') {
+                return next();
+            }
+
+            // Regular admin has access to non-system permissions
+            if (role === 'admin' && !hasSystemPermission) {
                 return next();
             }
 
@@ -92,6 +137,21 @@ const requireRole = (allowedRoles) => {
             }
 
             const { userId, username, role } = req.auth;
+
+            // Debug logging for role check
+            console.log('Role check:', {
+                userId,
+                username,
+                role,
+                allowedRoles: roles,
+                path: req.path
+            });
+
+            // System admin can access any role-restricted endpoint
+            if (role === 'system_admin') {
+                console.log('System admin access granted');
+                return next();
+            }
 
             // Check if user's role is allowed
             if (!roles.includes(role)) {

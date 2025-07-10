@@ -9,7 +9,7 @@ const dotenv = require('dotenv'); // Import dotenv
 const app = require('../app'); // Assuming `app` is your Express app
 const http = require('http');
 const https = require('https');
-const Logger = require('../utils/logger').getComponentLogger('server'); // Import Winston Logger
+const Logger = require('../utils/logger'); // Import Winston Logger
 console.log(1)
 
 /**
