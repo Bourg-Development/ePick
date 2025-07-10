@@ -6,33 +6,50 @@ module.exports = {
         console.log('🚀 Adding service_id column to mailing_list_subscribers...');
         
         try {
-            // Add service_id column
-            await queryInterface.addColumn('mailing_list_subscribers', 'service_id', {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-                references: {
-                    model: 'services',
-                    key: 'id'
-                },
-                onDelete: 'CASCADE',
-                comment: 'Service subscription (uses service email)'
-            });
-            console.log('✅ Added service_id column');
+            // Check if service_id column already exists
+            const tableInfo = await queryInterface.describeTable('mailing_list_subscribers');
             
-            // Add unique constraint for service/list combinations
-            await queryInterface.addConstraint('mailing_list_subscribers', {
-                fields: ['list_id', 'service_id'],
-                type: 'unique',
-                name: 'unique_service_list_subscription',
-                where: {
-                    service_id: {
-                        [Sequelize.Op.ne]: null
+            if (!tableInfo.service_id) {
+                // Add service_id column
+                await queryInterface.addColumn('mailing_list_subscribers', 'service_id', {
+                    type: Sequelize.INTEGER,
+                    allowNull: true,
+                    references: {
+                        model: 'services',
+                        key: 'id'
+                    },
+                    onDelete: 'CASCADE',
+                    comment: 'Service subscription (uses service email)'
+                });
+                console.log('✅ Added service_id column');
+            } else {
+                console.log('ℹ️ service_id column already exists, skipping...');
+            }
+            
+            // Check if unique constraint exists
+            const constraintExists = await queryInterface.sequelize.query(
+                "SELECT constraint_name FROM information_schema.table_constraints WHERE table_name = 'mailing_list_subscribers' AND constraint_name = 'unique_service_list_subscription'",
+                { type: Sequelize.QueryTypes.SELECT }
+            );
+            
+            if (constraintExists.length === 0) {
+                // Add unique constraint for service/list combinations
+                await queryInterface.addConstraint('mailing_list_subscribers', {
+                    fields: ['list_id', 'service_id'],
+                    type: 'unique',
+                    name: 'unique_service_list_subscription',
+                    where: {
+                        service_id: {
+                            [Sequelize.Op.ne]: null
+                        }
                     }
-                }
-            });
-            console.log('✅ Added unique constraint for service subscriptions');
+                });
+                console.log('✅ Added unique constraint for service subscriptions');
+            } else {
+                console.log('ℹ️ unique constraint already exists, skipping...');
+            }
             
-            console.log('🎉 Successfully added service_id column and constraints');
+            console.log('🎉 Successfully processed service_id column and constraints');
             
         } catch (error) {
             console.error('❌ Error adding service_id column:', error);
