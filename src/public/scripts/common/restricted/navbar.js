@@ -1,5 +1,11 @@
 // Navbar functionality with dynamic notifications
 document.addEventListener('DOMContentLoaded', function() {
+    // Configure API utility
+    api.setConfig({
+        baseURL: '/api',
+        timeout: 15000
+    });
+
     // Get elements
     const notificationToggle = document.getElementById('notificationToggle');
     const notificationMenu = document.getElementById('notificationMenu');
@@ -261,29 +267,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to fetch notifications from backend
     async function fetchNotifications() {
         try {
-            const response = await fetch('/api/notifications');
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.data) {
-                    // Transform API data to match frontend format
-                    const transformedNotifications = result.data.map(notification => ({
-                        id: notification.id,
-                        text: notification.message,
-                        time: formatTimeAgo(notification.created_at),
-                        unread: !notification.is_read,
-                        type: notification.type,
-                        priority: notification.priority,
-                        actionRequired: notification.action_required,
-                        actionUrl: notification.action_url,
-                        title: notification.title
-                    }));
-                    populateNotifications(transformedNotifications);
-                } else {
-                    console.error('Invalid API response format');
-                    populateNotifications([]);
-                }
+            const result = await api.get('notifications');
+            if (result.success && result.data) {
+                // Transform API data to match frontend format
+                const transformedNotifications = result.data.map(notification => ({
+                    id: notification.id,
+                    text: notification.message,
+                    time: formatTimeAgo(notification.created_at),
+                    unread: !notification.is_read,
+                    type: notification.type,
+                    priority: notification.priority,
+                    actionRequired: notification.action_required,
+                    actionUrl: notification.action_url,
+                    title: notification.title
+                }));
+                populateNotifications(transformedNotifications);
             } else {
-                console.error('Failed to fetch notifications:', response.status);
+                console.error('Invalid API response format');
                 populateNotifications([]);
             }
         } catch (error) {
@@ -296,16 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to mark notification as read in backend
     async function markNotificationAsRead(notificationId) {
         try {
-            const response = await fetch(`/api/notifications/${notificationId}/read`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.error('Failed to mark notification as read');
-            }
+            await api.patch(`notifications/${notificationId}/read`);
         } catch (error) {
             console.error('Error marking notification as read:', error);
         }
@@ -324,19 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; // No unread notifications to mark
             }
 
-            const response = await fetch('/api/notifications/read-multiple', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    notificationIds: notificationIds
-                })
+            await api.patch('notifications/read-multiple', {
+                notificationIds: notificationIds
             });
-
-            if (!response.ok) {
-                console.error('Failed to mark all notifications as read');
-            }
         } catch (error) {
             console.error('Error marking all notifications as read:', error);
         }
@@ -345,18 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load user profile data
     async function loadUserProfile() {
         try {
-            const response = await fetch('/api/user/profile', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success && data.profile) {
-                    updateProfileDisplay(data.profile);
-                }
+            const data = await api.get('user/profile');
+            if (data.success && data.profile) {
+                updateProfileDisplay(data.profile);
             }
         } catch (error) {
             console.error('Error loading user profile:', error);

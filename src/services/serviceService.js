@@ -544,6 +544,95 @@ class ServiceService {
     }
 
     /**
+     * Delete a service (hard delete)
+     * @param {number} serviceId - Service ID
+     * @param {number} adminId - Admin user ID
+     * @param {Object} context - Request context
+     * @returns {Object} Deletion result
+     */
+    async deleteService(serviceId, adminId, context) {
+        const transaction = await db.sequelize.transaction();
+
+        try {
+            // Check if service exists
+            const service = await db.Service.findByPk(serviceId, { transaction });
+
+            if (!service) {
+                await transaction.rollback();
+                return {
+                    success: false,
+                    message: 'Service not found'
+                };
+            }
+
+            // Check for users assigned to this service
+            const userCount = await db.User.count({
+                where: {
+                    service_id: serviceId,
+                    account_locked: false
+                },
+                transaction
+            });
+
+            if (userCount > 0) {
+                await transaction.rollback();
+                return {
+                    success: false,
+                    message: `Cannot delete service with ${userCount} active user(s). Please reassign users first.`
+                };
+            }
+
+            // Check for rooms assigned to this service
+            const roomCount = await db.Room.count({
+                where: {
+                    service_id: serviceId
+                },
+                transaction
+            });
+
+            if (roomCount > 0) {
+                await transaction.rollback();
+                return {
+                    success: false,
+                    message: `Cannot delete service with ${roomCount} room(s). Please reassign rooms first.`
+                };
+            }
+
+            // Delete the service permanently
+            await service.destroy({ transaction });
+
+            // Log the deletion
+            await logService.auditLog({
+                eventType: 'service.deleted',
+                userId: adminId,
+                targetId: serviceId,
+                targetType: 'service',
+                ipAddress: context.ip,
+                deviceFingerprint: context.deviceFingerprint,
+                metadata: {
+                    serviceName: service.name,
+                    serviceEmail: service.email,
+                    userAgent: context.userAgent
+                }
+            });
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                message: 'Service deleted successfully'
+            };
+        } catch (error) {
+            await transaction.rollback();
+            console.error('Delete service error:', error);
+            return {
+                success: false,
+                message: 'Failed to delete service'
+            };
+        }
+    }
+
+    /**
      * Reactivate a service
      * @param {number} serviceId - Service ID
      * @param {number} adminId - Admin user ID

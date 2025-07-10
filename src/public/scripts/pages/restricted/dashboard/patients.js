@@ -595,7 +595,8 @@ function initializePage() {
             }
         } catch (error) {
             console.error('Error deleting patient:', error);
-            showNotification('Failed to delete patient', 'error');
+            console.error('Error details:', error.data);
+            showNotification(error.data?.message || 'Failed to delete patient', 'error');
         }
     };
 

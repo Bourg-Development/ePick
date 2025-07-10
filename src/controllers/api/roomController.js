@@ -57,7 +57,16 @@ class RoomController {
         try {
             const { id } = req.params;
 
-            const result = await roomService.getRoomById(parseInt(id));
+            // Validate room ID
+            const roomId = parseInt(id);
+            if (isNaN(roomId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid room ID'
+                });
+            }
+
+            const result = await roomService.getRoomById(roomId);
 
             if (!result.success) {
                 return res.status(404).json(result);
@@ -137,6 +146,15 @@ class RoomController {
             const { roomNumber, serviceId, capacity, active } = req.body;
             const { userId } = req.auth;
 
+            // Validate room ID
+            const roomId = parseInt(id);
+            if (isNaN(roomId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid room ID'
+                });
+            }
+
             const updateData = {
                 roomNumber,
                 serviceId: serviceId !== undefined ? (serviceId ? parseInt(serviceId) : null) : undefined,
@@ -151,7 +169,7 @@ class RoomController {
             };
 
             const result = await roomService.updateRoom(
-                parseInt(id),
+                roomId,
                 updateData,
                 userId,
                 context
@@ -177,6 +195,15 @@ class RoomController {
             const { id } = req.params;
             const { userId } = req.auth;
 
+            // Validate room ID
+            const roomId = parseInt(id);
+            if (isNaN(roomId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid room ID'
+                });
+            }
+
             const context = {
                 ip: req.ip,
                 deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
@@ -184,7 +211,7 @@ class RoomController {
             };
 
             const result = await roomService.deactivateRoom(
-                parseInt(id),
+                roomId,
                 userId,
                 context
             );

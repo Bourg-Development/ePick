@@ -1374,9 +1374,10 @@ class AdminController {
     async deactivateService(req, res) {
         try {
             // Only users with services.delete or admin permission
-            const { userId: adminId, permissions } = req.auth;
+            const { userId: adminId, permissions, role } = req.auth;
 
-            if (!permissions.includes('services.delete') && !permissions.includes('admin')) {
+            if (role !== 'admin' && role !== 'system_admin' && 
+                !permissions.includes('services.delete') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
                     message: 'Permission denied'
@@ -1396,7 +1397,7 @@ class AdminController {
             const context = new AdminController()._getRequestContext(req);;
 
             // Deactivate service
-            const result = await serviceService.deactivateService(
+            const result = await serviceService.deleteService(
                 parseInt(serviceId),
                 adminId,
                 context
@@ -1947,13 +1948,14 @@ class AdminController {
     }
 
     /**
-     * Delete room
+     * Delete room (hard delete)
      */
     async deleteRoom(req, res) {
         try {
-            const { userId: adminId, permissions } = req.auth;
+            const { userId: adminId, permissions, role } = req.auth;
 
-            if (!permissions.includes('rooms.manage') && !permissions.includes('admin')) {
+            if (role !== 'admin' && role !== 'system_admin' && 
+                !permissions.includes('rooms.manage') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
                     message: 'Permission denied'
@@ -1962,7 +1964,13 @@ class AdminController {
 
             const { roomId } = req.params;
             const roomService = require('../../services/roomService');
-            const context = new AdminController()._getRequestContext(req);
+            const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
+            
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
 
             const result = await roomService.deleteRoom(parseInt(roomId), adminId, context);
 
@@ -2714,9 +2722,10 @@ class AdminController {
      */
     async deletePatient(req, res) {
         try {
-            const { userId: adminId, permissions } = req.auth;
+            const { userId: adminId, permissions, role } = req.auth;
 
-            if (!permissions.includes('patients.manage') && !permissions.includes('admin') && !permissions.includes('write.all') && !permissions.includes('system.bypass_restrictions')) {
+            if (role !== 'admin' && role !== 'system_admin' && 
+                !permissions.includes('patients.manage') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
                     message: 'Permission denied'
@@ -3472,13 +3481,6 @@ class AdminController {
         }
     }
 
-    /**
-     * Delete room
-     */
-    async deleteRoom(req, res) {
-        const roomController = require('./roomController');
-        return roomController.deactivateRoom(req, res);
-    }
 
 
     /**

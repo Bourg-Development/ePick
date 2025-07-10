@@ -144,7 +144,7 @@ function initializePage() {
     // Load rooms from API
     async function loadRooms() {
         try {
-            const result = await api.get('/admin/rooms');
+            const result = await api.get('admin/rooms');
             if (result.success) {
                 roomsData = result.data || [];
                 if (result.pagination) {
@@ -473,7 +473,7 @@ function initializePage() {
         if (!confirm('Are you sure you want to delete this room?')) return;
         
         try {
-            const result = await api.delete(`/admin/rooms/${roomId}`);
+            const result = await api.delete(`admin/rooms/${roomId}`);
             if (result.success) {
                 showNotification('Room deleted successfully', 'success');
                 await loadRooms();
@@ -484,7 +484,8 @@ function initializePage() {
             }
         } catch (error) {
             console.error('Error deleting room:', error);
-            showNotification('Failed to delete room', 'error');
+            console.error('Error details:', error.data);
+            showNotification(error.data?.message || 'Failed to delete room', 'error');
         }
     };
 
@@ -585,9 +586,9 @@ function initializePage() {
         try {
             let result;
             if (isEdit) {
-                result = await api.put(`/admin/rooms/${isEdit}`, roomData);
+                result = await api.put(`admin/rooms/${isEdit}`, roomData);
             } else {
-                result = await api.post('/admin/rooms', roomData);
+                result = await api.post('admin/rooms', roomData);
             }
             
             if (result.success) {
@@ -639,11 +640,11 @@ function initializePage() {
                 if (progressText) progressText.textContent = 'Validating password...';
             }, 100);
             
-            let endpoint = '/admin/rooms/export';
+            let endpoint = 'admin/rooms/export';
             
             // Use professional Excel export for Excel format
             if (format === 'excel') {
-                endpoint = '/admin/rooms/export/excel';
+                endpoint = 'admin/rooms/export/excel';
                 
                 // Update progress
                 setTimeout(() => {

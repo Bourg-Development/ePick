@@ -369,13 +369,13 @@ class RoomService {
     }
 
     /**
-     * Deactivate a room (soft delete)
+     * Delete a room (hard delete)
      * @param {number} roomId - Room ID
-     * @param {number} userId - User ID performing the deactivation
+     * @param {number} userId - User ID performing the deletion
      * @param {Object} context - Request context
-     * @returns {Promise<Object>} Deactivation result
+     * @returns {Promise<Object>} Deletion result
      */
-    async deactivateRoom(roomId, userId, context) {
+    async deleteRoom(roomId, userId, context) {
         try {
             const room = await db.Room.findByPk(roomId, {
                 include: [{ association: 'service', attributes: ['name'] }]
@@ -388,13 +388,6 @@ class RoomService {
                 };
             }
 
-            if (!room.active) {
-                return {
-                    success: false,
-                    message: 'Room is already inactive'
-                };
-            }
-
             // Check for current patients
             const currentPatients = await db.Patient.findAll({
                 where: { room_id: roomId, active: true }
@@ -403,7 +396,7 @@ class RoomService {
             if (currentPatients.length > 0) {
                 return {
                     success: false,
-                    message: `Cannot deactivate room with ${currentPatients.length} current patient(s)`
+                    message: `Cannot delete room with ${currentPatients.length} current patient(s)`
                 };
             }
 
@@ -418,17 +411,16 @@ class RoomService {
             if (activeAnalyses.length > 0) {
                 return {
                     success: false,
-                    message: `Cannot deactivate room with ${activeAnalyses.length} active analysis(es)`
+                    message: `Cannot delete room with ${activeAnalyses.length} active analysis(es)`
                 };
             }
 
-            // Deactivate room
-            room.active = false;
-            await room.save();
+            // Delete the room permanently
+            await room.destroy();
 
-            // Log the deactivation
+            // Log the deletion
             await logService.auditLog({
-                eventType: 'room.deactivated',
+                eventType: 'room.deleted',
                 userId,
                 targetId: roomId,
                 targetType: 'room',
@@ -443,13 +435,13 @@ class RoomService {
 
             return {
                 success: true,
-                message: 'Room deactivated successfully'
+                message: 'Room deleted successfully'
             };
         } catch (error) {
-            console.error('Deactivate room error:', error);
+            console.error('Delete room error:', error);
             return {
                 success: false,
-                message: 'Failed to deactivate room'
+                message: 'Failed to delete room'
             };
         }
     }
@@ -520,7 +512,7 @@ class RoomService {
      */
     async getRoomOccupancyReport(serviceId = null) {
         try {
-            const whereClause = { active: true };
+            const whereClause = {};
 
             if (serviceId) {
                 whereClause.service_id = serviceId;
@@ -604,7 +596,6 @@ class RoomService {
         try {
             const rooms = await db.Room.findAll({
                 where: {
-                    active: true,
                     [Op.or]: [
                         { room_number: { [Op.iLike]: `%${searchTerm}%` } }
                     ]
@@ -654,7 +645,7 @@ class RoomService {
      */
     async getAvailableRooms(serviceId = null) {
         try {
-            const whereClause = { active: true };
+            const whereClause = {};
 
             if (serviceId) {
                 whereClause.service_id = serviceId;
@@ -728,12 +719,10 @@ class RoomService {
                     {
                         model: db.Room,
                         as: 'rooms',
-                        where: { active: true },
                         attributes: [],
                         required: false
                     }
                 ],
-                where: { active: true },
                 group: ['Service.id', 'Service.name'],
                 order: [['name', 'ASC']]
             });

@@ -361,7 +361,8 @@ function initializePage() {
             }
         } catch (error) {
             console.error('Error deleting service:', error);
-            showNotification('Failed to delete service', 'error');
+            console.error('Error details:', error.data);
+            showNotification(error.data?.message || 'Failed to delete service', 'error');
         }
     };
 
