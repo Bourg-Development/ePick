@@ -269,7 +269,24 @@ class AuthController {
             const result = await authService.refreshToken(refreshToken, context);
 
             if (!result.success) {
-                return res.status(401).json(result);
+                // Clear authentication cookies
+                res.clearCookie('accessToken');
+                res.clearCookie('refreshToken');
+                
+                // Check if this is an API request or browser request
+                const isApiRequest = req.headers.accept?.includes('application/json') && 
+                                   !req.headers.accept?.includes('text/html');
+                
+                if (isApiRequest) {
+                    // For API requests, return a generic error without details
+                    return res.status(401).json({
+                        success: false,
+                        message: 'Authentication expired'
+                    });
+                } else {
+                    // For browser requests, redirect to login
+                    return res.status(401).redirect('/auth/login');
+                }
             }
 
             res.cookie('accessToken', result.accessToken, {
