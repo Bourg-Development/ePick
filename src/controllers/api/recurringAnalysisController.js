@@ -59,12 +59,16 @@ class RecurringAnalysisController {
                 notes
             }, userId);
 
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
             res.status(201).json({
                 success: true,
                 message: 'Recurring analysis created successfully',
                 data: {
                     recurringAnalysis: result.recurringAnalysis,
-                    firstAnalysis: result.firstAnalysis
+                    analyses: result.analyses
                 }
             });
 

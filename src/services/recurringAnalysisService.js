@@ -1,12 +1,110 @@
 const db = require('../db');
 const logService = require('./logService');
 const prescriptionService = require('./prescriptionService');
+const analysisService = require('./analysisService');
 
 class RecurringAnalysisService {
+    /**
+     * Validate recurring analysis dates against organization constraints
+     */
+    async _validateRecurringAnalysisDates(data) {
+        const validationResults = [];
+        const dates = [];
+        let currentDate = new Date(data.analysisDate);
+        
+        // Generate all planned dates first
+        for (let i = 0; i < data.totalOccurrences; i++) {
+            dates.push(new Date(currentDate));
+            if (i < data.totalOccurrences - 1) {
+                currentDate = this.calculateNextDueDate(currentDate, data.recurrencePattern, data.intervalDays);
+            }
+        }
+
+        // Get organization settings
+        const maxAnalysesPerDay = await this._getOrganizationSetting('max_analyses_per_day');
+        const workingDays = await this._getOrganizationSetting('working_days');
+        const workingDaysArray = workingDays ? JSON.parse(workingDays) : null;
+
+        // Check each date
+        for (let i = 0; i < dates.length; i++) {
+            const analysisDate = dates[i];
+            const dayName = analysisDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+            // Check working days constraint
+            if (workingDaysArray && !workingDaysArray.includes(dayName)) {
+                validationResults.push({
+                    occurrence: i + 1,
+                    date: analysisDate,
+                    issue: `${dayName} is not a working day`,
+                    suggestion: `Skip this occurrence or adjust schedule`
+                });
+                continue;
+            }
+
+            // Check max analyses per day constraint
+            if (maxAnalysesPerDay) {
+                const analysisCount = await db.sequelize.query(
+                    `SELECT COUNT(*) as count FROM analyses WHERE DATE(analysis_date) = DATE(:analysisDate)`,
+                    {
+                        replacements: { analysisDate: analysisDate.toDateString() },
+                        type: db.Sequelize.QueryTypes.SELECT
+                    }
+                );
+
+                if (analysisCount[0].count >= parseInt(maxAnalysesPerDay)) {
+                    validationResults.push({
+                        occurrence: i + 1,
+                        date: analysisDate,
+                        issue: `Maximum analyses per day (${maxAnalysesPerDay}) would be exceeded`,
+                        suggestion: `Adjust interval or reduce occurrences`
+                    });
+                }
+            }
+        }
+
+        return {
+            isValid: validationResults.length === 0,
+            issues: validationResults,
+            totalDates: dates.length
+        };
+    }
+
+    /**
+     * Get organization setting value
+     */
+    async _getOrganizationSetting(settingKey) {
+        try {
+            const result = await db.sequelize.query(
+                'SELECT get_organization_setting(:settingKey) as value',
+                {
+                    replacements: { settingKey },
+                    type: db.Sequelize.QueryTypes.SELECT
+                }
+            );
+
+            return result[0].value;
+        } catch (error) {
+            console.error(`Error getting organization setting ${settingKey}:`, error);
+            return null;
+        }
+    }
+
     /**
      * Create a new recurring analysis pattern and ALL future analyses
      */
     async createRecurringAnalysis(data, userId) {
+        // Validate recurring analysis dates against organization constraints
+        const validation = await this._validateRecurringAnalysisDates(data);
+        
+        if (!validation.isValid) {
+            return {
+                success: false,
+                message: 'Recurring analysis validation failed',
+                issues: validation.issues,
+                totalConflicts: validation.issues.length
+            };
+        }
+
         const transaction = await db.sequelize.transaction();
 
         try {

@@ -1131,7 +1131,7 @@ class AdminController {
             // Only users with admin permission
             const { userId: adminId, permissions, role } = req.auth;
 
-            if (role !== 'admin') {
+            if (role !== 'admin' && role !== 'system_admin') {
                 return res.status(403).json({
                     success: false,
                     message: 'Permission denied'

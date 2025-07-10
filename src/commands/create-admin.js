@@ -155,10 +155,10 @@ async function createSystemAdminUser() {
 
             // Insert system admin user (created_by = NULL for system-created user)
             const userInsertResult = await client.query(`
-        INSERT INTO users (username, password_hash, salt, role_id, email, created_at, updated_at, created_by)
-        VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)
+        INSERT INTO users (username, password_hash, salt, role_id, email, full_name, created_at, updated_at, created_by)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), NULL)
         RETURNING id
-      `, [username, passwordHash, salt, systemAdminRoleId, email]);
+      `, [username, passwordHash, salt, systemAdminRoleId, email, 'System Administrator']);
 
             const userId = userInsertResult.rows[0].id;
 

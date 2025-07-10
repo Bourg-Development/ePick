@@ -29,7 +29,6 @@ class DocController {
             const { templateName, data, format = 'pdf' } = req.body;
             // Validate required fields
             if (!templateName) {
-                console.log(1)
                 return res.status(400).json({
                     success: false,
                     message: 'Template name is required'
@@ -37,7 +36,6 @@ class DocController {
             }
 
             if (!data || typeof data !== 'object') {
-                console.log(2)
                 return res.status(400).json({
                     success: false,
                     message: 'Template data is required and must be an object'
@@ -47,7 +45,7 @@ class DocController {
             // Add user ID to template data
             const templateData = {
                 ...data,
-                user_name: userData.full_name,
+                user_name: userData.full_name || userData.username || 'System User',
                 user_role: this._formatRole(userData.role?.name),
                 user_id: userId
             };
@@ -59,9 +57,6 @@ class DocController {
             });
 
             if (!validation.valid) {
-                console.log(templateData)
-                console.log(data)
-                console.log(3)
                 return res.status(400).json({
                     success: false,
                     message: 'Missing required template fields',
