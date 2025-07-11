@@ -20,6 +20,26 @@
 
 <%- include('../partials/auth/navigation/footer.ejs') %>
 
+<script>
+// Make translations available to JavaScript
+window.translations = {
+    labels: {
+        registrationSuccessful: "<%= __('labels.registrationSuccessful') %>"
+    }
+};
+
+// Helper function to get translation
+window.__ = function(key) {
+    const keys = key.split('.');
+    let result = window.translations;
+    for (const k of keys) {
+        result = result[k];
+        if (!result) return key; // Return key if translation not found
+    }
+    return result;
+};
+</script>
+
 <script src="/static/scripts/common/authLayout.js"></script>
 </body>
 </html>

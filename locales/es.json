@@ -659,5 +659,103 @@
     "endDate": "Fecha de fin",
     "itemsPerPage": "Elementos por página",
     "searchUsername": "Buscar por nombre de usuario..."
+  },
+  "messages": {
+    "password": {
+      "required": "Contraseña requerida",
+      "requiredForExport": "Contraseña requerida para exportar",
+      "enterPassword": "Por favor ingrese su contraseña"
+    },
+    "export": {
+      "selectColumns": "Por favor seleccione al menos una columna para exportar",
+      "completed": "Exportación completada exitosamente",
+      "starting": "Iniciando exportación...",
+      "quickCompleted": "Exportación rápida completada",
+      "enterPasswordInfo": "exportación - por favor ingrese su contraseña"
+    },
+    "validation": {
+      "usernameDigits": "El nombre de usuario debe tener exactamente 6 dígitos",
+      "selectRole": "Por favor seleccione un rol",
+      "fullNameLength": "El nombre completo no puede exceder 255 caracteres",
+      "doctorName": "El nombre del médico es requerido",
+      "specialization": "La especialización es requerida",
+      "cancellationReason": "La razón de cancelación es requerida",
+      "cancellationDetailedReason": "Por favor proporcione una razón más detallada (al menos 10 caracteres)",
+      "workingDay": "no es un día laborable. Por favor seleccione un día laborable.",
+      "maxAnalysesReached": "Máximo de análisis por día alcanzado para",
+      "intervalRequired": "Los días de intervalo personalizado son requeridos y deben ser al menos 1",
+      "recurrenceRequired": "El patrón de recurrencia es requerido",
+      "totalOccurrencesMin": "El total de ocurrencias debe ser al menos 2",
+      "intervalMin": "Los días de intervalo deben ser al menos 1",
+      "validInterval": "Por favor especifique un intervalo válido para la frecuencia personalizada",
+      "totalOccurrencesRange": "El total de ocurrencias debe estar entre 2 y 100"
+    },
+    "success": {
+      "userCreated": "Usuario creado exitosamente",
+      "userUpdated": "Usuario actualizado exitosamente",
+      "userLocked": "Usuario bloqueado exitosamente",
+      "userUnlocked": "Usuario desbloqueado exitosamente",
+      "doctorCreated": "Médico creado exitosamente",
+      "statusUpdated": "Estado del análisis actualizado exitosamente",
+      "analysisPostponed": "Análisis pospuesto para",
+      "analysisCancelled": "Análisis cancelado exitosamente",
+      "prescriptionValidated": "Prescripción validada exitosamente",
+      "refCodeCopied": "Código de referencia copiado al portapapeles",
+      "urlCopied": "URL de registro copiada al portapapeles",
+      "fullNameUpdated": "Nombre completo del usuario actualizado exitosamente",
+      "roleUpdated": "Rol del usuario actualizado exitosamente",
+      "serviceUpdated": "Servicio del usuario actualizado exitosamente",
+      "twoFactorUpdated": "Configuración 2FA actualizada exitosamente",
+      "recurringCreated": "Análisis recurrente creado exitosamente",
+      "analysisScheduled": "Análisis programado exitosamente",
+      "autoFilled": "Auto-completado desde el registro del paciente",
+      "noAssignment": "Paciente seleccionado - no se encontró médico o habitación asignada"
+    },
+    "error": {
+      "loadingAnalysisTypes": "Error al cargar tipos de análisis",
+      "errorLoadingAnalysisTypes": "Error cargando tipos de análisis",
+      "loadingUserDetails": "Error al cargar detalles del usuario",
+      "errorLoadingUserDetails": "Error cargando detalles del usuario",
+      "loadingPatientDetails": "Error al cargar detalles del paciente",
+      "autoFillFailed": "Error al cargar detalles del paciente para auto-completar",
+      "loadingDashboard": "Error al cargar el panel de control",
+      "notRecurringSeries": "Este análisis no es parte de una serie recurrente",
+      "analysisNotFound": "Análisis no encontrado",
+      "prescriptionFailed": "Error al validar la prescripción",
+      "errorValidatingPrescription": "Error validando la prescripción",
+      "sessionExpired": "Su sesión ha expirado. Por favor inicie sesión nuevamente.",
+      "copyFailed": "Error al copiar al portapapeles"
+    },
+    "info": {
+      "loadingPatient": "Cargando detalles del paciente...",
+      "noChanges": "No se detectaron cambios",
+      "serviceUsers": "Usuarios: cargando..."
+    },
+    "validation_errors": "Errores de validación:"
+  },
+  "placeholders": {
+    "analysisNotes": "Notas opcionales para el análisis",
+    "intervalDays": "ej. 3",
+    "totalOccurrences": "ej. 5",
+    "cancellationReason": "Por favor proporcione una razón detallada para cancelar este análisis...",
+    "doctorSpecialization": "ej. Medicina General, Cardiología, Neurología",
+    "doctorPhone": "+1234567890",
+    "doctorEmail": "doctor@hospital.com",
+    "leaveBlankDefault": "Dejar en blanco para el valor por defecto de la lista",
+    "optional": "Opcional"
+  },
+  "labels": {
+    "notes": "Notas",
+    "frequency": "Frecuencia",
+    "selectFrequency": "Seleccionar frecuencia",
+    "daily": "Diario",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "customInterval": "Intervalo personalizado",
+    "daysBetweenAnalyses": "Días entre análisis",
+    "totalOccurrences": "Total de ocurrencias",
+    "yourPreferredFormat": "Su formato preferido:",
+    "scheduleMultiple": "Programar múltiples análisis automáticamente a lo largo del tiempo",
+    "registrationSuccessful": "¡Registro exitoso! Ahora puede iniciar sesión."
   }
 }

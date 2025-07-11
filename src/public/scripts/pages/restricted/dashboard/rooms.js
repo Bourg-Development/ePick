@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // Date formatters not available after 5 seconds, proceeding with defaults
             // Set defaults if not available
-            window.userDateFormat = window.userDateFormat || 'MM/DD/YYYY';
-            window.userTimeFormat = window.userTimeFormat || '12h';
+            window.userDateFormat = window.userDateFormat || 'DD/MM/YYYY';
+            window.userTimeFormat = window.userTimeFormat || '24h';
             if (!window.formatDate) {
                 window.formatDate = function(date) {
                     return new Date(date).toLocaleDateString();

@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // Date formatters not available after 5 seconds, proceeding with defaults
             // Set defaults if not available
-            window.userDateFormat = window.userDateFormat || 'MM/DD/YYYY';
-            window.userTimeFormat = window.userTimeFormat || '12h';
+            window.userDateFormat = window.userDateFormat || 'DD/MM/YYYY';
+            window.userTimeFormat = window.userTimeFormat || '24h';
             if (!window.formatDate) {
                 window.formatDate = function(date) {
                     return new Date(date).toLocaleDateString();
@@ -591,12 +591,12 @@ function initializePage() {
         const selectedColumns = Array.from(document.querySelectorAll('.column-checkbox:checked')).map(cb => cb.value);
 
         if (!password) {
-            showToast('Password is required for export', 'error');
+            showToast(__('messages.password.requiredForExport'), 'error');
             return;
         }
 
         if (selectedColumns.length === 0) {
-            showToast('Please select at least one column to export', 'error');
+            showToast(__('messages.export.selectColumns'), 'error');
             return;
         }
 
@@ -604,7 +604,7 @@ function initializePage() {
             showExportProgress(true);
             await performExport(format, password, selectedColumns);
             exportModal.classList.remove('show');
-            showToast(`Export completed successfully (${format.toUpperCase()})`, 'success');
+            showToast(`${__('messages.export.completed')} (${format.toUpperCase()})`, 'success');
         } catch (error) {
             console.error('Export error:', error);
             showToast(getErrorMessage(error), 'error');
@@ -626,7 +626,7 @@ function initializePage() {
         // Select safe columns by default
         selectSafeColumns();
 
-        showToast(`Quick ${format.toUpperCase()} export - please enter your password`, 'info');
+        showToast(`Quick ${format.toUpperCase()} ${__('messages.export.enterPasswordInfo')}`, 'info');
     }
 
     async function performExport(format, password, selectedColumns) {
@@ -819,11 +819,11 @@ function initializePage() {
                 populateAnalysisTypeDropdowns();
             } else {
                 console.error('Failed to load analysis types:', response.message);
-                showToast('Failed to load analysis types', 'error');
+                showToast(__('messages.error.loadingAnalysisTypes'), 'error');
             }
         } catch (error) {
             console.error('Error loading analysis types:', error);
-            showToast('Error loading analysis types', 'error');
+            showToast(__('messages.error.errorLoadingAnalysisTypes'), 'error');
         }
     }
 
@@ -1012,7 +1012,7 @@ function initializePage() {
     async function updateAnalysisStatus(analysisId, statusData) {
         try {
             await api.put(`/analyses/${analysisId}/status`, statusData);
-            showToast('Analysis status updated successfully', 'success');
+            showToast(__('messages.success.statusUpdated'), 'success');
             loadAnalyses();
         } catch (error) {
             console.error('Update analysis status error:', error);
@@ -1025,7 +1025,7 @@ function initializePage() {
     async function postponeAnalysis(analysisId) {
         try {
             const data = await api.post(`/analyses/${analysisId}/postpone`);
-            showToast(`Analysis postponed to ${data.newDate}`, 'success');
+            showToast(`${__('messages.success.analysisPostponed')} ${data.newDate}`, 'success');
             loadAnalyses();
         } catch (error) {
             console.error('Postpone analysis error:', error);
@@ -1038,7 +1038,7 @@ function initializePage() {
     async function cancelAnalysis(analysisId, reason) {
         try {
             await api.post(`/analyses/${analysisId}/cancel`, { reason });
-            showToast('Analysis cancelled successfully', 'success');
+            showToast(__('messages.success.analysisCancelled'), 'success');
             loadAnalyses();
         } catch (error) {
             console.error('Cancel analysis error:', error);
@@ -1155,12 +1155,12 @@ function initializePage() {
 
         // Validation
         if (!name) {
-            showToast('Doctor name is required', 'error');
+            showToast(__('messages.validation.doctorName'), 'error');
             return;
         }
 
         if (!specialization) {
-            showToast('Specialization is required', 'error');
+            showToast(__('messages.validation.specialization'), 'error');
             return;
         }
 
@@ -1184,7 +1184,7 @@ function initializePage() {
                 }
 
                 addDoctorModal.classList.remove('show');
-                showToast(`Doctor "${name}" created successfully`, 'success');
+                showToast(`${__('messages.success.doctorCreated')} "${name}"`, 'success');
             }
         } catch (error) {
             console.error('Create doctor error:', error);
@@ -1587,7 +1587,7 @@ function initializePage() {
 
     async function handlePatientSelection(patientId){
         try{
-            showToast('Loading patient details...', 'info');
+            showToast(__('messages.info.loadingPatient'), 'info');
 
             const patientDetails = await getPatientDetails(patientId);
 
@@ -1628,16 +1628,16 @@ function initializePage() {
                 if (patientDetails.room_id) autoFilledItems.push('room');
 
                 if (autoFilledItems.length > 0) {
-                    showToast(`Auto-filled ${autoFilledItems.join(' and ')} from patient record`, 'success');
+                    showToast(`${__('messages.success.autoFilled')} ${autoFilledItems.join(' and ')}`, 'success');
                 } else {
-                    showToast('Patient selected - no assigned doctor or room found', 'warning');
+                    showToast(__('messages.success.noAssignment'), 'warning');
                 }
             } else {
-                showToast('Failed to load patient details', 'error');
+                showToast(__('messages.error.loadingPatientDetails'), 'error');
             }
         } catch (error) {
             console.error('Error auto-filling patient details:', error);
-            showToast('Failed to load patient details for auto-fill', 'error');
+            showToast(__('messages.error.autoFillFailed'), 'error');
         }
     }
 
@@ -1707,7 +1707,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Dashboard error:', error);
-            showToast('Failed to load dashboard', 'error');
+            showToast(__('messages.error.loadingDashboard'), 'error');
         }
     }
 
@@ -1788,12 +1788,12 @@ function initializePage() {
 
         // Validation
         if (!reason) {
-            showToast('Cancellation reason is required', 'error');
+            showToast(__('messages.validation.cancellationReason'), 'error');
             return;
         }
 
         if (reason.length < 10) {
-            showToast('Please provide a more detailed reason (at least 10 characters)', 'error');
+            showToast(__('messages.validation.cancellationDetailedReason'), 'error');
             return;
         }
 
@@ -2136,7 +2136,7 @@ function initializePage() {
                 
                 // Check if it's a working day
                 if (!workingDays.includes(dayName)) {
-                    showToast(`${dayName} is not a working day. Please select a working day.`, 'error');
+                    showToast(`${dayName} ${__('messages.validation.workingDay')}`, 'error');
                     return;
                 }
                 
@@ -2148,7 +2148,7 @@ function initializePage() {
                         const response = await api.get(`/analyses/count-by-date/${dateStr}`);
                         
                         if (response.count >= parseInt(maxAnalysesPerDay)) {
-                            showToast(`Maximum analyses per day (${maxAnalysesPerDay}) reached for ${dateStr}. Please select a different date.`, 'error');
+                            showToast(`${__('messages.validation.maxAnalysesReached')} ${dateStr}. Please select a different date.`, 'error');
                             return;
                         }
                     } catch (error) {
@@ -2371,7 +2371,7 @@ function initializePage() {
             // Only include intervalDays for custom patterns (backend validation marks it as optional)
             if (recurrencePattern && recurrencePattern.value === 'custom') {
                 if (!intervalDays || !intervalDays.value || parseInt(intervalDays.value) < 1) {
-                    showToast('Custom interval days is required and must be at least 1', 'error');
+                    showToast(__('messages.validation.intervalRequired'), 'error');
                     return;
                 }
                 analysisData.intervalDays = parseInt(intervalDays.value);
@@ -2438,7 +2438,7 @@ function initializePage() {
         }
 
         if (validationErrors.length > 0) {
-            showToast(`Validation errors:\n${validationErrors.join('\n')}`, 'error');
+            showToast(`${__('messages.validationErrors')}\n${validationErrors.join('\n')}`, 'error');
             console.error('Validation errors:', validationErrors);
             console.error('Analysis data:', analysisData);
             return;
@@ -2447,27 +2447,27 @@ function initializePage() {
         // Recurring analysis validation
         if (isRecurring) {
             if (!analysisData.recurrencePattern) {
-                showToast('Recurrence pattern is required', 'error');
+                showToast(__('messages.validation.recurrenceRequired'), 'error');
                 return;
             }
 
             if (!analysisData.totalOccurrences || analysisData.totalOccurrences < 2) {
-                showToast('Total occurrences must be at least 2', 'error');
+                showToast(__('messages.validation.totalOccurrencesMin'), 'error');
                 return;
             }
 
             if (analysisData.intervalDays < 1) {
-                showToast('Interval days must be at least 1', 'error');
+                showToast(__('messages.validation.intervalMin'), 'error');
                 return;
             }
 
             if (analysisData.recurrencePattern === 'custom' && (!analysisData.intervalDays || analysisData.intervalDays < 1)) {
-                showToast('Please specify a valid interval for custom frequency', 'error');
+                showToast(__('messages.validation.validInterval'), 'error');
                 return;
             }
 
             if (!analysisData.totalOccurrences || analysisData.totalOccurrences < 2 || analysisData.totalOccurrences > 100) {
-                showToast('Total occurrences must be between 2 and 100', 'error');
+                showToast(__('messages.validation.totalOccurrencesRange'), 'error');
                 return;
             }
         }
@@ -2479,13 +2479,13 @@ function initializePage() {
             if (isRecurring) {
                 await createRecurringAnalysis(analysisData);
                 addAnalysisModal.classList.remove('show');
-                showToast(`Recurring analysis created successfully (${analysisData.totalOccurrences} analyses scheduled)`, 'success');
+                showToast(`${__('messages.success.recurringCreated')} (${analysisData.totalOccurrences} analyses scheduled)`, 'success');
                 loadAnalyses();
                 resetAddAnalysisForm();
             } else {
                 await createAnalysis(analysisData);
                 addAnalysisModal.classList.remove('show');
-                showToast('Analysis scheduled successfully', 'success');
+                showToast(__('messages.success.analysisScheduled'), 'success');
                 loadAnalyses();
                 resetAddAnalysisForm();
             }
@@ -2679,7 +2679,7 @@ function initializePage() {
         
         if (!analysis || !analysis.recurring_analysis_id) {
             console.log('Analysis not found or not recurring');
-            showToast('This analysis is not part of a recurring series', 'error');
+            showToast(__('messages.error.notRecurringSeries'), 'error');
             return;
         }
         
@@ -2735,7 +2735,7 @@ function initializePage() {
     function confirmPrescriptionValidation(recurringAnalysisId, analysisId) {
         const analysis = analyses.find(a => a.id === analysisId);
         if (!analysis) {
-            showToast('Analysis not found', 'error');
+            showToast(__('messages.error.analysisNotFound'), 'error');
             return;
         }
         
@@ -2760,16 +2760,16 @@ function initializePage() {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                showToast('Prescription validated successfully', 'success');
+                showToast(__('messages.success.prescriptionValidated'), 'success');
                 closePrescriptionValidationModal();
                 loadAnalyses(); // Refresh the analyses list
             } else {
-                showToast(result.message || 'Failed to validate prescription', 'error');
+                showToast(result.message || __('messages.error.prescriptionFailed'), 'error');
             }
         })
         .catch(error => {
             console.error('Error validating prescription:', error);
-            showToast('Error validating prescription', 'error');
+            showToast(__('messages.error.errorValidatingPrescription'), 'error');
         });
     }
 
@@ -2815,7 +2815,7 @@ function initializePage() {
 
     function handleAuthError(error) {
         if (error.status === 401) {
-            showToast('Your session has expired. Please log in again.', 'error');
+            showToast(__('messages.error.sessionExpired'), 'error');
             setTimeout(() => {
                 // window.location.href = '/login';
             }, 2000);

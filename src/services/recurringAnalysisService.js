@@ -52,7 +52,7 @@ class RecurringAnalysisService {
                 const analysisCount = await db.sequelize.query(
                     `SELECT COUNT(*) as count FROM analyses WHERE DATE(analysis_date) = DATE(:analysisDate)`,
                     {
-                        replacements: { analysisDate: analysisDate.toDateString() },
+                        replacements: { analysisDate: analysisDate.toISOString().split('T')[0] }, // YYYY-MM-DD format for database
                         type: db.Sequelize.QueryTypes.SELECT
                     }
                 );

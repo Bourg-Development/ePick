@@ -1,5 +1,8 @@
 const db = require('../db');
 const logService = require('./logService');
+const DateFormatter = require('../utils/dateFormatter');
+const userService = require('./userService');
+const UserPreferencesHelper = require('../utils/userPreferencesHelper');
 
 class NotificationService {
     /**
@@ -241,8 +244,11 @@ class NotificationService {
             // Get service users for the patient's service
             const serviceUsers = await this.getServiceUsers(recurringAnalysis.Patient);
             
+            // Format date using default European format (we'll use individual user prefs when displaying)
+            const formattedDate = DateFormatter.formatDate(nextAnalysisDate, 'DD/MM/YYYY');
+            
             const title = 'Prescription Verification Required';
-            const message = `Recurring analysis for ${recurringAnalysis.Patient.name} is due on ${this.formatDate(nextAnalysisDate)}. Please verify that a valid prescription is available before the analysis proceeds.`;
+            const message = `Recurring analysis for ${recurringAnalysis.Patient.name} is due on ${formattedDate}. Please verify that a valid prescription is available before the analysis proceeds.`;
             
             // Set expiration to the analysis date
             const expiresAt = new Date(nextAnalysisDate);
@@ -330,14 +336,60 @@ class NotificationService {
     }
 
     /**
-     * Format date for display
+     * Format date for display using user preferences
+     * @param {Date|string} date - Date to format
+     * @param {number} userId - User ID for preferences (optional)
+     * @param {string} defaultFormat - Default format if user prefs not available
+     * @returns {Promise<string>} Formatted date string
      */
-    formatDate(date) {
-        return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    async formatDate(date, userId = null, defaultFormat = 'DD/MM/YYYY') {
+        if (!date) return '';
+        
+        let userDateFormat = defaultFormat;
+        
+        // Try to get user preferences if userId provided
+        if (userId) {
+            try {
+                const userPrefs = await userService.getUserDisplayPreferences(userId);
+                if (userPrefs.success && userPrefs.preferences) {
+                    userDateFormat = userPrefs.preferences.dateFormat || defaultFormat;
+                }
+            } catch (error) {
+                console.error('Error fetching user preferences for date formatting:', error);
+            }
+        }
+        
+        return DateFormatter.formatDate(date, userDateFormat);
+    }
+
+    /**
+     * Format date and time for display using user preferences
+     * @param {Date|string} date - Date to format
+     * @param {number} userId - User ID for preferences (optional)
+     * @param {string} defaultDateFormat - Default date format
+     * @param {string} defaultTimeFormat - Default time format
+     * @returns {Promise<string>} Formatted date and time string
+     */
+    async formatDateTime(date, userId = null, defaultDateFormat = 'DD/MM/YYYY', defaultTimeFormat = '24h') {
+        if (!date) return '';
+        
+        let userDateFormat = defaultDateFormat;
+        let userTimeFormat = defaultTimeFormat;
+        
+        // Try to get user preferences if userId provided
+        if (userId) {
+            try {
+                const userPrefs = await userService.getUserDisplayPreferences(userId);
+                if (userPrefs.success && userPrefs.preferences) {
+                    userDateFormat = userPrefs.preferences.dateFormat || defaultDateFormat;
+                    userTimeFormat = userPrefs.preferences.timeFormat || defaultTimeFormat;
+                }
+            } catch (error) {
+                console.error('Error fetching user preferences for date/time formatting:', error);
+            }
+        }
+        
+        return DateFormatter.formatDateTime(date, userDateFormat, userTimeFormat);
     }
 }
 

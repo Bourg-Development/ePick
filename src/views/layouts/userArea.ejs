@@ -32,6 +32,121 @@
 
 <%- datePreferencesScript %>
 
+<script>
+// Make translations available to JavaScript
+window.translations = {
+    messages: {
+        password: {
+            required: "<%= __('messages.password.required') %>",
+            requiredForExport: "<%= __('messages.password.requiredForExport') %>",
+            enterPassword: "<%= __('messages.password.enterPassword') %>"
+        },
+        export: {
+            selectColumns: "<%= __('messages.export.selectColumns') %>",
+            completed: "<%= __('messages.export.completed') %>",
+            starting: "<%= __('messages.export.starting') %>",
+            quickCompleted: "<%= __('messages.export.quickCompleted') %>",
+            enterPasswordInfo: "<%= __('messages.export.enterPasswordInfo') %>"
+        },
+        validation: {
+            usernameDigits: "<%= __('messages.validation.usernameDigits') %>",
+            selectRole: "<%= __('messages.validation.selectRole') %>",
+            fullNameLength: "<%= __('messages.validation.fullNameLength') %>",
+            doctorName: "<%= __('messages.validation.doctorName') %>",
+            specialization: "<%= __('messages.validation.specialization') %>",
+            cancellationReason: "<%= __('messages.validation.cancellationReason') %>",
+            cancellationDetailedReason: "<%= __('messages.validation.cancellationDetailedReason') %>",
+            workingDay: "<%= __('messages.validation.workingDay') %>",
+            maxAnalysesReached: "<%= __('messages.validation.maxAnalysesReached') %>",
+            intervalRequired: "<%= __('messages.validation.intervalRequired') %>",
+            recurrenceRequired: "<%= __('messages.validation.recurrenceRequired') %>",
+            totalOccurrencesMin: "<%= __('messages.validation.totalOccurrencesMin') %>",
+            intervalMin: "<%= __('messages.validation.intervalMin') %>",
+            validInterval: "<%= __('messages.validation.validInterval') %>",
+            totalOccurrencesRange: "<%= __('messages.validation.totalOccurrencesRange') %>"
+        },
+        success: {
+            userCreated: "<%= __('messages.success.userCreated') %>",
+            userUpdated: "<%= __('messages.success.userUpdated') %>",
+            userLocked: "<%= __('messages.success.userLocked') %>",
+            userUnlocked: "<%= __('messages.success.userUnlocked') %>",
+            doctorCreated: "<%= __('messages.success.doctorCreated') %>",
+            statusUpdated: "<%= __('messages.success.statusUpdated') %>",
+            analysisPostponed: "<%= __('messages.success.analysisPostponed') %>",
+            analysisCancelled: "<%= __('messages.success.analysisCancelled') %>",
+            prescriptionValidated: "<%= __('messages.success.prescriptionValidated') %>",
+            refCodeCopied: "<%= __('messages.success.refCodeCopied') %>",
+            urlCopied: "<%= __('messages.success.urlCopied') %>",
+            fullNameUpdated: "<%= __('messages.success.fullNameUpdated') %>",
+            roleUpdated: "<%= __('messages.success.roleUpdated') %>",
+            serviceUpdated: "<%= __('messages.success.serviceUpdated') %>",
+            twoFactorUpdated: "<%= __('messages.success.twoFactorUpdated') %>",
+            recurringCreated: "<%= __('messages.success.recurringCreated') %>",
+            analysisScheduled: "<%= __('messages.success.analysisScheduled') %>",
+            autoFilled: "<%= __('messages.success.autoFilled') %>",
+            noAssignment: "<%= __('messages.success.noAssignment') %>"
+        },
+        error: {
+            loadingAnalysisTypes: "<%= __('messages.error.loadingAnalysisTypes') %>",
+            errorLoadingAnalysisTypes: "<%= __('messages.error.errorLoadingAnalysisTypes') %>",
+            loadingUserDetails: "<%= __('messages.error.loadingUserDetails') %>",
+            errorLoadingUserDetails: "<%= __('messages.error.errorLoadingUserDetails') %>",
+            loadingPatientDetails: "<%= __('messages.error.loadingPatientDetails') %>",
+            autoFillFailed: "<%= __('messages.error.autoFillFailed') %>",
+            loadingDashboard: "<%= __('messages.error.loadingDashboard') %>",
+            notRecurringSeries: "<%= __('messages.error.notRecurringSeries') %>",
+            analysisNotFound: "<%= __('messages.error.analysisNotFound') %>",
+            prescriptionFailed: "<%= __('messages.error.prescriptionFailed') %>",
+            errorValidatingPrescription: "<%= __('messages.error.errorValidatingPrescription') %>",
+            sessionExpired: "<%= __('messages.error.sessionExpired') %>",
+            copyFailed: "<%= __('messages.error.copyFailed') %>"
+        },
+        info: {
+            loadingPatient: "<%= __('messages.info.loadingPatient') %>",
+            noChanges: "<%= __('messages.info.noChanges') %>",
+            serviceUsers: "<%= __('messages.info.serviceUsers') %>"
+        },
+        validationErrors: "<%= __('messages.validation_errors') %>"
+    },
+    placeholders: {
+        analysisNotes: "<%= __('placeholders.analysisNotes') %>",
+        intervalDays: "<%= __('placeholders.intervalDays') %>",
+        totalOccurrences: "<%= __('placeholders.totalOccurrences') %>",
+        cancellationReason: "<%= __('placeholders.cancellationReason') %>",
+        doctorSpecialization: "<%= __('placeholders.doctorSpecialization') %>",
+        doctorPhone: "<%= __('placeholders.doctorPhone') %>",
+        doctorEmail: "<%= __('placeholders.doctorEmail') %>",
+        leaveBlankDefault: "<%= __('placeholders.leaveBlankDefault') %>",
+        optional: "<%= __('placeholders.optional') %>"
+    },
+    labels: {
+        notes: "<%= __('labels.notes') %>",
+        frequency: "<%= __('labels.frequency') %>",
+        selectFrequency: "<%= __('labels.selectFrequency') %>",
+        daily: "<%= __('labels.daily') %>",
+        weekly: "<%= __('labels.weekly') %>",
+        monthly: "<%= __('labels.monthly') %>",
+        customInterval: "<%= __('labels.customInterval') %>",
+        daysBetweenAnalyses: "<%= __('labels.daysBetweenAnalyses') %>",
+        totalOccurrences: "<%= __('labels.totalOccurrences') %>",
+        yourPreferredFormat: "<%= __('labels.yourPreferredFormat') %>",
+        scheduleMultiple: "<%= __('labels.scheduleMultiple') %>",
+        registrationSuccessful: "<%= __('labels.registrationSuccessful') %>"
+    }
+};
+
+// Helper function to get translation
+window.__ = function(key) {
+    const keys = key.split('.');
+    let result = window.translations;
+    for (const k of keys) {
+        result = result[k];
+        if (!result) return key; // Return key if translation not found
+    }
+    return result;
+};
+</script>
+
 <script src="/static/scripts/common/main.js" defer></script>
 <script src="/static/scripts/common/api.js" defer></script>
 <script src="/static/scripts/common/restricted/navbar.js" defer></script>

@@ -17,6 +17,9 @@ const path = require("node:path");
 const fs = require('fs');
 const handlebars = require('handlebars');
 const { User, UserPreference } = require('../db');
+const DateFormatter = require('../utils/dateFormatter');
+const userService = require('./userService');
+const UserPreferencesHelper = require('../utils/userPreferencesHelper');
 
 /**
  * Service for handling email communications
@@ -174,12 +177,8 @@ class EmailService {
         try {
             const { email, code, expiresAt, createdByUserId } = data;
 
-            // Format expiration date
-            const expiryDate = expiresAt.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            // Format expiration date using user preferences
+            const expiryDate = await UserPreferencesHelper.formatDateForEmail(expiresAt, email);
 
             // Load and compile email template
             const templatePath = path.join(__dirname, '../templates/emails/reference_code.html');
@@ -235,14 +234,26 @@ class EmailService {
         try {
             const { email, userName, role, organization, createdDate } = data;
 
-            // Format creation date
-            const formattedDate = createdDate.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            // Get user preferences for date formatting
+            let userDateFormat = 'DD/MM/YYYY'; // Default to European format
+            let userTimeFormat = '24h'; // Default to 24h format
+            
+            try {
+                // Try to find user by email to get preferences
+                const user = await User.findOne({ where: { email } });
+                if (user) {
+                    const userPrefs = await userService.getUserDisplayPreferences(user.id);
+                    if (userPrefs.success && userPrefs.preferences) {
+                        userDateFormat = userPrefs.preferences.dateFormat || 'DD/MM/YYYY';
+                        userTimeFormat = userPrefs.preferences.timeFormat || '24h';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user preferences for account created email:', error);
+            }
+
+            // Format creation date using user preferences
+            const formattedDate = DateFormatter.formatDateTime(createdDate, userDateFormat, userTimeFormat);
 
             // Load and compile email template
             const templatePath = path.join(__dirname, '../templates/emails/account_created.html');
@@ -301,12 +312,8 @@ class EmailService {
         try {
             const { email, code, expiresAt, resetByUserId } = data;
 
-            // Format expiration date
-            const expiryDate = expiresAt.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            // Format expiration date using user preferences
+            const expiryDate = await UserPreferencesHelper.formatDateForEmail(expiresAt, email);
 
             // Load and compile email template
             const templatePath = path.join(__dirname, '../templates/emails/password_reset.html');
@@ -360,6 +367,35 @@ class EmailService {
     async sendSecurityAlert(data) {
         try {
             const { email, alertType, eventDetails, userId } = data;
+            
+            // Get user preferences for date formatting
+            let userDateFormat = 'DD/MM/YYYY';
+            let userTimeFormat = '24h';
+            let resolvedUserId = userId;
+            
+            // If userId not provided, try to find by email
+            if (!resolvedUserId) {
+                const user = await User.findOne({ where: { email } });
+                if (user) {
+                    resolvedUserId = user.id;
+                }
+            }
+            
+            if (resolvedUserId) {
+                try {
+                    const userPrefs = await userService.getUserDisplayPreferences(resolvedUserId);
+                    if (userPrefs.success && userPrefs.preferences) {
+                        userDateFormat = userPrefs.preferences.dateFormat || 'DD/MM/YYYY';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user preferences for security alert:', error);
+                }
+            }
+            
+            // Helper function to format date with user preferences
+            const formatDateTime = (dateString) => {
+                return DateFormatter.formatDateTime(dateString || new Date(), userDateFormat, userTimeFormat);
+            };
 
             // Map alert types to notification preference types
             const notificationTypeMap = {
@@ -391,7 +427,7 @@ class EmailService {
             <p>We detected a login attempt to your account from an unusual location or device.</p>
             <p><strong>Details:</strong></p>
             <ul>
-              <li>Time: ${new Date(eventDetails.timestamp).toLocaleString()}</li>
+              <li>Time: ${formatDateTime(eventDetails.timestamp)}</li>
               <li>IP Address: ${eventDetails.ipAddress}</li>
               <li>Location: ${eventDetails.location || 'Unknown'}</li>
               <li>Device: ${eventDetails.device || 'Unknown'}</li>
@@ -407,7 +443,7 @@ class EmailService {
             <p>The password for your account was recently changed.</p>
             <p><strong>Details:</strong></p>
             <ul>
-              <li>Time: ${new Date(eventDetails.timestamp).toLocaleString()}</li>
+              <li>Time: ${formatDateTime(eventDetails.timestamp)}</li>
               <li>IP Address: ${eventDetails.ipAddress}</li>
             </ul>
             <p>If you did not make this change, please contact your administrator immediately.</p>
@@ -597,11 +633,7 @@ class EmailService {
                 email: email,
                 role: role,
                 organization: organization || 'ePick',
-                created_date: createdDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })
+                created_date: DateFormatter.formatDate(createdDate, userDateFormat || 'MM/DD/YYYY')
             };
 
             // Generate HTML from template
@@ -732,6 +764,22 @@ class EmailService {
                 return true;
             }
 
+            // Get user preferences for date formatting
+            let userDateFormat = 'DD/MM/YYYY';
+            let userTimeFormat = '24h';
+            
+            if (userId) {
+                try {
+                    const userPrefs = await userService.getUserDisplayPreferences(userId);
+                    if (userPrefs.success && userPrefs.preferences) {
+                        userDateFormat = userPrefs.preferences.dateFormat || 'DD/MM/YYYY';
+                        userTimeFormat = userPrefs.preferences.timeFormat || '24h';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user preferences for maintenance email:', error);
+                }
+            }
+
             // Format dates
             const startDate = new Date(scheduledStart);
             const endDate = new Date(scheduledEnd);
@@ -784,8 +832,8 @@ class EmailService {
             const html = template({
                 title,
                 description,
-                scheduled_start: startDate.toLocaleString(),
-                scheduled_end: endDate.toLocaleString(),
+                scheduled_start: DateFormatter.formatDateTime(startDate, userDateFormat, userTimeFormat),
+                scheduled_end: DateFormatter.formatDateTime(endDate, userDateFormat, userTimeFormat),
                 priority,
                 maintenance_type_display: maintenanceTypeDisplay,
                 affects_availability: affectsAvailability,
@@ -946,7 +994,7 @@ class EmailService {
                 <h2>Test Notification</h2>
                 <p>This is a test email to verify that your notification settings are working correctly.</p>
                 <p>If you received this email, your email notifications are properly configured.</p>
-                <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Timestamp:</strong> ${DateFormatter.formatDateTime(new Date(), 'DD/MM/YYYY', '24h')}</p>
             `;
 
             const mailOptions = {
@@ -989,15 +1037,25 @@ class EmailService {
                 return true;
             }
 
-            // Format dates
+            // Get user preferences for date formatting
+            let userDateFormat = 'DD/MM/YYYY'; // Default to European format
+            let userTimeFormat = '24h'; // Default to 24h format
+            
+            if (user && user.id) {
+                try {
+                    const userPrefs = await userService.getUserDisplayPreferences(user.id);
+                    if (userPrefs.success && userPrefs.preferences) {
+                        userDateFormat = userPrefs.preferences.dateFormat || 'DD/MM/YYYY';
+                        userTimeFormat = userPrefs.preferences.timeFormat || '24h';
+                    }
+                } catch (error) {
+                    console.error('Error fetching user preferences for email:', error);
+                }
+            }
+            
+            // Format dates using user preferences
             const formatDate = (dateString) => {
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                return DateFormatter.formatDateTime(dateString, userDateFormat, userTimeFormat);
             };
 
             // Process changes data

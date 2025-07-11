@@ -952,5 +952,103 @@
       "fullName": "Full Name",
       "searchPlaceholder": "Search by name, matricule, or room..."
     }
+  },
+  "messages": {
+    "password": {
+      "required": "Password is required",
+      "requiredForExport": "Password is required for export",
+      "enterPassword": "Please enter your password"
+    },
+    "export": {
+      "selectColumns": "Please select at least one column to export",
+      "completed": "Export completed successfully",
+      "starting": "Starting export...",
+      "quickCompleted": "Quick export completed",
+      "enterPasswordInfo": "export - please enter your password"
+    },
+    "validation": {
+      "usernameDigits": "Username must be exactly 6 digits",
+      "selectRole": "Please select a role",
+      "fullNameLength": "Full name cannot exceed 255 characters",
+      "doctorName": "Doctor name is required",
+      "specialization": "Specialization is required",
+      "cancellationReason": "Cancellation reason is required",
+      "cancellationDetailedReason": "Please provide a more detailed reason (at least 10 characters)",
+      "workingDay": "is not a working day. Please select a working day.",
+      "maxAnalysesReached": "Maximum analyses per day reached for",
+      "intervalRequired": "Custom interval days is required and must be at least 1",
+      "recurrenceRequired": "Recurrence pattern is required",
+      "totalOccurrencesMin": "Total occurrences must be at least 2",
+      "intervalMin": "Interval days must be at least 1",
+      "validInterval": "Please specify a valid interval for custom frequency",
+      "totalOccurrencesRange": "Total occurrences must be between 2 and 100"
+    },
+    "success": {
+      "userCreated": "User created successfully",
+      "userUpdated": "User updated successfully",
+      "userLocked": "User locked successfully",
+      "userUnlocked": "User unlocked successfully",
+      "doctorCreated": "Doctor created successfully",
+      "statusUpdated": "Analysis status updated successfully",
+      "analysisPostponed": "Analysis postponed to",
+      "analysisCancelled": "Analysis cancelled successfully",
+      "prescriptionValidated": "Prescription validated successfully",
+      "refCodeCopied": "Reference code copied to clipboard",
+      "urlCopied": "Registration URL copied to clipboard",
+      "fullNameUpdated": "User full name updated successfully",
+      "roleUpdated": "User role updated successfully",
+      "serviceUpdated": "User service updated successfully",
+      "twoFactorUpdated": "2FA settings updated successfully",
+      "recurringCreated": "Recurring analysis created successfully",
+      "analysisScheduled": "Analysis scheduled successfully",
+      "autoFilled": "Auto-filled from patient record",
+      "noAssignment": "Patient selected - no assigned doctor or room found"
+    },
+    "error": {
+      "loadingAnalysisTypes": "Failed to load analysis types",
+      "errorLoadingAnalysisTypes": "Error loading analysis types",
+      "loadingUserDetails": "Failed to load user details",
+      "errorLoadingUserDetails": "Error loading user details",
+      "loadingPatientDetails": "Failed to load patient details",
+      "autoFillFailed": "Failed to load patient details for auto-fill",
+      "loadingDashboard": "Failed to load dashboard",
+      "notRecurringSeries": "This analysis is not part of a recurring series",
+      "analysisNotFound": "Analysis not found",
+      "prescriptionFailed": "Failed to validate prescription",
+      "errorValidatingPrescription": "Error validating prescription",
+      "sessionExpired": "Your session has expired. Please log in again.",
+      "copyFailed": "Failed to copy to clipboard"
+    },
+    "info": {
+      "loadingPatient": "Loading patient details...",
+      "noChanges": "No changes detected",
+      "serviceUsers": "Users: loading..."
+    },
+    "validation_errors": "Validation errors:"
+  },
+  "placeholders": {
+    "analysisNotes": "Optional notes for the analysis",
+    "intervalDays": "e.g., 3",
+    "totalOccurrences": "e.g., 5",
+    "cancellationReason": "Please provide a detailed reason for cancelling this analysis...",
+    "doctorSpecialization": "e.g., General Medicine, Cardiology, Neurology",
+    "doctorPhone": "+1234567890",
+    "doctorEmail": "doctor@hospital.com",
+    "leaveBlankDefault": "Leave blank for list default",
+    "optional": "Optional"
+  },
+  "labels": {
+    "notes": "Notes",
+    "frequency": "Frequency",
+    "selectFrequency": "Select frequency",
+    "daily": "Daily",
+    "weekly": "Weekly", 
+    "monthly": "Monthly",
+    "customInterval": "Custom interval",
+    "daysBetweenAnalyses": "Days between analyses",
+    "totalOccurrences": "Total occurrences",
+    "yourPreferredFormat": "Your preferred format:",
+    "scheduleMultiple": "Schedule multiple analyses automatically over time",
+    "registrationSuccessful": "Registration successful! You can now sign in."
   }
 }

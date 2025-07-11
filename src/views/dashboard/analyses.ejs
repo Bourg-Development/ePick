@@ -155,7 +155,7 @@
         <form id="addAnalysisForm">
             <label class="form-label" for="newAnalysisDate"><%= __('modal.analysisDate') %> <span class="required"><%= __('modal.required') %></span></label>
             <input type="date" class="form-control" id="newAnalysisDate" required>
-            <small class="form-help">Your preferred format: <%= locals.userDateFormat || 'MM/DD/YYYY' %></small>
+            <small class="form-help"><%= __('labels.yourPreferredFormat') %> <%= locals.userDateFormat || 'DD/MM/YYYY' %></small>
 
             <label class="form-label" for="newAnalysisType"><%= __('modal.analysisType') %> <span class="required"><%= __('modal.required') %></span></label>
             <select class="form-control" id="newAnalysisType" required>
@@ -181,8 +181,8 @@
                 <option value=""><%= __('modal.selectRoom') %></option>
             </select>
 
-            <label class="form-label" for="newAnalysisNotes">Notes</label>
-            <textarea class="form-control" id="newAnalysisNotes" rows="3" placeholder="Optional notes for the analysis"></textarea>
+            <label class="form-label" for="newAnalysisNotes"><%= __('labels.notes') %></label>
+            <textarea class="form-control" id="newAnalysisNotes" rows="3" placeholder="<%= __('placeholders.analysisNotes') %>"></textarea>
 
             <!-- Recurring Analysis Section -->
             <div class="form-section recurring-section">
@@ -192,30 +192,30 @@
                         <span class="checkmark"></span>
                         Create Recurring Analysis
                     </label>
-                    <small class="form-help">Schedule multiple analyses automatically over time</small>
+                    <small class="form-help"><%= __('labels.scheduleMultiple') %></small>
                 </div>
                 
                 <div id="recurringOptions" class="recurring-options" style="display: none;">
                     <div class="recurring-grid">
                         <div class="form-group">
-                            <label class="form-label" for="recurrencePattern">Frequency <span class="required">*</span></label>
+                            <label class="form-label" for="recurrencePattern"><%= __('labels.frequency') %> <span class="required">*</span></label>
                             <select class="form-control" id="recurrencePattern">
-                                <option value="">Select frequency</option>
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
-                                <option value="custom">Custom interval</option>
+                                <option value=""><%= __('labels.selectFrequency') %></option>
+                                <option value="daily"><%= __('labels.daily') %></option>
+                                <option value="weekly"><%= __('labels.weekly') %></option>
+                                <option value="monthly"><%= __('labels.monthly') %></option>
+                                <option value="custom"><%= __('labels.customInterval') %></option>
                             </select>
                         </div>
                         
                         <div class="form-group" id="customIntervalGroup" style="display: none;">
-                            <label class="form-label" for="intervalDays">Days between analyses <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="intervalDays" min="1" max="365" placeholder="e.g., 3">
+                            <label class="form-label" for="intervalDays"><%= __('labels.daysBetweenAnalyses') %> <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="intervalDays" min="1" max="365" placeholder="<%= __('placeholders.intervalDays') %>">
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label" for="totalOccurrences">Total number of analyses <span class="required">*</span></label>
-                            <input type="number" class="form-control" id="totalOccurrences" min="2" max="100" placeholder="e.g., 5">
+                            <label class="form-label" for="totalOccurrences"><%= __('labels.totalOccurrences') %> <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="totalOccurrences" min="2" max="100" placeholder="<%= __('placeholders.totalOccurrences') %>">
                             <small class="form-help">Including the first analysis</small>
                         </div>
                     </div>
@@ -346,7 +346,7 @@
             </div>
 
             <label class="form-label" for="cancelAnalysisReason">Reason for Cancellation <span class="required">*</span></label>
-            <textarea class="form-control" id="cancelAnalysisReason" rows="4" required placeholder="Please provide a detailed reason for cancelling this analysis..."></textarea>
+            <textarea class="form-control" id="cancelAnalysisReason" rows="4" required placeholder="<%= __('placeholders.cancellationReason') %>"></textarea>
             <small class="form-help">This reason will be recorded and may be required for reporting purposes</small>
 
             <div class="modal-footer">
@@ -372,15 +372,15 @@
             <small class="form-help">This name was entered in the search field</small>
 
             <label class="form-label" for="newDoctorSpecialization">Specialization <span class="required">*</span></label>
-            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="e.g., General Medicine, Cardiology, Neurology">
+            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="<%= __('placeholders.doctorSpecialization') %>">
             <small class="form-help">Enter the doctor's medical specialization</small>
 
             <label class="form-label" for="newDoctorPhone">Phone Number</label>
-            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="+1234567890">
+            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="<%= __('placeholders.doctorPhone') %>">
             <small class="form-help">Optional - Doctor's contact phone number</small>
 
             <label class="form-label" for="newDoctorEmail">Email Address</label>
-            <input type="email" class="form-control" id="newDoctorEmail" placeholder="doctor@hospital.com">
+            <input type="email" class="form-control" id="newDoctorEmail" placeholder="<%= __('placeholders.doctorEmail') %>">
             <small class="form-help">Optional - Doctor's email address</small>
 
             <div class="modal-footer">

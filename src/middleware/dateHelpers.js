@@ -11,8 +11,8 @@ const userService = require('../services/userService');
  */
 async function dateHelpers(req, res, next) {
     try {
-        let userDateFormat = 'MM/DD/YYYY';
-        let userTimeFormat = '12h'; // Fixed format since time is not user-configurable
+        let userDateFormat = 'DD/MM/YYYY';
+        let userTimeFormat = '24h'; // Fixed format since time is not user-configurable
 
         // DateHelpers middleware running
 
@@ -23,8 +23,8 @@ async function dateHelpers(req, res, next) {
                 const prefsResult = await userService.getUserDisplayPreferences(req.auth.userId);
                 // Display preferences loaded
                 if (prefsResult.success && prefsResult.preferences) {
-                    userDateFormat = prefsResult.preferences.dateFormat || 'MM/DD/YYYY';
-                    // Time format is fixed to 12h since it's not user-configurable
+                    userDateFormat = prefsResult.preferences.dateFormat || 'DD/MM/YYYY';
+                    // Time format is fixed to 24h since it's not user-configurable
                     // Setting user preferences
                 }
             } catch (error) {
@@ -158,8 +158,8 @@ async function dateHelpers(req, res, next) {
         res.locals.formatForInput = function(date) {
             return DateFormatter.formatForInput(date);
         };
-        res.locals.userDateFormat = 'MM/DD/YYYY';
-        res.locals.userTimeFormat = '12h'; // Fixed format for internal use
+        res.locals.userDateFormat = 'DD/MM/YYYY';
+        res.locals.userTimeFormat = '24h'; // Fixed format for internal use
         res.locals.getDateFormatExample = function(format) {
             return DateFormatter.getDateFormatExample(format);
         };

@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // Date formatters not available after 5 seconds, proceeding with defaults
             // Set defaults if not available
-            window.userDateFormat = window.userDateFormat || 'MM/DD/YYYY';
-            window.userTimeFormat = window.userTimeFormat || '12h';
+            window.userDateFormat = window.userDateFormat || 'DD/MM/YYYY';
+            window.userTimeFormat = window.userTimeFormat || '24h';
             if (!window.formatDate) {
                 window.formatDate = function(date) {
                     return new Date(date).toLocaleDateString();
@@ -357,7 +357,7 @@ function initializePage() {
         const password = document.getElementById('passwordModalInput').value;
 
         if (!password) {
-            showToast('Password is required', 'error');
+            showToast(__('messages.password.required'), 'error');
             return;
         }
 
@@ -522,12 +522,12 @@ function initializePage() {
         const selectedColumns = Array.from(document.querySelectorAll('.column-checkbox:checked')).map(cb => cb.value);
 
         if (!password) {
-            showToast('Password is required for export', 'error');
+            showToast(__('messages.password.requiredForExport'), 'error');
             return;
         }
 
         if (selectedColumns.length === 0) {
-            showToast('Please select at least one column to export', 'error');
+            showToast(__('messages.export.selectColumns'), 'error');
             return;
         }
 
@@ -535,7 +535,7 @@ function initializePage() {
             showExportProgress(true);
             await performExport(format, password, selectedColumns);
             exportModal.classList.remove('show');
-            showToast(`Export completed successfully (${format.toUpperCase()})`, 'success');
+            showToast(`${__('messages.export.completed')} (${format.toUpperCase()})`, 'success');
         } catch (error) {
             console.error('Export error:', error);
             showToast(getErrorMessage(error), 'error');
@@ -551,9 +551,9 @@ function initializePage() {
                 `Please enter your password to confirm the ${format.toUpperCase()} export.`
             );
 
-            showToast(`Starting ${format.toUpperCase()} export...`, 'info');
+            showToast(`${__('messages.export.starting')} ${format.toUpperCase()}...`, 'info');
             await performExport(format, password, safeColumns);
-            showToast(`Quick export completed (${format.toUpperCase()})`, 'success');
+            showToast(`${__('messages.export.quickCompleted')} (${format.toUpperCase()})`, 'success');
         } catch (error) {
             if (error.message === 'Password modal cancelled') {
                 return; // User cancelled, don't show error
@@ -852,7 +852,7 @@ function initializePage() {
     async function updateUserFullName(userId, fullName) {
         try {
             await api.put(`/admin/user/${userId}/full-name`, { fullName });
-            showToast('User full name updated successfully', 'success');
+            showToast(__('messages.success.fullNameUpdated'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Update user full name error:', error);
@@ -888,7 +888,7 @@ function initializePage() {
     async function updateUserRole(userId, roleId) {
         try {
             await api.put(`/admin/user/${userId}/role`, { roleId });
-            showToast('User role updated successfully', 'success');
+            showToast(__('messages.success.roleUpdated'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Update user role error:', error);
@@ -901,7 +901,7 @@ function initializePage() {
     async function updateUserService(userId, serviceId) {
         try {
             await api.put(`/admin/user/${userId}/service`, { serviceId });
-            showToast('User service updated successfully', 'success');
+            showToast(__('messages.success.serviceUpdated'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Update user service error:', error);
@@ -914,7 +914,7 @@ function initializePage() {
     async function updateUser2FA(userId, settings) {
         try {
             await api.put(`/admin/user/${userId}/two-factor`, settings);
-            showToast('2FA settings updated successfully', 'success');
+            showToast(__('messages.success.twoFactorUpdated'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Update 2FA error:', error);
@@ -927,7 +927,7 @@ function initializePage() {
     async function toggleUserLock(userId, locked, reason = '') {
         try {
             await api.put(`/admin/user/${userId}/lock-status`, { locked, reason });
-            showToast(`User ${locked ? 'locked' : 'unlocked'} successfully`, 'success');
+            showToast(locked ? __('messages.success.userLocked') : __('messages.success.userUnlocked'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Toggle user lock error:', error);
@@ -1397,24 +1397,24 @@ function initializePage() {
         };
 
         if (!/^\d{6}$/.test(userData.username)) {
-            showToast('Username must be exactly 6 digits', 'error');
+            showToast(__('messages.validation.usernameDigits'), 'error');
             return;
         }
 
         if (!userData.roleId) {
-            showToast('Please select a role', 'error');
+            showToast(__('messages.validation.selectRole'), 'error');
             return;
         }
 
         if (userData.fullName && userData.fullName.length > 255) {
-            showToast('Full name cannot exceed 255 characters', 'error');
+            showToast(__('messages.validation.fullNameLength'), 'error');
             return;
         }
 
         try {
             const result = await createUser(userData);
             addUserModal.classList.remove('show');
-            showToast('User created successfully', 'success');
+            showToast(__('messages.success.userCreated'), 'success');
             loadUsers();
         } catch (error) {
             console.error('Failed to create user:', error);
@@ -1502,9 +1502,9 @@ function initializePage() {
             // Execute only the necessary updates
             if (updates.length > 0) {
                 await Promise.all(updates);
-                showToast('User updated successfully', 'success');
+                showToast(__('messages.success.userUpdated'), 'success');
             } else {
-                showToast('No changes detected', 'info');
+                showToast(__('messages.info.noChanges'), 'info');
             }
 
             editUserModal.classList.remove('show');
@@ -1588,7 +1588,7 @@ function initializePage() {
                         showGenerateRefCodeModal(userId, 'password-reset');
                         break;
                     case 'view-service':
-                        showToast(`Service: ${user.service.name} - Users: loading...`, 'info');
+                        showToast(`Service: ${user.service.name} - ${__('messages.info.serviceUsers')}`, 'info');
                         break;
                     case 'toggle-lock':
                         const lockAction = user.account_locked ? 'unlock' : 'lock';
@@ -1676,18 +1676,18 @@ function initializePage() {
     function copyRefCode() {
         const code = document.getElementById('refCodeDisplay').textContent;
         navigator.clipboard.writeText(code).then(() => {
-            showToast('Reference code copied to clipboard', 'success');
+            showToast(__('messages.success.refCodeCopied'), 'success');
         }).catch(() => {
-            showToast('Failed to copy reference code', 'error');
+            showToast(__('messages.error.copyFailed'), 'error');
         });
     }
 
     function copyRegistrationUrl() {
         const url = document.getElementById('registrationUrl').textContent;
         navigator.clipboard.writeText(url).then(() => {
-            showToast('Registration URL copied to clipboard', 'success');
+            showToast(__('messages.success.urlCopied'), 'success');
         }).catch(() => {
-            showToast('Failed to copy registration URL', 'error');
+            showToast(__('messages.error.copyFailed'), 'error');
         });
     }
 
@@ -1921,7 +1921,7 @@ function initializePage() {
 
     function handleAuthError(error) {
         if (error.status === 401) {
-            showToast('Your session has expired. Please log in again.', 'error');
+            showToast(__('messages.error.sessionExpired'), 'error');
             setTimeout(() => {
                 // window.location.href = '/login';
             }, 2000);
@@ -2066,11 +2066,11 @@ function initializePage() {
                 const user = response.data;
                 populateUserDetails(user);
             } else {
-                showToast('Failed to load user details', 'error');
+                showToast(__('messages.error.loadingUserDetails'), 'error');
             }
         } catch (error) {
             console.error('Error loading user details:', error);
-            showToast('Error loading user details', 'error');
+            showToast(__('messages.error.errorLoadingUserDetails'), 'error');
         }
     }
 

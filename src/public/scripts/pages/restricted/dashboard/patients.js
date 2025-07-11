@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (attempts < maxAttempts) {
             setTimeout(waitForDateFormatter, 100);
         } else {
-            window.userDateFormat = window.userDateFormat || 'MM/DD/YYYY';
-            window.userTimeFormat = window.userTimeFormat || '12h';
+            window.userDateFormat = window.userDateFormat || 'DD/MM/YYYY';
+            window.userTimeFormat = window.userTimeFormat || '24h';
             if (!window.formatDate) {
                 window.formatDate = function(date) {
                     return new Date(date).toLocaleDateString();

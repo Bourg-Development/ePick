@@ -69,7 +69,7 @@ class AnalysisService {
             const analysisCount = await db.sequelize.query(
                 'SELECT count_analyses_for_date(:analysisDate) as count',
                 {
-                    replacements: { analysisDate: analysisDate.toDateString() },
+                    replacements: { analysisDate: analysisDate.toISOString().split('T')[0] }, // YYYY-MM-DD format for database
                     type: db.Sequelize.QueryTypes.SELECT
                 }
             );
