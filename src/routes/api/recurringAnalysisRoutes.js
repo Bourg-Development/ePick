@@ -23,6 +23,8 @@ router.post('/',
         body('recurrencePattern').isIn(['daily', 'weekly', 'monthly', 'custom']).withMessage('Valid recurrence pattern is required'),
         body('totalOccurrences').isInt({ min: 2, max: 100 }).withMessage('Total occurrences must be between 2 and 100'),
         body('intervalDays').optional().isInt({ min: 1, max: 365 }).withMessage('Interval days must be between 1 and 365'),
+        body('calculatedDates').optional().isArray().withMessage('Calculated dates must be an array'),
+        body('calculatedDates.*').optional().isISO8601().withMessage('Each calculated date must be a valid ISO8601 date'),
         body('notes').optional().isLength({ max: 1000 }).withMessage('Notes must be less than 1000 characters')
     ],
     validateRequest,

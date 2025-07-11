@@ -174,9 +174,10 @@
             </div>
             <div class="form-group">
                 <label for="roomId">Room</label>
+                <!-- This will be replaced by enhanced room search input via JavaScript -->
                 <select id="roomId" name="roomId" class="form-control">
                     <option value="">Select a room</option>
-                    <!-- Populated dynamically -->
+                    <!-- Will be replaced with enhanced search input -->
                 </select>
             </div>
             <div class="form-group">
@@ -293,6 +294,73 @@
                     <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
                     Export Data
                 </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add New Doctor Modal -->
+<div class="modal-overlay" id="addDoctorModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add New Doctor</h2>
+            <button class="modal-close" id="closeAddDoctorModalBtn">&times;</button>
+        </div>
+        <form id="addDoctorForm">
+            <input type="hidden" id="doctorSearchInput" value="">
+
+            <label class="form-label" for="newDoctorName">Doctor Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newDoctorName" required maxlength="255" readonly>
+            <small class="form-help">This name was entered in the search field</small>
+
+            <label class="form-label" for="newDoctorSpecialization">Specialization <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="e.g., General Medicine, Cardiology, Neurology">
+            <small class="form-help">Enter the doctor's medical specialization</small>
+
+            <label class="form-label" for="newDoctorPhone">Phone Number</label>
+            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="+1234567890">
+            <small class="form-help">Optional - Doctor's contact phone number</small>
+
+            <label class="form-label" for="newDoctorEmail">Email Address</label>
+            <input type="email" class="form-control" id="newDoctorEmail" placeholder="doctor@hospital.com">
+            <small class="form-help">Optional - Doctor's email address</small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Doctor</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add New Room Modal -->
+<div class="modal-overlay" id="addRoomModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Add New Room</h2>
+            <button class="modal-close" id="closeAddRoomModalBtn">&times;</button>
+        </div>
+        <form id="addRoomForm">
+            <input type="hidden" id="roomSearchInput" value="">
+
+            <label class="form-label" for="newRoomNumber">Room Number <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newRoomNumber" required maxlength="50" readonly>
+            <small class="form-help">This room number was entered in the search field</small>
+
+            <label class="form-label" for="newRoomService">Service <span class="required">*</span></label>
+            <select class="form-control" id="newRoomService" required>
+                <option value="">Select a service</option>
+                <!-- Will be populated dynamically -->
+            </select>
+            <small class="form-help">Select the medical service this room belongs to</small>
+
+            <label class="form-label" for="newRoomCapacity">Capacity</label>
+            <input type="number" class="form-control" id="newRoomCapacity" min="1" max="20" placeholder="e.g., 1">
+            <small class="form-help">Optional - Maximum number of patients the room can accommodate</small>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAddRoomBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Room</button>
             </div>
         </form>
     </div>

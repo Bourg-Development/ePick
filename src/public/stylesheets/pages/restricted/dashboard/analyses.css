@@ -991,25 +991,25 @@ tr[data-recurring-id]:hover {
 
 /* Create new option styling */
 .search-option-create {
-    border-top: 1px solid #e9ecef;
-    background: #f8f9fa;
+    border-top: 1px solid var(--light-gray);
+    background: var(--off-white);
     margin-top: 4px;
 }
 
 .search-option-create:hover {
-    background: #e9ecef;
-    border-color: #007bff;
+    background: #fef4f4;
+    border-color: var(--blood-red);
 }
 
 .search-option-create .search-option-name {
-    color: #007bff;
+    color: var(--blood-red);
     font-weight: 600;
     display: flex;
     align-items: center;
 }
 
 .search-option-create .search-option-detail {
-    color: #6c757d;
+    color: var(--medium-gray);
     font-style: italic;
 }
 

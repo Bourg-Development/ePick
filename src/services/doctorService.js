@@ -535,22 +535,29 @@ class DoctorService {
      */
     async searchDoctors(searchTerm, limit = 10) {
         try {
-            // Since doctor data is encrypted but we don't have search hashes yet,
-            // we'll return all active doctors and let the client filter
-            // This is a temporary solution until we implement doctor search hashes
-            
-            const doctors = await db.Doctor.findAll({
+            // Get all active doctors since we need to decrypt names for searching
+            const allDoctors = await db.Doctor.findAll({
                 where: {
                     active: true
                 },
                 attributes: ['id', 'name', 'specialization', 'email'],
-                limit: Math.min(limit * 3, 50), // Get more results since we can't filter efficiently
                 order: [['created_at', 'DESC']]
             });
 
+            // Filter doctors by decrypted name
+            const searchLower = searchTerm.toLowerCase();
+            const filteredDoctors = allDoctors.filter(doctor => {
+                // The decryption happens automatically via the model hooks
+                const doctorName = doctor.name ? doctor.name.toLowerCase() : '';
+                return doctorName.includes(searchLower);
+            });
+
+            // Limit the results
+            const limitedDoctors = filteredDoctors.slice(0, limit);
+
             return {
                 success: true,
-                doctors
+                doctors: limitedDoctors
             };
         } catch (error) {
             console.error('Search doctors error:', error);

@@ -46,9 +46,11 @@ function initializePage() {
     let patientsData = [];
     let roomsData = [];
     let doctorsData = [];
+    let servicesData = [];
     let currentPage = 1;
     let totalPages = 1;
     let currentFilters = {};
+    let activeSearchDropdown = null;
 
     // DOM Elements
     const elements = {
@@ -81,7 +83,8 @@ function initializePage() {
             await Promise.all([
                 loadPatients(page, search),
                 loadRooms(),
-                loadDoctors()
+                loadDoctors(),
+                loadServices()
             ]);
             populateDropdowns();
             renderPatientsTable();
@@ -180,6 +183,21 @@ function initializePage() {
         } catch (error) {
             console.error('Error loading doctors:', error);
             doctorsData = [];
+        }
+    }
+
+    async function loadServices() {
+        try {
+            const result = await api.get('/admin/services');
+            if (result.success) {
+                servicesData = result.data || [];
+                console.log('Loaded services:', servicesData);
+            } else {
+                throw new Error(result.message || 'Failed to load services');
+            }
+        } catch (error) {
+            console.error('Error loading services:', error);
+            servicesData = [];
         }
     }
 
@@ -319,6 +337,9 @@ function initializePage() {
             if (!e.target.closest('.export-dropdown-container')) {
                 closeExportDropdown();
             }
+            if (activeSearchDropdown && !e.target.closest('.search-container')) {
+                closeSearchDropdown();
+            }
         });
 
         // Modal event listeners
@@ -344,6 +365,46 @@ function initializePage() {
             if (exportModal) exportModal.classList.remove('show');
         });
         if (exportForm) exportForm.addEventListener('submit', handleExportSubmit);
+
+        // Add Doctor Modal events
+        const addDoctorModal = document.getElementById('addDoctorModal');
+        const closeAddDoctorModalBtn = document.getElementById('closeAddDoctorModalBtn');
+        const cancelAddDoctorBtn = document.getElementById('cancelAddDoctorBtn');
+        const addDoctorForm = document.getElementById('addDoctorForm');
+
+        if (closeAddDoctorModalBtn) {
+            closeAddDoctorModalBtn.addEventListener('click', () => {
+                addDoctorModal.classList.remove('show');
+            });
+        }
+        if (cancelAddDoctorBtn) {
+            cancelAddDoctorBtn.addEventListener('click', () => {
+                addDoctorModal.classList.remove('show');
+            });
+        }
+        if (addDoctorForm) {
+            addDoctorForm.addEventListener('submit', handleAddDoctor);
+        }
+
+        // Add Room Modal events
+        const addRoomModal = document.getElementById('addRoomModal');
+        const closeAddRoomModalBtn = document.getElementById('closeAddRoomModalBtn');
+        const cancelAddRoomBtn = document.getElementById('cancelAddRoomBtn');
+        const addRoomForm = document.getElementById('addRoomForm');
+
+        if (closeAddRoomModalBtn) {
+            closeAddRoomModalBtn.addEventListener('click', () => {
+                addRoomModal.classList.remove('show');
+            });
+        }
+        if (cancelAddRoomBtn) {
+            cancelAddRoomBtn.addEventListener('click', () => {
+                addRoomModal.classList.remove('show');
+            });
+        }
+        if (addRoomForm) {
+            addRoomForm.addEventListener('submit', handleAddRoom);
+        }
 
         // Column selection buttons
         const selectAllColumnsBtn = document.getElementById('selectAllColumnsBtn');
@@ -384,6 +445,34 @@ function initializePage() {
                 if (e.target === exportModal) exportModal.classList.remove('show');
             });
         }
+        if (addDoctorModal) {
+            addDoctorModal.addEventListener('click', (e) => {
+                if (e.target === addDoctorModal) addDoctorModal.classList.remove('show');
+            });
+        }
+        if (addRoomModal) {
+            addRoomModal.addEventListener('click', (e) => {
+                if (e.target === addRoomModal) addRoomModal.classList.remove('show');
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close dropdowns and modals when Escape is pressed
+                if (activeSearchDropdown) {
+                    closeSearchDropdown();
+                } else if (addRoomModal && addRoomModal.classList.contains('show')) {
+                    addRoomModal.classList.remove('show');
+                } else if (addDoctorModal && addDoctorModal.classList.contains('show')) {
+                    addDoctorModal.classList.remove('show');
+                } else if (exportModal && exportModal.classList.contains('show')) {
+                    exportModal.classList.remove('show');
+                } else if (patientModal && patientModal.style.display === 'flex') {
+                    patientModal.style.display = 'none';
+                }
+            }
+        });
 
         if (elements.searchInput) {
             elements.searchInput.addEventListener('input', handleSearch);
@@ -658,10 +747,27 @@ function initializePage() {
                 if (doctor) {
                     doctorSearchInput.value = doctor.name;
                     doctorSearchInput.setAttribute('data-selected-id', patient.doctor_id);
+                    doctorSearchInput.setAttribute('data-selected-name', doctor.name);
                 }
             } else if (doctorSearchInput) {
                 doctorSearchInput.value = '';
                 doctorSearchInput.setAttribute('data-selected-id', '');
+                doctorSearchInput.removeAttribute('data-selected-name');
+            }
+
+            // Handle room search input
+            const roomSearchInput = document.getElementById('roomIdSearch');
+            if (roomSearchInput && patient.room_id) {
+                const room = roomsData.find(r => r.id === patient.room_id);
+                if (room) {
+                    roomSearchInput.value = room.room_number;
+                    roomSearchInput.setAttribute('data-selected-id', patient.room_id);
+                    roomSearchInput.setAttribute('data-selected-name', room.room_number);
+                }
+            } else if (roomSearchInput) {
+                roomSearchInput.value = '';
+                roomSearchInput.setAttribute('data-selected-id', '');
+                roomSearchInput.removeAttribute('data-selected-name');
             }
         } else {
             // Clear form for new patient
@@ -1256,228 +1362,448 @@ function initializePage() {
                 doctorSelect.appendChild(option);
             });
         }
+
+        // Populate services dropdown for room creation modal
+        populateServicesDropdown();
+    }
+
+    // Populate services dropdown for room creation
+    function populateServicesDropdown() {
+        const serviceSelect = document.getElementById('newRoomService');
+        if (serviceSelect) {
+            serviceSelect.innerHTML = '<option value="">Select a service</option>';
+            servicesData.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.id;
+                option.textContent = service.name;
+                serviceSelect.appendChild(option);
+            });
+        }
     }
     
-    // Setup enhanced search inputs
+    // Setup enhanced search inputs (using same implementation as analyses page)
     function setupEnhancedSearchInputs() {
-        const doctorSelect = document.getElementById('doctorId');
-        if (!doctorSelect || doctorSelect.hasAttribute('data-enhanced')) return;
-        
-        // Create search container
-        const container = document.createElement('div');
-        container.className = 'search-container';
-        
-        // Create search input
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.className = 'form-control search-input-enhanced';
-        searchInput.placeholder = 'Search doctors or type new doctor name...';
-        searchInput.setAttribute('data-selected-id', '');
-        searchInput.id = 'doctorIdSearch';
-        
-        // Create dropdown for results
-        const dropdown = document.createElement('div');
-        dropdown.className = 'search-dropdown';
-        dropdown.style.display = 'none';
-        
-        // Create clear button
-        const clearBtn = document.createElement('button');
-        clearBtn.type = 'button';
-        clearBtn.className = 'search-clear-btn';
-        clearBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">close</span>';
-        clearBtn.title = 'Clear selection';
-        
-        // Create "Add new doctor" button
-        const addBtn = document.createElement('button');
-        addBtn.type = 'button';
-        addBtn.className = 'search-add-btn';
-        addBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">add</span>';
-        addBtn.title = 'Add new doctor';
-        addBtn.style.display = 'none';
-        
-        // Assemble container
-        container.appendChild(searchInput);
-        container.appendChild(clearBtn);
-        container.appendChild(addBtn);
-        container.appendChild(dropdown);
-        
-        // Replace original select
-        doctorSelect.parentNode.replaceChild(container, doctorSelect);
-        doctorSelect.setAttribute('data-enhanced', 'true');
-        
-        // Setup event listeners
-        setupDoctorSearchListeners(searchInput, dropdown, clearBtn, addBtn);
+        const searchInputs = [
+            { id: 'doctorId', containerId: 'doctorIdContainer', searchFn: searchDoctors, displayKey: 'name', extraKey: 'specialization' },
+            { id: 'roomId', containerId: 'roomIdContainer', searchFn: searchRooms, displayKey: 'room_number', extraKey: 'service.name' }
+        ];
+
+        searchInputs.forEach(({ id, containerId, searchFn, displayKey, extraKey }) => {
+            const originalSelect = document.getElementById(id);
+            if (!originalSelect || originalSelect.hasAttribute('data-enhanced')) return;
+
+            const container = document.createElement('div');
+            container.id = containerId;
+            container.className = 'search-container';
+
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.className = 'form-control search-input-enhanced';
+            // Make placeholder text dynamic based on the search type
+            const searchType = id.includes('doctor') ? 'doctors' : id.includes('room') ? 'rooms' : 'items';
+            searchInput.placeholder = `Search ${searchType}...`;
+            searchInput.setAttribute('data-selected-id', '');
+            searchInput.id = id + 'Search';
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'search-dropdown';
+            dropdown.style.display = 'none';
+
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'search-clear-btn';
+            clearBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">close</span>';
+            clearBtn.title = 'Clear selection';
+
+            container.appendChild(searchInput);
+            container.appendChild(clearBtn);
+            container.appendChild(dropdown);
+
+            originalSelect.parentNode.replaceChild(container, originalSelect);
+            originalSelect.setAttribute('data-enhanced', 'true');
+
+            setupSearchListeners(searchInput, dropdown, clearBtn, searchFn, displayKey, extraKey);
+        });
     }
     
-    // Setup doctor search event listeners
-    function setupDoctorSearchListeners(searchInput, dropdown, clearBtn, addBtn) {
-        let searchTimeout;
-        
-        searchInput.addEventListener('input', (e) => {
+    // Setup search listeners (matching analyses.js implementation)
+    function setupSearchListeners(searchInput, dropdown, clearBtn, searchFn, displayKey, extraKey) {
+        searchInput.addEventListener('input', debounce(async (e) => {
             const term = e.target.value.trim();
-            
-            // Clear previous timeout
-            clearTimeout(searchTimeout);
-            
-            if (term.length === 0) {
-                hideDoctorDropdown(dropdown);
-                addBtn.style.display = 'none';
-            } else if (term.length >= 2) {
-                // Show loading state
-                showDoctorDropdown(searchInput, dropdown, [{ id: 'loading', name: 'Searching...', isLoading: true }]);
-                
-                // Debounced search
-                searchTimeout = setTimeout(async () => {
-                    const results = await searchDoctors(term);
-                    showDoctorDropdown(searchInput, dropdown, results);
-                    
-                    // Show "Add new doctor" button if no exact match
-                    const exactMatch = results.find(d => 
-                        d.name.toLowerCase() === term.toLowerCase() ||
-                        `${d.first_name} ${d.last_name}`.toLowerCase() === term.toLowerCase()
-                    );
-                    addBtn.style.display = exactMatch ? 'none' : 'inline-flex';
-                }, 300);
-            } else {
-                hideDoctorDropdown(dropdown);
-                addBtn.style.display = 'none';
+
+            // Clear selection when user starts typing again
+            const currentSelectedId = searchInput.getAttribute('data-selected-id');
+            if (currentSelectedId && term !== searchInput.getAttribute('data-selected-name')) {
+                searchInput.setAttribute('data-selected-id', '');
+                searchInput.removeAttribute('data-selected-name');
             }
-        });
-        
+
+            if (term.length === 0) {
+                hideSearchDropdown(dropdown);
+            } else if (term.length >= 2) {
+                const results = await searchFn(term);
+                showSearchDropdown(searchInput, dropdown, results, displayKey, extraKey);
+            } else {
+                hideSearchDropdown(dropdown);
+            }
+        }, 300));
+
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
             searchInput.setAttribute('data-selected-id', '');
-            hideDoctorDropdown(dropdown);
-            addBtn.style.display = 'none';
+            searchInput.removeAttribute('data-selected-name');
+            hideSearchDropdown(dropdown);
             searchInput.focus();
-        });
-        
-        addBtn.addEventListener('click', () => {
-            showAddDoctorModal(searchInput.value.trim());
         });
     }
     
-    // Search doctors function
+    // Search doctors function (matching analyses.js API call)
     async function searchDoctors(term) {
         try {
-            // Ensure doctorsData exists and is an array
-            if (!Array.isArray(doctorsData)) {
-                console.warn('doctorsData is not an array:', doctorsData);
+            if (!term || term.length < 2) {
                 return [];
             }
-            
-            // First search in existing doctors
-            const filteredDoctors = doctorsData.filter(doctor => {
-                // Ensure doctor object exists
-                if (!doctor || typeof doctor !== 'object') {
-                    return false;
-                }
-                
-                // Safely get properties with fallbacks
-                const name = doctor.name || '';
-                const specialization = doctor.specialization || '';
-                
-                const searchTerm = term.toLowerCase();
-                
-                return name.toLowerCase().includes(searchTerm) ||
-                       specialization.toLowerCase().includes(searchTerm);
-            });
-            
-            // Format results
-            return filteredDoctors.map(doctor => ({
-                id: doctor?.id || 0,
-                name: doctor?.name || 'Unknown Doctor',
-                specialization: doctor?.specialization || 'General Medicine'
-            }));
+
+            const data = await api.get(`/doctors/search/${encodeURIComponent(term)}?limit=10`);
+            return data.doctors || [];
         } catch (error) {
             console.error('Error searching doctors:', error);
             return [];
         }
     }
-    
-    // Show doctor dropdown
-    function showDoctorDropdown(searchInput, dropdown, results) {
-        if (!results || results.length === 0) {
-            hideDoctorDropdown(dropdown);
-            return;
-        }
-        
-        dropdown.innerHTML = results.map(doctor => {
-            if (doctor.isLoading) {
-                return `<div class="search-item loading">${doctor.name}</div>`;
+
+    // Search rooms function (matching analyses.js API call)
+    async function searchRooms(term) {
+        try {
+            if (!term || term.length < 2) {
+                return [];
             }
-            return `
-                <div class="search-item" data-id="${doctor.id}">
-                    <div class="search-item-main">${doctor.name}</div>
-                    <div class="search-item-sub">${doctor.specialization}</div>
+
+            const data = await api.get(`/rooms/search/${encodeURIComponent(term)}?limit=10`);
+            return data.rooms || [];
+        } catch (error) {
+            console.error('Error searching rooms:', error);
+            return [];
+        }
+    }
+    
+    // Show search dropdown (matching analyses.js implementation)
+    function showSearchDropdown(searchInput, dropdown, results, displayKey, extraKey) {
+        const searchTerm = searchInput.value.trim();
+
+        let html = '';
+
+        // Add existing results
+        results.forEach(item => {
+            const name = getNestedValue(item, displayKey);
+            const extra = getNestedValue(item, extraKey);
+
+            html += `
+                <div class="search-option" data-selected-id="${item.id}">
+                    <div class="search-option-content">
+                        <span class="search-option-name">${name}</span>
+                        ${extra ? `<span class="search-option-detail">${extra}</span>` : ''}
+                    </div>
                 </div>
             `;
-        }).join('');
-        
-        // Add click listeners to items
-        dropdown.querySelectorAll('.search-item:not(.loading)').forEach(item => {
-            item.addEventListener('click', () => {
-                const doctorId = item.dataset.id;
-                const doctor = results.find(d => d.id.toString() === doctorId);
-                if (doctor) {
-                    searchInput.value = doctor.name;
-                    searchInput.setAttribute('data-selected-id', doctorId);
-                    hideDoctorDropdown(dropdown);
+        });
+
+        // Add "Create new..." option for doctors and rooms if no exact match found and search term is not empty
+        if (searchTerm.length >= 2) {
+            const exactMatch = results.find(item =>
+                getNestedValue(item, displayKey).toLowerCase() === searchTerm.toLowerCase()
+            );
+
+            if (!exactMatch) {
+                if (searchInput.id.includes('doctor')) {
+                    html += `
+                        <div class="search-option search-option-create" data-action="create" data-entity-type="doctor">
+                            <div class="search-option-content">
+                                <span class="search-option-name">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 8px;">add</span>
+                                    Add "${searchTerm}" as new Doctor
+                                </span>
+                                <span class="search-option-detail">Click to create new doctor</span>
+                            </div>
+                        </div>
+                    `;
+                } else if (searchInput.id.includes('room')) {
+                    html += `
+                        <div class="search-option search-option-create" data-action="create" data-entity-type="room">
+                            <div class="search-option-content">
+                                <span class="search-option-name">
+                                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 8px;">add</span>
+                                    Add "${searchTerm}" as new Room
+                                </span>
+                                <span class="search-option-detail">Click to create new room</span>
+                            </div>
+                        </div>
+                    `;
                 }
+            }
+        }
+
+        if (html === '') {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        dropdown.innerHTML = html;
+
+        dropdown.querySelectorAll('.search-option').forEach(option => {
+            option.addEventListener('click', async () => {
+                const action = option.getAttribute('data-action');
+                const entityType = option.getAttribute('data-entity-type');
+
+                if (action === 'create') {
+                    if (entityType === 'doctor') {
+                        await handleCreateNewDoctor(searchTerm, searchInput);
+                    } else if (entityType === 'room') {
+                        await handleCreateNewRoom(searchTerm, searchInput);
+                    }
+                } else {
+                    const selectedId = option.getAttribute('data-selected-id');
+                    const selectedName = option.querySelector('.search-option-name').textContent;
+
+                    searchInput.value = selectedName;
+                    searchInput.setAttribute('data-selected-id', selectedId);
+                    searchInput.setAttribute('data-selected-name', selectedName);
+                }
+
+                hideSearchDropdown(dropdown);
             });
         });
-        
+
         dropdown.style.display = 'block';
+        activeSearchDropdown = dropdown;
     }
     
-    // Hide doctor dropdown
-    function hideDoctorDropdown(dropdown) {
+    // Hide search dropdown
+    function hideSearchDropdown(dropdown) {
         dropdown.style.display = 'none';
+        if (activeSearchDropdown === dropdown) {
+            activeSearchDropdown = null;
+        }
     }
-    
-    // Show add doctor modal
-    function showAddDoctorModal(doctorName) {
-        // For now, just show a simple prompt
-        // In a full implementation, you'd create a proper modal
-        const specialization = prompt(`Add new doctor: ${doctorName}\n\nEnter specialization:`, 'General Medicine');
-        if (specialization) {
-            addNewDoctor(doctorName, specialization);
+
+    // Close active search dropdown
+    function closeSearchDropdown() {
+        if (activeSearchDropdown) {
+            hideSearchDropdown(activeSearchDropdown);
         }
     }
     
-    // Add new doctor
-    async function addNewDoctor(fullName, specialization) {
+    // Handle create new doctor (matching analyses.js implementation)
+    async function handleCreateNewDoctor(name, searchInput) {
+        // Store the search input reference for later use
+        const doctorSearchInputField = document.getElementById('doctorSearchInput');
+        const newDoctorNameField = document.getElementById('newDoctorName');
+        const newDoctorSpecializationField = document.getElementById('newDoctorSpecialization');
+        const newDoctorPhoneField = document.getElementById('newDoctorPhone');
+        const newDoctorEmailField = document.getElementById('newDoctorEmail');
+        const addDoctorModal = document.getElementById('addDoctorModal');
+
+        if(doctorSearchInputField) doctorSearchInputField.value = searchInput.id;
+        if(newDoctorNameField) newDoctorNameField.value = name;
+        if(newDoctorSpecializationField) newDoctorSpecializationField.value = '';
+        if(newDoctorPhoneField) newDoctorPhoneField.value = '';
+        if(newDoctorEmailField) newDoctorEmailField.value = '';
+
+        addDoctorModal.classList.add('show');
+
+        // Focus on specialization field
+        setTimeout(() => {
+            if(newDoctorSpecializationField) {
+                newDoctorSpecializationField.focus();
+            }
+        }, 100);
+    }
+
+    // Handle Add Doctor form submission (matching analyses.js implementation)
+    async function handleAddDoctor(e) {
+        e.preventDefault();
+
+        const doctorSearchInputId = document.getElementById('doctorSearchInput').value;
+        const name = document.getElementById('newDoctorName').value.trim();
+        const specialization = document.getElementById('newDoctorSpecialization').value.trim();
+        const phone = document.getElementById('newDoctorPhone').value.trim();
+        const email = document.getElementById('newDoctorEmail').value.trim();
+
+        // Validation
+        if (!name) {
+            showNotification('Doctor name is required', 'error');
+            return;
+        }
+
+        if (!specialization) {
+            showNotification('Specialization is required', 'error');
+            return;
+        }
+
+        const doctorData = {
+            name: name,
+            specialization: specialization
+        };
+
+        if (phone) doctorData.phone = phone;
+        if (email) doctorData.email = email;
+
         try {
-            const nameParts = fullName.trim().split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
-            
-            const doctorData = {
-                firstName: firstName,
-                lastName: lastName,
-                specialization: specialization
-            };
-            
-            const result = await api.post('/admin/doctors', doctorData);
+            const result = await createDoctor(doctorData);
+
             if (result.success) {
-                showNotification('Doctor added successfully', 'success');
-                // Reload doctors data
-                await loadDoctors();
-                populateDropdowns();
-                
-                // Update the search input with the new doctor
-                const searchInput = document.getElementById('doctorIdSearch');
-                if (searchInput && result.data) {
-                    searchInput.value = result.data.name;
-                    searchInput.setAttribute('data-selected-id', result.data.id);
+                // Find the original search input and update it
+                const originalSearchInput = document.getElementById(doctorSearchInputId);
+                if (originalSearchInput) {
+                    originalSearchInput.value = name;
+                    originalSearchInput.setAttribute('data-selected-id', result.doctorId);
+                    originalSearchInput.setAttribute('data-selected-name', name);
                 }
-            } else {
-                showNotification(result.message || 'Failed to add doctor', 'error');
+
+                const addDoctorModal = document.getElementById('addDoctorModal');
+                addDoctorModal.classList.remove('show');
+                showNotification(`Doctor "${name}" created successfully`, 'success');
+
+                // Trigger a new search to refresh the dropdown if the search input still has a value
+                if (originalSearchInput && originalSearchInput.value.trim()) {
+                    const searchEvent = new Event('input', { bubbles: true });
+                    originalSearchInput.dispatchEvent(searchEvent);
+                }
             }
         } catch (error) {
-            console.error('Error adding doctor:', error);
-            showNotification('Failed to add doctor', 'error');
+            console.error('Create doctor error:', error);
+            showNotification(`Failed to create doctor: ${getErrorMessage(error)}`, 'error');
         }
+    }
+
+    // Create doctor API call (matching analyses.js implementation)
+    async function createDoctor(doctorData) {
+        try {
+            const result = await api.post('/doctors', doctorData);
+            return result;
+        } catch (error) {
+            console.error('API error creating doctor:', error);
+            throw error;
+        }
+    }
+
+    // Handle create new room
+    async function handleCreateNewRoom(roomNumber, searchInput) {
+        // Store the search input reference for later use
+        const roomSearchInputField = document.getElementById('roomSearchInput');
+        const newRoomNumberField = document.getElementById('newRoomNumber');
+        const newRoomServiceField = document.getElementById('newRoomService');
+        const newRoomCapacityField = document.getElementById('newRoomCapacity');
+        const addRoomModal = document.getElementById('addRoomModal');
+
+        if(roomSearchInputField) roomSearchInputField.value = searchInput.id;
+        if(newRoomNumberField) newRoomNumberField.value = roomNumber;
+        if(newRoomServiceField) newRoomServiceField.value = '';
+        if(newRoomCapacityField) newRoomCapacityField.value = '';
+
+        addRoomModal.classList.add('show');
+
+        // Focus on service field
+        setTimeout(() => {
+            if(newRoomServiceField) {
+                newRoomServiceField.focus();
+            }
+        }, 100);
+    }
+
+    // Handle Add Room form submission
+    async function handleAddRoom(e) {
+        e.preventDefault();
+
+        const roomSearchInputId = document.getElementById('roomSearchInput').value;
+        const roomNumber = document.getElementById('newRoomNumber').value.trim();
+        const serviceId = document.getElementById('newRoomService').value;
+        const capacity = document.getElementById('newRoomCapacity').value;
+
+        // Validation
+        if (!roomNumber) {
+            showNotification('Room number is required', 'error');
+            return;
+        }
+
+        if (!serviceId) {
+            showNotification('Service is required', 'error');
+            return;
+        }
+
+        const roomData = {
+            roomNumber: roomNumber,
+            serviceId: parseInt(serviceId)
+        };
+
+        if (capacity) roomData.capacity = parseInt(capacity);
+
+        try {
+            const result = await createRoom(roomData);
+
+            if (result.success) {
+                // Find the original search input and update it
+                const originalSearchInput = document.getElementById(roomSearchInputId);
+                if (originalSearchInput) {
+                    originalSearchInput.value = roomNumber;
+                    originalSearchInput.setAttribute('data-selected-id', result.roomId);
+                    originalSearchInput.setAttribute('data-selected-name', roomNumber);
+                }
+
+                const addRoomModal = document.getElementById('addRoomModal');
+                addRoomModal.classList.remove('show');
+                showNotification(`Room "${roomNumber}" created successfully`, 'success');
+
+                // Trigger a new search to refresh the dropdown if the search input still has a value
+                if (originalSearchInput && originalSearchInput.value.trim()) {
+                    const searchEvent = new Event('input', { bubbles: true });
+                    originalSearchInput.dispatchEvent(searchEvent);
+                }
+            }
+        } catch (error) {
+            console.error('Create room error:', error);
+            showNotification(`Failed to create room: ${getErrorMessage(error)}`, 'error');
+        }
+    }
+
+    // Create room API call
+    async function createRoom(roomData) {
+        try {
+            const result = await api.post('/rooms', roomData);
+            return result;
+        } catch (error) {
+            console.error('API error creating room:', error);
+            throw error;
+        }
+    }
+    
+    // Get nested value helper function
+    function getNestedValue(obj, path) {
+        return path.split('.').reduce((o, p) => o && o[p], obj) || '';
+    }
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Get error message helper
+    function getErrorMessage(error) {
+        if (error.data && error.data.message) {
+            return error.data.message;
+        }
+        if (error.message) {
+            return error.message;
+        }
+        return 'An unexpected error occurred';
     }
 
     // Handle patient form submission
@@ -1489,6 +1815,9 @@ function initializePage() {
         const doctorSearchInput = document.getElementById('doctorIdSearch');
         const doctorId = doctorSearchInput ? doctorSearchInput.getAttribute('data-selected-id') : null;
         
+        const roomSearchInput = document.getElementById('roomIdSearch');
+        const roomId = roomSearchInput ? roomSearchInput.getAttribute('data-selected-id') : formData.get('roomId');
+        
         // Log the form data for debugging
         console.log('Form data being sent:', {
             firstName: formData.get('firstName'),
@@ -1496,7 +1825,7 @@ function initializePage() {
             matriculeNational: formData.get('matriculeNational'),
             dateOfBirth: formData.get('dateOfBirth'),
             gender: formData.get('gender'),
-            roomId: formData.get('roomId'),
+            roomId: roomId,
             doctorId: doctorId
         });
         
@@ -1507,7 +1836,7 @@ function initializePage() {
             'O': 'Other'
         };
         
-        const roomIdValue = formData.get('roomId');
+        const roomIdValue = roomId;
         
         const patientData = {
             name: `${formData.get('firstName')} ${formData.get('lastName')}`.trim(),

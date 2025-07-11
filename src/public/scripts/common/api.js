@@ -139,22 +139,23 @@
                     throw new Error(`Token refresh failed: ${response.status} - ${errorData.message || response.statusText}`);
                 }
             } catch (error) {
-                console.error('Token refresh failed:', error);
-
-                // Reject all queued requests
-                this.failedQueue.forEach(({ reject }) => reject(error));
+                // Don't log token refresh errors to console for users
+                
+                // Reject all queued requests silently
+                this.failedQueue.forEach(({ reject }) => reject(new Error('Authentication expired')));
                 this.failedQueue = [];
 
                 // Call auth failure callback if provided
                 if (this.config.auth.onAuthFailure) {
                     this.config.auth.onAuthFailure(error);
                 } else {
-                    // Default behavior: redirect to login only if not already there
+                    // Default behavior: clear cookies and redirect to login
                     if (!window.location.pathname.includes('/auth/login')) {
-                        // Clear any existing tokens before redirect
-                        document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                        document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                        // Clear all authentication cookies
+                        document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+                        document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
                         
+                        // Redirect silently without showing error messages
                         window.location.href = this.config.auth.loginUrl;
                     }
                 }

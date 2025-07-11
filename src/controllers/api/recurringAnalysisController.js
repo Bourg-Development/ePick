@@ -16,6 +16,7 @@ class RecurringAnalysisController {
                 recurrencePattern,
                 totalOccurrences,
                 intervalDays,
+                calculatedDates,
                 notes
             } = req.body;
 
@@ -56,6 +57,7 @@ class RecurringAnalysisController {
                 recurrencePattern,
                 totalOccurrences,
                 intervalDays,
+                calculatedDates,
                 notes
             }, userId);
 

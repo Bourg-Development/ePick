@@ -48,6 +48,7 @@ function initializePage() {
     let activeDropdown = null;
     let currentEditAnalysisId = null;
     let sortField = null;
+    let organizationSettings = null;
     let sortDirection = 'asc';
     // Initialize hideActions - will be overridden by template if user lacks permission
     window.hideActions = false;
@@ -132,6 +133,7 @@ function initializePage() {
     async function init() {
         setupEventListeners();
         await loadAnalysisTypes();
+        await loadOrganizationSettings();
         await loadAnalyses();
     }
 
@@ -821,6 +823,22 @@ function initializePage() {
             showToast('Error loading analysis types', 'error');
         }
     }
+
+    async function loadOrganizationSettings() {
+        try {
+            const response = await api.get('/org-settings');
+            if (response.success) {
+                organizationSettings = response.settings || {};
+                console.log('Loaded organization settings:', organizationSettings);
+            } else {
+                console.error('Failed to load organization settings:', response.message);
+                // Don't show error toast as this is optional for now
+            }
+        } catch (error) {
+            console.error('Error loading organization settings:', error);
+            // Don't show error toast as this is optional for now
+        }
+    }
     
     function populateAnalysisTypeDropdowns() {
         // Populate type filter dropdown
@@ -921,12 +939,69 @@ function initializePage() {
 
     async function createRecurringAnalysis(analysisData) {
         try {
+            console.log('Attempting to create recurring analysis with data:', analysisData);
             const data = await api.post('/recurring-analyses', analysisData);
             return data;
         } catch (error) {
             console.error('Create recurring analysis error:', error);
+            console.error('Error data from backend:', error.data);
+            console.error('Error status:', error.status);
+            console.error('Analysis data sent:', analysisData);
+            
+            // Try to get more specific error information
+            if (error.data) {
+                console.error('Backend error details:', error.data);
+                let errorMessage = 'Backend validation error';
+                
+                if (typeof error.data === 'object' && error.data.message) {
+                    errorMessage = error.data.message;
+                    
+                    // Handle recurring analysis validation issues
+                    if (error.data.issues && Array.isArray(error.data.issues)) {
+                        console.error('Validation issues:', error.data.issues);
+                        const issues = error.data.issues.map((issue, index) => {
+                            if (typeof issue === 'object') {
+                                const date = issue.date ? new Date(issue.date).toLocaleDateString() : 'Unknown date';
+                                const problem = issue.issue || issue.message || issue.reason || 'Unknown issue';
+                                const suggestion = issue.suggestion || 'Please adjust your schedule';
+                                return `• ${date}: ${problem}\n  Suggestion: ${suggestion}`;
+                            }
+                            return `• Issue ${index + 1}: ${issue}`;
+                        }).join('\n');
+                        
+                        // Try to suggest a better start date
+                        let suggestion = "Tip: Try starting on a different date or use a different recurrence pattern.";
+                        
+                        if (error.data.issues.some(issue => issue.issue && issue.issue.includes('not a working day'))) {
+                            const currentStartDate = new Date(analysisData.analysisDate);
+                            const workingDays = organizationSettings?.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                            const suggestedDate = adjustToNextWorkingDay(currentStartDate, workingDays);
+                            
+                            if (suggestedDate.getTime() !== currentStartDate.getTime()) {
+                                const suggestedDateStr = suggestedDate.toLocaleDateString();
+                                suggestion = `💡 Suggestion: Try starting on ${suggestedDateStr} (next working day) to avoid weekend conflicts.`;
+                            } else {
+                                suggestion = `💡 Suggestion: The current start date is fine, but daily scheduling hits weekends. Consider using "weekly" pattern instead.`;
+                            }
+                        }
+                        
+                        errorMessage = `${error.data.message}\n\nScheduling conflicts found:\n${issues}\n\n${suggestion}`;
+                    }
+                    
+                } else if (typeof error.data === 'object' && error.data.errors) {
+                    // Handle validation errors array
+                    const validationErrors = error.data.errors.map(err => err.msg || err.message || err).join(', ');
+                    errorMessage = `Validation errors: ${validationErrors}`;
+                } else if (typeof error.data === 'string') {
+                    errorMessage = error.data;
+                }
+                
+                showToast(errorMessage, 'error');
+            } else {
+                showToast(getErrorMessage(error), 'error');
+            }
+            
             if (handleAuthError(error)) return;
-            showToast(getErrorMessage(error), 'error');
             throw error;
         }
     }
@@ -1792,9 +1867,15 @@ function initializePage() {
         if (totalOccurrences) {
             totalOccurrences.addEventListener('input', updateRecurringPreview);
         }
+
+        // Add missing event listener for analysis date
+        const newAnalysisDate = document.getElementById('newAnalysisDate');
+        if (newAnalysisDate) {
+            newAnalysisDate.addEventListener('change', updateRecurringPreview);
+        }
     }
 
-    function updateRecurringPreview() {
+    async function updateRecurringPreview() {
         const newAnalysisDate = document.getElementById('newAnalysisDate');
         const recurrencePattern = document.getElementById('recurrencePattern');
         const intervalDays = document.getElementById('intervalDays');
@@ -1819,13 +1900,39 @@ function initializePage() {
 
         const dates = generateRecurringDates(startDate, pattern, interval, total);
         
+        // Validate against company policy if available
+        const validationResults = await validateDatesAgainstPolicy(dates);
+        
         let previewHTML = '<div class="preview-dates">';
+        
+        // Show information about automatic adjustments
+        previewHTML += '<div class="preview-info">';
+        previewHTML += `<div class="preview-info-item">ℹ️ Dates are automatically adjusted to working days</div>`;
+        previewHTML += '</div>';
+
+        // Show warnings if any policy violations remain
+        if (validationResults.hasViolations) {
+            previewHTML += '<div class="preview-warnings">';
+            if (validationResults.nonWorkingDays.length > 0) {
+                previewHTML += `<div class="preview-warning">⚠️ ${validationResults.nonWorkingDays.length} dates still fall on non-working days</div>`;
+            }
+            if (validationResults.exceededDailyLimit.length > 0) {
+                previewHTML += `<div class="preview-warning">⚠️ ${validationResults.exceededDailyLimit.length} dates may exceed daily analysis limit</div>`;
+            }
+            previewHTML += '</div>';
+        }
+        
         dates.forEach((date, index) => {
             const dateStr = formatDateForDisplay(date);
+            const violations = validationResults.dateViolations[index] || {};
+            const hasWarning = violations.nonWorkingDay || violations.exceededLimit;
+            const warningClass = hasWarning ? 'preview-date-warning' : '';
+            const warningIcon = hasWarning ? '⚠️ ' : '';
+            
             previewHTML += `
-                <div class="preview-date">
+                <div class="preview-date ${warningClass}" title="${violations.reason || ''}">
                     <span class="preview-date-number">${index + 1}.</span>
-                    <span class="preview-date-value">${dateStr}</span>
+                    <span class="preview-date-value">${warningIcon}${dateStr}</span>
                 </div>
             `;
         });
@@ -1841,7 +1948,13 @@ function initializePage() {
     }
 
     function generateRecurringDates(startDate, pattern, interval, total) {
-        const dates = [new Date(startDate)];
+        const dates = [];
+        const workingDays = organizationSettings?.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        
+        // Adjust start date to next working day if needed
+        let currentDate = new Date(startDate);
+        currentDate = adjustToNextWorkingDay(currentDate, workingDays);
+        dates.push(new Date(currentDate));
         
         for (let i = 1; i < total; i++) {
             const nextDate = new Date(dates[i - 1]);
@@ -1863,10 +1976,33 @@ function initializePage() {
                     nextDate.setDate(nextDate.getDate() + interval);
             }
             
-            dates.push(nextDate);
+            // Adjust to next working day if needed
+            const adjustedDate = adjustToNextWorkingDay(nextDate, workingDays);
+            dates.push(adjustedDate);
         }
         
         return dates;
+    }
+
+    function adjustToNextWorkingDay(date, workingDays) {
+        const adjustedDate = new Date(date);
+        let attempts = 0;
+        const maxAttempts = 14; // Prevent infinite loop
+        
+        while (attempts < maxAttempts) {
+            const dayName = adjustedDate.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            if (workingDays.includes(dayName)) {
+                return adjustedDate;
+            }
+            
+            // Move to next day
+            adjustedDate.setDate(adjustedDate.getDate() + 1);
+            attempts++;
+        }
+        
+        // If we can't find a working day in 14 days, return original date
+        return new Date(date);
     }
 
     function getDefaultInterval(pattern) {
@@ -1880,6 +2016,59 @@ function initializePage() {
 
     function formatDateForDisplay(date) {
         return window.formatDate ? window.formatDate(date) : date.toLocaleDateString();
+    }
+
+    async function validateDatesAgainstPolicy(dates) {
+        const result = {
+            hasViolations: false,
+            nonWorkingDays: [],
+            exceededDailyLimit: [],
+            adjustedDates: [],
+            dateViolations: {}
+        };
+
+        if (!organizationSettings) {
+            return result;
+        }
+
+        const workingDays = organizationSettings.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const maxAnalysesPerDay = organizationSettings.max_analyses_per_day || null;
+
+        // Check each date
+        for (let i = 0; i < dates.length; i++) {
+            const date = dates[i];
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const violations = {};
+
+            // Check if date was adjusted from original schedule
+            // Note: Since we now auto-adjust dates, working day violations should be rare
+            if (!workingDays.includes(dayName)) {
+                violations.nonWorkingDay = true;
+                violations.reason = `${dayName} is not a working day`;
+                result.nonWorkingDays.push(date);
+                result.hasViolations = true;
+            }
+
+            // Check daily limit (simplified check - would need to fetch existing analyses for accurate count)
+            if (maxAnalysesPerDay && maxAnalysesPerDay > 0) {
+                // Count how many analyses are already scheduled for this date among the recurring ones
+                const sameDay = dates.filter(d => d.toDateString() === date.toDateString()).length;
+                if (sameDay > 1) {
+                    violations.exceededLimit = true;
+                    violations.reason = violations.reason ? 
+                        `${violations.reason}; Multiple analyses scheduled for same day` :
+                        'Multiple analyses scheduled for same day';
+                    result.exceededDailyLimit.push(date);
+                    result.hasViolations = true;
+                }
+            }
+
+            if (Object.keys(violations).length > 0) {
+                result.dateViolations[i] = violations;
+            }
+        }
+
+        return result;
     }
 
     // Event Handlers
@@ -1902,8 +2091,22 @@ function initializePage() {
         const enableRecurring = document.getElementById('enableRecurring');
         const isRecurring = enableRecurring && enableRecurring.checked;
 
+        // Format date to ISO8601 format for backend
+        const analysisDateValue = newAnalysisDate ? newAnalysisDate.value : '';
+        let isoDate = analysisDateValue ? new Date(analysisDateValue).toISOString().split('T')[0] : '';
+
+        // For recurring analysis, adjust start date to next working day if needed
+        if (isRecurring && isoDate && organizationSettings) {
+            const workingDays = organizationSettings.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const adjustedStartDate = adjustToNextWorkingDay(new Date(isoDate), workingDays);
+            isoDate = adjustedStartDate.toISOString().split('T')[0];
+            
+            console.log('Original start date:', analysisDateValue);
+            console.log('Adjusted start date:', isoDate);
+        }
+
         const analysisData = {
-            analysisDate: newAnalysisDate ? newAnalysisDate.value : '',
+            analysisDate: isoDate,
             analysisType: newAnalysisType ? newAnalysisType.value : '',
             patientId: patientId ? parseInt(patientId) : null,
             doctorId: doctorId ? parseInt(doctorId) : null,
@@ -1918,40 +2121,94 @@ function initializePage() {
             const totalOccurrences = document.getElementById('totalOccurrences');
 
             analysisData.recurrencePattern = recurrencePattern ? recurrencePattern.value : '';
-            analysisData.intervalDays = intervalDays ? parseInt(intervalDays.value) : null;
+            
+            // Only include intervalDays for custom patterns (backend validation marks it as optional)
+            if (recurrencePattern && recurrencePattern.value === 'custom') {
+                if (!intervalDays || !intervalDays.value || parseInt(intervalDays.value) < 1) {
+                    showToast('Custom interval days is required and must be at least 1', 'error');
+                    return;
+                }
+                analysisData.intervalDays = parseInt(intervalDays.value);
+            }
+            // For non-custom patterns, don't include intervalDays - let backend handle defaults
+            
             analysisData.totalOccurrences = totalOccurrences ? parseInt(totalOccurrences.value) : null;
+            
+            // Generate the pre-calculated working day dates
+            const startDate = new Date(analysisData.analysisDate);
+            const interval = recurrencePattern && recurrencePattern.value === 'custom' ? 
+                parseInt(intervalDays?.value || 1) : 1;
+            const calculatedDates = generateRecurringDates(
+                startDate, 
+                analysisData.recurrencePattern, 
+                interval, 
+                analysisData.totalOccurrences
+            );
+            
+            // Send the pre-calculated dates to backend to avoid working day conflicts
+            analysisData.calculatedDates = calculatedDates.map(date => date.toISOString().split('T')[0]);
+            
+            console.log('Sending pre-calculated working day dates to backend:', analysisData.calculatedDates);
         }
 
-        // Validation
+        // Enhanced validation with detailed error reporting
+        const validationErrors = [];
+
         if (!analysisData.analysisDate) {
-            showToast('Analysis date is required', 'error');
-            return;
+            validationErrors.push('Analysis date is required');
         }
 
         if (!analysisData.analysisType) {
-            showToast('Analysis type is required', 'error');
-            return;
+            validationErrors.push('Analysis type is required');
         }
 
-        if (!analysisData.patientId) {
-            showToast('Please select a patient', 'error');
-            return;
+        if (!analysisData.patientId || analysisData.patientId < 1) {
+            validationErrors.push('Please select a valid patient');
         }
 
-        if (!analysisData.doctorId) {
-            showToast('Please select a doctor', 'error');
-            return;
+        if (!analysisData.doctorId || analysisData.doctorId < 1) {
+            validationErrors.push('Please select a valid doctor');
         }
 
-        if (!analysisData.roomId) {
-            showToast('Please select a room', 'error');
+        if (!analysisData.roomId || analysisData.roomId < 1) {
+            validationErrors.push('Please select a valid room');
+        }
+
+        // Check if analysis type is valid (from loaded types)
+        if (analysisData.analysisType && analysisTypes.length > 0) {
+            const validType = analysisTypes.find(type => type.code === analysisData.analysisType);
+            if (!validType) {
+                validationErrors.push(`Invalid analysis type: ${analysisData.analysisType}. Available types: ${analysisTypes.map(t => t.code).join(', ')}`);
+            }
+        }
+
+        // Backend compatibility check - warn if type is not in expected hardcoded list
+        const backendExpectedTypes = ['XY', 'YZ', 'ZG', 'HG'];
+        if (analysisData.analysisType && !backendExpectedTypes.includes(analysisData.analysisType)) {
+            console.warn(`Analysis type '${analysisData.analysisType}' may not be supported by backend recurring analysis endpoint. Expected: ${backendExpectedTypes.join(', ')}`);
+        }
+
+        if (validationErrors.length > 0) {
+            showToast(`Validation errors:\n${validationErrors.join('\n')}`, 'error');
+            console.error('Validation errors:', validationErrors);
+            console.error('Analysis data:', analysisData);
             return;
         }
 
         // Recurring analysis validation
         if (isRecurring) {
             if (!analysisData.recurrencePattern) {
-                showToast('Please select a recurrence frequency', 'error');
+                showToast('Recurrence pattern is required', 'error');
+                return;
+            }
+
+            if (!analysisData.totalOccurrences || analysisData.totalOccurrences < 2) {
+                showToast('Total occurrences must be at least 2', 'error');
+                return;
+            }
+
+            if (analysisData.intervalDays < 1) {
+                showToast('Interval days must be at least 1', 'error');
                 return;
             }
 
@@ -1965,6 +2222,9 @@ function initializePage() {
                 return;
             }
         }
+
+        // Debug: Log the exact data being sent
+        console.log('Sending analysis data to backend:', JSON.stringify(analysisData, null, 2));
 
         try {
             if (isRecurring) {
@@ -1982,6 +2242,7 @@ function initializePage() {
             }
         } catch (error) {
             console.error('Failed to create analysis:', error);
+            console.error('Analysis data that failed:', analysisData);
         }
     }
 

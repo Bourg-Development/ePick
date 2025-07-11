@@ -9,14 +9,20 @@ class RecurringAnalysisService {
      */
     async _validateRecurringAnalysisDates(data) {
         const validationResults = [];
-        const dates = [];
-        let currentDate = new Date(data.analysisDate);
+        let dates = [];
         
-        // Generate all planned dates first
-        for (let i = 0; i < data.totalOccurrences; i++) {
-            dates.push(new Date(currentDate));
-            if (i < data.totalOccurrences - 1) {
-                currentDate = this.calculateNextDueDate(currentDate, data.recurrencePattern, data.intervalDays);
+        // Use pre-calculated dates if provided (already adjusted for working days)
+        if (data.calculatedDates && Array.isArray(data.calculatedDates)) {
+            dates = data.calculatedDates.map(dateStr => new Date(dateStr));
+        } else {
+            // Fallback to generating dates (original behavior)
+            let currentDate = new Date(data.analysisDate);
+            
+            for (let i = 0; i < data.totalOccurrences; i++) {
+                dates.push(new Date(currentDate));
+                if (i < data.totalOccurrences - 1) {
+                    currentDate = this.calculateNextDueDate(currentDate, data.recurrencePattern, data.intervalDays);
+                }
             }
         }
 
@@ -124,13 +130,27 @@ class RecurringAnalysisService {
                 is_active: true
             }, { transaction });
 
-            // Create ALL analyses upfront
+            // Create ALL analyses upfront using pre-calculated dates if available
             const analyses = [];
-            let currentDate = new Date(data.analysisDate);
+            let analysisDates = [];
+            
+            // Use pre-calculated dates if provided (already adjusted for working days)
+            if (data.calculatedDates && Array.isArray(data.calculatedDates)) {
+                analysisDates = data.calculatedDates.map(dateStr => new Date(dateStr));
+            } else {
+                // Fallback to generating dates (original behavior)
+                let currentDate = new Date(data.analysisDate);
+                for (let i = 0; i < data.totalOccurrences; i++) {
+                    analysisDates.push(new Date(currentDate));
+                    if (i < data.totalOccurrences - 1) {
+                        currentDate = this.calculateNextDueDate(currentDate, data.recurrencePattern, data.intervalDays);
+                    }
+                }
+            }
             
             for (let i = 0; i < data.totalOccurrences; i++) {
                 const analysis = await db.Analysis.create({
-                    analysis_date: new Date(currentDate),
+                    analysis_date: analysisDates[i],
                     patient_id: data.patientId,
                     doctor_id: data.doctorId,
                     room_id: data.roomId,
@@ -143,11 +163,6 @@ class RecurringAnalysisService {
                 }, { transaction });
                 
                 analyses.push(analysis);
-                
-                // Calculate next date for the next iteration
-                if (i < data.totalOccurrences - 1) {
-                    currentDate = this.calculateNextDueDate(currentDate, data.recurrencePattern, data.intervalDays);
-                }
             }
 
             // Create an initial prescription for ONLY the first analysis
@@ -200,6 +215,7 @@ class RecurringAnalysisService {
             });
 
             return {
+                success: true,
                 recurringAnalysis,
                 analyses
             };

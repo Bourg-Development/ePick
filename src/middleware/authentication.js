@@ -199,6 +199,12 @@ const nonAuth = async (req, res, next) => {
         decoded = await tokenService.verifyToken(token, 'access');
     }catch (e) {
         if(e.code === 'TOKEN_EXPIRED') {
+            // If accessing login/register pages with expired token, just clear cookies and continue
+            if (req.path === '/auth/login' || req.path === '/auth/register') {
+                clearAuthCookies(res);
+                return next();
+            }
+            
             if (req.headers.accept?.includes('text/html')) {
                 return res.redirect(`/api/auth/refresh-token?redirect=${encodeURIComponent(req.originalUrl)}`)
             }
