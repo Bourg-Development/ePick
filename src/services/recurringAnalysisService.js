@@ -165,28 +165,35 @@ class RecurringAnalysisService {
                 analyses.push(analysis);
             }
 
-            // Create an initial prescription for ONLY the first analysis
-            const firstAnalysis = analyses[0];
-            
-            // Generate a prescription number
-            const prescriptionNumber = `AUTO-${recurringAnalysis.id}-${Date.now()}`;
-            
-            // Create the prescription directly within the same transaction
-            // This prescription only covers the first analysis
-            const prescription = await db.Prescription.create({
-                recurring_analysis_id: recurringAnalysis.id,
-                patient_id: recurringAnalysis.patient_id,
-                doctor_id: recurringAnalysis.doctor_id,
-                prescribed_by: userId,
-                prescription_number: prescriptionNumber,
-                valid_from: firstAnalysis.analysis_date,
-                valid_until: firstAnalysis.analysis_date, // Only valid for the first analysis date
-                remaining_analyses: 1, // Only covers 1 analysis
-                total_analyses_prescribed: 1, // Only prescribed 1 analysis
-                notes: 'Automatically created prescription for first analysis in recurring series',
-                status: 'Active',
-                verified_at: new Date()
-            }, { transaction });
+            // Create a prescription for all analyses EXCEPT the last one
+            // The last analysis will require manual prescription validation
+            if (analyses.length > 1) {
+                const firstAnalysis = analyses[0];
+                const secondToLastAnalysis = analyses[analyses.length - 2];
+                const prescribedAnalysesCount = analyses.length - 1; // All except the last one
+                
+                // Generate a prescription number
+                const prescriptionNumber = `AUTO-${recurringAnalysis.id}-${Date.now()}`;
+                
+                // Create the prescription covering all analyses except the last
+                const prescription = await db.Prescription.create({
+                    recurring_analysis_id: recurringAnalysis.id,
+                    patient_id: recurringAnalysis.patient_id,
+                    doctor_id: recurringAnalysis.doctor_id,
+                    prescribed_by: userId,
+                    prescription_number: prescriptionNumber,
+                    valid_from: firstAnalysis.analysis_date,
+                    valid_until: secondToLastAnalysis.analysis_date, // Valid until second-to-last analysis
+                    remaining_analyses: prescribedAnalysesCount,
+                    total_analyses_prescribed: prescribedAnalysesCount,
+                    notes: `Automatically created prescription for ${prescribedAnalysesCount} analyses in recurring series (last analysis requires manual validation)`,
+                    status: 'Active',
+                    verified_at: new Date()
+                }, { transaction });
+            } else {
+                // If only one analysis, don't create any prescription (it will need manual validation)
+                // This handles the edge case where totalOccurrences = 1
+            }
 
             // Update the recurring analysis to mark it as fully scheduled
             // Keep the last analysis date as next_due_date even though pattern is complete
@@ -210,7 +217,9 @@ class RecurringAnalysisService {
                     total_occurrences: data.totalOccurrences,
                     patient_id: data.patientId,
                     analyses_created: analyses.map(a => a.id),
-                    auto_prescription_created: true
+                    auto_prescription_created: analyses.length > 1,
+                    prescription_covers_analyses: analyses.length > 1 ? analyses.length - 1 : 0,
+                    last_analysis_requires_manual_validation: true
                 }
             });
 

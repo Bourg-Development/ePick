@@ -55,6 +55,7 @@ function initializePage() {
     let activeSearchDropdown = null;
     let activeExportDropdown = null;
     let analysisTypes = [];
+    let manuallyAdjustedDates = {}; // Track manually adjusted dates by index
 
     // Export column definitions
     const exportColumns = {
@@ -319,11 +320,13 @@ function initializePage() {
         if(closeAddModalBtn) {
             closeAddModalBtn.addEventListener('click', () => {
                 addAnalysisModal.classList.remove('show');
+                resetAddAnalysisForm();
             });
         }
         if(cancelAddBtn) {
             cancelAddBtn.addEventListener('click', () => {
                 addAnalysisModal.classList.remove('show');
+                resetAddAnalysisForm();
             });
         }
         if(addAnalysisForm) {
@@ -1888,6 +1891,11 @@ function initializePage() {
             return;
         }
 
+        // Clear manual adjustments if key parameters changed (except when called from date picker)
+        if (!window.isUpdatingFromDatePicker) {
+            manuallyAdjustedDates = {};
+        }
+
         const startDate = new Date(newAnalysisDate.value);
         const pattern = recurrencePattern.value;
         const interval = parseInt(intervalDays?.value) || getDefaultInterval(pattern);
@@ -1923,28 +1931,266 @@ function initializePage() {
         }
         
         dates.forEach((date, index) => {
-            const dateStr = formatDateForDisplay(date);
+            // Use manually adjusted date if available, otherwise use generated date
+            const effectiveDate = manuallyAdjustedDates[index] || date;
+            const dateStr = formatDateForDisplay(effectiveDate);
+            const isoDateStr = effectiveDate.toISOString().split('T')[0];
             const violations = validationResults.dateViolations[index] || {};
             const hasWarning = violations.nonWorkingDay || violations.exceededLimit;
             const warningClass = hasWarning ? 'preview-date-warning' : '';
             const warningIcon = hasWarning ? '⚠️ ' : '';
+            const isManuallyAdjusted = manuallyAdjustedDates[index] ? 'manually-adjusted' : '';
             
             previewHTML += `
-                <div class="preview-date ${warningClass}" title="${violations.reason || ''}">
+                <div class="preview-date ${warningClass} ${isManuallyAdjusted}" title="${violations.reason || ''}">
                     <span class="preview-date-number">${index + 1}.</span>
                     <span class="preview-date-value">${warningIcon}${dateStr}</span>
+                    <button type="button" class="preview-date-picker-btn" data-index="${index}" data-date="${isoDateStr}" title="Change this date">
+                        <span class="material-symbols-outlined">calendar_month</span>
+                    </button>
+                    <input type="date" class="preview-date-picker" id="datePicker${index}" value="${isoDateStr}" 
+                           data-index="${index}" style="position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none;">
                 </div>
             `;
         });
         previewHTML += '</div>';
 
         previewContent.innerHTML = previewHTML;
+        
+        // Add event listeners for date picker buttons
+        const datePickerBtns = previewContent.querySelectorAll('.preview-date-picker-btn');
+        datePickerBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                const currentDate = this.dataset.date;
+                openDatePicker(index, currentDate);
+            });
+        });
+        
+        // Add event listeners for date inputs
+        const datePickers = previewContent.querySelectorAll('.preview-date-picker');
+        datePickers.forEach(picker => {
+            picker.addEventListener('change', function() {
+                const index = parseInt(this.dataset.index);
+                const newDate = this.value;
+                updateAnalysisDate(index, newDate);
+            });
+        });
+        
         recurringPreview.style.display = 'block';
     }
 
     function resetRecurringPreview() {
         const recurringPreview = document.getElementById('recurringPreview');
         recurringPreview.style.display = 'none';
+        // Clear manually adjusted dates when resetting
+        manuallyAdjustedDates = {};
+        // Clear any active date picker
+        if (activeDatePicker && activeDatePicker.listener) {
+            document.removeEventListener('click', activeDatePicker.listener);
+        }
+        activeDatePicker = null;
+    }
+
+    function resetAddAnalysisForm() {
+        // Reset the form
+        const addAnalysisForm = document.getElementById('addAnalysisForm');
+        if (addAnalysisForm) {
+            addAnalysisForm.reset();
+        }
+
+        // Reset recurring analysis fields
+        const enableRecurring = document.getElementById('enableRecurring');
+        const recurringOptions = document.getElementById('recurringOptions');
+        const recurrencePattern = document.getElementById('recurrencePattern');
+        const intervalDays = document.getElementById('intervalDays');
+        const totalOccurrences = document.getElementById('totalOccurrences');
+        const customIntervalGroup = document.getElementById('customIntervalGroup');
+
+        if (enableRecurring) enableRecurring.checked = false;
+        if (recurringOptions) recurringOptions.style.display = 'none';
+        if (recurrencePattern) recurrencePattern.value = '';
+        if (intervalDays) intervalDays.value = '';
+        if (totalOccurrences) totalOccurrences.value = '';
+        if (customIntervalGroup) customIntervalGroup.style.display = 'none';
+
+        // Clear and hide recurring preview
+        resetRecurringPreview();
+
+        // Clear search selections
+        currentEditAnalysisId = null;
+        
+        // Reset any search inputs that might have selections
+        const patientSearchInput = document.getElementById('patientSearchInput');
+        const doctorSearchInput = document.getElementById('doctorSearchInput');
+        const roomSearchInput = document.getElementById('roomSearchInput');
+        
+        if (patientSearchInput) patientSearchInput.value = '';
+        if (doctorSearchInput) doctorSearchInput.value = '';
+        if (roomSearchInput) roomSearchInput.value = '';
+    }
+
+    // Store active date picker info to manage cleanup
+    let activeDatePicker = null;
+    
+    // Functions for date picker functionality
+    function openDatePicker(index, currentDate) {
+        // Close any existing date picker first
+        if (activeDatePicker) {
+            hideDatePicker(activeDatePicker.index, activeDatePicker.element.value);
+        }
+        
+        const datePicker = document.getElementById(`datePicker${index}`);
+        if (datePicker) {
+            // Store reference to active picker
+            activeDatePicker = { index, element: datePicker, listener: null };
+            
+            // Make the input temporarily visible and clickable
+            datePicker.style.position = 'fixed';
+            datePicker.style.top = '50%';
+            datePicker.style.left = '50%';
+            datePicker.style.transform = 'translate(-50%, -50%)';
+            datePicker.style.zIndex = '10000';
+            datePicker.style.opacity = '1';
+            datePicker.style.width = 'auto';
+            datePicker.style.height = 'auto';
+            datePicker.style.pointerEvents = 'auto';
+            datePicker.style.border = '2px solid var(--blood-red)';
+            datePicker.style.borderRadius = '4px';
+            datePicker.style.padding = '8px';
+            datePicker.style.background = 'white';
+            datePicker.style.fontSize = '16px';
+            datePicker.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+            
+            // Focus and try to open the picker
+            datePicker.focus();
+            
+            // For newer browsers, try showPicker
+            if (typeof datePicker.showPicker === 'function') {
+                try {
+                    datePicker.showPicker();
+                } catch (e) {
+                    console.log('showPicker failed, fallback to manual input');
+                }
+            }
+            
+            // Add click outside listener to hide the picker
+            const hideOnClickOutside = (e) => {
+                if (!datePicker.contains(e.target)) {
+                    hideDatePicker(index, datePicker.value);
+                }
+            };
+            
+            // Store listener reference for cleanup
+            activeDatePicker.listener = hideOnClickOutside;
+            
+            // Add the listener after a short delay to avoid immediate triggering
+            setTimeout(() => {
+                document.addEventListener('click', hideOnClickOutside);
+            }, 100);
+        }
+    }
+    
+    function hideDatePicker(index, newDateStr) {
+        const datePicker = document.getElementById(`datePicker${index}`);
+        
+        // Remove click outside listener
+        if (activeDatePicker && activeDatePicker.listener) {
+            document.removeEventListener('click', activeDatePicker.listener);
+        }
+        activeDatePicker = null;
+        
+        // Hide the date picker
+        if (datePicker) {
+            datePicker.style.position = 'absolute';
+            datePicker.style.top = '0';
+            datePicker.style.left = '0';
+            datePicker.style.width = '1px';
+            datePicker.style.height = '1px';
+            datePicker.style.opacity = '0';
+            datePicker.style.pointerEvents = 'none';
+            datePicker.style.transform = 'none';
+            datePicker.style.zIndex = 'auto';
+            datePicker.style.border = 'none';
+            datePicker.style.borderRadius = 'initial';
+            datePicker.style.padding = 'initial';
+            datePicker.style.background = 'initial';
+            datePicker.style.fontSize = 'initial';
+            datePicker.style.boxShadow = 'none';
+        }
+        
+        // Update the date if changed and not empty
+        if (newDateStr && newDateStr.trim() !== '') {
+            updateAnalysisDate(index, newDateStr);
+        }
+    }
+
+    async function updateAnalysisDate(index, newDateStr) {
+        if (newDateStr) {
+            const newDate = new Date(newDateStr);
+            
+            // Validate against company policy
+            if (organizationSettings) {
+                const dayName = newDate.toLocaleDateString('en-US', { weekday: 'long' });
+                const workingDays = organizationSettings.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                
+                // Check if it's a working day
+                if (!workingDays.includes(dayName)) {
+                    showToast(`${dayName} is not a working day. Please select a working day.`, 'error');
+                    return;
+                }
+                
+                // Check daily analysis limit
+                const maxAnalysesPerDay = organizationSettings.max_analyses_per_day;
+                if (maxAnalysesPerDay) {
+                    try {
+                        const dateStr = newDate.toISOString().split('T')[0];
+                        const response = await api.get(`/analyses/count-by-date/${dateStr}`);
+                        
+                        if (response.count >= parseInt(maxAnalysesPerDay)) {
+                            showToast(`Maximum analyses per day (${maxAnalysesPerDay}) reached for ${dateStr}. Please select a different date.`, 'error');
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error checking daily analysis count:', error);
+                        // Continue anyway if we can't check the count
+                    }
+                }
+            }
+            
+            manuallyAdjustedDates[index] = newDate;
+            
+            // Set flag to prevent clearing manual adjustments
+            window.isUpdatingFromDatePicker = true;
+            
+            // Clear any active date picker before regenerating
+            if (activeDatePicker) {
+                if (activeDatePicker.listener) {
+                    document.removeEventListener('click', activeDatePicker.listener);
+                }
+                activeDatePicker = null;
+            }
+            
+            // Regenerate the preview to show updated date and validation
+            const pattern = document.getElementById('recurrencePattern')?.value;
+            const interval = document.getElementById('intervalDays')?.value;
+            const total = document.getElementById('totalOccurrences')?.value;
+            const startDate = document.getElementById('newAnalysisDate')?.value;
+            
+            if (pattern && total && startDate) {
+                updateRecurringPreview();
+            }
+            
+            // Clear flag after update
+            window.isUpdatingFromDatePicker = false;
+        }
+    }
+
+    // Function to get effective dates (including manual adjustments)
+    function getEffectiveDates(generatedDates) {
+        return generatedDates.map((date, index) => {
+            return manuallyAdjustedDates[index] || date;
+        });
     }
 
     function generateRecurringDates(startDate, pattern, interval, total) {
@@ -2138,15 +2384,18 @@ function initializePage() {
             const startDate = new Date(analysisData.analysisDate);
             const interval = recurrencePattern && recurrencePattern.value === 'custom' ? 
                 parseInt(intervalDays?.value || 1) : 1;
-            const calculatedDates = generateRecurringDates(
+            const generatedDates = generateRecurringDates(
                 startDate, 
                 analysisData.recurrencePattern, 
                 interval, 
                 analysisData.totalOccurrences
             );
             
-            // Send the pre-calculated dates to backend to avoid working day conflicts
-            analysisData.calculatedDates = calculatedDates.map(date => date.toISOString().split('T')[0]);
+            // Apply manual adjustments to get effective dates
+            const effectiveDates = getEffectiveDates(generatedDates);
+            
+            // Send the effective dates (including manual adjustments) to backend
+            analysisData.calculatedDates = effectiveDates.map(date => date.toISOString().split('T')[0]);
             
             console.log('Sending pre-calculated working day dates to backend:', analysisData.calculatedDates);
         }
@@ -2232,13 +2481,13 @@ function initializePage() {
                 addAnalysisModal.classList.remove('show');
                 showToast(`Recurring analysis created successfully (${analysisData.totalOccurrences} analyses scheduled)`, 'success');
                 loadAnalyses();
-                // Reset form
-                resetRecurringForm();
+                resetAddAnalysisForm();
             } else {
                 await createAnalysis(analysisData);
                 addAnalysisModal.classList.remove('show');
                 showToast('Analysis scheduled successfully', 'success');
                 loadAnalyses();
+                resetAddAnalysisForm();
             }
         } catch (error) {
             console.error('Failed to create analysis:', error);
@@ -2246,23 +2495,6 @@ function initializePage() {
         }
     }
 
-    function resetRecurringForm() {
-        const enableRecurring = document.getElementById('enableRecurring');
-        const recurringOptions = document.getElementById('recurringOptions');
-        const recurrencePattern = document.getElementById('recurrencePattern');
-        const intervalDays = document.getElementById('intervalDays');
-        const totalOccurrences = document.getElementById('totalOccurrences');
-        const customIntervalGroup = document.getElementById('customIntervalGroup');
-
-        if (enableRecurring) enableRecurring.checked = false;
-        if (recurringOptions) recurringOptions.style.display = 'none';
-        if (recurrencePattern) recurrencePattern.value = '';
-        if (intervalDays) intervalDays.value = '';
-        if (totalOccurrences) totalOccurrences.value = '';
-        if (customIntervalGroup) customIntervalGroup.style.display = 'none';
-        
-        resetRecurringPreview();
-    }
 
     async function handleUpdateStatus(e) {
         e.preventDefault();
