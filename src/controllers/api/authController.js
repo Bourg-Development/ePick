@@ -22,7 +22,7 @@ class AuthController {
         try {
             // Validate request
             const { username, password } = req.body;
-            const isHtmlRequest = req.headers.accept?.includes('text/html') || !req.headers.accept?.includes('application/json');
+            const isHtmlRequest = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
 
             if (!username || !password) {
                 if (isHtmlRequest) {
@@ -96,7 +96,7 @@ class AuthController {
             return res.status(200).redirect('/restricted/dashboard?login=true');
         } catch (error) {
             console.error('Login error:', error);
-            const isHtmlRequest = req.headers.accept?.includes('text/html') || !req.headers.accept?.includes('application/json');
+            const isHtmlRequest = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
             
             if (isHtmlRequest) {
                 return res.status(500).render('auth/login', {
@@ -334,7 +334,7 @@ class AuthController {
     async register(req, res) {
         try {
             const { referenceCode, password, confirmPassword } = req.body;
-            const isHtmlRequest = req.headers.accept?.includes('text/html') || !req.headers.accept?.includes('application/json');
+            const isHtmlRequest = req.headers.accept?.includes('text/html') && !req.headers.accept?.includes('application/json');
 
             // Validate request
             if (!referenceCode || !password || !confirmPassword) {
