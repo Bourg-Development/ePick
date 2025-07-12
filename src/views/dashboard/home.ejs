@@ -2,18 +2,18 @@
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="dashboard-title-section">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle" id="welcomeMessage">Welcome back</p>
+            <h1 class="dashboard-title"><%= __('dashboard.home.title') %></h1>
+            <p class="dashboard-subtitle" id="welcomeMessage"><%= __('dashboard.home.welcomeBack') %></p>
         </div>
         <div class="dashboard-actions">
             <div class="date-range-selector">
                 <span class="material-symbols-outlined">calendar_month</span>
-                <span id="dateRangeText">Last 7 days</span>
+                <span id="dateRangeText"><%= __('dashboard.home.lastDays').replace('{days}', '7') %></span>
                 <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
             </div>
             <button class="btn btn-primary" id="refreshDashboard">
                 <span class="material-symbols-outlined">refresh</span>
-                Refresh
+                <%= __('dashboard.home.refresh') %>
             </button>
         </div>
     </div>
@@ -26,7 +26,7 @@
             </div>
             <div class="metric-content">
                 <h3 class="metric-value" id="totalAnalysesToday">0</h3>
-                <p class="metric-label">Today's Analyses</p>
+                <p class="metric-label"><%= __('dashboard.home.metrics.todaysAnalyses') %></p>
             </div>
         </div>
 
@@ -36,9 +36,9 @@
             </div>
             <div class="metric-content">
                 <h3 class="metric-value" id="pendingAnalyses">0</h3>
-                <p class="metric-label">Pending Analyses</p>
+                <p class="metric-label"><%= __('dashboard.home.metrics.pendingAnalyses') %></p>
                 <span class="metric-change">
-                    <span id="pendingStatus">0 urgent</span>
+                    <span id="pendingStatus"><%= __('dashboard.home.metrics.urgent').replace('{count}', '0') %></span>
                 </span>
             </div>
         </div>
@@ -49,7 +49,7 @@
             </div>
             <div class="metric-content">
                 <h3 class="metric-value" id="completionRate">0%</h3>
-                <p class="metric-label">Completion Rate</p>
+                <p class="metric-label"><%= __('dashboard.home.metrics.completionRate') %></p>
             </div>
         </div>
 
@@ -60,18 +60,18 @@
         <!-- Today's Schedule Widget -->
         <div class="dashboard-card card-lg">
             <div class="card-header">
-                <h3 class="card-title">Today's Schedule</h3>
+                <h3 class="card-title"><%= __('dashboard.home.todaysSchedule.title') %></h3>
                 <div class="card-actions">
-                    <button class="btn-icon" id="scheduleViewToggle" title="Toggle view">
+                    <button class="btn-icon" id="scheduleViewToggle" title="<%= __('dashboard.home.todaysSchedule.toggleView') %>">
                         <span class="material-symbols-outlined">view_list</span>
                     </button>
-                    <a href="/restricted/dashboard/analyses" class="btn-link">View All</a>
+                    <a href="/restricted/dashboard/analyses" class="btn-link"><%= __('dashboard.home.todaysSchedule.viewAll') %></a>
                 </div>
             </div>
             <div class="card-body">
                 <div id="scheduleLoader" class="loader-container">
                     <div class="spinner"></div>
-                    <p>Loading schedule...</p>
+                    <p><%= __('dashboard.home.todaysSchedule.loadingSchedule') %></p>
                 </div>
                 <div id="scheduleContent" style="display: none;">
                     <div class="schedule-timeline" id="scheduleTimeline">
@@ -83,8 +83,8 @@
                 </div>
                 <div id="scheduleEmpty" class="empty-state" style="display: none;">
                     <span class="material-symbols-outlined">event_busy</span>
-                    <p>No analyses scheduled for today</p>
-                    <a href="/restricted/dashboard/analyses" class="btn btn-sm btn-primary">Schedule Analysis</a>
+                    <p><%= __('dashboard.home.todaysSchedule.noAnalysesScheduled') %></p>
+                    <a href="/restricted/dashboard/analyses" class="btn btn-sm btn-primary"><%= __('dashboard.home.todaysSchedule.scheduleAnalysis') %></a>
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@
         <% if(permissions.includes('read.all') || permissions.includes('audit.view')) { %>
         <div class="dashboard-card card-md" id="recentActivityCard">
             <div class="card-header">
-                <h3 class="card-title">Recent Activity</h3>
+                <h3 class="card-title"><%= __('dashboard.home.recentActivity.title') %></h3>
                 <span class="activity-badge" id="activityCount">0</span>
             </div>
             <div class="card-body">
@@ -105,7 +105,7 @@
                 </div>
                 <div id="activityEmpty" class="empty-state" style="display: none;">
                     <span class="material-symbols-outlined">history</span>
-                    <p>No recent activity</p>
+                    <p><%= __('dashboard.home.recentActivity.noRecentActivity') %></p>
                 </div>
             </div>
         </div>
@@ -114,15 +114,15 @@
         <!-- Performance Chart -->
         <div class="dashboard-card card-md">
             <div class="card-header">
-                <h3 class="card-title">Weekly Performance</h3>
+                <h3 class="card-title"><%= __('dashboard.home.weeklyPerformance.title') %></h3>
                 <div class="chart-legend">
                     <span class="legend-item completed">
                         <span class="legend-dot"></span>
-                        Completed
+                        <%= __('dashboard.home.weeklyPerformance.completed') %>
                     </span>
                     <span class="legend-item pending">
                         <span class="legend-dot"></span>
-                        Pending
+                        <%= __('dashboard.home.weeklyPerformance.pending') %>
                     </span>
                 </div>
             </div>
@@ -134,49 +134,49 @@
         <!-- Quick Actions -->
         <div class="dashboard-card card-sm">
             <div class="card-header">
-                <h3 class="card-title">Quick Actions</h3>
+                <h3 class="card-title"><%= __('dashboard.home.quickActions.title') %></h3>
             </div>
             <div class="card-body">
                 <div class="quick-actions">
                     <% if(permissions.includes('write.analyses') || permissions.includes('write.all')) { %>
                     <a href="/restricted/dashboard/analyses" class="quick-action-btn">
                         <span class="material-symbols-outlined">add_circle</span>
-                        <span>Schedule Analysis</span>
+                        <span><%= __('dashboard.home.quickActions.scheduleAnalysis') %></span>
                     </a>
                     <% } %>
                     
                     <% if(permissions.includes('write.patients') || permissions.includes('write.all')) { %>
                     <a href="/restricted/dashboard/patients" class="quick-action-btn">
                         <span class="material-symbols-outlined">person_add</span>
-                        <span>Add Patient</span>
+                        <span><%= __('dashboard.home.quickActions.addPatient') %></span>
                     </a>
                     <% } %>
                     
                     <% if(permissions.includes('read.analyses') || permissions.includes('read.all')) { %>
                     <a href="/restricted/dashboard/analyses" class="quick-action-btn">
                         <span class="material-symbols-outlined">assignment</span>
-                        <span>View Reports</span>
+                        <span><%= __('dashboard.home.quickActions.viewReports') %></span>
                     </a>
                     <% } %>
                     
                     <% if(permissions.includes('write.rooms') || permissions.includes('write.all')) { %>
                     <a href="/restricted/dashboard/rooms" class="quick-action-btn">
                         <span class="material-symbols-outlined">meeting_room</span>
-                        <span>Manage Rooms</span>
+                        <span><%= __('dashboard.home.quickActions.manageRooms') %></span>
                     </a>
                     <% } %>
                     
                     <% if(permissions.includes('write.doctors') || permissions.includes('write.all')) { %>
                     <a href="/restricted/dashboard/doctors" class="quick-action-btn">
                         <span class="material-symbols-outlined">medical_services</span>
-                        <span>Add Doctor</span>
+                        <span><%= __('dashboard.home.quickActions.addDoctor') %></span>
                     </a>
                     <% } %>
                     
                     <% if(permissions.includes('write.users') || permissions.includes('write.all')) { %>
                     <a href="/restricted/dashboard/users" class="quick-action-btn">
                         <span class="material-symbols-outlined">group_add</span>
-                        <span>Add User</span>
+                        <span><%= __('dashboard.home.quickActions.addUser') %></span>
                     </a>
                     <% } %>
                     
@@ -192,8 +192,8 @@
                     <% if(!hasQuickActions) { %>
                     <div class="empty-state">
                         <span class="material-symbols-outlined">lock</span>
-                        <p>No quick actions available</p>
-                        <small>Contact your administrator for additional permissions</small>
+                        <p><%= __('dashboard.home.quickActions.noActionsAvailable') %></p>
+                        <small><%= __('dashboard.home.quickActions.contactAdministrator') %></small>
                     </div>
                     <% } %>
                 </div>
@@ -203,24 +203,24 @@
         <!-- Service Status -->
         <div class="dashboard-card card-sm">
             <div class="card-header">
-                <h3 class="card-title">Service Status</h3>
+                <h3 class="card-title"><%= __('dashboard.home.serviceStatus.title') %></h3>
             </div>
             <div class="card-body">
                 <div class="service-status" id="serviceStatus">
                     <div class="status-item">
                         <span class="status-indicator active"></span>
                         <div class="status-info">
-                            <p class="status-name">Current Service</p>
-                            <p class="status-value" id="currentServiceName">Loading...</p>
+                            <p class="status-name"><%= __('dashboard.home.serviceStatus.currentService') %></p>
+                            <p class="status-value" id="currentServiceName"><%= __('dashboard.home.serviceStatus.loading') %></p>
                         </div>
                     </div>
                     <div class="status-metrics">
                         <div class="status-metric">
-                            <span class="metric-label">Active Users</span>
+                            <span class="metric-label"><%= __('dashboard.home.serviceStatus.activeUsers') %></span>
                             <span class="metric-value" id="activeUsers">0</span>
                         </div>
                         <div class="status-metric">
-                            <span class="metric-label">Total Rooms</span>
+                            <span class="metric-label"><%= __('dashboard.home.serviceStatus.totalRooms') %></span>
                             <span class="metric-value" id="totalRooms">0</span>
                         </div>
                     </div>
@@ -231,7 +231,7 @@
         <!-- Analysis Types Distribution -->
         <div class="dashboard-card card-sm">
             <div class="card-header">
-                <h3 class="card-title">Analysis Types</h3>
+                <h3 class="card-title"><%= __('dashboard.home.analysisTypes.title') %></h3>
             </div>
             <div class="card-body">
                 <canvas id="analysisTypesChart" height="180"></canvas>

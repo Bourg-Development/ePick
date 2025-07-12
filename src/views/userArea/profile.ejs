@@ -152,8 +152,8 @@
                 <div class="session-item full-width">
                     <span class="session-icon material-symbols-outlined">computer</span>
                     <div class="session-details">
-                        <label>Browser & Device</label>
-                        <span class="mono small" id="sessionUserAgent">Loading...</span>
+                        <label><%= __('profile.browserDevice') %></label>
+                        <span class="mono small" id="sessionUserAgent"><%= __('profile.loading') %></span>
                     </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@
     <!-- Activity Card -->
     <div class="profile-card">
         <div class="card-header">
-            <h3>Recent Activity</h3>
+            <h3><%= __('profile.recentActivity.title') %></h3>
             <div class="card-actions">
                 <button class="btn btn-sm btn-secondary" id="refreshActivityBtn">
                     <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
@@ -172,9 +172,9 @@
         </div>
         <div class="card-content">
             <div class="activity-tabs">
-                <button class="activity-tab active" data-tab="logins">Recent Logins</button>
-                <button class="activity-tab" data-tab="failed" id="failedTab" style="display: none;">Failed Attempts</button>
-                <button class="activity-tab" data-tab="password" id="passwordTab" style="display: none;">Password Changes</button>
+                <button class="activity-tab active" data-tab="logins"><%= __('profile.recentActivity.recentLogins') %></button>
+                <button class="activity-tab" data-tab="failed" id="failedTab" style="display: none;"><%= __('profile.recentActivity.failedAttempts') %></button>
+                <button class="activity-tab" data-tab="password" id="passwordTab" style="display: none;"><%= __('profile.recentActivity.passwordChanges') %></button>
             </div>
 
             <div class="activity-content">
@@ -198,7 +198,7 @@
     <div class="modal-overlay" id="editProfileModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Edit Profile</h2>
+                <h2><%= __('profile.editModal.title') %></h2>
                 <button class="modal-close" id="closeEditModalBtn">&times;</button>
             </div>
             <form id="editProfileForm">
@@ -238,10 +238,10 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn"><%= __('common.cancel') %></button>
                     <button type="submit" class="btn btn-primary" id="saveProfileBtn">
                         <span class="material-symbols-outlined" style="font-size: 16px;">save</span>
-                        Save Changes
+                        <%= __('profile.editModal.saveChanges') %>
                     </button>
                 </div>
             </form>

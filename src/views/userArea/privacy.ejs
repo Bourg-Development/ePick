@@ -1,6 +1,6 @@
 <div class="header">
-    <h1>Privacy & Security</h1>
-    <p>Manage your security settings, two-factor authentication, and privacy preferences.</p>
+    <h1><%= __('privacy.title') %></h1>
+    <p><%= __('privacy.subtitle') %></p>
 </div>
 
 <div class="settings-container">
@@ -9,9 +9,9 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">security</span>
-                Two-Factor Authentication
+                <%= __('privacy.security.title') %>
             </h2>
-            <p>Add an extra layer of security to your account with two-factor authentication</p>
+            <p><%= __('privacy.security.subtitle') %></p>
         </div>
         <div class="card-content">
             <div class="setting-group">
@@ -20,8 +20,8 @@
                         <div class="method-info">
                             <span class="method-icon material-symbols-outlined">smartphone</span>
                             <div class="method-details">
-                                <h3>TOTP Authenticator</h3>
-                                <p>Use apps like Google Authenticator, Authy, or 1Password</p>
+                                <h3><%= __('profile.security.totpAuthenticator') %></h3>
+                                <p><%= __('profile.security.totpDescription') %></p>
                             </div>
                         </div>
                         <div class="method-status">
@@ -31,11 +31,11 @@
                     <div class="method-actions">
                         <button class="btn btn-primary" id="manageTotpBtn">
                             <span class="material-symbols-outlined">settings</span>
-                            <span id="totpActionText">Manage</span>
+                            <span id="totpActionText"><%= __('common.manage') %></span>
                         </button>
                     </div>
                     <div class="method-description">
-                        <small>Time-based one-time passwords provide strong security for your account.</small>
+                        <small><%= __('privacy.security.totpHelp') %></small>
                     </div>
                 </div>
 
@@ -44,8 +44,8 @@
                         <div class="method-info">
                             <span class="method-icon material-symbols-outlined">security_key</span>
                             <div class="method-details">
-                                <h3>WebAuthn/FIDO2</h3>
-                                <p>Use security keys, fingerprint, or face recognition</p>
+                                <h3><%= __('profile.security.webauthn') %></h3>
+                                <p><%= __('profile.security.webauthnDescription') %></p>
                             </div>
                         </div>
                         <div class="method-status">
@@ -55,11 +55,11 @@
                     <div class="method-actions">
                         <button class="btn btn-primary" id="manageWebauthnBtn">
                             <span class="material-symbols-outlined">settings</span>
-                            <span id="webauthnActionText">Manage</span>
+                            <span id="webauthnActionText"><%= __('common.manage') %></span>
                         </button>
                     </div>
                     <div class="method-description">
-                        <small>Hardware security keys and biometric authentication for maximum security.</small>
+                        <small><%= __('privacy.security.webauthnHelp') %></small>
                     </div>
                 </div>
             </div>
@@ -71,30 +71,30 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">devices</span>
-                Session Management
+                <%= __('privacy.security.sessionSecurity') %>
             </h2>
-            <p>Monitor and manage your active sessions across different devices</p>
+            <p><%= __('privacy.security.sessionHelp') %></p>
         </div>
         <div class="card-content">
             <div class="setting-group">
                 <div class="current-session">
-                    <h3>Current Session</h3>
+                    <h3><%= __('profile.session.title') %></h3>
                     <div class="session-details">
                         <div class="session-item">
-                            <span class="session-label">Location:</span>
-                            <span class="session-value" id="currentSessionLocation">Loading...</span>
+                            <span class="session-label"><%= __('privacy.security.location') %>:</span>
+                            <span class="session-value" id="currentSessionLocation"><%= __('profile.loading') %></span>
                         </div>
                         <div class="session-item">
-                            <span class="session-label">Device:</span>
-                            <span class="session-value" id="currentSessionDevice">Loading...</span>
+                            <span class="session-label"><%= __('privacy.security.device') %>:</span>
+                            <span class="session-value" id="currentSessionDevice"><%= __('profile.loading') %></span>
                         </div>
                         <div class="session-item">
-                            <span class="session-label">Started:</span>
-                            <span class="session-value" id="currentSessionStarted">Loading...</span>
+                            <span class="session-label"><%= __('profile.session.sessionStarted') %>:</span>
+                            <span class="session-value" id="currentSessionStarted"><%= __('profile.loading') %></span>
                         </div>
                         <div class="session-item">
-                            <span class="session-label">Last Activity:</span>
-                            <span class="session-value" id="currentSessionActivity">Loading...</span>
+                            <span class="session-label"><%= __('profile.session.lastActivity') %>:</span>
+                            <span class="session-value" id="currentSessionActivity"><%= __('profile.loading') %></span>
                         </div>
                     </div>
                 </div>
@@ -102,11 +102,11 @@
                 <div class="session-actions">
                     <button class="btn btn-secondary" id="refreshSessionBtn">
                         <span class="material-symbols-outlined">refresh</span>
-                        Refresh Session Info
+                        <%= __('privacy.security.refreshSession') %>
                     </button>
                     <button class="btn btn-danger" id="terminateOtherSessionsBtn">
                         <span class="material-symbols-outlined">logout</span>
-                        Sign Out Other Devices
+                        <%= __('privacy.security.logoutAllDevices') %>
                     </button>
                 </div>
             </div>
@@ -118,17 +118,17 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">visibility</span>
-                Privacy Settings
+                <%= __('privacy.dataPrivacy.title') %>
             </h2>
-            <p>Control how your information is shared and displayed</p>
+            <p><%= __('privacy.dataPrivacy.subtitle') %></p>
         </div>
         <div class="card-content">
             <div class="setting-group">
-                <label class="setting-label">Profile Visibility</label>
+                <label class="setting-label"><%= __('privacy.dataPrivacy.profileVisibility') %></label>
                 <div class="privacy-option">
                     <div class="privacy-info">
-                        <h4>Full Name Display</h4>
-                        <p>Show your full name to other users in the system</p>
+                        <h4><%= __('privacy.dataPrivacy.fullNameDisplay') %></h4>
+                        <p><%= __('privacy.dataPrivacy.fullNameHelp') %></p>
                     </div>
                     <div class="privacy-control">
                         <div class="toggle-switch">
@@ -142,8 +142,8 @@
 
                 <div class="privacy-option">
                     <div class="privacy-info">
-                        <h4>Email Visibility</h4>
-                        <p>Allow other users to see your email address</p>
+                        <h4><%= __('privacy.dataPrivacy.emailVisibility') %></h4>
+                        <p><%= __('privacy.dataPrivacy.emailHelp') %></p>
                     </div>
                     <div class="privacy-control">
                         <div class="toggle-switch">
@@ -157,8 +157,8 @@
 
                 <div class="privacy-option">
                     <div class="privacy-info">
-                        <h4>Activity Status</h4>
-                        <p>Show when you were last active in the system</p>
+                        <h4><%= __('privacy.dataPrivacy.activityStatus') %></h4>
+                        <p><%= __('privacy.dataPrivacy.activityHelp') %></p>
                     </div>
                     <div class="privacy-control">
                         <div class="toggle-switch">
@@ -173,7 +173,7 @@
                 <div class="privacy-actions">
                     <button class="btn btn-primary" id="savePrivacyBtn">
                         <span class="material-symbols-outlined">save</span>
-                        Save Privacy Settings
+                        <%= __('privacy.save') %>
                     </button>
                 </div>
                 <div class="setting-status" id="status-privacy"></div>
@@ -186,7 +186,7 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">history</span>
-                Security Activity
+                <%= __('privacy.activity.title') %>
             </h2>
             <div class="card-actions">
                 <button class="btn btn-sm btn-secondary" id="refreshSecurityLogBtn">

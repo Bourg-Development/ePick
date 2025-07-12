@@ -1,11 +1,11 @@
 <section class="hero">
     <div class="container">
         <div class="hero-content">
-            <h1>ePick Blood Analysis System</h1>
-            <p>Internal healthcare management platform for Fondation Pescatore medical staff</p>
+            <h1><%= __('home.hero.title') %></h1>
+            <p><%= __('home.hero.subtitle') %></p>
             <div class="hero-buttons">
-                <a href="/auth/login" class="btn btn-primary">Access System</a>
-                <a href="/status" class="btn btn-secondary">System Status</a>
+                <a href="/auth/login" class="btn btn-primary"><%= __('home.hero.accessSystem') %></a>
+                <a href="/status" class="btn btn-secondary"><%= __('home.hero.systemStatus') %></a>
             </div>
         </div>
     </div>
@@ -14,24 +14,24 @@
 <section id="features" class="features">
     <div class="container">
         <div class="section-header">
-            <h2>System Features</h2>
-            <p>Comprehensive healthcare workflow management for medical professionals</p>
+            <h2><%= __('home.features.title') %></h2>
+            <p><%= __('home.features.subtitle') %></p>
         </div>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">🩸</div>
-                <h3>Blood Analysis Workflow</h3>
-                <p>Streamlined workflow for blood sample collection, processing, and patient care coordination</p>
+                <h3><%= __('home.features.bloodAnalysis.title') %></h3>
+                <p><%= __('home.features.bloodAnalysis.description') %></p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">👥</div>
-                <h3>Patient & User Management</h3>
-                <p>Secure patient records, user roles, and healthcare professional access control</p>
+                <h3><%= __('home.features.patientManagement.title') %></h3>
+                <p><%= __('home.features.patientManagement.description') %></p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
-                <h3>System Reporting</h3>
-                <p>Administrative reporting tools, user activity tracking, and system monitoring capabilities</p>
+                <h3><%= __('home.features.systemReporting.title') %></h3>
+                <p><%= __('home.features.systemReporting.description') %></p>
             </div>
         </div>
     </div>
@@ -40,29 +40,29 @@
 <section id="quick-access" class="quick-access-section">
     <div class="container">
         <div class="section-header">
-            <h2>Quick Access</h2>
-            <p>Direct links to commonly used system functions</p>
+            <h2><%= __('home.quickAccess.title') %></h2>
+            <p><%= __('home.quickAccess.subtitle') %></p>
         </div>
         <div class="quick-access-grid">
             <a href="/restricted/dashboard" class="access-card">
                 <div class="access-icon">🏥</div>
-                <h3>Dashboard</h3>
-                <p>Main system overview and recent activity</p>
+                <h3><%= __('home.quickAccess.dashboard.title') %></h3>
+                <p><%= __('home.quickAccess.dashboard.description') %></p>
             </a>
             <a href="/restricted/dashboard/analyses" class="access-card">
                 <div class="access-icon">🧪</div>
-                <h3>Analysis Workflow</h3>
-                <p>Manage blood sample collection and processing workflow</p>
+                <h3><%= __('home.quickAccess.analysisWorkflow.title') %></h3>
+                <p><%= __('home.quickAccess.analysisWorkflow.description') %></p>
             </a>
             <a href="/restricted/dashboard/patients" class="access-card">
                 <div class="access-icon">👤</div>
-                <h3>Patients</h3>
-                <p>Patient records and medical history</p>
+                <h3><%= __('home.quickAccess.patients.title') %></h3>
+                <p><%= __('home.quickAccess.patients.description') %></p>
             </a>
             <a href="/restricted/dashboard/users" class="access-card">
                 <div class="access-icon">👨‍⚕️</div>
-                <h3>User Management</h3>
-                <p>Manage system users and permissions</p>
+                <h3><%= __('home.quickAccess.userManagement.title') %></h3>
+                <p><%= __('home.quickAccess.userManagement.description') %></p>
             </a>
         </div>
     </div>
@@ -72,16 +72,16 @@
     <div class="container">
         <div class="info-grid">
             <div class="info-box">
-                <h3>GDPR Compliant</h3>
-                <p>Full compliance with European data protection regulations and healthcare privacy standards</p>
+                <h3><%= __('home.infoBoxes.gdprCompliant.title') %></h3>
+                <p><%= __('home.infoBoxes.gdprCompliant.description') %></p>
             </div>
             <div class="info-box">
-                <h3>Secure & Audited</h3>
-                <p>Multi-factor authentication, role-based access, and comprehensive audit logging</p>
+                <h3><%= __('home.infoBoxes.secureAudited.title') %></h3>
+                <p><%= __('home.infoBoxes.secureAudited.description') %></p>
             </div>
             <div class="info-box">
-                <h3>24/7 Support</h3>
-                <p>Internal IT support team available for system assistance and technical issues</p>
+                <h3><%= __('home.infoBoxes.support24h.title') %></h3>
+                <p><%= __('home.infoBoxes.support24h.description') %></p>
             </div>
         </div>
     </div>
@@ -90,9 +90,9 @@
 <section class="cta">
     <div class="container">
         <div class="cta-content">
-            <h2>Ready to Begin?</h2>
-            <p>Access the ePick system with your authorized credentials to start managing blood analysis workflows</p>
-            <a href="/auth/login" class="btn btn-primary">Login to System</a>
+            <h2><%= __('home.cta.title') %></h2>
+            <p><%= __('home.cta.description') %></p>
+            <a href="/auth/login" class="btn btn-primary"><%= __('home.cta.loginToSystem') %></a>
         </div>
     </div>
 </section>

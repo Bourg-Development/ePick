@@ -1,6 +1,6 @@
 <div class="header">
-    <h1>Notification Settings</h1>
-    <p>Configure how and when you receive notifications from the system.</p>
+    <h1><%= __('notifications.title') %></h1>
+    <p><%= __('notifications.subtitle') %></p>
 </div>
 
 <div class="settings-container">
@@ -9,9 +9,9 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">email</span>
-                Email Notifications
+                <%= __('notifications.email.title') %>
             </h2>
-            <p>Control which email notifications you receive</p>
+            <p><%= __('notifications.email.subtitle') %></p>
         </div>
         <div class="card-content">
             <div class="notification-availability" id="emailAvailabilityStatus">
@@ -21,14 +21,14 @@
             <div class="notification-categories" id="emailNotificationCategories" style="display: none;">
                 <div class="notification-category">
                     <div class="category-header">
-                        <h3>Security Notifications</h3>
-                        <p>Important security events and account changes</p>
+                        <h3><%= __('notifications.email.security.title') %></h3>
+                        <p><%= __('notifications.email.security.subtitle') %></p>
                     </div>
                     <div class="notification-options">
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Login Alerts</h4>
-                                <p>Notify me when my account is accessed from a new device or location</p>
+                                <h4><%= __('notifications.email.security.loginAlerts') %></h4>
+                                <p><%= __('notifications.email.security.loginAlertsHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -42,8 +42,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Password Changes</h4>
-                                <p>Notify me when my password is changed</p>
+                                <h4><%= __('notifications.email.security.passwordChanges') %></h4>
+                                <p><%= __('notifications.email.security.passwordChangesHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -57,8 +57,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Two-Factor Authentication Changes</h4>
-                                <p>Notify me when 2FA settings are modified</p>
+                                <h4><%= __('notifications.email.security.twoFactorChanges') %></h4>
+                                <p><%= __('notifications.email.security.twoFactorChangesHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -72,8 +72,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Suspicious Activity</h4>
-                                <p>Notify me about unusual account activity or failed login attempts</p>
+                                <h4><%= __('notifications.email.security.suspiciousActivity') %></h4>
+                                <p><%= __('notifications.email.security.suspiciousActivityHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -89,14 +89,14 @@
 
                 <div class="notification-category">
                     <div class="category-header">
-                        <h3>System Notifications</h3>
-                        <p>Updates about system status and maintenance</p>
+                        <h3><%= __('notifications.email.system.title') %></h3>
+                        <p><%= __('notifications.email.system.subtitle') %></p>
                     </div>
                     <div class="notification-options">
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>System Maintenance</h4>
-                                <p>Notify me about scheduled maintenance and system updates</p>
+                                <h4><%= __('notifications.email.system.maintenance') %></h4>
+                                <p><%= __('notifications.email.system.maintenanceHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -110,8 +110,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Feature Updates</h4>
-                                <p>Notify me about new features and system improvements</p>
+                                <h4><%= __('notifications.email.system.featureUpdates') %></h4>
+                                <p><%= __('notifications.email.system.featureUpdatesHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -125,8 +125,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>System Alerts</h4>
-                                <p>Critical system alerts and service disruptions</p>
+                                <h4><%= __('notifications.email.system.systemAlerts') %></h4>
+                                <p><%= __('notifications.email.system.systemAlertsHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -142,14 +142,14 @@
 
                 <div class="notification-category">
                     <div class="category-header">
-                        <h3>Activity Notifications</h3>
-                        <p>Updates about your account activity and data</p>
+                        <h3><%= __('notifications.email.activity.title') %></h3>
+                        <p><%= __('notifications.email.activity.subtitle') %></p>
                     </div>
                     <div class="notification-options">
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Analysis Completion</h4>
-                                <p>Notify me when blood analysis results are available</p>
+                                <h4><%= __('notifications.email.activity.analysisCompletion') %></h4>
+                                <p><%= __('notifications.email.activity.analysisCompletionHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -163,8 +163,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Data Export Ready</h4>
-                                <p>Notify me when exported data files are ready for download</p>
+                                <h4><%= __('notifications.email.activity.dataExport') %></h4>
+                                <p><%= __('notifications.email.activity.dataExportHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -178,8 +178,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Report Generation</h4>
-                                <p>Notify me when generated reports are available</p>
+                                <h4><%= __('notifications.email.activity.reportGeneration') %></h4>
+                                <p><%= __('notifications.email.activity.reportGenerationHelp') %></p>
                             </div>
                             <div class="option-control">
                                 <div class="toggle-switch">
@@ -196,11 +196,11 @@
                 <div class="notification-actions">
                     <button class="btn btn-primary" id="saveNotificationBtn">
                         <span class="material-symbols-outlined">save</span>
-                        Save Notification Settings
+                        <%= __('notifications.save') %>
                     </button>
                     <button class="btn btn-secondary" id="resetNotificationBtn">
                         <span class="material-symbols-outlined">refresh</span>
-                        Reset to Defaults
+                        <%= __('notifications.resetDefaults') %>
                     </button>
                 </div>
                 <div class="setting-status" id="status-notifications"></div>
@@ -214,20 +214,20 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">mail</span>
-                Mailing Lists
+                <%= __('notifications.mailingLists.title') %>
             </h2>
-            <p>Manage your email newsletter and announcement subscriptions</p>
+            <p><%= __('notifications.mailingLists.subtitle') %></p>
         </div>
         <div class="card-content">
             <div class="mailing-lists-container" id="mailingListsContainer">
                 <div class="loading-state" id="mailingListsLoading">
                     <div class="loading-spinner"></div>
-                    <span>Loading your subscriptions...</span>
+                    <span><%= __('notifications.mailingLists.loading') %></span>
                 </div>
                 
                 <div class="mailing-lists-content" id="mailingListsContent" style="display: none;">
                     <div class="mailing-lists-header">
-                        <p>You are currently subscribed to the following mailing lists:</p>
+                        <p><%= __('notifications.mailingLists.currentSubscriptions') %></p>
                     </div>
                     
                     <div class="mailing-lists-list" id="mailingListsList">
@@ -237,18 +237,18 @@
                     <div class="no-subscriptions" id="noSubscriptions" style="display: none;">
                         <div class="empty-state">
                             <span class="material-symbols-outlined">unsubscribe</span>
-                            <h3>No Active Subscriptions</h3>
-                            <p>You are not currently subscribed to any mailing lists.</p>
+                            <h3><%= __('notifications.mailingLists.noSubscriptions') %></h3>
+                            <p><%= __('notifications.mailingLists.noSubscriptionsHelp') %></p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="error-state" id="mailingListsError" style="display: none;">
                     <span class="material-symbols-outlined">error</span>
-                    <span>Failed to load mailing list subscriptions</span>
+                    <span><%= __('notifications.mailingLists.loadError') %></span>
                     <button class="btn btn-secondary retry-btn" id="retryLoadLists">
                         <span class="material-symbols-outlined">refresh</span>
-                        Retry
+                        <%= __('common.retry') %>
                     </button>
                 </div>
             </div>
@@ -260,29 +260,29 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">preview</span>
-                Test Notifications
+                <%= __('notifications.test.title') %>
             </h2>
-            <p>Test your notification settings</p>
+            <p><%= __('notifications.test.subtitle') %></p>
         </div>
         <div class="card-content">
             <div class="setting-group">
                 <div class="test-notifications">
-                    <p>Send test notifications to verify your settings are working correctly:</p>
+                    <p><%= __('notifications.test.description') %></p>
                     
                     <div class="test-options">
                         <button class="btn btn-secondary test-btn" id="testEmailBtn">
                             <span class="material-symbols-outlined">email</span>
-                            Send Test Email
+                            <%= __('notifications.test.sendEmail') %>
                         </button>
                         
                         <button class="btn btn-secondary test-btn" id="testToastBtn">
                             <span class="material-symbols-outlined">notifications</span>
-                            Show Test Toast
+                            <%= __('notifications.test.showToast') %>
                         </button>
                         
                         <button class="btn btn-secondary test-btn" id="testSoundBtn">
                             <span class="material-symbols-outlined">volume_up</span>
-                            Test Sound
+                            <%= __('notifications.test.testSound') %>
                         </button>
                     </div>
                 </div>
@@ -304,7 +304,7 @@
 <div class="modal" id="confirmModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title" id="confirmModalTitle">Confirm Action</h3>
+            <h3 class="modal-title" id="confirmModalTitle"><%= __('common.confirm') %></h3>
             <button class="modal-close" onclick="closeConfirmModal()">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -313,8 +313,8 @@
             <p class="modal-message" id="confirmModalMessage"></p>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
-            <button class="btn btn-primary" id="confirmModalAction">Confirm</button>
+            <button class="btn btn-secondary" onclick="closeConfirmModal()"><%= __('common.cancel') %></button>
+            <button class="btn btn-primary" id="confirmModalAction"><%= __('common.confirm') %></button>
         </div>
     </div>
 </div>

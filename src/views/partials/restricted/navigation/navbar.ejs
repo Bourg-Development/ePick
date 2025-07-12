@@ -15,7 +15,7 @@
     <div class="navbar-right">
         <div class="search-box">
             <span class="material-symbols-outlined" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--medium-gray); font-size: 20px;">search</span>
-            <input type="text" placeholder="Search...">
+            <input type="text" placeholder="<%= __('common.search') %>...">
         </div>
         <div class="user-profile">
             <div class="notification-badge" id="notificationToggle">
@@ -26,14 +26,14 @@
                 <!-- Notification Dropdown Menu -->
                 <div class="navbar-menu notification-menu" id="notificationMenu">
                     <div class="menu-header">
-                        <span>Notifications</span>
-                        <a href="#" class="mark-all-read">Mark all as read</a href="#">
+                        <span><%= __('navigation.notifications') %></span>
+                        <a href="#" class="mark-all-read"><%= __('navigation.markAllAsRead') %></a href="#">
                     </div>
                     <div class="notification-list">
                         <!-- Notifications will be populated by JavaScript -->
                     </div>
                     <div class="view-all">
-                        <a href="/notifications">View all notifications</a>
+                        <a href="/notifications"><%= __('navigation.viewAllNotifications') %></a>
                     </div>
                 </div>
             </div>
@@ -49,28 +49,28 @@
                                 <span class="material-symbols-outlined">person</span>
                             </div>
                             <div class="profile-details">
-                                <h4 id="profileName">Loading...</h4>
-                                <p id="profileEmail">Loading...</p>
+                                <h4 id="profileName"><%= __('common.loading') %></h4>
+                                <p id="profileEmail"><%= __('common.loading') %></p>
                             </div>
                         </div>
                     </div>
                     <div class="profile-menu-list">
                         <a href="/user/profile" class="profile-menu-item">
                             <span class="material-symbols-outlined">person</span>
-                            <span>My Profile</span>
+                            <span><%= __('navigation.myProfile') %></span>
                         </a>
                         <a href="/user/settings/preferences" class="profile-menu-item">
                             <span class="material-symbols-outlined">settings</span>
-                            <span>Settings</span>
+                            <span><%= __('common.settings') %></span>
                         </a>
                         <a href="/user/settings/notifications" class="profile-menu-item">
                             <span class="material-symbols-outlined">notifications</span>
-                            <span>Notifications</span>
+                            <span><%= __('navigation.notifications') %></span>
                         </a>
                         <div class="profile-menu-divider"></div>
                         <a href="/auth/logout" class="profile-menu-item logout">
                             <span class="material-symbols-outlined">logout</span>
-                            <span>Sign Out</span>
+                            <span><%= __('navigation.signOut') %></span>
                         </a>
                     </div>
                 </div>

@@ -1,11 +1,11 @@
 <div class="header">
-    <h1>Patients Management</h1>
+    <h1><%= __('dashboard.patients.title') %></h1>
     <div class="header-actions">
         <button class="btn btn-primary" id="createPatientBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 person_add
             </span>
-            Create Patient
+            <%= __('labels.createPatient') %>
         </button>
 
         <!-- Export Dropdown -->
@@ -14,7 +14,7 @@
                 <span class="material-symbols-outlined" style="font-size: 16px;">
                     download
                 </span>
-                Export
+                <%= __('common.export') %>
                 <span class="material-symbols-outlined dropdown-arrow">
                     arrow_drop_down
                 </span>
@@ -22,15 +22,15 @@
             <div class="dropdown-menu export-dropdown" id="exportDropdown">
                 <div class="dropdown-item" data-action="export-advanced">
                     <span class="material-symbols-outlined">settings</span>
-                    Advanced Options
+                    <%= __('buttons.advancedOptions') %>
                 </div>
                 <div class="dropdown-item" data-action="export-quick-csv">
                     <span class="material-symbols-outlined">table_view</span>
-                    Quick Export (CSV)
+                    <%= __('buttons.quickExportCSV') %>
                 </div>
                 <div class="dropdown-item" data-action="export-quick-excel">
                     <span class="material-symbols-outlined">grid_on</span>
-                    Quick Export (Excel)
+                    <%= __('buttons.quickExportExcel') %>
                 </div>
             </div>
         </div>
@@ -39,7 +39,7 @@
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 refresh
             </span>
-            Refresh
+            <%= __('buttons.refresh') %>
         </button>
     </div>
 </div>
@@ -51,28 +51,28 @@
                 search
             </span>
         </span>
-        <input type="text" class="search-input" id="searchInput" placeholder="Search patients...">
+        <input type="text" class="search-input" id="searchInput" placeholder="<%= __('filters.searchPatients') %>">
     </div>
     <select class="filter-select" id="filterRoom">
-        <option value="">All Rooms</option>
+        <option value=""><%= __('filters.allRooms') %></option>
         <!-- Populated dynamically -->
     </select>
     <select class="filter-select" id="filterDoctor">
-        <option value="">All Doctors</option>
+        <option value=""><%= __('filters.allDoctors') %></option>
         <!-- Populated dynamically -->
     </select>
     <select class="filter-select" id="filterGender">
-        <option value="">All Genders</option>
-        <option value="M">Male</option>
-        <option value="F">Female</option>
-        <option value="O">Other</option>
+        <option value=""><%= __('filters.allGenders') %></option>
+        <option value="M"><%= __('filters.male') %></option>
+        <option value="F"><%= __('filters.female') %></option>
+        <option value="O"><%= __('filters.other') %></option>
     </select>
     <select class="filter-select" id="statusFilter">
-        <option value="">All Statuses</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
+        <option value=""><%= __('filters.allStatuses') %></option>
+        <option value="active"><%= __('filters.active') %></option>
+        <option value="inactive"><%= __('filters.inactive') %></option>
     </select>
-    <input type="number" class="filter-input" id="limitInput" placeholder="Items per page" min="10" max="100" value="20">
+    <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filters.itemsPerPage') %>" min="10" max="100" value="20">
 </div>
 
 <div class="table-wrapper">
@@ -80,42 +80,42 @@
         <thead>
             <tr>
                 <th data-sort="first_name">
-                    Patient Name
+                    <%= __('tables.patients.patientName') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
                 <th data-sort="matricule_national">
-                    Matricule National
+                    <%= __('tables.patients.matriculeNational') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
                 <th data-sort="date_of_birth">
-                    Date of Birth
+                    <%= __('tables.patients.dateOfBirth') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
                 <th data-sort="gender">
-                    Gender
+                    <%= __('tables.patients.gender') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
                 <th data-sort="room_number">
-                    Room
+                    <%= __('tables.patients.room') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
                 <th data-sort="doctor">
-                    Doctor
+                    <%= __('tables.patients.doctor') %>
                     <span class="material-symbols-outlined">
                         swap_vert
                     </span>
                 </th>
-                <th>Actions</th>
+                <th><%= __('tables.patients.actions') %></th>
             </tr>
         </thead>
         <tbody id="patientsTableBody">
@@ -125,15 +125,15 @@
 </div>
 
 <div class="table-footer">
-    <div id="paginationInfo">Loading...</div>
+    <div id="paginationInfo"><%= __('pagination.loading') %></div>
     <div class="pagination" id="pagination">
         <button class="pagination-btn" id="prevPageBtn" disabled>
             <span class="material-symbols-outlined">chevron_left</span>
-            Previous
+            <%= __('buttons.previous') %>
         </button>
-        <span id="currentPageInfo">Page 1 of 1</span>
+        <span id="currentPageInfo"><%= __('pagination.page') %> 1 <%= __('pagination.of') %> 1</span>
         <button class="pagination-btn" id="nextPageBtn" disabled>
-            Next
+            <%= __('buttons.next') %>
             <span class="material-symbols-outlined">chevron_right</span>
         </button>
     </div>
@@ -143,55 +143,55 @@
 <div class="modal-overlay" id="patientModal">
     <div class="modal">
         <div class="modal-header">
-            <h2 id="modalTitle">Create Patient</h2>
+            <h2 id="modalTitle"><%= __('modals.createPatient.title') %></h2>
             <button class="modal-close" id="closeModalBtn">&times;</button>
         </div>
         <form id="patientForm">
             <div class="form-group">
-                <label for="firstName">First Name <span class="required">*</span></label>
-                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="First name" required>
+                <label for="firstName"><%= __('modals.createPatient.firstName') %> <span class="required">*</span></label>
+                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="<%= __('modals.createPatient.firstNamePlaceholder') %>" required>
             </div>
             <div class="form-group">
-                <label for="lastName">Last Name <span class="required">*</span></label>
-                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Last name" required>
+                <label for="lastName"><%= __('modals.createPatient.lastName') %> <span class="required">*</span></label>
+                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="<%= __('modals.createPatient.lastNamePlaceholder') %>" required>
             </div>
             <div class="form-group">
-                <label for="matriculeNational">Matricule National <span class="required">*</span></label>
-                <input type="text" id="matriculeNational" name="matriculeNational" class="form-control" placeholder="National ID number" required>
+                <label for="matriculeNational"><%= __('modals.createPatient.matricule') %> <span class="required">*</span></label>
+                <input type="text" id="matriculeNational" name="matriculeNational" class="form-control" placeholder="<%= __('modals.createPatient.matriculePlaceholder') %>" required>
             </div>
             <div class="form-group">
-                <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                <label for="dateOfBirth"><%= __('modals.createPatient.dateOfBirth') %> <span class="required">*</span></label>
                 <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" required>
             </div>
             <div class="form-group">
-                <label for="gender">Gender <span class="required">*</span></label>
+                <label for="gender"><%= __('modals.createPatient.gender') %> <span class="required">*</span></label>
                 <select id="gender" name="gender" class="form-control" required>
-                    <option value="">Select gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
+                    <option value=""><%= __('modals.createPatient.selectGender') %></option>
+                    <option value="M"><%= __('modals.createPatient.male') %></option>
+                    <option value="F"><%= __('modals.createPatient.female') %></option>
+                    <option value="O"><%= __('modals.createPatient.other') %></option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="roomId">Room</label>
+                <label for="roomId"><%= __('modals.createPatient.room') %></label>
                 <!-- This will be replaced by enhanced room search input via JavaScript -->
                 <select id="roomId" name="roomId" class="form-control">
-                    <option value="">Select a room</option>
+                    <option value=""><%= __('modals.createPatient.selectRoom') %></option>
                     <!-- Will be replaced with enhanced search input -->
                 </select>
             </div>
             <div class="form-group">
-                <label for="doctorId">Doctor</label>
+                <label for="doctorId"><%= __('modals.createPatient.doctor') %></label>
                 <!-- This will be replaced by enhanced doctor search input via JavaScript -->
                 <select id="doctorId" name="doctorId" class="form-control">
-                    <option value="">Select a doctor</option>
+                    <option value=""><%= __('modals.createPatient.selectDoctor') %></option>
                     <!-- Will be replaced with enhanced search input -->
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelModalBtn"><%= __('modals.createPatient.cancel') %></button>
                 <button type="submit" class="btn btn-primary">
-                    <span id="submitBtnText">Create Patient</span>
+                    <span id="submitBtnText"><%= __('modals.createPatient.create') %></span>
                 </button>
             </div>
         </form>
@@ -202,7 +202,7 @@
 <div class="modal-overlay" id="exportModal">
     <div class="modal export-modal">
         <div class="modal-header">
-            <h2>Export Patients</h2>
+            <h2><%= __('dashboard.patients.exportPatients') %></h2>
             <button class="modal-close" id="closeExportModalBtn">&times;</button>
         </div>
         <form id="exportForm">
@@ -212,8 +212,8 @@
             <div class="export-warning">
                 <span class="material-symbols-outlined warning-icon">warning</span>
                 <div class="warning-content">
-                    <strong>Medical Privacy Notice</strong>
-                    <p>This export may contain sensitive patient data. Ensure compliance with privacy regulations and handle data securely.</p>
+                    <strong><%= __('modals.export.medicalPrivacyNotice') %></strong>
+                    <p><%= __('modals.export.medicalPrivacyText') %></p>
                 </div>
             </div>
 
@@ -269,7 +269,7 @@
             <div class="form-section">
                 <label class="form-label">Applied Filters</label>
                 <div class="current-filters" id="currentFilters">
-                    <span class="filter-info">Using current page filters</span>
+                    <span class="filter-info"><%= __('modals.export.usingCurrentPageFilters') %></span>
                 </div>
             </div>
 
@@ -278,7 +278,7 @@
                 <span class="material-symbols-outlined warning-icon">error</span>
                 <div class="warning-content">
                     <strong>Sensitive Data Selected</strong>
-                    <p>You have selected columns containing sensitive patient information. Please ensure proper handling.</p>
+                    <p><%= __('modals.export.sensitivePatientData') %></p>
                 </div>
             </div>
 
@@ -303,31 +303,31 @@
 <div class="modal-overlay" id="addDoctorModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Add New Doctor</h2>
+            <h2><%= __('modals.addDoctor.title') %></h2>
             <button class="modal-close" id="closeAddDoctorModalBtn">&times;</button>
         </div>
         <form id="addDoctorForm">
             <input type="hidden" id="doctorSearchInput" value="">
 
-            <label class="form-label" for="newDoctorName">Doctor Name <span class="required">*</span></label>
+            <label class="form-label" for="newDoctorName"><%= __('modals.addDoctor.doctorName') %> <span class="required">*</span></label>
             <input type="text" class="form-control" id="newDoctorName" required maxlength="255" readonly>
-            <small class="form-help">This name was entered in the search field</small>
+            <small class="form-help"><%= __('modals.addDoctor.doctorNameHelp') %></small>
 
-            <label class="form-label" for="newDoctorSpecialization">Specialization <span class="required">*</span></label>
-            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="e.g., General Medicine, Cardiology, Neurology">
-            <small class="form-help">Enter the doctor's medical specialization</small>
+            <label class="form-label" for="newDoctorSpecialization"><%= __('modals.addDoctor.specialization') %> <span class="required">*</span></label>
+            <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="<%= __('modals.addDoctor.specializationPlaceholder') %>">
+            <small class="form-help"><%= __('modals.addDoctor.specializationHelp') %></small>
 
-            <label class="form-label" for="newDoctorPhone">Phone Number</label>
-            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="+1234567890">
-            <small class="form-help">Optional - Doctor's contact phone number</small>
+            <label class="form-label" for="newDoctorPhone"><%= __('modals.addDoctor.phone') %></label>
+            <input type="tel" class="form-control" id="newDoctorPhone" placeholder="<%= __('modals.addDoctor.phonePlaceholder') %>">
+            <small class="form-help"><%= __('modals.addDoctor.phoneHelp') %></small>
 
-            <label class="form-label" for="newDoctorEmail">Email Address</label>
-            <input type="email" class="form-control" id="newDoctorEmail" placeholder="doctor@hospital.com">
-            <small class="form-help">Optional - Doctor's email address</small>
+            <label class="form-label" for="newDoctorEmail"><%= __('modals.addDoctor.email') %></label>
+            <input type="email" class="form-control" id="newDoctorEmail" placeholder="<%= __('modals.addDoctor.emailPlaceholder') %>">
+            <small class="form-help"><%= __('modals.addDoctor.emailHelp') %></small>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Doctor</button>
+                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn"><%= __('modals.addDoctor.cancel') %></button>
+                <button type="submit" class="btn btn-primary"><%= __('modals.addDoctor.create') %></button>
             </div>
         </form>
     </div>
@@ -337,30 +337,30 @@
 <div class="modal-overlay" id="addRoomModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Add New Room</h2>
+            <h2><%= __('modals.addRoom.title') %></h2>
             <button class="modal-close" id="closeAddRoomModalBtn">&times;</button>
         </div>
         <form id="addRoomForm">
             <input type="hidden" id="roomSearchInput" value="">
 
-            <label class="form-label" for="newRoomNumber">Room Number <span class="required">*</span></label>
+            <label class="form-label" for="newRoomNumber"><%= __('modals.addRoom.roomNumber') %> <span class="required">*</span></label>
             <input type="text" class="form-control" id="newRoomNumber" required maxlength="50" readonly>
-            <small class="form-help">This room number was entered in the search field</small>
+            <small class="form-help"><%= __('modals.addRoom.roomNumberHelp') %></small>
 
-            <label class="form-label" for="newRoomService">Service <span class="required">*</span></label>
+            <label class="form-label" for="newRoomService"><%= __('modals.addRoom.service') %> <span class="required">*</span></label>
             <select class="form-control" id="newRoomService" required>
-                <option value="">Select a service</option>
+                <option value=""><%= __('modals.addRoom.selectService') %></option>
                 <!-- Will be populated dynamically -->
             </select>
-            <small class="form-help">Select the medical service this room belongs to</small>
+            <small class="form-help"><%= __('modals.addRoom.serviceHelp') %></small>
 
-            <label class="form-label" for="newRoomCapacity">Capacity</label>
-            <input type="number" class="form-control" id="newRoomCapacity" min="1" max="20" placeholder="e.g., 1">
-            <small class="form-help">Optional - Maximum number of patients the room can accommodate</small>
+            <label class="form-label" for="newRoomCapacity"><%= __('modals.addRoom.capacity') %></label>
+            <input type="number" class="form-control" id="newRoomCapacity" min="1" max="20" placeholder="<%= __('modals.addRoom.capacityPlaceholder') %>">
+            <small class="form-help"><%= __('modals.addRoom.capacityHelp') %></small>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAddRoomBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Room</button>
+                <button type="button" class="btn btn-secondary" id="cancelAddRoomBtn"><%= __('modals.addRoom.cancel') %></button>
+                <button type="submit" class="btn btn-primary"><%= __('modals.addRoom.create') %></button>
             </div>
         </form>
     </div>

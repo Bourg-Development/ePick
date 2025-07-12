@@ -50,7 +50,8 @@
     "loadingData": "Loading data...",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "clearFilters": "Clear Filters"
+    "clearFilters": "Clear Filters",
+    "retry": "Retry"
   },
   "auth": {
     "loginTitle": "Login to your account",
@@ -112,7 +113,9 @@
     "viewAllNotifications": "View all notifications",
     "myProfile": "My Profile",
     "helpAndSupport": "Help & Support",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "system": "System",
+    "securityForensics": "Security & Forensics"
   },
   "settings": {
     "title": "Settings",
@@ -419,6 +422,70 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "system": {
+      "title": "System Administration",
+      "subtitle": "Monitor and manage system health and performance",
+      "systemHealth": "System Health",
+      "databaseStatus": "Database Status",
+      "emailService": "Email Service",
+      "storageUsage": "Storage Usage",
+      "systemUptime": "System Uptime",
+      "lastBackup": "Last Backup",
+      "scheduledMaintenance": "Scheduled Maintenance",
+      "maintenanceMode": "Maintenance Mode",
+      "enableMaintenance": "Enable Maintenance Mode",
+      "disableMaintenance": "Disable Maintenance Mode",
+      "maintenanceMessage": "Maintenance Message",
+      "systemLogs": "System Logs",
+      "downloadLogs": "Download Logs",
+      "clearLogs": "Clear Logs",
+      "logLevel": "Log Level",
+      "diagnostics": "System Diagnostics",
+      "runDiagnostics": "Run Diagnostics",
+      "systemInfo": "System Information",
+      "version": "Version",
+      "environment": "Environment",
+      "nodeVersion": "Node Version",
+      "memory": "Memory Usage",
+      "cpu": "CPU Usage",
+      "diskSpace": "Disk Space",
+      "active": "Active",
+      "inactive": "Inactive",
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "critical": "Critical",
+      "unknown": "Unknown"
+    },
+    "security": {
+      "title": "Security & Forensics",
+      "subtitle": "Monitor security events and access patterns",
+      "overview": "Security Overview",
+      "recentActivity": "Recent Activity",
+      "failedLogins": "Failed Login Attempts",
+      "suspiciousActivity": "Suspicious Activity",
+      "accessLogs": "Access Logs",
+      "auditTrails": "Audit Trails",
+      "userSessions": "Active User Sessions",
+      "ipWhitelist": "IP Whitelist",
+      "blockedIPs": "Blocked IPs",
+      "twoFactorStats": "2FA Statistics",
+      "passwordPolicy": "Password Policy",
+      "securityAlerts": "Security Alerts",
+      "viewAll": "View All",
+      "markResolved": "Mark Resolved",
+      "exportLogs": "Export Logs",
+      "timeRange": "Time Range",
+      "last24Hours": "Last 24 Hours",
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days",
+      "customRange": "Custom Range",
+      "userAgent": "User Agent",
+      "ipAddress": "IP Address",
+      "timestamp": "Timestamp",
+      "action": "Action",
+      "result": "Result",
+      "details": "Details"
+    },
     "todo": {
       "title": "ToDo",
       "table": {
@@ -721,50 +788,65 @@
   },
   "home": {
     "hero": {
-      "title": "Precision Medical Scheduling",
-      "subtitle": "Easily schedule and track routine tasks like blood sample collection with automated reminders and clear overviews.",
-      "contactBtn": "Contact",
-      "demoBtn": "Watch Demo"
+      "title": "ePick Blood Analysis System",
+      "subtitle": "Internal healthcare management platform for Fondation Pescatore medical staff",
+      "accessSystem": "Access System",
+      "systemStatus": "System Status"
     },
     "features": {
-      "title": "Innovative Features",
-      "subtitle": "Discover what makes ePick the preferred choice for medical professionals",
-      "rapidWorkflow": {
-        "title": "Rapid Workflow",
-        "description": "Streamline your medical processes with automated workflows that increase efficiency by 60%."
+      "title": "System Features",
+      "subtitle": "Comprehensive healthcare workflow management for medical professionals",
+      "bloodAnalysis": {
+        "title": "Blood Analysis Workflow",
+        "description": "Streamlined workflow for blood sample collection, processing, and patient care coordination"
       },
-      "cyberSecurity": {
-        "title": "Cyber Security",
-        "description": "Enterprise-grade security protocols protect your sensitive medical data with military-level encryption."
+      "patientManagement": {
+        "title": "Patient & User Management",
+        "description": "Secure patient records, user roles, and healthcare professional access control"
       },
-      "smartAnalytics": {
-        "title": "Smart Analytics",
-        "description": "Comprehensive statistics dashboard provides actionable insights for better decision making."
+      "systemReporting": {
+        "title": "System Reporting",
+        "description": "Administrative reporting tools, user activity tracking, and system monitoring capabilities"
       }
     },
-    "showcase": {
-      "title": "Introducing ePick Precision",
-      "description": "The next generation of medical sample collection technology. Engineered for precision, designed for efficiency, and built with healthcare professionals in mind.",
-      "contactBtn": "Contact Us"
+    "quickAccess": {
+      "title": "Quick Access",
+      "subtitle": "Direct links to commonly used system functions",
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "Main system overview and recent activity"
+      },
+      "analysisWorkflow": {
+        "title": "Analysis Workflow",
+        "description": "Manage blood sample collection and processing workflow"
+      },
+      "patients": {
+        "title": "Patients",
+        "description": "Patient records and medical history"
+      },
+      "userManagement": {
+        "title": "User Management",
+        "description": "Manage system users and permissions"
+      }
     },
     "infoBoxes": {
-      "clinicalExcellence": {
-        "title": "Clinical Excellence",
-        "description": "Trusted by leading hospitals and laboratories worldwide for accurate, reliable sample collection."
+      "gdprCompliant": {
+        "title": "GDPR Compliant",
+        "description": "Full compliance with European data protection regulations and healthcare privacy standards"
       },
-      "regulatoryCompliance": {
-        "title": "Regulatory Compliance",
-        "description": "FDA approved and CE marked, meeting the highest international standards for medical devices."
+      "secureAudited": {
+        "title": "Secure & Audited",
+        "description": "Multi-factor authentication, role-based access, and comprehensive audit logging"
       },
-      "professionalSupport": {
-        "title": "Professional Support",
-        "description": "24/7 technical support and comprehensive training programs for optimal usage and performance."
+      "support24h": {
+        "title": "24/7 Support",
+        "description": "Internal IT support team available for system assistance and technical issues"
       }
     },
     "cta": {
-      "title": "Ready to Transform Your Practice?",
-      "description": "Join thousands of healthcare professionals who are already experiencing the ePick difference. Contact us today for a personalized demo.",
-      "requestDemo": "Request Demo"
+      "title": "Ready to Begin?",
+      "description": "Access the ePick system with your authorized credentials to start managing blood analysis workflows",
+      "loginToSystem": "Login to System"
     }
   },
   "profile": {
@@ -805,7 +887,31 @@
       "title": "Notification Preferences",
       "emailNotifications": "Email Notifications",
       "emailDescription": "Receive important system notifications via email"
-    }
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "recentLogins": "Recent Logins",
+      "failedAttempts": "Failed Attempts",
+      "passwordChanges": "Password Changes",
+      "showMore": "Show More",
+      "loadingLogins": "Loading recent logins..."
+    },
+    "editModal": {
+      "title": "Edit Profile",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "Your full name",
+      "fullNameHelp": "Your display name for identification",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "your.email@example.com",
+      "emailHelp": "Used for account communications and notifications",
+      "twoFactorTitle": "Two-Factor Authentication",
+      "totpEnabled": "Enable TOTP Authenticator",
+      "totpHelp": "Use apps like Google Authenticator, Authy, or 1Password",
+      "webauthnEnabled": "Enable WebAuthn/FIDO2",
+      "webauthnHelp": "Use security keys, fingerprint, or face recognition",
+      "saveChanges": "Save Changes"
+    },
+    "browserDevice": "Browser & Device"
   },
   "mailing": {
     "lists": {
@@ -860,6 +966,56 @@
     }
   },
   "dashboard": {
+    "home": {
+      "title": "Dashboard",
+      "welcomeBack": "Welcome back",
+      "lastDays": "Last {days} days",
+      "refresh": "Refresh",
+      "metrics": {
+        "todaysAnalyses": "Today's Analyses",
+        "pendingAnalyses": "Pending Analyses",
+        "completionRate": "Completion Rate",
+        "urgent": "{count} urgent"
+      },
+      "todaysSchedule": {
+        "title": "Today's Schedule",
+        "toggleView": "Toggle view",
+        "viewAll": "View All",
+        "loadingSchedule": "Loading schedule...",
+        "noAnalysesScheduled": "No analyses scheduled for today",
+        "scheduleAnalysis": "Schedule Analysis"
+      },
+      "recentActivity": {
+        "title": "Recent Activity",
+        "noRecentActivity": "No recent activity"
+      },
+      "weeklyPerformance": {
+        "title": "Weekly Performance",
+        "completed": "Completed",
+        "pending": "Pending"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "scheduleAnalysis": "Schedule Analysis",
+        "addPatient": "Add Patient",
+        "viewReports": "View Reports",
+        "manageRooms": "Manage Rooms",
+        "addDoctor": "Add Doctor",
+        "addUser": "Add User",
+        "noActionsAvailable": "No quick actions available",
+        "contactAdministrator": "Contact your administrator for additional permissions"
+      },
+      "serviceStatus": {
+        "title": "Service Status",
+        "currentService": "Current Service",
+        "activeUsers": "Active Users",
+        "totalRooms": "Total Rooms",
+        "loading": "Loading..."
+      },
+      "analysisTypes": {
+        "title": "Analysis Types"
+      }
+    },
     "rooms": {
       "title": "Rooms",
       "subtitle": "Manage hospital rooms and their configurations",
@@ -1049,6 +1205,445 @@
     "totalOccurrences": "Total occurrences",
     "yourPreferredFormat": "Your preferred format:",
     "scheduleMultiple": "Schedule multiple analyses automatically over time",
-    "registrationSuccessful": "Registration successful! You can now sign in."
+    "registrationSuccessful": "Registration successful! You can now sign in.",
+    "createRecurringAnalysis": "Create Recurring Analysis",
+    "scheduleAnalysis": "Schedule Analysis",
+    "updateStatus": "Update Status",
+    "createDoctor": "Create Doctor",
+    "executeExport": "Export Data",
+    "confirm": "Confirm",
+    "createRoom": "Create Room",
+    "updateRoom": "Update Room",
+    "createPatient": "Create Patient", 
+    "updatePatient": "Update Patient",
+    "createService": "Create Service",
+    "updateService": "Update Service",
+    "createUser": "Create User",
+    "updateUser": "Update User",
+    "saveChanges": "Save Changes",
+    "saveSettings": "Save Settings",
+    "generateRefCode": "Generate Reference Code",
+    "enable": "Enable",
+    "disable": "Disable",
+    "testConnection": "Test Connection",
+    "downloadLogs": "Download Logs",
+    "clearLogs": "Clear Logs",
+    "runDiagnostics": "Run Diagnostics",
+    "viewDetails": "View Details",
+    "editProfile": "Edit Profile",
+    "changePassword": "Change Password",
+    "setup2FA": "Setup 2FA",
+    "disable2FA": "Disable 2FA",
+    "manageDevices": "Manage Devices",
+    "downloadData": "Download Data",
+    "deleteAccount": "Delete Account",
+    "markAllRead": "Mark All Read",
+    "markRead": "Mark Read",
+    "markUnread": "Mark Unread",
+    "deleteNotification": "Delete",
+    "addNewRoom": "Add New Room",
+    "addNewPatient": "Add New Patient",
+    "addNewService": "Add New Service",
+    "addNewUser": "Add New User",
+    "roomInformation": "Room Information",
+    "patientInformation": "Patient Information",
+    "serviceInformation": "Service Information",
+    "userInformation": "User Information",
+    "basicInformation": "Basic Information",
+    "contactInformation": "Contact Information",
+    "systemInformation": "System Information",
+    "securitySettings": "Security Settings",
+    "auditTrails": "Audit Trails",
+    "systemHealth": "System Health",
+    "maintenanceMode": "Maintenance Mode",
+    "enableMaintenance": "Enable Maintenance",
+    "disableMaintenance": "Disable Maintenance",
+    "systemStatus": "System Status",
+    "securityOverview": "Security Overview",
+    "recentActivity": "Recent Activity",
+    "securityAlerts": "Security Alerts",
+    "accessLogs": "Access Logs",
+    "failedLogins": "Failed Logins",
+    "accountSettings": "Account Settings",
+    "profileSettings": "Profile Settings",
+    "privacySettings": "Privacy Settings",
+    "notificationSettings": "Notification Settings",
+    "displaySettings": "Display Settings",
+    "languageSettings": "Language Settings"
+  },
+  "account": {
+    "title": "Account Settings",
+    "subtitle": "Manage your account information and preferences",
+    "personalInfo": {
+      "title": "Personal Information",
+      "subtitle": "Update your personal details",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "department": "Department",
+      "save": "Save Changes",
+      "saveSuccess": "Personal information updated successfully",
+      "editingDisabled": "Profile editing is disabled by your organization administrator"
+    },
+    "security": {
+      "title": "Security Settings",
+      "subtitle": "Manage your password and authentication methods",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "updatePassword": "Update Password",
+      "passwordSuccess": "Password updated successfully",
+      "twoFactor": "Two-Factor Authentication",
+      "totpStatus": "TOTP Authenticator",
+      "webauthnStatus": "WebAuthn/FIDO2",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "configure": "Configure",
+      "disable": "Disable",
+      "updatePassword": "Update Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPasswordPlaceholder": "Enter new password", 
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "passwordRequirements": "Password must be at least 8 characters with mixed case, numbers, and symbols",
+      "twoFactorHelp": "Manage two-factor authentication in Privacy & Security settings"
+    },
+    "preferences": {
+      "title": "Account Preferences",
+      "subtitle": "Customize your account settings",
+      "language": "Interface Language",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format",
+      "timeFormat": "Time Format",
+      "save": "Save Preferences",
+      "saveSuccess": "Preferences saved successfully"
+    },
+    "accountInfo": {
+      "subtitle": "View your account details and membership information",
+      "lastLogin": "Last Login", 
+      "memberSinceHelp": "The date you joined the system",
+      "lastLoginHelp": "Your most recent login to the system"
+    }
+  },
+  "privacy": {
+    "title": "Privacy & Security",
+    "subtitle": "Manage your privacy settings and security options",
+    "dataPrivacy": {
+      "title": "Data Privacy",
+      "subtitle": "Control how your data is used",
+      "dataCollection": "Data Collection",
+      "allowAnalytics": "Allow usage analytics",
+      "analyticsHelp": "Help us improve the system by sharing anonymous usage data",
+      "dataSharingTitle": "Data Sharing",
+      "shareWithTeam": "Share activity with team members",
+      "shareHelp": "Allow your team to see your activity status",
+      "dataRetention": "Data Retention",
+      "retentionPeriod": "Keep my data for",
+      "retentionHelp": "How long to retain your personal data after account deletion",
+      "profileVisibility": "Profile Visibility",
+      "fullNameDisplay": "Show Full Name",
+      "fullNameHelp": "Display your full name to other users in the system",
+      "emailVisibility": "Show Email Address",
+      "emailHelp": "Display your email address to other users",
+      "activityStatus": "Show Activity Status",
+      "activityHelp": "Display when you're online or last active"
+    },
+    "security": {
+      "title": "Security Options",
+      "subtitle": "Advanced security features",
+      "sessionSecurity": "Session Security",
+      "sessionTimeout": "Auto logout after",
+      "sessionHelp": "Automatically log out after period of inactivity",
+      "deviceManagement": "Device Management",
+      "trustedDevices": "Trusted Devices",
+      "viewDevices": "View Devices",
+      "logoutAllDevices": "Logout All Devices",
+      "accessControl": "Access Control",
+      "ipWhitelist": "IP Address Restrictions",
+      "ipHelp": "Restrict access to specific IP addresses",
+      "totpHelp": "Use an authenticator app to generate time-based codes for enhanced security",
+      "webauthnHelp": "Use hardware security keys or biometric authentication for the highest level of security",
+      "refreshSession": "Refresh Session",
+      "location": "Location",
+      "device": "Device"
+    },
+    "activity": {
+      "title": "Account Activity",
+      "subtitle": "Monitor your account usage",
+      "loginHistory": "Login History",
+      "viewHistory": "View Full History",
+      "securityEvents": "Security Events",
+      "viewEvents": "View Events",
+      "dataExports": "Data Exports",
+      "exportData": "Export My Data",
+      "exportHelp": "Download a copy of your personal data"
+    },
+    "save": "Save Privacy Settings",
+    "saveSuccess": "Privacy settings updated successfully"
+  },
+  "notifications": {
+    "title": "Notification Settings",
+    "subtitle": "Configure how and when you receive notifications from the system.",
+    "email": {
+      "title": "Email Notifications",
+      "subtitle": "Control which email notifications you receive",
+      "systemAlerts": "System Alerts",
+      "systemAlertsHelp": "Critical system notifications and maintenance alerts",
+      "securityAlerts": "Security Alerts",
+      "securityAlertsHelp": "Login attempts, password changes, and security events",
+      "analysisUpdates": "Analysis Updates",
+      "analysisUpdatesHelp": "Updates on blood analysis results and reports",
+      "taskReminders": "Task Reminders",
+      "taskRemindersHelp": "Reminders about scheduled tasks and deadlines",
+      "teamUpdates": "Team Updates",
+      "teamUpdatesHelp": "Updates from your team members and collaborators",
+      "security": {
+        "title": "Security Notifications",
+        "subtitle": "Important security events and account changes",
+        "loginAlerts": "Login Alerts",
+        "loginAlertsHelp": "Notify me when my account is accessed from a new device or location",
+        "passwordChanges": "Password Changes",
+        "passwordChangesHelp": "Notify me when my password is changed",
+        "twoFactorChanges": "Two-Factor Authentication Changes",
+        "twoFactorChangesHelp": "Notify me when 2FA settings are modified",
+        "suspiciousActivity": "Suspicious Activity",
+        "suspiciousActivityHelp": "Notify me about unusual account activity or failed login attempts"
+      },
+      "system": {
+        "title": "System Notifications",
+        "subtitle": "Updates about system status and maintenance",
+        "maintenance": "System Maintenance",
+        "maintenanceHelp": "Notify me about scheduled maintenance and system updates",
+        "featureUpdates": "Feature Updates",
+        "featureUpdatesHelp": "Notify me about new features and system improvements",
+        "systemAlerts": "System Alerts",
+        "systemAlertsHelp": "Critical system alerts and service disruptions"
+      },
+      "activity": {
+        "title": "Activity Notifications",
+        "subtitle": "Updates about your account activity and data",
+        "analysisCompletion": "Analysis Completion",
+        "analysisCompletionHelp": "Notify me when blood analysis results are available",
+        "dataExport": "Data Export Ready",
+        "dataExportHelp": "Notify me when exported data files are ready for download",
+        "reportGeneration": "Report Generation",
+        "reportGenerationHelp": "Notify me when generated reports are available"
+      }
+    },
+    "browser": {
+      "title": "Browser Notifications",
+      "subtitle": "Real-time notifications in your browser",
+      "enable": "Enable Browser Notifications",
+      "enableHelp": "Show notifications in your browser when the app is open",
+      "soundAlerts": "Sound Alerts",
+      "soundHelp": "Play notification sounds for important alerts",
+      "frequency": "Notification Frequency",
+      "immediate": "Immediate",
+      "digest": "Daily Digest",
+      "frequencyHelp": "How often to receive notifications"
+    },
+    "mobile": {
+      "title": "Mobile Notifications",
+      "subtitle": "Notifications on your mobile device",
+      "pushNotifications": "Push Notifications",
+      "pushHelp": "Receive notifications on your mobile device",
+      "quietHours": "Quiet Hours",
+      "quietStart": "Start Time",
+      "quietEnd": "End Time",
+      "quietHelp": "Don't send notifications during these hours"
+    },
+    "mailingLists": {
+      "title": "Mailing Lists",
+      "subtitle": "Manage your email newsletter and announcement subscriptions",
+      "loading": "Loading your subscriptions...",
+      "currentSubscriptions": "You are currently subscribed to the following mailing lists:",
+      "noSubscriptions": "No Active Subscriptions",
+      "noSubscriptionsHelp": "You are not currently subscribed to any mailing lists.",
+      "loadError": "Failed to load mailing list subscriptions"
+    },
+    "test": {
+      "title": "Test Notifications",
+      "subtitle": "Test your notification settings",
+      "description": "Send test notifications to verify your settings are working correctly:",
+      "sendEmail": "Send Test Email",
+      "showToast": "Show Test Toast",
+      "testSound": "Test Sound"
+    },
+    "save": "Save Notification Settings",
+    "resetDefaults": "Reset to Defaults",
+    "saveSuccess": "Notification settings updated successfully",
+    "testNotification": "Send Test Notification",
+    "testSuccess": "Test notification sent successfully"
+  },
+  "modals": {
+    "createPatient": {
+      "title": "Create Patient",
+      "editTitle": "Edit Patient",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "First name",
+      "lastName": "Last Name", 
+      "lastNamePlaceholder": "Last name",
+      "matricule": "Matricule National",
+      "matriculePlaceholder": "National ID number",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "room": "Room",
+      "selectRoom": "Select a room",
+      "doctor": "Doctor",
+      "selectDoctor": "Select a doctor",
+      "cancel": "Cancel",
+      "create": "Create Patient",
+      "update": "Update Patient"
+    },
+    "createService": {
+      "title": "Create Service",
+      "editTitle": "Edit Service",
+      "serviceName": "Service Name",
+      "serviceNamePlaceholder": "e.g., Cardiology",
+      "email": "Email",
+      "emailPlaceholder": "e.g., cardiology@hospital.com",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description of the service",
+      "active": "Active",
+      "canViewAllAnalyses": "Can view all analyses",
+      "cancel": "Cancel",
+      "create": "Create Service",
+      "update": "Update Service"
+    },
+    "createRoom": {
+      "title": "Create Room",
+      "editTitle": "Edit Room",
+      "roomNumber": "Room Number",
+      "roomNumberPlaceholder": "e.g., 1001",
+      "service": "Service",
+      "selectService": "Select a service",
+      "capacity": "Capacity",
+      "capacityPlaceholder": "e.g., 1",
+      "cancel": "Cancel",
+      "create": "Create Room",
+      "update": "Update Room"
+    },
+    "addDoctor": {
+      "title": "Add New Doctor",
+      "doctorName": "Doctor Name",
+      "doctorNameHelp": "This name was entered in the search field",
+      "specialization": "Specialization",
+      "specializationPlaceholder": "e.g., General Medicine, Cardiology, Neurology",
+      "specializationHelp": "Enter the doctor's medical specialization",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+1234567890",
+      "phoneHelp": "Optional - Doctor's contact phone number",
+      "email": "Email Address",
+      "emailPlaceholder": "doctor@hospital.com",
+      "emailHelp": "Optional - Doctor's email address",
+      "cancel": "Cancel",
+      "create": "Create Doctor"
+    },
+    "addRoom": {
+      "title": "Add New Room",
+      "roomNumber": "Room Number",
+      "roomNumberHelp": "This room number was entered in the search field",
+      "service": "Service",
+      "selectService": "Select a service",
+      "serviceHelp": "Select the medical service this room belongs to",
+      "capacity": "Capacity",
+      "capacityPlaceholder": "e.g., 1",
+      "capacityHelp": "Optional - Maximum number of patients the room can accommodate",
+      "cancel": "Cancel",
+      "create": "Create Room"
+    },
+    "export": {
+      "title": "Export Data",
+      "medicalPrivacyNotice": "Medical Privacy Notice",
+      "medicalPrivacyText": "This export may contain sensitive patient data. Ensure compliance with privacy regulations and handle data securely.",
+      "dataSecurityNotice": "Data Security Notice", 
+      "dataSecurityText": "This export contains service and organizational information. Ensure proper handling of business data.",
+      "password": "Your Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordHelp": "Required for security verification",
+      "exportFormat": "Export Format",
+      "csv": "CSV",
+      "csvDescription": "Comma-separated values, compatible with Excel",
+      "excel": "Excel",
+      "excelDescription": "Professional formatted spreadsheet with branding",
+      "json": "JSON",
+      "jsonDescription": "JavaScript Object Notation for developers",
+      "columnSelection": "Column Selection",
+      "selectAll": "Select All",
+      "selectNone": "Select None",
+      "safeColumns": "Safe Columns Only",
+      "appliedFilters": "Applied Filters",
+      "usingCurrentFilters": "Using current filters",
+      "usingCurrentPageFilters": "Using current page filters",
+      "sensitiveDataSelected": "Sensitive Data Selected",
+      "sensitiveDataText": "You have selected columns that may contain sensitive information. Ensure compliance with data protection regulations.",
+      "sensitivePatientData": "You have selected columns containing sensitive patient information. Please ensure proper handling.",
+      "exportProgress": "Export Progress",
+      "preparingExport": "Preparing export...",
+      "cancel": "Cancel",
+      "exportData": "Export Data"
+    }
+  },
+  "tables": {
+    "patients": {
+      "patientName": "Patient Name",
+      "matriculeNational": "Matricule National",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "room": "Room",
+      "doctor": "Doctor",
+      "actions": "Actions"
+    },
+    "services": {
+      "serviceName": "Service Name",
+      "email": "Email",
+      "rooms": "Rooms",
+      "users": "Users",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "rooms": {
+      "roomNumber": "Room Number",
+      "service": "Service",
+      "capacity": "Capacity",
+      "occupancy": "Occupancy",
+      "status": "Status",
+      "actions": "Actions"
+    }
+  },
+  "filters": {
+    "searchPatients": "Search patients...",
+    "searchServices": "Search services...",
+    "searchRooms": "Search by room number or service...",
+    "allRooms": "All Rooms",
+    "allDoctors": "All Doctors", 
+    "allGenders": "All Genders",
+    "allStatuses": "All Statuses",
+    "allServices": "All Services",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "active": "Active",
+    "inactive": "Inactive",
+    "itemsPerPage": "Items per page"
+  },
+  "buttons": {
+    "refresh": "Refresh",
+    "advancedOptions": "Advanced Options",
+    "quickExportCSV": "Quick Export (CSV)",
+    "quickExportExcel": "Quick Export (Excel)",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "of",
+    "loading": "Loading...",
+    "recordCount": "Showing {start} to {end} of {total} records"
   }
 }

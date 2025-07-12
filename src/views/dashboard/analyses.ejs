@@ -190,7 +190,7 @@
                     <label class="form-checkbox-label">
                         <input type="checkbox" id="enableRecurring" class="form-checkbox">
                         <span class="checkmark"></span>
-                        Create Recurring Analysis
+                        <%= __('labels.createRecurringAnalysis') %>
                     </label>
                     <small class="form-help"><%= __('labels.scheduleMultiple') %></small>
                 </div>
@@ -231,7 +231,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Schedule Analysis</button>
+                <button type="submit" class="btn btn-primary"><%= __('labels.scheduleAnalysis') %></button>
             </div>
         </form>
     </div>
@@ -276,7 +276,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelUpdateStatusBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Update Status</button>
+                <button type="submit" class="btn btn-primary"><%= __('labels.updateStatus') %></button>
             </div>
         </form>
     </div>
@@ -385,7 +385,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Doctor</button>
+                <button type="submit" class="btn btn-primary"><%= __('labels.createDoctor') %></button>
             </div>
         </form>
     </div>
@@ -495,7 +495,7 @@
         <p id="confirmMessage" style="margin-bottom: 20px;"></p>
         <div class="modal-footer">
             <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
-            <button class="btn btn-primary" id="confirmBtn">Confirm</button>
+            <button class="btn btn-primary" id="confirmBtn"><%= __('labels.confirm') %></button>
         </div>
     </div>
 </div>

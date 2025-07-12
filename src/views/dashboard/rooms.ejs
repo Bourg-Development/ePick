@@ -1,11 +1,11 @@
 <div class="header">
-    <h1>Rooms Management</h1>
+    <h1><%= __('dashboard.rooms.title') %></h1>
     <div class="header-actions">
         <button class="btn btn-primary" id="createRoomBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 add_home
             </span>
-            Create Room
+            <%= __('labels.createRoom') %>
         </button>
 
         <!-- Export Dropdown -->
@@ -14,7 +14,7 @@
                 <span class="material-symbols-outlined" style="font-size: 16px;">
                     download
                 </span>
-                Export
+                <%= __('common.export') %>
                 <span class="material-symbols-outlined dropdown-arrow">
                     arrow_drop_down
                 </span>
