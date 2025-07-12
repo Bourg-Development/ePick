@@ -1156,6 +1156,48 @@
     "testNotification": "Envoyer une notification de test",
     "testSuccess": "Notification de test envoyée avec succès"
   },
+  "status": {
+    "title": "État du système",
+    "subtitle": "Surveillance en temps réel de la santé du système",
+    "lastUpdated": "Dernière mise à jour",
+    "refresh": "Actualiser",
+    "activeIncidents": "Incidents actifs",
+    "recentIncidents": "Incidents récents (7 derniers jours)",
+    "systemComponents": "Composants du système",
+    "recentUpdates": "Mises à jour récentes",
+    "started": "Démarré",
+    "affected": "Affecté",
+    "critical": "Critique",
+    "response": "Réponse",
+    "checked": "Vérifié",
+    "duration": "Durée",
+    "supportText": "Pour le support technique ou signaler des problèmes, veuillez contacter",
+    "autoRefresh": "Actualisation automatique toutes les 30 secondes",
+    "operational": "Tous les systèmes opérationnels",
+    "degraded": "Performance dégradée",
+    "partialOutage": "Panne partielle",
+    "majorOutage": "Panne majeure",
+    "maintenance": "En maintenance",
+    "refreshing": "Actualisation...",
+    "failedToRefresh": "Échec de l'actualisation du statut",
+    "errorRefreshing": "Erreur lors de l'actualisation du statut",
+    "components": {
+      "database": "Serveur de base de données",
+      "web_server": "Serveur d'application web",
+      "email_service": "Service de messagerie",
+      "analysis_engine": "Moteur d'analyse",
+      "authentication": "Système d'authentification",
+      "notification_system": "Système de notifications"
+    },
+    "descriptions": {
+      "operational": "Tous les systèmes fonctionnent normalement",
+      "degraded": "Certains systèmes peuvent fonctionner plus lentement que d'habitude",
+      "partialOutage": "Certains systèmes sont actuellement indisponibles",
+      "majorOutage": "La plupart des systèmes sont actuellement indisponibles",
+      "maintenance": "Maintenance du système en cours",
+      "unknown": "État inconnu"
+    }
+  },
   "modals": {
     "createPatient": {
       "title": "Créer un patient",

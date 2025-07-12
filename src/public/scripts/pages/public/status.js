@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading state
         if (refreshBtn) {
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<i class="refresh-icon spinning">⟳</i> Refreshing...';
+            const refreshingText = window.statusTranslations?.refreshing || 'Refreshing...';
+            refreshBtn.innerHTML = `<i class="refresh-icon spinning">⟳</i> ${refreshingText}`;
         }
 
         fetch('/status/data')
@@ -32,18 +33,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Status refreshed successfully');
                 } else {
                     console.error('Failed to refresh status:', data.message);
-                    showToast('Failed to refresh status', 'error');
+                    const failedText = window.statusTranslations?.failedToRefresh || 'Failed to refresh status';
+                    showToast(failedText, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error refreshing status:', error);
-                showToast('Error refreshing status', 'error');
+                const errorText = window.statusTranslations?.errorRefreshing || 'Error refreshing status';
+                showToast(errorText, 'error');
             })
             .finally(() => {
                 // Reset button state
                 if (refreshBtn) {
                     refreshBtn.disabled = false;
-                    refreshBtn.innerHTML = '<i class="refresh-icon">⟳</i> Refresh';
+                    const refreshText = window.statusTranslations?.refresh || 'Refresh';
+                    refreshBtn.innerHTML = `<i class="refresh-icon">⟳</i> ${refreshText}`;
                 }
             });
     }

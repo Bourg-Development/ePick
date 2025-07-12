@@ -13,6 +13,24 @@ class StatusController {
                 statusPageService.getRecentIncidents(7)
             ]);
 
+            // Pre-translate status texts for helpers
+            const statusTexts = {
+                'operational': res.locals.__('status.operational'),
+                'degraded': res.locals.__('status.degraded'),
+                'partial_outage': res.locals.__('status.partialOutage'),
+                'major_outage': res.locals.__('status.majorOutage'),
+                'maintenance': res.locals.__('status.maintenance')
+            };
+
+            const statusDescriptions = {
+                'operational': res.locals.__('status.descriptions.operational'),
+                'degraded': res.locals.__('status.descriptions.degraded'),
+                'partial_outage': res.locals.__('status.descriptions.partialOutage'),
+                'major_outage': res.locals.__('status.descriptions.majorOutage'),
+                'maintenance': res.locals.__('status.descriptions.maintenance'),
+                'unknown': res.locals.__('status.descriptions.unknown')
+            };
+
             // Use proper layout with corporate identity
             res.render('public/status', {
                 title: 'ePick System Status',
@@ -25,24 +43,10 @@ class StatusController {
                 // Helper functions for the template (defined inline)
                 helpers: {
                     getStatusText: function(status) {
-                        const statusMap = {
-                            'operational': 'All Systems Operational',
-                            'degraded': 'Degraded Performance',
-                            'partial_outage': 'Partial Outage',
-                            'major_outage': 'Major Outage',
-                            'maintenance': 'Maintenance Mode'
-                        };
-                        return statusMap[status] || status;
+                        return statusTexts[status] || status;
                     },
                     getStatusDescription: function(status) {
-                        const descMap = {
-                            'operational': 'All systems are functioning normally',
-                            'degraded': 'Some systems may be running slower than usual',
-                            'partial_outage': 'Some systems are currently unavailable',
-                            'major_outage': 'Most systems are currently unavailable',
-                            'maintenance': 'System maintenance is in progress'
-                        };
-                        return descMap[status] || 'Status unknown';
+                        return statusDescriptions[status] || statusDescriptions.unknown;
                     },
                     formatComponentName: function(component) {
                         return component.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());

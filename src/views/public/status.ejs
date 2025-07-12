@@ -5,14 +5,14 @@
             <div class="brand-section">
                 <img src="/static/media/logos/primary-logo.png" alt="ePick" class="status-logo">
                 <div class="brand-text">
-                    <h1>System Status</h1>
-                    <p class="status-subtitle">Real-time system health monitoring</p>
+                    <h1><%= __('status.title') %></h1>
+                    <p class="status-subtitle"><%= __('status.subtitle') %></p>
                 </div>
             </div>
             <div class="last-updated">
-                Last updated: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
+                <%= __('status.lastUpdated') %>: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
                 <button class="refresh-btn" onclick="refreshStatus()">
-                    <i class="refresh-icon">⟳</i> Refresh
+                    <i class="refresh-icon">⟳</i> <%= __('status.refresh') %>
                 </button>
             </div>
         </div>
@@ -33,7 +33,7 @@
         <!-- Active Incidents -->
         <% if (activeIncidents && activeIncidents.length > 0) { %>
         <div class="incidents-section">
-            <h3>Active Incidents</h3>
+            <h3><%= __('status.activeIncidents') %></h3>
             <% activeIncidents.forEach(incident => { %>
             <div class="incident-card <%= incident.severity %>">
                 <div class="incident-header">
@@ -48,17 +48,17 @@
                 <div class="incident-content">
                     <p><%= incident.description %></p>
                     <div class="incident-meta">
-                        <span class="incident-time">Started: <%= new Date(incident.started_at).toLocaleString() %></span>
+                        <span class="incident-time"><%= __('status.started') %>: <%= new Date(incident.started_at).toLocaleString() %></span>
                         <% if (incident.affected_components && incident.affected_components.length > 0) { %>
                         <span class="affected-components">
-                            Affected: <%= incident.affected_components.join(', ') %>
+                            <%= __('status.affected') %>: <%= incident.affected_components.join(', ') %>
                         </span>
                         <% } %>
                     </div>
                 </div>
                 <% if (incident.updates && incident.updates.length > 0) { %>
                 <div class="incident-updates">
-                    <h5>Recent Updates</h5>
+                    <h5><%= __('status.recentUpdates') %></h5>
                     <% incident.updates.slice(0, 3).forEach(update => { %>
                     <div class="update-item">
                         <div class="update-status <%= update.status %>"><%= update.status.replace('_', ' ') %></div>
@@ -77,7 +77,7 @@
 
         <!-- System Components -->
         <div class="components-section">
-            <h3>System Components</h3>
+            <h3><%= __('status.systemComponents') %></h3>
             <div class="components-grid">
                 <% systemStatus.components.forEach(component => { %>
                 <div class="component-card">
@@ -86,7 +86,7 @@
                             <div class="component-status-dot <%= component.status %>"></div>
                             <h4><%= helpers.formatComponentName(component.component) %></h4>
                             <% if (component.is_critical) { %>
-                            <span class="critical-badge">Critical</span>
+                            <span class="critical-badge"><%= __('status.critical') %></span>
                             <% } %>
                         </div>
                         <div class="component-status <%= component.status %>">
@@ -98,10 +98,10 @@
                     <% } %>
                     <div class="component-meta">
                         <% if (component.response_time) { %>
-                        <span class="response-time">Response: <%= component.response_time %>ms</span>
+                        <span class="response-time"><%= __('status.response') %>: <%= component.response_time %>ms</span>
                         <% } %>
                         <span class="last-checked">
-                            Checked: <%= helpers.formatRelativeTime(component.last_checked) %>
+                            <%= __('status.checked') %>: <%= helpers.formatRelativeTime(component.last_checked) %>
                         </span>
                     </div>
                     <% if (component.error_message && component.status !== 'operational') { %>
@@ -117,7 +117,7 @@
         <!-- Recent Incidents -->
         <% if (recentIncidents && recentIncidents.length > 0) { %>
         <div class="recent-incidents-section">
-            <h3>Recent Incidents (Last 7 Days)</h3>
+            <h3><%= __('status.recentIncidents') %></h3>
             <div class="recent-incidents-list">
                 <% recentIncidents.forEach(incident => { %>
                 <div class="recent-incident-item">
@@ -129,10 +129,10 @@
                     <div class="recent-incident-meta">
                         <span class="incident-date"><%= new Date(incident.started_at).toLocaleDateString() %></span>
                         <% if (incident.duration) { %>
-                        <span class="incident-duration">Duration: <%= helpers.formatDuration(incident.duration) %></span>
+                        <span class="incident-duration"><%= __('status.duration') %>: <%= helpers.formatDuration(incident.duration) %></span>
                         <% } %>
                         <% if (incident.affected_components && incident.affected_components.length > 0) { %>
-                        <span class="affected-components">Affected: <%= incident.affected_components.join(', ') %></span>
+                        <span class="affected-components"><%= __('status.affected') %>: <%= incident.affected_components.join(', ') %></span>
                         <% } %>
                     </div>
                 </div>
@@ -145,13 +145,13 @@
         <!-- Footer -->
         <div class="status-footer">
             <p>
-                For technical support or to report issues, please contact 
+                <%= __('status.supportText') %> 
                 <a href="mailto:info@bourg.dev">info@bourg.dev</a>
             </p>
             <p class="auto-refresh">
                 <label>
                     <input type="checkbox" id="autoRefresh" checked> 
-                    Auto-refresh every 30 seconds
+                    <%= __('status.autoRefresh') %>
                 </label>
             </p>
         </div>
@@ -161,4 +161,13 @@
 
 <!-- Include status page specific styles and scripts -->
 <link rel="stylesheet" href="/static/stylesheets/pages/public/status.css">
+<script>
+    // Expose translations to JavaScript
+    window.statusTranslations = {
+        refresh: '<%= __("status.refresh") %>',
+        refreshing: '<%= __("status.refreshing") %>',
+        failedToRefresh: '<%= __("status.failedToRefresh") || "Failed to refresh status" %>',
+        errorRefreshing: '<%= __("status.errorRefreshing") || "Error refreshing status" %>'
+    };
+</script>
 <script src="/static/scripts/pages/public/status.js"></script>

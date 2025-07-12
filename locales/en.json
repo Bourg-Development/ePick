@@ -1476,6 +1476,48 @@
     "testNotification": "Send Test Notification",
     "testSuccess": "Test notification sent successfully"
   },
+  "status": {
+    "title": "System Status",
+    "subtitle": "Real-time system health monitoring",
+    "lastUpdated": "Last updated",
+    "refresh": "Refresh",
+    "activeIncidents": "Active Incidents",
+    "recentIncidents": "Recent Incidents (Last 7 Days)",
+    "systemComponents": "System Components",
+    "recentUpdates": "Recent Updates",
+    "started": "Started",
+    "affected": "Affected",
+    "critical": "Critical",
+    "response": "Response",
+    "checked": "Checked",
+    "duration": "Duration",
+    "supportText": "For technical support or to report issues, please contact",
+    "autoRefresh": "Auto-refresh every 30 seconds",
+    "operational": "All Systems Operational",
+    "degraded": "Degraded Performance",
+    "partialOutage": "Partial Outage",
+    "majorOutage": "Major Outage",
+    "maintenance": "Under Maintenance",
+    "refreshing": "Refreshing...",
+    "failedToRefresh": "Failed to refresh status",
+    "errorRefreshing": "Error refreshing status",
+    "components": {
+      "database": "Database Server",
+      "web_server": "Web Application Server",
+      "email_service": "Email Service",
+      "analysis_engine": "Analysis Engine",
+      "authentication": "Authentication System",
+      "notification_system": "Notification System"
+    },
+    "descriptions": {
+      "operational": "All systems are functioning normally",
+      "degraded": "Some systems may be running slower than usual",
+      "partialOutage": "Some systems are currently unavailable",
+      "majorOutage": "Most systems are currently unavailable",
+      "maintenance": "System maintenance is in progress",
+      "unknown": "Status unknown"
+    }
+  },
   "modals": {
     "createPatient": {
       "title": "Create Patient",

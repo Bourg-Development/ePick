@@ -307,12 +307,12 @@
     <div class="container">
         <!-- Header -->
         <div class="status-header">
-            <h1>ePick System Status</h1>
-            <p class="status-subtitle">Current system status and recent incidents</p>
+            <h1><%= __('status.title') %></h1>
+            <p class="status-subtitle"><%= __('status.subtitle') %></p>
             <div class="last-updated">
-                Last updated: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
+                <%= __('status.lastUpdated') %>: <span id="lastUpdated"><%= new Date(currentDate).toLocaleString() %></span>
                 <button class="refresh-btn" onclick="refreshStatus()">
-                    <span>⟳</span> Refresh
+                    <span>⟳</span> <%= __('status.refresh') %>
                 </button>
             </div>
         </div>
@@ -330,7 +330,7 @@
 
         <!-- System Components -->
         <div class="components-section">
-            <h3>System Components</h3>
+            <h3><%= __('status.systemComponents') %></h3>
             <div class="components-grid">
                 <% systemStatus.components.forEach(component => { %>
                 <div class="component-card">
@@ -339,7 +339,7 @@
                             <div class="component-status-dot <%= component.status %>"></div>
                             <h4><%= helpers.formatComponentName(component.component) %></h4>
                             <% if (component.is_critical) { %>
-                            <span class="critical-badge">Critical</span>
+                            <span class="critical-badge"><%= __('status.critical') %></span>
                             <% } %>
                         </div>
                         <div class="component-status <%= component.status %>">
@@ -351,10 +351,10 @@
                     <% } %>
                     <div class="component-meta">
                         <% if (component.response_time) { %>
-                        <span class="response-time">Response: <%= component.response_time %>ms</span>
+                        <span class="response-time"><%= __('status.response') %>: <%= component.response_time %>ms</span>
                         <% } %>
                         <span class="last-checked">
-                            Checked: <%= helpers.formatRelativeTime(component.last_checked) %>
+                            <%= __('status.checked') %>: <%= helpers.formatRelativeTime(component.last_checked) %>
                         </span>
                     </div>
                     <% if (component.error_message && component.status !== 'operational') { %>
@@ -370,13 +370,13 @@
         <!-- Footer -->
         <div class="status-footer">
             <p>
-                For technical support or to report issues, please contact 
+                <%= __('status.supportText') %> 
                 <a href="mailto:info@bourg.dev">info@bourg.dev</a>
             </p>
             <p class="auto-refresh">
                 <label>
                     <input type="checkbox" id="autoRefresh" checked> 
-                    Auto-refresh every 30 seconds
+                    <%= __('status.autoRefresh') %>
                 </label>
             </p>
         </div>
@@ -393,7 +393,7 @@
             // Show loading state
             if (refreshBtn) {
                 refreshBtn.disabled = true;
-                refreshBtn.innerHTML = '<span style="animation: spin 1s linear infinite;">⟳</span> Refreshing...';
+                refreshBtn.innerHTML = '<span style="animation: spin 1s linear infinite;">⟳</span> <%= __("status.refreshing") %>';
             }
 
             fetch('/status/data')
@@ -418,7 +418,7 @@
                     // Reset button state
                     if (refreshBtn) {
                         refreshBtn.disabled = false;
-                        refreshBtn.innerHTML = '<span>⟳</span> Refresh';
+                        refreshBtn.innerHTML = '<span>⟳</span> <%= __("status.refresh") %>';
                     }
                 });
         }

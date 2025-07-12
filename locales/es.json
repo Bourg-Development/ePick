@@ -1156,6 +1156,48 @@
     "testNotification": "Enviar notificación de prueba",
     "testSuccess": "Notificación de prueba enviada exitosamente"
   },
+  "status": {
+    "title": "Estado del sistema",
+    "subtitle": "Monitoreo en tiempo real de la salud del sistema",
+    "lastUpdated": "Última actualización",
+    "refresh": "Actualizar",
+    "activeIncidents": "Incidentes activos",
+    "recentIncidents": "Incidentes recientes (últimos 7 días)",
+    "systemComponents": "Componentes del sistema",
+    "recentUpdates": "Actualizaciones recientes",
+    "started": "Iniciado",
+    "affected": "Afectado",
+    "critical": "Crítico",
+    "response": "Respuesta",
+    "checked": "Verificado",
+    "duration": "Duración",
+    "supportText": "Para soporte técnico o reportar problemas, por favor contacte",
+    "autoRefresh": "Actualización automática cada 30 segundos",
+    "operational": "Todos los sistemas operativos",
+    "degraded": "Rendimiento degradado",
+    "partialOutage": "Interrupción parcial",
+    "majorOutage": "Interrupción mayor",
+    "maintenance": "En mantenimiento",
+    "refreshing": "Actualizando...",
+    "failedToRefresh": "Error al actualizar el estado",
+    "errorRefreshing": "Error actualizando el estado",
+    "components": {
+      "database": "Servidor de base de datos",
+      "web_server": "Servidor de aplicación web",
+      "email_service": "Servicio de correo electrónico",
+      "analysis_engine": "Motor de análisis",
+      "authentication": "Sistema de autenticación",
+      "notification_system": "Sistema de notificaciones"
+    },
+    "descriptions": {
+      "operational": "Todos los sistemas funcionan normalmente",
+      "degraded": "Algunos sistemas pueden funcionar más lento de lo normal",
+      "partialOutage": "Algunos sistemas no están disponibles actualmente",
+      "majorOutage": "La mayoría de los sistemas no están disponibles actualmente",
+      "maintenance": "Mantenimiento del sistema en progreso",
+      "unknown": "Estado desconocido"
+    }
+  },
   "modals": {
     "createPatient": {
       "title": "Crear paciente",
