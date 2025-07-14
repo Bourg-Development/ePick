@@ -739,7 +739,17 @@ function initializePage() {
             if (dobInput) dobInput.value = patient.date_of_birth ? patient.date_of_birth.split('T')[0] : '';
             if (genderSelect) genderSelect.value = patient.gender || '';
             if (roomSelect) roomSelect.value = patient.room_id || '';
-            
+        } else {
+            // Clear form for new patient
+            if (form) form.reset();
+        }
+        
+        // Populate dropdowns and setup enhanced search
+        populateModalDropdowns();
+        setupEnhancedSearchInputs();
+        
+        // Handle enhanced search inputs AFTER they are created
+        if (isEdit && patient) {
             // Handle doctor search input
             const doctorSearchInput = document.getElementById('doctorIdSearch');
             if (doctorSearchInput && patient.doctor_id) {
@@ -769,14 +779,7 @@ function initializePage() {
                 roomSearchInput.setAttribute('data-selected-id', '');
                 roomSearchInput.removeAttribute('data-selected-name');
             }
-        } else {
-            // Clear form for new patient
-            if (form) form.reset();
         }
-        
-        // Populate dropdowns and setup enhanced search
-        populateModalDropdowns();
-        setupEnhancedSearchInputs();
         
         // Show modal
         modal.style.display = 'flex';

@@ -15,7 +15,8 @@ console.log(1)
 /**
  * Load environment variables from db.env file
  */
-dotenv.config();  // Load variables from db.env
+process.env.DOTENV_CONFIG_VERBOSE = 'false';
+dotenv.config({ override: false, debug: false });  // Load variables from db.env
 
 /**
  * Get port from environment and store in Express.

@@ -1587,7 +1587,7 @@ function initializePage() {
 
     async function handlePatientSelection(patientId){
         try{
-            showToast(__('messages.info.loadingPatient'), 'info');
+            showToast('Loading patient details...', 'info');
 
             const patientDetails = await getPatientDetails(patientId);
 
@@ -1628,16 +1628,16 @@ function initializePage() {
                 if (patientDetails.room_id) autoFilledItems.push('room');
 
                 if (autoFilledItems.length > 0) {
-                    showToast(`${__('messages.success.autoFilled')} ${autoFilledItems.join(' and ')}`, 'success');
+                    showToast(`Auto-filled: ${autoFilledItems.join(' and ')}`, 'success');
                 } else {
-                    showToast(__('messages.success.noAssignment'), 'warning');
+                    showToast('No doctor or room assigned to this patient', 'warning');
                 }
             } else {
-                showToast(__('messages.error.loadingPatientDetails'), 'error');
+                showToast('Failed to load patient details', 'error');
             }
         } catch (error) {
             console.error('Error auto-filling patient details:', error);
-            showToast(__('messages.error.autoFillFailed'), 'error');
+            showToast('Failed to auto-fill patient details', 'error');
         }
     }
 
