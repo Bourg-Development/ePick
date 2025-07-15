@@ -26,7 +26,8 @@ class PatientService {
     async createPatient(data, context) {
         try {
             const {
-                name,
+                firstName,
+                lastName,
                 matriculeNational,
                 dateOfBirth,
                 gender,
@@ -71,6 +72,9 @@ class PatientService {
                 }
             }
 
+            // Create combined name for backward compatibility
+            const name = lastName ? `${firstName} ${lastName}` : firstName;
+            
             // Create search hashes for encrypted fields
             const searchHashes = encryptedSearchService.createPatientSearchHashes({
                 name,
@@ -80,6 +84,8 @@ class PatientService {
             // Create the patient
             const patient = await db.Patient.create({
                 name,
+                first_name: firstName,
+                last_name: lastName || null,
                 matricule_national: matriculeNational,
                 date_of_birth: dateOfBirth || null,
                 gender: gender || null,
@@ -116,6 +122,16 @@ class PatientService {
             };
         } catch (error) {
             console.error('Create patient error:', error);
+            
+            // Handle duplicate matricule national error
+            if (error.name === 'SequelizeUniqueConstraintError' && 
+                error.fields && error.fields.matricule_hash) {
+                return {
+                    success: false,
+                    message: 'A patient with this national ID already exists'
+                };
+            }
+            
             return {
                 success: false,
                 message: 'Failed to create patient'
@@ -232,7 +248,7 @@ class PatientService {
             const { count, rows } = await db.Patient.findAndCountAll({
                 where: whereClause,
                 attributes: [
-                    'id', 'name', 'matricule_national', 'date_of_birth', 
+                    'id', 'name', 'first_name', 'last_name', 'matricule_national', 'date_of_birth', 
                     'gender', 'phone', 'active', 'created_at', 'doctor_id', 'room_id'
                 ], // Only essential fields
                 include: [
@@ -340,9 +356,19 @@ class PatientService {
                 }
             }
 
+            // Create combined name if separate names are provided
+            let combinedName = patient.name;
+            if (updateData.firstName !== undefined || updateData.lastName !== undefined) {
+                const firstName = updateData.firstName || patient.first_name;
+                const lastName = updateData.lastName || patient.last_name;
+                combinedName = lastName ? `${firstName} ${lastName}` : firstName;
+            }
+
             // Update patient
             await patient.update({
-                name: updateData.name || patient.name,
+                name: combinedName,
+                first_name: updateData.firstName !== undefined ? updateData.firstName : patient.first_name,
+                last_name: updateData.lastName !== undefined ? updateData.lastName : patient.last_name,
                 matricule_national: updateData.matriculeNational || patient.matricule_national,
                 date_of_birth: updateData.dateOfBirth !== undefined ? updateData.dateOfBirth : patient.date_of_birth,
                 gender: updateData.gender !== undefined ? updateData.gender : patient.gender,
@@ -354,10 +380,10 @@ class PatientService {
             });
 
             // Update search hashes if name or matricule changed
-            if (updateData.name || updateData.matriculeNational) {
+            if (updateData.firstName !== undefined || updateData.lastName !== undefined || updateData.matriculeNational) {
                 await encryptedSearchService.updatePatientSearchHashes(patientId, {
-                    name: updateData.name,
-                    matricule_national: updateData.matriculeNational
+                    name: combinedName,
+                    matricule_national: updateData.matriculeNational || patient.matricule_national
                 });
             }
 

@@ -2656,18 +2656,18 @@ class AdminController {
 
             const { patientId } = req.params;
             const patientService = require('../../services/patientService');
-            const patient = await patientService.getPatientById(parseInt(patientId));
+            const result = await patientService.getPatientById(parseInt(patientId));
 
-            if (!patient) {
+            if (!result.success) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Patient not found'
+                    message: result.message || 'Patient not found'
                 });
             }
 
             return res.status(200).json({
                 success: true,
-                data: patient
+                data: result.data
             });
         } catch (error) {
             console.error('Get patient error:', error);
@@ -2694,13 +2694,18 @@ class AdminController {
 
             const patientData = req.body;
             const patientService = require('../../services/patientService');
-            const context = new AdminController()._getRequestContext(req);
+            const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
+            
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
 
             // Format patient data for service
             const formattedPatientData = {
-                name: patientData.firstName && patientData.lastName 
-                    ? `${patientData.firstName} ${patientData.lastName}`.trim()
-                    : patientData.name,
+                firstName: patientData.firstName,
+                lastName: patientData.lastName,
                 matriculeNational: patientData.matriculeNational,
                 dateOfBirth: patientData.dateOfBirth,
                 gender: patientData.gender,
@@ -2740,12 +2745,18 @@ class AdminController {
             const { patientId } = req.params;
             const patientData = req.body;
             const patientService = require('../../services/patientService');
-            const context = new AdminController()._getRequestContext(req);
+            const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
+            
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
 
             const result = await patientService.updatePatient(parseInt(patientId), {
                 ...patientData,
                 updated_by: adminId
-            }, context);
+            }, adminId, context);
 
             return res.status(result.success ? 200 : 400).json(result);
         } catch (error) {

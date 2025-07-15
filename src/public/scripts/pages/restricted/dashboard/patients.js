@@ -108,6 +108,10 @@ function initializePage() {
             const result = await api.get(`/admin/patients?${params}`);
             if (result.success) {
                 patientsData = result.data || [];
+                // Debug: log the first patient to see what fields we get
+                if (patientsData.length > 0) {
+                    console.log('First patient from API:', patientsData[0]);
+                }
                 if (result.pagination) {
                     totalPages = result.pagination.totalPages || 1;
                     currentPage = result.pagination.currentPage || 1;
@@ -237,7 +241,7 @@ function initializePage() {
             return `
                 <tr data-patient-id="${patient.id}">
                     <td>
-                        <strong>${patient.name || 'Unknown Patient'}</strong>
+                        <strong>${patient.first_name ? (patient.first_name + (patient.last_name ? ' ' + patient.last_name : '')) : (patient.name || 'Unknown Patient')}</strong>
                     </td>
                     <td>
                         <strong>${patient.matricule_national}</strong>
@@ -735,13 +739,22 @@ function initializePage() {
             const roomSelect = document.getElementById('roomId');
             const doctorSelect = document.getElementById('doctorId');
             
-            // Split combined name field for editing
-            const nameParts = (patient.name || '').split(' ');
-            const firstName = nameParts[0] || '';
-            const lastName = nameParts.slice(1).join(' ') || '';
             
-            if (firstNameInput) firstNameInput.value = firstName;
-            if (lastNameInput) lastNameInput.value = lastName;
+            // Use separate name fields directly from database with fallback
+            if (patient.first_name !== undefined && patient.first_name !== null) {
+                // Patient has the new separate name fields
+                if (firstNameInput) firstNameInput.value = patient.first_name || '';
+                if (lastNameInput) lastNameInput.value = patient.last_name || '';
+            } else if (patient.name) {
+                // Fallback for old patients: split the combined name
+                const nameParts = patient.name.split(' ');
+                if (firstNameInput) firstNameInput.value = nameParts[0] || '';
+                if (lastNameInput) lastNameInput.value = nameParts.slice(1).join(' ') || '';
+            } else {
+                // No name data at all
+                if (firstNameInput) firstNameInput.value = '';
+                if (lastNameInput) lastNameInput.value = '';
+            }
             if (matriculeInput) matriculeInput.value = patient.matricule_national || '';
             if (dobInput) dobInput.value = patient.date_of_birth ? patient.date_of_birth.split('T')[0] : '';
             
@@ -1859,7 +1872,8 @@ function initializePage() {
         const roomIdValue = roomId;
         
         const patientData = {
-            name: `${formData.get('firstName')} ${formData.get('lastName')}`.trim(),
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
             matriculeNational: formData.get('matriculeNational'),
             dateOfBirth: formData.get('dateOfBirth'),
             gender: genderMap[formData.get('gender')] || formData.get('gender'),

@@ -64,54 +64,173 @@ class EncryptedSearchService {
         }
         
         try {
-            // Build OR conditions for all possible hash matches
-            const orConditions = [];
+            // Build prioritized search queries
+            const searches = [];
             
-            // Full name hash
-            orConditions.push({ name_hash: searchHashes.fullName });
-            
-            // Matricule hash
-            orConditions.push({ matricule_hash: searchHashes.matricule });
-            
-            // First name hash
-            if (searchHashes.firstName) {
-                orConditions.push({ first_name_hash: searchHashes.firstName });
-            }
-            
-            // Last name hash
-            if (searchHashes.lastName) {
-                orConditions.push({ last_name_hash: searchHashes.lastName });
-            }
-            
-            // Word parts hashes - check against name_parts_json
-            searchHashes.wordParts.forEach(wordHash => {
-                orConditions.push({ first_name_hash: wordHash });
-                orConditions.push({ last_name_hash: wordHash });
-                // Also check if this hash exists in the name_parts_json array
-                orConditions.push({
-                    name_parts_json: {
-                        [Op.like]: `%"${wordHash}"%`
+            // Priority 1: Exact first name + last name match
+            if (searchHashes.firstName && searchHashes.lastName) {
+                searches.push({
+                    priority: 1,
+                    where: {
+                        ...baseWhere,
+                        first_name_hash: searchHashes.firstName,
+                        last_name_hash: searchHashes.lastName
                     }
                 });
+            }
+            
+            // Priority 2: Full name match or matricule match
+            searches.push({
+                priority: 2,
+                where: {
+                    ...baseWhere,
+                    [Op.or]: [
+                        { name_hash: searchHashes.fullName },
+                        { matricule_hash: searchHashes.matricule }
+                    ]
+                }
             });
             
-            const whereClause = {
-                ...baseWhere,
-                [Op.or]: orConditions
-            };
+            // Priority 2.5: Names that contain all search words in sequence
+            if (searchHashes.allWordCombinations.length > 0 && searchHashes.wordParts.length > 1) {
+                const sequentialMatches = [];
+                
+                // Check if the full search term appears as a substring in name_parts_json
+                // This catches cases like "Test Paul Mike" in "Kai Test Paul Mike"
+                searchHashes.allWordCombinations.forEach(combinationHash => {
+                    sequentialMatches.push({
+                        name_parts_json: {
+                            [Op.like]: `%"${combinationHash}"%`
+                        }
+                    });
+                });
+                
+                searches.push({
+                    priority: 2.5,
+                    where: {
+                        ...baseWhere,
+                        [Op.or]: sequentialMatches
+                    }
+                });
+            }
             
-            console.log(`Searching with ${orConditions.length} hash conditions for: "${trimmedTerm}"`);
+            // Priority 3: Exact word combinations in first or last name
+            if (searchHashes.allWordCombinations.length > 0) {
+                const exactCombinations = [];
+                searchHashes.allWordCombinations.forEach(combinationHash => {
+                    exactCombinations.push({ first_name_hash: combinationHash });
+                    exactCombinations.push({ last_name_hash: combinationHash });
+                });
+                
+                searches.push({
+                    priority: 3,
+                    where: {
+                        ...baseWhere,
+                        [Op.or]: exactCombinations
+                    }
+                });
+            }
             
-            const patients = await db.Patient.findAll({
-                where: whereClause,
-                limit,
-                offset,
-                include,
-                order: [['created_at', 'DESC']]
+            // Priority 4: Individual word matches
+            if (searchHashes.wordParts.length > 0) {
+                const wordMatches = [];
+                searchHashes.wordParts.forEach(wordHash => {
+                    wordMatches.push({ first_name_hash: wordHash });
+                    wordMatches.push({ last_name_hash: wordHash });
+                    wordMatches.push({
+                        name_parts_json: {
+                            [Op.like]: `%"${wordHash}"%`
+                        }
+                    });
+                });
+                
+                searches.push({
+                    priority: 4,
+                    where: {
+                        ...baseWhere,
+                        [Op.or]: wordMatches
+                    }
+                });
+            }
+            
+            // Execute searches in priority order and combine results
+            const allPatients = [];
+            const seenIds = new Set();
+            
+            for (const search of searches) {
+                const patients = await db.Patient.findAll({
+                    where: search.where,
+                    include,
+                    limit: limit * 2, // Get more results to filter duplicates
+                    order: [['created_at', 'DESC']]
+                });
+                
+                // Add patients we haven't seen yet
+                for (const patient of patients) {
+                    if (!seenIds.has(patient.id)) {
+                        seenIds.add(patient.id);
+                        allPatients.push({
+                            ...patient.toJSON(),
+                            searchPriority: search.priority
+                        });
+                    }
+                }
+                
+                // Stop if we have enough results
+                if (allPatients.length >= limit) {
+                    break;
+                }
+            }
+            
+            // Calculate match scores for better ranking
+            const words = trimmedTerm.split(/\s+/).filter(word => word.length > 0);
+            
+            allPatients.forEach(patient => {
+                let matchScore = 0;
+                const fullName = `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase();
+                const combinedName = (patient.name || '').toLowerCase();
+                
+                // Score based on how many search words appear in the name
+                const wordsInName = words.filter(word => 
+                    fullName.includes(word.toLowerCase()) || combinedName.includes(word.toLowerCase())
+                ).length;
+                
+                // Score based on word order preservation
+                let orderScore = 0;
+                if (words.length > 1) {
+                    const searchPhrase = words.join(' ').toLowerCase();
+                    if (fullName.includes(searchPhrase) || combinedName.includes(searchPhrase)) {
+                        orderScore = 10; // High bonus for exact phrase match
+                    }
+                }
+                
+                // Score based on position (earlier in name = higher score)
+                let positionScore = 0;
+                if (fullName.startsWith(trimmedTerm) || combinedName.startsWith(trimmedTerm)) {
+                    positionScore = 5;
+                } else if (fullName.includes(trimmedTerm) || combinedName.includes(trimmedTerm)) {
+                    positionScore = 2;
+                }
+                
+                matchScore = (wordsInName * 2) + orderScore + positionScore;
+                patient.matchScore = matchScore;
             });
             
-            console.log(`Hash-based search found: ${patients.length} patients`);
-            return { patients };
+            // Sort by priority first, then by match score, then by creation date
+            allPatients.sort((a, b) => {
+                if (a.searchPriority !== b.searchPriority) {
+                    return a.searchPriority - b.searchPriority;
+                }
+                if (a.matchScore !== b.matchScore) {
+                    return b.matchScore - a.matchScore; // Higher score first
+                }
+                return new Date(b.created_at) - new Date(a.created_at);
+            });
+            
+            // Return limited results
+            const limitedPatients = allPatients.slice(0, limit);
+            
+            return { patients: limitedPatients };
             
         } catch (error) {
             console.error('Error searching patients:', error);
@@ -130,7 +249,8 @@ class EncryptedSearchService {
             matricule: cryptoService.hash(searchTerm),
             firstName: null,
             lastName: null,
-            wordParts: []
+            wordParts: [],
+            allWordCombinations: []
         };
         
         // If search term contains spaces, treat as "first last" format
@@ -140,11 +260,28 @@ class EncryptedSearchService {
             // First word as first name, rest as last name
             hashes.firstName = cryptoService.hash(words[0]);
             hashes.lastName = cryptoService.hash(words.slice(1).join(' '));
+            
+            // Also add individual words to wordParts for searching against name_parts_json
+            words.forEach(word => {
+                hashes.wordParts.push(cryptoService.hash(word));
+            });
+            
+            // Generate all possible combinations of consecutive words
+            // This helps with searching for multiple last names
+            for (let i = 0; i < words.length; i++) {
+                for (let j = i + 1; j <= words.length; j++) {
+                    const combination = words.slice(i, j).join(' ');
+                    hashes.allWordCombinations.push(cryptoService.hash(combination));
+                }
+            }
         } else if (words.length === 1) {
             // Single word - could be first name, last name, or partial
             const word = words[0];
             hashes.firstName = cryptoService.hash(word);
             hashes.lastName = cryptoService.hash(word);
+            
+            // Add the full word to wordParts for searching against name_parts_json
+            hashes.wordParts.push(cryptoService.hash(word));
             
             // Generate hashes for partial matches (2+ characters)
             if (word.length >= 2) {

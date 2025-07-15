@@ -940,21 +940,32 @@ const validation = {
      * Validate patient creation
      */
     validatePatientCreate(req, res, next) {
-        const { name, matriculeNational, dateOfBirth, gender, phone, email } = req.body;
+        const { firstName, lastName, matriculeNational, dateOfBirth, gender, phone, email } = req.body;
+
+        console.log('Validating patient creation:', { firstName, lastName, matriculeNational, dateOfBirth, gender, phone, email });
 
         // Required fields
-        if (!name || !matriculeNational) {
+        if (!firstName || !matriculeNational) {
+            console.log('Validation failed: missing required fields');
             return res.status(400).json({
                 success: false,
-                message: 'Patient name and national ID are required'
+                message: 'Patient first name and national ID are required'
             });
         }
 
-        // Validate name length
-        if (name.length > 100) {
+        // Validate first name length
+        if (firstName.length > 50) {
             return res.status(400).json({
                 success: false,
-                message: 'Patient name is too long'
+                message: 'Patient first name is too long'
+            });
+        }
+
+        // Validate last name length if provided
+        if (lastName && lastName.length > 50) {
+            return res.status(400).json({
+                success: false,
+                message: 'Patient last name is too long'
             });
         }
 
@@ -1006,13 +1017,21 @@ const validation = {
      */
     validatePatientUpdate(req, res, next) {
         // Same as create but all fields are optional
-        const { name, matriculeNational, dateOfBirth, gender, phone, email } = req.body;
+        const { firstName, lastName, matriculeNational, dateOfBirth, gender, phone, email } = req.body;
 
-        // Validate name length if provided
-        if (name && name.length > 100) {
+        // Validate first name length if provided
+        if (firstName && firstName.length > 50) {
             return res.status(400).json({
                 success: false,
-                message: 'Patient name is too long'
+                message: 'Patient first name is too long'
+            });
+        }
+
+        // Validate last name length if provided
+        if (lastName && lastName.length > 50) {
+            return res.status(400).json({
+                success: false,
+                message: 'Patient last name is too long'
             });
         }
 

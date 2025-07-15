@@ -12,6 +12,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(255),
             allowNull: false
         },
+        first_name: {
+            type: DataTypes.STRING(100),
+            allowNull: false
+        },
+        last_name: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
         matricule_national: {
             type: DataTypes.STRING(50),
             allowNull: false,
@@ -143,6 +151,8 @@ module.exports = (sequelize, DataTypes) => {
     // Add encryption for sensitive patient data fields
     const encryptedFields = [
         'name',              // Patient's full name
+        'first_name',        // Patient's first name(s)
+        'last_name',         // Patient's last name
         'matricule_national', // National ID number  
         'phone',             // Phone number
         'address'            // Home address

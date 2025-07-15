@@ -15,7 +15,8 @@ class PatientController {
     async createPatient(req, res) {
         try {
             const {
-                name,
+                firstName,
+                lastName,
                 matriculeNational,
                 dateOfBirth,
                 gender,
@@ -27,10 +28,10 @@ class PatientController {
             const { userId } = req.auth;
 
             // Validate required fields
-            if (!name || !matriculeNational) {
+            if (!firstName || !matriculeNational) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Patient name and national ID are required'
+                    message: 'Patient first name and national ID are required'
                 });
             }
 
@@ -49,7 +50,8 @@ class PatientController {
             };
 
             const result = await patientService.createPatient({
-                name,
+                firstName,
+                lastName,
                 matriculeNational,
                 dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
                 gender,
@@ -161,7 +163,8 @@ class PatientController {
         try {
             const { id } = req.params;
             const {
-                name,
+                firstName,
+                lastName,
                 matriculeNational,
                 dateOfBirth,
                 gender,
@@ -182,7 +185,8 @@ class PatientController {
             }
 
             const updateData = {
-                name,
+                firstName,
+                lastName,
                 matriculeNational,
                 dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
                 gender,
