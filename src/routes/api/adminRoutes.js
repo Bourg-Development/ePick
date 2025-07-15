@@ -243,6 +243,7 @@ router.post('/services/export/excel',
 // Get all rooms
 router.get('/rooms',
     apiRateLimit,
+    validation.validateRoomFilters,
     adminController.getRooms
 );
 
@@ -290,6 +291,14 @@ router.post('/rooms/export/excel',
     requirePermission(['rooms.export', 'export.all']),
     validation.validateExportRequest,
     adminController.exportRoomsExcel
+);
+
+// Search rooms
+router.get('/rooms/search/:term',
+    apiRateLimit,
+    validation.validateSearchTerm,
+    requirePermission(['read.all', 'read.users']),
+    adminController.searchRooms
 );
 
 /**

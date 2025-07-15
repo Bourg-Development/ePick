@@ -1482,8 +1482,8 @@ function initializePage() {
                 return [];
             }
 
-            const data = await api.get(`/rooms/search/${encodeURIComponent(term)}?limit=10`);
-            return data.rooms || [];
+            const data = await api.get(`/admin/rooms/search/${encodeURIComponent(term)}?limit=10`);
+            return data.data || [];
         } catch (error) {
             console.error('Error searching rooms:', error);
             return [];

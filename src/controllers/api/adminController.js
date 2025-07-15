@@ -222,9 +222,7 @@ function formatDetailsForDisplay(eventType, metadata, targetType, targetId) {
         let details = [];
         
         if (room_number) details.push(`Room: ${room_number}`);
-        if (metadata.capacity) details.push(`Capacity: ${metadata.capacity}`);
         if (metadata.service_name) details.push(`Service: ${metadata.service_name}`);
-        if (metadata.active !== undefined) details.push(`Status: ${metadata.active ? 'Active' : 'Inactive'}`);
         
         return details.length > 0 ? details.join(' • ') : `Room #${targetId}`;
     }
@@ -1812,16 +1810,32 @@ class AdminController {
             }
 
             const roomService = require('../../services/roomService');
-            const result = await roomService.getRooms({}, 1, 1000); // Get all rooms with high limit
+            const {
+                roomNumber,
+                serviceId,
+                page = 1,
+                limit = 1000
+            } = req.query;
+
+            const filters = {
+                roomNumber,
+                serviceId: serviceId ? parseInt(serviceId) : null
+            };
+
+            const result = await roomService.getRooms(
+                filters,
+                parseInt(page),
+                parseInt(limit)
+            );
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
 
             return res.status(200).json({
                 success: true,
                 data: result.data,
-                pagination: result.pagination || {
-                    totalPages: Math.ceil(result.total / 1000),
-                    currentPage: 1,
-                    total: result.total
-                }
+                pagination: result.pagination
             });
         } catch (error) {
             console.error('Get rooms error:', error);
@@ -1886,7 +1900,7 @@ class AdminController {
                 });
             }
 
-            const { room_number, service_id, capacity, is_active = true } = req.body;
+            const { room_number, service_id } = req.body;
 
             const roomService = require('../../services/roomService');
             const context = new AdminController()._getRequestContext(req);
@@ -1894,8 +1908,6 @@ class AdminController {
             const result = await roomService.createRoom({
                 room_number,
                 service_id: parseInt(service_id),
-                capacity: parseInt(capacity),
-                is_active,
                 created_by: adminId
             }, context);
 
@@ -1924,7 +1936,7 @@ class AdminController {
             }
 
             const { roomId } = req.params;
-            const { room_number, service_id, capacity, is_active } = req.body;
+            const { room_number, service_id } = req.body;
 
             const roomService = require('../../services/roomService');
             const context = new AdminController()._getRequestContext(req);
@@ -1932,8 +1944,6 @@ class AdminController {
             const result = await roomService.updateRoom(parseInt(roomId), {
                 room_number,
                 service_id: service_id ? parseInt(service_id) : undefined,
-                capacity: capacity ? parseInt(capacity) : undefined,
-                is_active,
                 updated_by: adminId
             }, context);
 
@@ -2048,6 +2058,45 @@ class AdminController {
     }
 
     /**
+     * Search rooms
+     */
+    async searchRooms(req, res) {
+        try {
+            const { permissions, role } = req.auth;
+
+            // System admin and regular admin have full access
+            if (role !== 'system_admin' && role !== 'admin' && 
+                !permissions.includes('read.all') && !permissions.includes('read.users')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Permission denied'
+                });
+            }
+
+            const { term } = req.params;
+            const { limit = 10 } = req.query;
+
+            const roomService = require('../../services/roomService');
+            const result = await roomService.searchRooms(term, parseInt(limit));
+
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: result.rooms
+            });
+        } catch (error) {
+            console.error('Search rooms error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to search rooms'
+            });
+        }
+    }
+
+    /**
      * Export rooms to Excel (Professional Format)
      */
     async exportRoomsExcel(req, res) {
@@ -2104,9 +2153,6 @@ class AdminController {
                             case 'roomNumber':
                                 formattedRoom.roomNumber = room.room_number;
                                 break;
-                            case 'capacity':
-                                formattedRoom.capacity = room.capacity;
-                                break;
                             case 'serviceName':
                                 formattedRoom.serviceName = room.service?.name || room.Service?.name;
                                 break;
@@ -2125,9 +2171,6 @@ class AdminController {
                             case 'notes':
                                 formattedRoom.notes = room.notes;
                                 break;
-                            case 'active':
-                                formattedRoom.status = room.active ? 'Active' : 'Inactive';
-                                break;
                             case 'createdAt':
                                 formattedRoom.createdAt = room.created_at;
                                 break;
@@ -2140,11 +2183,9 @@ class AdminController {
                     // Default columns if none specified
                     formattedRoom.id = room.id;
                     formattedRoom.roomNumber = room.room_number;
-                    formattedRoom.capacity = room.capacity;
                     formattedRoom.serviceName = room.service?.name || room.Service?.name;
                     formattedRoom.floor = room.floor;
                     formattedRoom.department = room.department;
-                    formattedRoom.status = room.active ? 'Active' : 'Inactive';
                     formattedRoom.createdAt = room.created_at;
                 }
                 
@@ -2155,7 +2196,6 @@ class AdminController {
             const roomColumnHeaders = {
                 id: 'Room ID',
                 roomNumber: 'Room Number',
-                capacity: 'Capacity',
                 serviceName: 'Service Name',
                 serviceId: 'Service ID',
                 floor: 'Floor',
@@ -3379,57 +3419,7 @@ class AdminController {
         });
     }
 
-    /**
-     * Get all rooms
-     */
-    async getRooms(req, res) {
-        try {
-            const roomService = require('../../services/roomService');
-            const {
-                roomNumber,
-                serviceId,
-                active,
-                page = 1,
-                limit = 20
-            } = req.query;
 
-            const filters = {
-                roomNumber,
-                serviceId: serviceId ? parseInt(serviceId) : null,
-                active: active !== undefined ? active === 'true' : undefined
-            };
-
-            const result = await roomService.getRooms(
-                filters,
-                parseInt(page),
-                parseInt(limit)
-            );
-
-            if (!result.success) {
-                return res.status(400).json(result);
-            }
-
-            return res.status(200).json({
-                success: true,
-                data: result.data,
-                pagination: result.pagination
-            });
-        } catch (error) {
-            console.error('Get rooms error:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to retrieve rooms'
-            });
-        }
-    }
-
-    /**
-     * Get room by ID
-     */
-    async getRoom(req, res) {
-        const roomController = require('./roomController');
-        return roomController.getRoomById(req, res);
-    }
 
     /**
      * Create new room
@@ -3445,7 +3435,7 @@ class AdminController {
     async updateRoom(req, res) {
         try {
             const { roomId } = req.params;
-            const { roomNumber, serviceId, capacity, active } = req.body;
+            const { roomNumber, serviceId } = req.body;
             const { userId } = req.auth;
 
             const roomService = require('../../services/roomService');
@@ -3454,8 +3444,6 @@ class AdminController {
             const updateData = {
                 roomNumber,
                 serviceId: serviceId !== undefined ? (serviceId ? parseInt(serviceId) : null) : undefined,
-                capacity: capacity ? parseInt(capacity) : undefined,
-                active: active !== undefined ? active : undefined
             };
 
             const context = {

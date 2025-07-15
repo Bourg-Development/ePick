@@ -12,7 +12,6 @@ class RoomService {
      * @param {Object} data - Room data
      * @param {string} data.roomNumber - 4-digit room number
      * @param {number} [data.serviceId] - Service ID
-     * @param {number} [data.capacity] - Room capacity (default: 1)
      * @param {number} data.createdBy - User ID creating the room
      * @param {Object} context - Request context
      * @returns {Promise<Object>} Creation result
@@ -22,7 +21,6 @@ class RoomService {
             const {
                 roomNumber,
                 serviceId,
-                capacity = 1,
                 createdBy
             } = data;
 
@@ -46,13 +44,6 @@ class RoomService {
                 };
             }
 
-            // Validate capacity
-            if (capacity < 1) {
-                return {
-                    success: false,
-                    message: 'Room capacity must be at least 1'
-                };
-            }
 
             // Validate service exists if provided
             if (serviceId) {
@@ -75,7 +66,6 @@ class RoomService {
             const room = await db.Room.create({
                 room_number: roomNumber,
                 service_id: serviceId || null,
-                capacity,
                 created_by: createdBy
             });
 
@@ -90,7 +80,6 @@ class RoomService {
                 metadata: {
                     roomNumber,
                     serviceId,
-                    capacity,
                     userAgent: context.userAgent
                 }
             });
@@ -153,16 +142,14 @@ class RoomService {
                 };
             }
 
-            // Calculate occupancy
+            // Calculate current patients
             const currentPatients = room.patients ? room.patients.length : 0;
-            const occupancyRate = room.capacity > 0 ? (currentPatients / room.capacity * 100).toFixed(2) : 0;
 
             return {
                 success: true,
                 data: {
                     ...room.toJSON(),
-                    currentPatients,
-                    occupancyRate: parseFloat(occupancyRate)
+                    currentPatients
                 }
             };
         } catch (error) {
@@ -179,7 +166,6 @@ class RoomService {
      * @param {Object} filters - Filter criteria
      * @param {string} [filters.roomNumber] - Filter by room number
      * @param {number} [filters.serviceId] - Filter by service ID
-     * @param {boolean} [filters.active] - Filter by active status
      * @param {number} [page=1] - Page number
      * @param {number} [limit=20] - Results per page
      * @returns {Promise<Object>} Paginated rooms
@@ -197,9 +183,6 @@ class RoomService {
                 whereClause.service_id = filters.serviceId;
             }
 
-            if (filters.active !== undefined) {
-                whereClause.active = filters.active;
-            }
 
             const offset = (page - 1) * limit;
 
@@ -263,9 +246,7 @@ class RoomService {
             // Store old values for logging
             const oldValues = {
                 room_number: room.room_number,
-                service_id: room.service_id,
-                capacity: room.capacity,
-                active: room.active
+                service_id: room.service_id
             };
 
             // Validate room number format if being updated
@@ -293,14 +274,6 @@ class RoomService {
                 }
             }
 
-            // Validate capacity
-            if (updateData.capacity !== undefined && updateData.capacity < 1) {
-                return {
-                    success: false,
-                    message: 'Room capacity must be at least 1'
-                };
-            }
-
             // Validate service exists if provided
             if (updateData.serviceId !== undefined && updateData.serviceId !== null) {
                 const service = await db.Service.findByPk(updateData.serviceId);
@@ -318,26 +291,10 @@ class RoomService {
                 }
             }
 
-            // Check if reducing capacity would exceed current patient count
-            if (updateData.capacity !== undefined && updateData.capacity < room.capacity) {
-                const currentPatients = await db.Patient.count({
-                    where: { room_id: roomId, active: true }
-                });
-
-                if (currentPatients > updateData.capacity) {
-                    return {
-                        success: false,
-                        message: `Cannot reduce capacity to ${updateData.capacity}. Room currently has ${currentPatients} patients.`
-                    };
-                }
-            }
-
             // Update room
             await room.update({
                 room_number: updateData.roomNumber || room.room_number,
-                service_id: updateData.serviceId !== undefined ? updateData.serviceId : room.service_id,
-                capacity: updateData.capacity !== undefined ? updateData.capacity : room.capacity,
-                active: updateData.active !== undefined ? updateData.active : room.active
+                service_id: updateData.serviceId !== undefined ? updateData.serviceId : room.service_id
             });
 
             // Log the update
@@ -466,16 +423,8 @@ class RoomService {
                 };
             }
 
-            if (room.active) {
-                return {
-                    success: false,
-                    message: 'Room is already active'
-                };
-            }
-
-            // Reactivate room
-            room.active = true;
-            await room.save();
+            // Note: Room activation/deactivation is no longer supported
+            // as the 'active' column has been removed from the Room model
 
             // Log the reactivation
             await logService.auditLog({
@@ -537,8 +486,6 @@ class RoomService {
                         where: { room_id: room.id, active: true }
                     });
 
-                    const occupancyRate = room.capacity > 0 ? (currentPatients / room.capacity * 100).toFixed(2) : 0;
-
                     return {
                         id: room.id,
                         roomNumber: room.room_number,
@@ -546,35 +493,23 @@ class RoomService {
                             id: room.service.id,
                             name: room.service.name
                         } : null,
-                        capacity: room.capacity,
-                        currentPatients,
-                        occupancyRate: parseFloat(occupancyRate),
-                        status: currentPatients === 0 ? 'Empty' :
-                            currentPatients < room.capacity ? 'Partially Occupied' : 'Full'
+                        currentPatients
                     };
                 })
             );
 
             // Calculate summary statistics
             const totalRooms = occupancyReport.length;
-            const totalCapacity = occupancyReport.reduce((sum, room) => sum + room.capacity, 0);
             const totalOccupied = occupancyReport.reduce((sum, room) => sum + room.currentPatients, 0);
-            const overallOccupancyRate = totalCapacity > 0 ? (totalOccupied / totalCapacity * 100).toFixed(2) : 0;
-
             const emptyRooms = occupancyReport.filter(room => room.currentPatients === 0).length;
-            const fullRooms = occupancyReport.filter(room => room.currentPatients === room.capacity).length;
 
             return {
                 success: true,
                 occupancyReport,
                 summary: {
                     totalRooms,
-                    totalCapacity,
                     totalOccupied,
-                    overallOccupancyRate: parseFloat(overallOccupancyRate),
-                    emptyRooms,
-                    fullRooms,
-                    availableSpaces: totalCapacity - totalOccupied
+                    emptyRooms
                 }
             };
         } catch (error) {
@@ -594,35 +529,68 @@ class RoomService {
      */
     async searchRooms(searchTerm, limit = 10) {
         try {
-            const rooms = await db.Room.findAll({
+            if (!searchTerm || searchTerm.trim().length === 0) {
+                return {
+                    success: true,
+                    rooms: []
+                };
+            }
+
+            const searchPattern = `%${searchTerm.trim()}%`;
+
+            // First, search by room number
+            const roomsByNumber = await db.Room.findAll({
                 where: {
-                    [Op.or]: [
-                        { room_number: { [Op.iLike]: `%${searchTerm}%` } }
-                    ]
+                    room_number: { [Op.iLike]: searchPattern }
                 },
                 include: [
                     {
                         association: 'service',
                         attributes: ['id', 'name'],
-                        where: {
-                            [Op.or]: [
-                                { name: { [Op.iLike]: `%${searchTerm}%` } }
-                            ]
-                        },
                         required: false
                     }
                 ],
-                attributes: ['id', 'room_number', 'capacity'],
+                attributes: ['id', 'room_number'],
                 limit,
                 order: [['room_number', 'ASC']]
             });
 
+            // Then, search by service name (only if we haven't reached the limit)
+            let roomsByService = [];
+            if (roomsByNumber.length < limit) {
+                const remainingLimit = limit - roomsByNumber.length;
+                
+                // Get room IDs we already found to avoid duplicates
+                const foundRoomIds = roomsByNumber.map(room => room.id);
+                
+                roomsByService = await db.Room.findAll({
+                    where: {
+                        ...(foundRoomIds.length > 0 && { id: { [Op.notIn]: foundRoomIds } })
+                    },
+                    include: [
+                        {
+                            association: 'service',
+                            attributes: ['id', 'name'],
+                            where: {
+                                name: { [Op.iLike]: searchPattern }
+                            },
+                            required: true // Only include rooms that have a matching service
+                        }
+                    ],
+                    attributes: ['id', 'room_number'],
+                    limit: remainingLimit,
+                    order: [['room_number', 'ASC']]
+                });
+            }
+
+            // Combine results
+            const allRooms = [...roomsByNumber, ...roomsByService];
+
             return {
                 success: true,
-                rooms: rooms.map(room => ({
+                rooms: allRooms.map(room => ({
                     id: room.id,
-                    roomNumber: room.room_number,
-                    capacity: room.capacity,
+                    room_number: room.room_number,
                     service: room.service ? {
                         id: room.service.id,
                         name: room.service.name
@@ -663,32 +631,26 @@ class RoomService {
                 ]
             });
 
-            // Filter rooms with available capacity
+            // Return all rooms (capacity restrictions removed)
             const availableRooms = await Promise.all(
                 rooms.map(async (room) => {
                     const currentPatients = await db.Patient.count({
                         where: { room_id: room.id, active: true }
                     });
 
-                    if (currentPatients < room.capacity) {
-                        return {
-                            id: room.id,
-                            roomNumber: room.room_number,
-                            service: room.service ? {
-                                id: room.service.id,
-                                name: room.service.name
-                            } : null,
-                            capacity: room.capacity,
-                            currentPatients,
-                            availableSpaces: room.capacity - currentPatients
-                        };
-                    }
-                    return null;
+                    return {
+                        id: room.id,
+                        roomNumber: room.room_number,
+                        service: room.service ? {
+                            id: room.service.id,
+                            name: room.service.name
+                        } : null,
+                        currentPatients
+                    };
                 })
             );
 
-            // Filter out null values (fully occupied rooms)
-            const filteredRooms = availableRooms.filter(room => room !== null);
+            const filteredRooms = availableRooms;
 
             return {
                 success: true,
