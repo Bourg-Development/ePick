@@ -563,7 +563,14 @@ function initializePage() {
         
         // Gender filter
         if (currentFilters.gender) {
-            filteredData = filteredData.filter(patient => patient.gender === currentFilters.gender);
+            // Map filter values to database values
+            const filterGenderMapping = {
+                'M': 'Male',
+                'F': 'Female',
+                'O': 'Other'
+            };
+            const expectedGender = filterGenderMapping[currentFilters.gender] || currentFilters.gender;
+            filteredData = filteredData.filter(patient => patient.gender === expectedGender);
         }
 
         // Status filter
@@ -737,7 +744,17 @@ function initializePage() {
             if (lastNameInput) lastNameInput.value = lastName;
             if (matriculeInput) matriculeInput.value = patient.matricule_national || '';
             if (dobInput) dobInput.value = patient.date_of_birth ? patient.date_of_birth.split('T')[0] : '';
-            if (genderSelect) genderSelect.value = patient.gender || '';
+            
+            // Map database gender values to form values
+            if (genderSelect) {
+                const genderMapping = {
+                    'Male': 'M',
+                    'Female': 'F',
+                    'Other': 'O'
+                };
+                genderSelect.value = genderMapping[patient.gender] || patient.gender || '';
+            }
+            
             if (roomSelect) roomSelect.value = patient.room_id || '';
         } else {
             // Clear form for new patient
