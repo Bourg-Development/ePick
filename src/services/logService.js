@@ -484,6 +484,121 @@ class LogService {
     }
 
     /**
+     * Get audit logs for a specific analysis
+     * @param {number} analysisId - Analysis ID
+     * @param {number} userId - User ID requesting the logs
+     * @param {Array} permissions - User permissions
+     * @returns {Promise<Object>} Analysis audit logs
+     */
+    async getAnalysisAuditLogs(analysisId, userId, permissions, role = null) {
+        try {
+            // First check if the analysis exists
+            const analysis = await db.Analysis.findByPk(analysisId);
+            if (!analysis) {
+                return {
+                    success: false,
+                    message: 'Analysis not found'
+                };
+            }
+
+            // Check if user has permission to view all audit logs or just their own
+            const canViewAll = permissions.includes('analyses.view_all_audit_logs') || 
+                             permissions.includes('admin') ||
+                             role === 'system_admin';
+
+            // Build where clause for audit logs
+            const whereClause = {
+                target_id: analysisId,
+                target_type: 'analysis'
+            };
+
+            // If user doesn't have view_all permission, only show their own actions
+            if (!canViewAll) {
+                whereClause.user_id = userId;
+            }
+
+            // Get audit logs related to this analysis
+            const auditLogs = await db.AuditLog.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        association: 'User',
+                        attributes: ['id', 'username', 'full_name']
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
+
+            // Format the logs for display with user-friendly dates
+            const formattedLogs = auditLogs.map(log => {
+                const logData = log.toJSON();
+                
+                // Format date in user-friendly way
+                const date = new Date(logData.created_at);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Create user-friendly event descriptions
+                let eventDescription = this._formatEventDescription(logData.event_type, logData.metadata);
+                
+                return {
+                    id: logData.id,
+                    eventType: logData.event_type,
+                    eventDescription,
+                    user: logData.User ? {
+                        id: logData.User.id,
+                        username: logData.User.username,
+                        name: logData.User.full_name || logData.User.username
+                    } : null,
+                    date: formattedDate,
+                    timestamp: logData.created_at,
+                    metadata: logData.metadata || {}
+                };
+            });
+
+            return {
+                success: true,
+                data: formattedLogs
+            };
+        } catch (error) {
+            console.error('Error retrieving analysis audit logs:', error);
+            return {
+                success: false,
+                message: 'Failed to retrieve audit logs'
+            };
+        }
+    }
+
+    /**
+     * Format event descriptions for user-friendly display
+     * @private
+     * @param {string} eventType - Event type
+     * @param {Object} metadata - Event metadata
+     * @returns {string} Formatted description
+     */
+    _formatEventDescription(eventType, metadata = {}) {
+        const descriptions = {
+            'analysis.created': 'Analysis created',
+            'analysis.updated': 'Analysis updated',
+            'analysis.status_changed': `Status changed to ${metadata.newStatus || 'unknown'}`,
+            'analysis.postponed': 'Analysis postponed',
+            'analysis.cancelled': `Analysis cancelled${metadata.reason ? ` - ${metadata.reason}` : ''}`,
+            'analysis.completed': 'Analysis completed',
+            'analysis.results_added': 'Results added',
+            'analysis.notes_updated': 'Notes updated',
+            'analysis.archived': 'Analysis archived',
+            'analysis.restored': 'Analysis restored from archive'
+        };
+
+        return descriptions[eventType] || eventType.replace(/[._]/g, ' ');
+    }
+
+    /**
      * Fallback logging to console if database logging fails
      * @private
      * @param {string} type - Log type

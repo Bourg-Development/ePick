@@ -675,6 +675,57 @@ class AnalysisController {
     }
 
     /**
+     * Get audit logs for a specific analysis
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async getAnalysisAuditLogs(req, res) {
+        try {
+            const { id } = req.params;
+            const { userId, permissions, role } = req.auth;
+            
+            console.log('Audit logs request:', {
+                analysisId: id,
+                userId,
+                role,
+                permissions: permissions.slice(0, 5) + '...' // Show first 5 permissions
+            });
+            
+            // Check permissions (also allow system_admin role)
+            if (!permissions.includes('analyses.view_audit_logs') && 
+                !permissions.includes('analyses.view_all_audit_logs') &&
+                !permissions.includes('admin') &&
+                role !== 'system_admin') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Permission denied'
+                });
+            }
+
+            // Get audit logs for the analysis
+            const auditLogs = await logService.getAnalysisAuditLogs(parseInt(id), userId, permissions, role);
+            
+            if (!auditLogs.success) {
+                return res.status(404).json({
+                    success: false,
+                    message: auditLogs.message || 'Analysis not found'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: auditLogs.data
+            });
+        } catch (error) {
+            console.error('Get analysis audit logs error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to retrieve audit logs'
+            });
+        }
+    }
+
+    /**
      * Extract request context information
      * @private
      * @param {Object} req - Express request

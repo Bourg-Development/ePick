@@ -20,20 +20,28 @@ router.get('/',
     analysisController.getAnalyses
 );
 
-// Get specific analysis by ID
-router.get('/:id',
-    generalRateLimit,
-    validation.validateId,
-    requirePermission(['analyses.view', 'read.all']),
-    analysisController.getAnalysisById
-);
-
 // Create new analysis
 router.post('/',
     generalRateLimit,
     validation.validateAnalysisCreate,
     requirePermission(['analyses.create', 'write.all']),
     analysisController.createAnalysis
+);
+
+// Get analysis audit logs (must come before /:id route)
+router.get('/:id/audit-logs',
+    generalRateLimit,
+    validation.validateId,
+    requirePermission(['analyses.view_audit_logs', 'analyses.view_all_audit_logs', 'admin']),
+    analysisController.getAnalysisAuditLogs
+);
+
+// Get specific analysis by ID (moved after other specific routes)
+router.get('/:id',
+    generalRateLimit,
+    validation.validateId,
+    requirePermission(['analyses.view', 'read.all']),
+    analysisController.getAnalysisById
 );
 
 // ===== EXPORT ENDPOINTS =====

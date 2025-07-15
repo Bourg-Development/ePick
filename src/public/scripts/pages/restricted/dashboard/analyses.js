@@ -150,6 +150,7 @@ function initializePage() {
     const confirmModal = document.getElementById('confirmModal');
     const addDoctorModal = document.getElementById('addDoctorModal');
     const cancelAnalysisModal = document.getElementById('cancelAnalysisModal');
+    const auditLogsModal = document.getElementById('auditLogsModal');
     const toast = document.getElementById('toast');
 
     const keybinds = {
@@ -463,6 +464,21 @@ function initializePage() {
         }
         if(cancelAnalysisForm) {
             cancelAnalysisForm.addEventListener('submit', handleCancelAnalysis);
+        }
+
+        // Audit Logs Modal
+        const closeAuditLogsModalBtn = document.getElementById('closeAuditLogsModalBtn');
+        const closeAuditLogsBtn = document.getElementById('closeAuditLogsBtn');
+
+        if(closeAuditLogsModalBtn) {
+            closeAuditLogsModalBtn.addEventListener('click', () => {
+                auditLogsModal.classList.remove('show');
+            });
+        }
+        if(closeAuditLogsBtn) {
+            closeAuditLogsBtn.addEventListener('click', () => {
+                auditLogsModal.classList.remove('show');
+            });
         }
     }
 
@@ -1822,6 +1838,66 @@ function initializePage() {
         }, 100);
     }
 
+    async function showAuditLogsModal(analysisId) {
+        const analysis = analyses.find(a => a.id === analysisId);
+        if (!analysis) return;
+
+        const auditLogsPatientName = document.getElementById('auditLogsPatientName');
+        const auditLogsAnalysisType = document.getElementById('auditLogsAnalysisType');
+        const auditLogsAnalysisDate = document.getElementById('auditLogsAnalysisDate');
+        const auditLogsTableBody = document.querySelector('#auditLogsTable tbody');
+
+        // Set analysis info
+        if(auditLogsPatientName) auditLogsPatientName.textContent = analysis.patient ? analysis.patient.name : 'N/A';
+        if(auditLogsAnalysisType) auditLogsAnalysisType.textContent = getAnalysisTypeName(analysis.analysis_type);
+        if(auditLogsAnalysisDate) {
+            const date = new Date(analysis.analysis_date);
+            auditLogsAnalysisDate.textContent = window.formatDate ? window.formatDate(date) : date.toLocaleDateString();
+        }
+
+        // Show modal
+        auditLogsModal.classList.add('show');
+
+        // Show loading state
+        if(auditLogsTableBody) {
+            auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-loading">Loading audit logs...</td></tr>';
+        }
+
+        try {
+            // Fetch audit logs
+            const response = await api.get(`/analyses/${analysisId}/audit-logs`);
+            
+            if (response.success) {
+                const auditLogs = response.data;
+                
+                if (auditLogs.length === 0) {
+                    auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">No audit logs found for this analysis</td></tr>';
+                } else {
+                    auditLogsTableBody.innerHTML = auditLogs.map(log => `
+                        <tr>
+                            <td>
+                                <div class="audit-log-date">${log.date}</div>
+                            </td>
+                            <td>
+                                <div class="audit-log-action">${log.eventDescription}</div>
+                            </td>
+                            <td>
+                                <div class="audit-log-user">${log.user ? log.user.name : 'System'}</div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } else {
+                auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">Failed to load audit logs</td></tr>';
+                showToast('Failed to load audit logs', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading audit logs:', error);
+            auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">Error loading audit logs</td></tr>';
+            showToast('Error loading audit logs', 'error');
+        }
+    }
+
     async function handleCancelAnalysis(e) {
         e.preventDefault();
 
@@ -2607,6 +2683,30 @@ function initializePage() {
             `;
         }
 
+        // Add audit logs option if user has permission
+        // Note: Also check for system_admin role as they may not have the permissions in their token yet
+        const hasAuditPermission = window.userPermissions && (
+            window.userPermissions.includes('analyses.view_audit_logs') ||
+            window.userPermissions.includes('analyses.view_all_audit_logs') ||
+            window.userPermissions.includes('admin') ||
+            (window.userRole && window.userRole === 'system_admin')
+        );
+        
+        console.log('Audit logs permission check:', {
+            userPermissions: window.userPermissions,
+            userRole: window.userRole,
+            hasAuditPermission
+        });
+        
+        if (hasAuditPermission) {
+            dropdownHTML += `
+                <div class="dropdown-item" data-action="view-audit-logs">
+                    <span class="material-symbols-outlined">history</span>
+                    View Audit Logs
+                </div>
+            `;
+        }
+
         dropdown.innerHTML = dropdownHTML;
 
         dropdown.querySelectorAll('.dropdown-item').forEach(item => {
@@ -2631,6 +2731,9 @@ function initializePage() {
                         break;
                     case 'cancel':
                         showCancelAnalysisModal(analysisId);
+                        break;
+                    case 'view-audit-logs':
+                        showAuditLogsModal(analysisId);
                         break;
                 }
 

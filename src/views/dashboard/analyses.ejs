@@ -485,6 +485,52 @@
     </div>
 </div>
 
+<!-- Audit Logs Modal -->
+<div class="modal-overlay" id="auditLogsModal">
+    <div class="modal audit-logs-modal">
+        <div class="modal-header">
+            <h2>Audit Logs</h2>
+            <button class="modal-close" id="closeAuditLogsModalBtn">&times;</button>
+        </div>
+        <div class="audit-logs-content">
+            <div class="analysis-info-section">
+                <h3>Analysis Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Patient:</span>
+                        <span class="info-value" id="auditLogsPatientName"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value" id="auditLogsAnalysisType"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date:</span>
+                        <span class="info-value" id="auditLogsAnalysisDate"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="audit-logs-table-wrapper">
+                <table id="auditLogsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Action</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Audit logs will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="closeAuditLogsBtn">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Confirm Modal -->
 <div class="modal-overlay" id="confirmModal">
     <div class="modal">
@@ -898,8 +944,83 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* Audit Logs Modal Styles */
+    .audit-logs-modal {
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .audit-logs-content {
+        margin: 20px 0;
+    }
+
+    .audit-logs-table-wrapper {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    #auditLogsTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #auditLogsTable th,
+    #auditLogsTable td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #auditLogsTable th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    #auditLogsTable tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .audit-log-date {
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .audit-log-action {
+        font-weight: 500;
+        color: #212529;
+    }
+
+    .audit-log-user {
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .audit-logs-empty {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .audit-logs-loading {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
 </style>
 
+
+<script>
+    // Pass permissions and role to JavaScript
+    window.userPermissions = <%- JSON.stringify(permissions) %>;
+    window.userRole = <%- JSON.stringify(role) %>;
+</script>
 
 <% if (!(permissions.includes('analyses.update'))){ %>
     <script>
