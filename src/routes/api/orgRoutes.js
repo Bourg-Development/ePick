@@ -17,7 +17,7 @@ router.use(authMiddleware.authenticate);
 // Get analysis types
 router.get('/analysis-types',
     generalRateLimit,
-    requirePermission('organization_settings.view'),
+    requirePermission(['analyses.view', 'organization_settings.view']),
     organizationSettingsController.getAnalysisTypes
 );
 

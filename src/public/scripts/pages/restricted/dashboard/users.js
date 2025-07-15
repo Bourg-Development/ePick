@@ -34,6 +34,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializePage() {
+    // Translation fallback function
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            const translations = {
+                'messages.success.roleUpdated': 'Role updated successfully',
+                'messages.success.userUpdated': 'User updated successfully',
+                'messages.success.userCreated': 'User created successfully',
+                'messages.success.userLocked': 'User locked successfully',
+                'messages.success.userUnlocked': 'User unlocked successfully',
+                'messages.validation.usernameDigits': 'Username must be exactly 6 digits',
+                'messages.validation.selectRole': 'Please select a role',
+                'messages.validation.fullNameLength': 'Full name must be between 2 and 100 characters',
+                'messages.error.loadingUserDetails': 'Error loading user details',
+                'messages.error.errorLoadingUserDetails': 'Failed to load user details',
+                'messages.info.noChanges': 'No changes detected'
+            };
+            return translations[key] || key;
+        };
+    }
+
     api.setConfig({
         baseURL: '/api',
         timeout: 15000
