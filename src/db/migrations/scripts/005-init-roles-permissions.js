@@ -1,55 +1,13 @@
-// db/seeders/005-init-roles-permissions.js
+// db/seeders/005-init-roles-permissions-simplified.js
 'use strict';
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        // Insert basic roles
+        // Insert only essential roles - admin and system_admin
         await queryInterface.bulkInsert('roles', [
             {
                 name: 'admin',
                 description: 'Full system access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'staff',
-                description: 'Standard staff access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'userManager',
-                description: 'User management access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'security',
-                description: 'Security monitoring access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'readonly',
-                description: 'Read-only access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'doctor',
-                description: 'Doctor access to patient data and analyses',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'nurse',
-                description: 'Nursing staff access',
-                created_at: new Date(),
-                updated_at: new Date()
-            },
-            {
-                name: 'technician',
-                description: 'Laboratory technician access',
                 created_at: new Date(),
                 updated_at: new Date()
             }
@@ -96,6 +54,11 @@ module.exports = {
             {
                 name: 'access.security',
                 description: 'Access to security settings and anomaly data',
+                created_at: new Date()
+            },
+            {
+                name: 'admin',
+                description: 'Administrative access to all features',
                 created_at: new Date()
             },
 
@@ -184,6 +147,21 @@ module.exports = {
             {
                 name: 'analyses.cancel',
                 description: 'Cancel analyses',
+                created_at: new Date()
+            },
+            {
+                name: 'analyses.export',
+                description: 'Export analyses data',
+                created_at: new Date()
+            },
+            {
+                name: 'analyses.view_audit_logs',
+                description: 'View audit logs for analyses',
+                created_at: new Date()
+            },
+            {
+                name: 'analyses.view_all_audit_logs',
+                description: 'View all audit logs for analyses',
                 created_at: new Date()
             },
 
@@ -298,352 +276,11 @@ module.exports = {
             permissionMap[permission.name] = permission.id;
         });
 
-        // Define role permissions
-        const rolePermissions = [
-            // Admin role gets all permissions
-            ...permissions.map(permission => ({
-                role_id: roleMap.admin,
-                permission_id: permission.id
-            })),
-
-            // Staff role permissions (general staff access)
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['read.users']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['patients.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['patients.create']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['patients.update']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['analyses.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['analyses.create']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['analyses.update']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['archived_analyses.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['services.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['recurring_analyses.view']
-            },
-            {
-                role_id: roleMap.staff,
-                permission_id: permissionMap['recurring_analyses.create']
-            },
-
-            // Doctor role permissions
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['patients.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['patients.create']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['patients.update']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['analyses.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['analyses.create']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['analyses.update']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['analyses.cancel']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['archived_analyses.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['services.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['recurring_analyses.view']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['recurring_analyses.create']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['recurring_analyses.update']
-            },
-            {
-                role_id: roleMap.doctor,
-                permission_id: permissionMap['recurring_analyses.deactivate']
-            },
-
-            // Nurse role permissions
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['patients.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['patients.create']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['patients.update']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['analyses.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['analyses.create']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['analyses.update']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['services.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['recurring_analyses.view']
-            },
-            {
-                role_id: roleMap.nurse,
-                permission_id: permissionMap['recurring_analyses.create']
-            },
-
-            // Technician role permissions
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['patients.view']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['analyses.view']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['analyses.update']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['archived_analyses.view']
-            },
-            {
-                role_id: roleMap.technician,
-                permission_id: permissionMap['services.view']
-            },
-
-            // User manager role permissions
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['read.users']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['write.users']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['manage.refcodes']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['manage.roles']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['doctors.create']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['doctors.update']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['doctors.delete']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['rooms.create']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['rooms.update']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['rooms.delete']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['organization_settings.view']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['organization_settings.update']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['services.view']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['services.create']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['services.update']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['services.delete']
-            },
-            {
-                role_id: roleMap.userManager,
-                permission_id: permissionMap['services.manage_users']
-            },
-
-            // Security role permissions
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['read.logs']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['access.security']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['read.users']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['archived_analyses.view']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['archived_analyses.export']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['archived_analyses.cleanup']
-            },
-            {
-                role_id: roleMap.security,
-                permission_id: permissionMap['services.view']
-            },
-
-            // Readonly role permissions
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['read.users']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['read.logs']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['patients.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['doctors.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['rooms.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['analyses.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['archived_analyses.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['organization_settings.view']
-            },
-            {
-                role_id: roleMap.readonly,
-                permission_id: permissionMap['services.view']
-            }
-        ];
+        // Admin role gets all permissions
+        const rolePermissions = permissions.map(permission => ({
+            role_id: roleMap.admin,
+            permission_id: permission.id
+        }));
 
         // Insert role permissions
         await queryInterface.bulkInsert('role_permissions', rolePermissions);

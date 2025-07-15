@@ -97,7 +97,7 @@
                     </ul>
                 </li>
             <% } %>
-            <% if (role === 'system_admin' || role === 'admin' || permissions.includes('organization_settings.view') || permissions.includes('read.all')) { %>
+            <% if (role === 'system_admin' || role === 'admin' || permissions.includes('organization_settings.view') || permissions.includes('read.all') || permissions.includes('patients.view')) { %>
                 <li class="dropdown <%- path.includes('/settings') ? 'active' : null %>">
                     <a href="#" class="dropdown-toggle" data-dropdown="settings-menu">
                         <span class="material-symbols-outlined">
@@ -134,6 +134,8 @@
                                     <span><%= __('dashboard.rooms.title') %></span>
                                 </a>
                             </li>
+                        <% } %>
+                        <% if (role === 'system_admin' || role === 'admin' || permissions.includes('patients.view')) { %>
                             <li class="<%- path.includes('/patients') ? 'active' : null %>">
                                 <a href="/restricted/settings/patients">
                                     <span class="material-symbols-outlined">

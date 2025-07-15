@@ -558,11 +558,6 @@ const Migration = {
                 { type: Sequelize.QueryTypes.SELECT }
             );
             
-            const [userManagerRole] = await queryInterface.sequelize.query(
-                `SELECT id FROM roles WHERE name = 'userManager'`,
-                { type: Sequelize.QueryTypes.SELECT }
-            );
-            
             // Admin gets most mailing permissions (except system ones)
             if (adminRole) {
                 const adminMailingPerms = regularMailingPermissions.slice(); // All regular permissions
@@ -577,26 +572,6 @@ const Migration = {
                     );
                 }
                 console.log('✅ Assigned mailing permissions to admin role');
-            }
-            
-            // User manager gets basic mailing permissions
-            if (userManagerRole) {
-                const userManagerPerms = regularMailingPermissions.filter((_, index) => 
-                    ['mailing.view_lists', 'mailing.view_subscribers', 'mailing.view_campaigns', 'mailing.view_analytics']
-                        .includes(mailingPermissions[index].name)
-                );
-                
-                for (const permId of userManagerPerms) {
-                    await queryInterface.sequelize.query(
-                        `INSERT INTO role_permissions (role_id, permission_id) VALUES (:roleId, :permissionId)
-                         ON CONFLICT DO NOTHING`,
-                        {
-                            replacements: { roleId: userManagerRole.id, permissionId: permId },
-                            type: Sequelize.QueryTypes.INSERT
-                        }
-                    );
-                }
-                console.log('✅ Assigned basic mailing permissions to userManager role');
             }
             
             // ========================================
@@ -617,7 +592,7 @@ const Migration = {
                     name: 'security_notifications',
                     description: 'Security events and breach notifications',
                     is_internal: true,
-                    auto_subscribe_roles: ['admin', 'system_admin', 'security'],
+                    auto_subscribe_roles: ['admin', 'system_admin'],
                     sender_email: process.env.EMAIL_FROM || 'security@system.local',
                     sender_name: process.env.EMAIL_FROM_NAME || 'Security Team'
                 },
@@ -625,7 +600,7 @@ const Migration = {
                     name: 'staff_announcements',
                     description: 'General staff announcements and updates',
                     is_internal: false,
-                    auto_subscribe_roles: ['admin', 'staff', 'doctor', 'nurse'],
+                    auto_subscribe_roles: ['admin'],
                     sender_email: process.env.EMAIL_FROM || 'announcements@system.local',
                     sender_name: process.env.EMAIL_FROM_NAME || 'Management'
                 }
