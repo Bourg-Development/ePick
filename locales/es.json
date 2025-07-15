@@ -723,6 +723,10 @@
     "searchPlaceholder": "Buscar por paciente, médico o habitación...",
     "startDate": "Fecha de inicio",
     "endDate": "Fecha de fin",
+    "analysisStartDate": "Fecha de inicio del análisis",
+    "analysisEndDate": "Fecha de fin del análisis",
+    "archivedStartDate": "Fecha de inicio de archivo",
+    "archivedEndDate": "Fecha de fin de archivo",
     "itemsPerPage": "Elementos por página",
     "searchUsername": "Buscar por nombre de usuario..."
   },

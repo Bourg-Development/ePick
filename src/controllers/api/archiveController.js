@@ -1,6 +1,7 @@
 // controllers/archiveController.js
 const archiveService = require('../../services/archiveService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
+const EncryptionHooks = require('../../utils/encryptionHooks');
 
 /**
  * Archive controller for handling archived blood analyses operations
@@ -54,9 +55,18 @@ class ArchiveController {
                 return res.status(400).json(result);
             }
 
+            // Decrypt patient data in archived analyses
+            const decryptedData = result.archivedAnalyses.map(archive => {
+                if (archive.patient && archive.patient.matricule_national) {
+                    const patientFields = ['name', 'matricule_national', 'phone', 'address'];
+                    archive.patient.dataValues = EncryptionHooks.prepareFromDatabase(archive.patient.dataValues, patientFields);
+                }
+                return archive;
+            });
+
             return res.status(200).json({
                 success: true,
-                data: result.archivedAnalyses,
+                data: decryptedData,
                 pagination: {
                     page: result.page,
                     limit: result.limit,

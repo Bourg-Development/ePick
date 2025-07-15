@@ -1,9 +1,5 @@
 <div class="header">
     <h1><%= __('archive.title') %></h1>
-    <!-- Debug: Test date formatting -->
-    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">
-        Debug: Today formatted = <%= formatDate(new Date()) %> | Date format: <%= userDateFormat %>
-    </div>
     <div class="header-actions">
         <!-- Export Dropdown -->
         <% if(permissions.includes('archived_analyses.export') || permissions.includes('read.all')) { %>
@@ -75,17 +71,24 @@
         <option value=""><%= __('filter.allTypes') %></option>
         <!-- Analysis types will be populated by JavaScript -->
     </select>
-    <select class="filter-select" id="priorityFilter">
-        <option value=""><%= __('filter.allPriorities') %></option>
-        <option value="Low"><%= __('priority.low') %></option>
-        <option value="Normal"><%= __('priority.normal') %></option>
-        <option value="High"><%= __('priority.high') %></option>
-        <option value="Urgent"><%= __('priority.urgent') %></option>
-    </select>
-    <input type="date" class="filter-input" id="analysisStartDateFilter" title="<%= __('filter.analysisStartDate') %>" placeholder="<%= __('filter.analysisStartDate') %>">
-    <input type="date" class="filter-input" id="analysisEndDateFilter" title="<%= __('filter.analysisEndDate') %>" placeholder="<%= __('filter.analysisEndDate') %>">
-    <input type="date" class="filter-input" id="archivedStartDateFilter" title="<%= __('filter.archivedStartDate') %>" placeholder="<%= __('filter.archivedStartDate') %>">
-    <input type="date" class="filter-input" id="archivedEndDateFilter" title="<%= __('filter.archivedEndDate') %>" placeholder="<%= __('filter.archivedEndDate') %>">
+    <div class="date-filters-group">
+        <div class="date-filter-pair">
+            <label for="analysisStartDateFilter" class="date-label"><%= __('filter.analysisStartDate') %></label>
+            <input type="date" class="filter-input" id="analysisStartDateFilter" title="<%= __('filter.analysisStartDate') %>">
+        </div>
+        <div class="date-filter-pair">
+            <label for="analysisEndDateFilter" class="date-label"><%= __('filter.analysisEndDate') %></label>
+            <input type="date" class="filter-input" id="analysisEndDateFilter" title="<%= __('filter.analysisEndDate') %>">
+        </div>
+        <div class="date-filter-pair">
+            <label for="archivedStartDateFilter" class="date-label"><%= __('filter.archivedStartDate') %></label>
+            <input type="date" class="filter-input" id="archivedStartDateFilter" title="<%= __('filter.archivedStartDate') %>">
+        </div>
+        <div class="date-filter-pair">
+            <label for="archivedEndDateFilter" class="date-label"><%= __('filter.archivedEndDate') %></label>
+            <input type="date" class="filter-input" id="archivedEndDateFilter" title="<%= __('filter.archivedEndDate') %>">
+        </div>
+    </div>
     <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filter.itemsPerPage') %>" min="10" max="100" value="20">
 </div>
 
@@ -125,12 +128,6 @@
             </th>
             <th data-sort="analysis_type">
                 <%= __('table.type') %>
-                <span class="material-symbols-outlined">
-                    swap_vert
-                </span>
-            </th>
-            <th data-sort="priority">
-                <%= __('table.priority') %>
                 <span class="material-symbols-outlined">
                     swap_vert
                 </span>

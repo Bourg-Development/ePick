@@ -1,12 +1,57 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for date formatting functions to be available
+    // Wait for date formatting functions to be available
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max wait
+    
     function waitForDateFormatter() {
-        if (window.formatDate && window.formatDateTime) {
+        attempts++;
+        if (window.formatDate && window.formatDateTime && window.userDateFormat) {
             // Date formatters are now available
             initializePage();
-        } else {
+        } else if (attempts < maxAttempts) {
             // Waiting for date formatters...
             setTimeout(waitForDateFormatter, 100);
+        } else {
+            // Date formatters not available after 5 seconds, proceeding with defaults
+            // Set defaults if not available
+            window.userDateFormat = window.userDateFormat || 'DD/MM/YYYY';
+            window.userTimeFormat = window.userTimeFormat || '24h';
+            if (!window.formatDate) {
+                window.formatDate = function(date) {
+                    const d = new Date(date);
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const year = d.getFullYear();
+                    
+                    // Support different date formats
+                    switch (window.userDateFormat) {
+                        case 'MM/DD/YYYY':
+                            return `${month}/${day}/${year}`;
+                        case 'YYYY-MM-DD':
+                            return `${year}-${month}-${day}`;
+                        case 'DD/MM/YYYY':
+                        default:
+                            return `${day}/${month}/${year}`;
+                    }
+                };
+            }
+            if (!window.formatDateTime) {
+                window.formatDateTime = function(date) {
+                    const d = new Date(date);
+                    const formattedDate = window.formatDate(d);
+                    const hours = String(d.getHours()).padStart(2, '0');
+                    const minutes = String(d.getMinutes()).padStart(2, '0');
+                    
+                    if (window.userTimeFormat === '12h') {
+                        const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+                        const hour12 = d.getHours() % 12 || 12;
+                        return `${formattedDate} ${hour12}:${minutes} ${ampm}`;
+                    } else {
+                        return `${formattedDate} ${hours}:${minutes}`;
+                    }
+                };
+            }
+            initializePage();
         }
     }
     
@@ -446,10 +491,6 @@ function initializePage() {
             filters.analysisType = typeFilter.value;
         }
 
-        if (priorityFilter && priorityFilter.value) {
-            filters.priority = priorityFilter.value;
-        }
-
         if (analysisStartDateFilter && analysisStartDateFilter.value) {
             filters.startDate = analysisStartDateFilter.value;
         }
@@ -551,6 +592,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Load archived analyses error:', error);
+            console.error('Error details:', error.data);
             if (handleAuthError(error)) return;
             showError(getErrorMessage(error));
         }
@@ -591,7 +633,7 @@ function initializePage() {
         if(!tableBody) return;
 
         if (archivedAnalyses.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--medium-gray);">No archived analyses found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">No archived analyses found</td></tr>';
             return;
         }
 
@@ -609,7 +651,6 @@ function initializePage() {
             const archivedDateClass = daysSinceArchived <= 7 ? 'recent' : (daysSinceArchived > 365 ? 'old' : '');
             const statusClass = getStatusClass(archive.status);
             const typeClass = getTypeClass(archive.analysis_type);
-            const priorityClass = getPriorityClass(archive.priority);
 
             const patientDisplay = getPatientDisplay(archive);
             const doctorDisplay = getDoctorDisplay(archive);
@@ -632,9 +673,6 @@ function initializePage() {
                 <td>${roomDisplay}</td>
                 <td>
                     <span class="type-badge ${typeClass}">${archive.analysis_type}</span>
-                </td>
-                <td>
-                    <span class="priority-badge ${priorityClass}">${archive.priority || 'Normal'}</span>
                 </td>
                 <td>
                     <span class="status-badge ${statusClass}">${archive.status}</span>
@@ -1170,7 +1208,7 @@ function initializePage() {
 
     function showLoading() {
         if(tableBody){
-            tableBody.innerHTML = '<tr><td colspan="10" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>Loading archived analyses...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>Loading archived analyses...</td></tr>';
         }
         if(recordCount){
             recordCount.textContent = 'Loading...';
@@ -1179,7 +1217,7 @@ function initializePage() {
 
     function showError(message) {
         if(tableBody){
-            tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--dark-red);">${message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--dark-red);">${message}</td></tr>`;
         }
         if(recordCount){
             recordCount.textContent = 'Error loading archived analyses';

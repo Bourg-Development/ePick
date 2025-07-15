@@ -77,10 +77,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        results: {
-            type: DataTypes.JSONB,
-            allowNull: true
-        },
+        // results: {
+        //     type: DataTypes.JSONB,
+        //     allowNull: true
+        // },
         completed_at: {
             type: DataTypes.DATE,
             allowNull: true

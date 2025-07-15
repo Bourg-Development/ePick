@@ -1031,3 +1031,43 @@
 .filter-input[type="date"]:not(:placeholder-shown)::before {
     opacity: 1;
 }
+
+/* Date Filter Groups */
+.date-filters-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 8px 0;
+}
+
+.date-filter-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+}
+
+.date-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6c757d;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.date-filter-pair .filter-input {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .date-filters-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .date-filter-pair {
+        min-width: auto;
+        width: 100%;
+    }
+}

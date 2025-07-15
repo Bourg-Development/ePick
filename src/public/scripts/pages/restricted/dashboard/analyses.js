@@ -39,6 +39,48 @@ function initializePage() {
         timeout: 15000
     });
 
+    // Translation function fallback
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            // Simple translation map for the most common messages
+            const translations = {
+                'messages.password.requiredForExport': 'Password is required for export',
+                'messages.export.selectColumns': 'Please select at least one column to export',
+                'messages.export.completed': 'Export completed',
+                'messages.export.enterPasswordInfo': 'export - Enter your password',
+                'messages.error.loadingAnalysisTypes': 'Failed to load analysis types',
+                'messages.error.errorLoadingAnalysisTypes': 'Error loading analysis types',
+                'messages.success.statusUpdated': 'Status updated successfully',
+                'messages.success.analysisPostponed': 'Analysis postponed to',
+                'messages.success.analysisCancelled': 'Analysis cancelled successfully',
+                'messages.validation.doctorName': 'Doctor name is required',
+                'messages.validation.specialization': 'Specialization is required',
+                'messages.success.doctorCreated': 'Doctor created:',
+                'messages.error.loadingDashboard': 'Failed to load dashboard',
+                'messages.validation.cancellationReason': 'Please select a cancellation reason',
+                'messages.validation.cancellationDetailedReason': 'Please provide a detailed reason (minimum 10 characters)',
+                'messages.validation.workingDay': 'is not a working day',
+                'messages.validation.maxAnalysesReached': 'Maximum analyses reached for',
+                'messages.validation.intervalRequired': 'Interval is required for recurring analyses',
+                'messages.validationErrors': 'Validation errors:',
+                'messages.validation.recurrenceRequired': 'Please select if this is a recurring analysis',
+                'messages.validation.totalOccurrencesMin': 'Total occurrences must be at least 1',
+                'messages.validation.intervalMin': 'Interval must be at least 1',
+                'messages.validation.validInterval': 'Please enter a valid interval',
+                'messages.validation.totalOccurrencesRange': 'Total occurrences must be between 1 and 365',
+                'messages.success.recurringCreated': 'Recurring analysis created',
+                'messages.success.analysisScheduled': 'Analysis scheduled successfully',
+                'messages.error.notRecurringSeries': 'This analysis is not part of a recurring series',
+                'messages.error.analysisNotFound': 'Analysis not found',
+                'messages.success.prescriptionValidated': 'Prescription validated successfully',
+                'messages.error.prescriptionFailed': 'Failed to validate prescription',
+                'messages.error.errorValidatingPrescription': 'Error validating prescription',
+                'messages.error.sessionExpired': 'Session expired. Please log in again.'
+            };
+            return translations[key] || key;
+        };
+    }
+
     // State variables
     let analyses = [];
     let currentPage = 1;

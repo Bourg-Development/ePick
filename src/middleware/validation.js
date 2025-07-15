@@ -1645,7 +1645,14 @@ const validation = {
             doctorName,
             roomNumber,
             analysisType,
-            status
+            priority,
+            status,
+            startDate,
+            endDate,
+            archivedStartDate,
+            archivedEndDate,
+            page,
+            limit
         } = req.query;
 
         // Validate string filters
@@ -1688,7 +1695,15 @@ const validation = {
             }
         }
 
-
+        if (priority) {
+            const validPriorities = ['Low', 'Normal', 'High', 'Urgent'];
+            if (!validPriorities.includes(priority)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid priority filter'
+                });
+            }
+        }
 
         if (status) {
             const validStatuses = ['Pending', 'Delayed', 'In Progress', 'Completed', 'Cancelled'];
@@ -1698,6 +1713,34 @@ const validation = {
                     message: 'Invalid status filter'
                 });
             }
+        }
+
+        // Validate date parameters
+        const dateParams = [startDate, endDate, archivedStartDate, archivedEndDate];
+        const dateNames = ['startDate', 'endDate', 'archivedStartDate', 'archivedEndDate'];
+        
+        for (let i = 0; i < dateParams.length; i++) {
+            if (dateParams[i] && isNaN(Date.parse(dateParams[i]))) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid ${dateNames[i]} format`
+                });
+            }
+        }
+
+        // Validate pagination parameters
+        if (page && (isNaN(page) || parseInt(page) < 1)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Page must be a positive integer'
+            });
+        }
+
+        if (limit && (isNaN(limit) || parseInt(limit) < 1 || parseInt(limit) > 100)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Limit must be between 1 and 100'
+            });
         }
 
         next();
