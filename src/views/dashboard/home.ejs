@@ -250,3 +250,9 @@
 
 <!-- Hidden elements for Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Pass permissions and role to JavaScript
+    window.userPermissions = <%- JSON.stringify(permissions) %>;
+    window.userRole = <%- JSON.stringify(role) %>;
+</script>

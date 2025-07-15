@@ -1,14 +1,17 @@
 <div class="header">
     <h1><%= __('dashboard.rooms.title') %></h1>
     <div class="header-actions">
+        <% if (permissions.includes('rooms.create')) { %>
         <button class="btn btn-primary" id="createRoomBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 add_home
             </span>
             <%= __('labels.createRoom') %>
         </button>
+        <% } %>
 
         <!-- Export Dropdown -->
+        <% if (permissions.includes('rooms.export') || permissions.includes('export.all')) { %>
         <div class="dropdown-container export-dropdown-container">
             <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
                 <span class="material-symbols-outlined" style="font-size: 16px;">
@@ -34,6 +37,7 @@
                 </div>
             </div>
         </div>
+        <% } %>
 
         <button class="btn btn-secondary" id="refreshBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
@@ -221,6 +225,11 @@
         </form>
     </div>
 </div>
+
+<!-- Pass permissions to JavaScript -->
+<script>
+    window.userPermissions = <%- JSON.stringify(permissions) %>;
+</script>
 
 <!-- Toast Notifications -->
 <div class="toast-container" id="toastContainer"></div>

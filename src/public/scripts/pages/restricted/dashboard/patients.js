@@ -105,7 +105,7 @@ function initializePage() {
                 ...(search && { search })
             });
             
-            const result = await api.get(`/admin/patients?${params}`);
+            const result = await api.get(`/patients?${params}`);
             if (result.success) {
                 patientsData = result.data || [];
                 // Debug: log the first patient to see what fields we get
@@ -162,7 +162,7 @@ function initializePage() {
     // Load rooms from API
     async function loadRooms() {
         try {
-            const result = await api.get('/admin/rooms');
+            const result = await api.get('/rooms');
             if (result.success) {
                 roomsData = result.data || [];
             } else {
@@ -177,7 +177,7 @@ function initializePage() {
     // Load doctors from API
     async function loadDoctors() {
         try {
-            const result = await api.get('/admin/doctors');
+            const result = await api.get('/doctors');
             if (result.success) {
                 doctorsData = result.data || [];
                 console.log('Loaded doctors:', doctorsData);
@@ -192,9 +192,9 @@ function initializePage() {
 
     async function loadServices() {
         try {
-            const result = await api.get('/admin/services');
+            const result = await api.get('/rooms/filters/services');
             if (result.success) {
-                servicesData = result.data || [];
+                servicesData = result.services || [];
                 console.log('Loaded services:', servicesData);
             } else {
                 throw new Error(result.message || 'Failed to load services');
@@ -238,6 +238,7 @@ function initializePage() {
             const room = roomsData.find(r => r.id === patient.room_id);
             const doctor = doctorsData.find(d => d.id === patient.doctor_id);
             
+            
             return `
                 <tr data-patient-id="${patient.id}">
                     <td>
@@ -265,15 +266,21 @@ function initializePage() {
                         <span class="assignment-name">${doctor ? doctor.name : 'Unassigned'}</span>
                     </td>
                     <td>
+                        ${window.userPermissions && window.userPermissions.includes('patients.view') ? `
                         <button class="action-btn view" onclick="viewPatient(${patient.id})" title="View Details">
                             <span class="material-symbols-outlined">visibility</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('patients.update') ? `
                         <button class="action-btn edit" onclick="editPatient(${patient.id})" title="Edit">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('patients.delete') ? `
                         <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="Delete">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
+                        ` : ''}
                     </td>
                 </tr>
             `;
@@ -623,15 +630,21 @@ function initializePage() {
                         <span class="assignment-name">${doctor ? doctor.name : 'Unassigned'}</span>
                     </td>
                     <td>
+                        ${window.userPermissions && window.userPermissions.includes('patients.view') ? `
                         <button class="action-btn view" onclick="viewPatient(${patient.id})" title="View Details">
                             <span class="material-symbols-outlined">visibility</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('patients.update') ? `
                         <button class="action-btn edit" onclick="editPatient(${patient.id})" title="Edit">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('patients.delete') ? `
                         <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="Delete">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
+                        ` : ''}
                     </td>
                 </tr>
             `;
@@ -684,7 +697,7 @@ function initializePage() {
         if (!confirm('Are you sure you want to delete this patient?')) return;
         
         try {
-            const result = await api.delete(`/admin/patients/${patientId}`);
+            const result = await api.delete(`/patients/${patientId}`);
             if (result.success) {
                 showNotification('Patient deleted successfully', 'success');
                 await loadPatients();
@@ -893,13 +906,13 @@ function initializePage() {
         let endpoint;
         switch (format) {
             case 'csv':
-                endpoint = '/admin/patients/export/csv';
+                endpoint = '/patients/export/csv';
                 break;
             case 'excel':
-                endpoint = '/admin/patients/export/excel';
+                endpoint = '/patients/export/excel';
                 break;
             case 'json':
-                endpoint = '/admin/patients/export/json';
+                endpoint = '/patients/export/json';
                 break;
             default:
                 throw new Error('Invalid export format');
@@ -1110,13 +1123,13 @@ function initializePage() {
         let endpoint;
         switch (format) {
             case 'csv':
-                endpoint = '/admin/patients/export/csv';
+                endpoint = '/patients/export/csv';
                 break;
             case 'excel':
-                endpoint = '/admin/patients/export/excel';
+                endpoint = '/patients/export/excel';
                 break;
             case 'json':
-                endpoint = '/admin/patients/export/json';
+                endpoint = '/patients/export/json';
                 break;
             default:
                 throw new Error('Invalid export format');
@@ -1512,8 +1525,8 @@ function initializePage() {
                 return [];
             }
 
-            const data = await api.get(`/admin/rooms/search/${encodeURIComponent(term)}?limit=10`);
-            return data.data || [];
+            const data = await api.get(`/rooms/search/${encodeURIComponent(term)}?limit=10`);
+            return data.rooms || [];
         } catch (error) {
             console.error('Error searching rooms:', error);
             return [];
@@ -1775,6 +1788,9 @@ function initializePage() {
             const result = await createRoom(roomData);
 
             if (result.success) {
+                // Refresh rooms data to include the new room
+                await loadRooms();
+                
                 // Find the original search input and update it
                 const originalSearchInput = document.getElementById(roomSearchInputId);
                 if (originalSearchInput) {
@@ -1886,9 +1902,9 @@ function initializePage() {
         try {
             let result;
             if (isEdit) {
-                result = await api.put(`/admin/patients/${isEdit}`, patientData);
+                result = await api.put(`/patients/${isEdit}`, patientData);
             } else {
-                result = await api.post('/admin/patients', patientData);
+                result = await api.post('/patients', patientData);
             }
             
             if (result.success) {

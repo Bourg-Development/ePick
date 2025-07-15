@@ -1,14 +1,17 @@
 <div class="header">
     <h1><%= __('dashboard.patients.title') %></h1>
     <div class="header-actions">
+        <% if (permissions.includes('patients.create')) { %>
         <button class="btn btn-primary" id="createPatientBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 person_add
             </span>
             <%= __('labels.createPatient') %>
         </button>
+        <% } %>
 
         <!-- Export Dropdown -->
+        <% if (permissions.includes('patients.export') || permissions.includes('export.all')) { %>
         <div class="dropdown-container export-dropdown-container">
             <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
                 <span class="material-symbols-outlined" style="font-size: 16px;">
@@ -34,6 +37,7 @@
                 </div>
             </div>
         </div>
+        <% } %>
 
         <button class="btn btn-secondary" id="refreshBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
@@ -365,6 +369,11 @@
         </form>
     </div>
 </div>
+
+<!-- Pass permissions to JavaScript -->
+<script>
+    window.userPermissions = <%- JSON.stringify(permissions) %>;
+</script>
 
 <!-- Toast Notifications -->
 <div class="toast-container" id="toastContainer"></div>

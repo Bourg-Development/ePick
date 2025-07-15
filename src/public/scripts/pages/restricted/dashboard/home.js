@@ -213,10 +213,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 const currentServiceName = profile.service;
                 console.log('Current service name from profile:', currentServiceName);
                 
-                const [usersResult, roomsResult] = await Promise.allSettled([
-                    api.get('/admin/users?limit=100'),
-                    api.get('/admin/rooms')
-                ]);
+                // Only fetch data if user has permissions
+                const promises = [];
+                
+                // Check if user can view users (for admin endpoints)
+                if (window.userPermissions && window.userPermissions.includes('read.users')) {
+                    promises.push(api.get('/users?limit=100'));
+                } else {
+                    // Create a resolved promise with default data
+                    promises.push(Promise.resolve({ status: 'fulfilled', value: { success: false, message: 'No permission' } }));
+                }
+                
+                // Check if user can view rooms
+                if (window.userPermissions && window.userPermissions.includes('rooms.view')) {
+                    promises.push(api.get('/rooms'));
+                } else {
+                    // Create a resolved promise with default data
+                    promises.push(Promise.resolve({ status: 'fulfilled', value: { success: false, message: 'No permission' } }));
+                }
+                
+                const [usersResult, roomsResult] = await Promise.allSettled(promises);
 
                 console.log('Users API result:', usersResult);
                 if (usersResult.status === 'fulfilled') {

@@ -118,13 +118,8 @@ class RoomController {
 
             return res.status(200).json({
                 success: true,
-                data: result.rooms,
-                pagination: {
-                    page: result.page,
-                    limit: result.limit,
-                    total: result.total,
-                    totalPages: result.totalPages
-                }
+                data: result.data,
+                pagination: result.pagination
             });
         } catch (error) {
             console.error('Get rooms error:', error);

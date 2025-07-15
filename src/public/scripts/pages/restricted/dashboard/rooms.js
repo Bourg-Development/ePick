@@ -144,7 +144,7 @@ function initializePage() {
     // Load rooms from API
     async function loadRooms() {
         try {
-            const result = await api.get('admin/rooms');
+            const result = await api.get('/rooms');
             if (result.success) {
                 roomsData = result.data || [];
                 if (result.pagination) {
@@ -163,9 +163,9 @@ function initializePage() {
     // Load services from API
     async function loadServices() {
         try {
-            const result = await api.get('/admin/services');
+            const result = await api.get('/rooms/filters/services');
             if (result.success) {
-                servicesData = result.data || [];
+                servicesData = result.services || [];
             } else {
                 throw new Error(result.message || 'Failed to load services');
             }
@@ -209,12 +209,16 @@ function initializePage() {
                     </td>
                     <td>${window.formatDate ? window.formatDate(room.created_at) : formatDate(room.created_at)}</td>
                     <td>
+                        ${window.userPermissions && window.userPermissions.includes('rooms.update') ? `
                         <button class="action-btn edit" onclick="editRoom(${room.id})" title="Edit">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('rooms.delete') ? `
                         <button class="action-btn delete" onclick="deleteRoom(${room.id})" title="Delete">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
+                        ` : ''}
                     </td>
                 </tr>
             `;
@@ -433,12 +437,16 @@ function initializePage() {
                     </td>
                     <td>${window.formatDate ? window.formatDate(room.created_at) : formatDate(room.created_at)}</td>
                     <td>
+                        ${window.userPermissions && window.userPermissions.includes('rooms.update') ? `
                         <button class="action-btn edit" onclick="editRoom(${room.id})" title="Edit">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
+                        ` : ''}
+                        ${window.userPermissions && window.userPermissions.includes('rooms.delete') ? `
                         <button class="action-btn delete" onclick="deleteRoom(${room.id})" title="Delete">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
+                        ` : ''}
                     </td>
                 </tr>
             `;
@@ -473,7 +481,7 @@ function initializePage() {
         if (!confirm('Are you sure you want to delete this room?')) return;
         
         try {
-            const result = await api.delete(`admin/rooms/${roomId}`);
+            const result = await api.delete(`/rooms/${roomId}`);
             if (result.success) {
                 showNotification('Room deleted successfully', 'success');
                 await loadRooms();
@@ -586,9 +594,9 @@ function initializePage() {
         try {
             let result;
             if (isEdit) {
-                result = await api.put(`admin/rooms/${isEdit}`, roomData);
+                result = await api.put(`/rooms/${isEdit}`, roomData);
             } else {
-                result = await api.post('admin/rooms', roomData);
+                result = await api.post('/rooms', roomData);
             }
             
             if (result.success) {
@@ -640,11 +648,11 @@ function initializePage() {
                 if (progressText) progressText.textContent = 'Validating password...';
             }, 100);
             
-            let endpoint = 'admin/rooms/export';
+            let endpoint = '/admin/rooms/export';
             
             // Use professional Excel export for Excel format
             if (format === 'excel') {
-                endpoint = 'admin/rooms/export/excel';
+                endpoint = '/admin/rooms/export/excel';
                 
                 // Update progress
                 setTimeout(() => {
