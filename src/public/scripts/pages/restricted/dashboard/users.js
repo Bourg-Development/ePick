@@ -39,6 +39,7 @@ function initializePage() {
         window.__ = function(key) {
             const translations = {
                 'messages.success.roleUpdated': 'Role updated successfully',
+                'messages.success.emailUpdated': 'Email updated successfully',
                 'messages.success.userUpdated': 'User updated successfully',
                 'messages.success.userCreated': 'User created successfully',
                 'messages.success.userLocked': 'User locked successfully',
@@ -882,6 +883,19 @@ function initializePage() {
         }
     }
 
+    async function updateUserEmail(userId, email) {
+        try {
+            await api.put(`/admin/user/${userId}/email`, { email });
+            showToast(__('messages.success.emailUpdated'), 'success');
+            loadUsers();
+        } catch (error) {
+            console.error('Update user email error:', error);
+            if (handleAuthError(error)) return;
+            showToast(getErrorMessage(error), 'error');
+            throw error;
+        }
+    }
+
     async function generateReferenceCode(userId, require2FA = false, purpose = 'registration') {
         try {
             let data;
@@ -1337,6 +1351,7 @@ function initializePage() {
 
         document.getElementById('editUserId').value = userId;
         document.getElementById('editUserFullName').value = user.full_name || '';
+        document.getElementById('editUserEmail').value = user.email || '';
         document.getElementById('editUserRole').value = user.role ? user.role.id : '';
 
         const serviceSearchInput = document.getElementById('editUserServiceSearch');
@@ -1473,6 +1488,7 @@ function initializePage() {
 
         // Get current form values
         const fullName = document.getElementById('editUserFullName').value.trim() || null;
+        const email = document.getElementById('editUserEmail').value.trim() || null;
         const roleId = parseInt(document.getElementById('editUserRole').value);
 
         const serviceSearchInput = document.getElementById('editUserServiceSearch');
@@ -1492,6 +1508,12 @@ function initializePage() {
             const originalFullName = user.full_name || null;
             if (fullName !== originalFullName) {
                 updates.push(updateUserFullName(userId, fullName));
+            }
+
+            // Only update email if changed
+            const originalEmail = user.email || null;
+            if (email !== originalEmail) {
+                updates.push(updateUserEmail(userId, email));
             }
 
             // Only update role if changed

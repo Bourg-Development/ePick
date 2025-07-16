@@ -913,6 +913,57 @@ class AdminController {
     }
 
     /**
+     * Update user email
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async updateUserEmail(req, res) {
+        try {
+            // Only users with admin or write.users permission
+            const { userId: adminId, permissions } = req.auth;
+            const hasPermission = permissions.includes('admin') || 
+                                permissions.includes('write.all') || 
+                                permissions.includes('write.users');
+            
+            if (!hasPermission) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Insufficient permissions'
+                });
+            }
+
+            const { userId } = req.params;
+            const { email } = req.body;
+
+            // Validate email format
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid email format'
+                });
+            }
+
+            const context = new AdminController()._getRequestContext(req);;
+
+            // Update user email
+            const result = await userService.updateUserEmail(
+                parseInt(userId),
+                email,
+                adminId,
+                context
+            );
+
+            return res.status(result.success ? 200 : 400).json(result);
+        } catch (error) {
+            console.error('Update user email error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to update user email'
+            });
+        }
+    }
+
+    /**
      * Update a user's role
      * @param {Object} req - Express request
      * @param {Object} res - Express response

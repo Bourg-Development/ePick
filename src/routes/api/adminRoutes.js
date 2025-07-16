@@ -77,6 +77,14 @@ router.put('/user/:userId/full-name',
     adminController.updateUserFullName
 );
 
+// Update user email
+router.put('/user/:userId/email',
+    apiRateLimit,
+    requirePermission(['write.users', 'admin']),
+    validation.validateEmailUpdate,
+    adminController.updateUserEmail
+);
+
 // Update user role
 router.put('/user/:userId/role',
     apiRateLimit,

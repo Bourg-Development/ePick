@@ -360,6 +360,10 @@
             <input type="text" class="form-control" id="editUserFullName" maxlength="255" placeholder="<%= __('users.fullNamePlaceholder') %>">
             <small class="form-help"><%= __('users.fullNameHelp') %></small>
 
+            <label class="form-label" for="editUserEmail"><%= __('user.email') %></label>
+            <input type="email" class="form-control" id="editUserEmail" placeholder="<%= __('users.emailPlaceholder') %>">
+            <small class="form-help"><%= __('users.emailHelp') %></small>
+
             <label class="form-label" for="editUserRole"><%= __('users.role') %></label>
             <select class="form-control" id="editUserRole" required>
                 <!-- Populated dynamically -->

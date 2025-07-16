@@ -422,6 +422,51 @@ const validation = {
     },
 
     /**
+     * Validate email update request
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     * @param {Function} next - Next middleware
+     */
+    validateEmailUpdate(req, res, next) {
+        const { email } = req.body;
+
+        // Email is optional, but if provided, validate it
+        if (email !== undefined && email !== null) {
+            // Check if it's a string
+            if (typeof email !== 'string') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email must be a string'
+                });
+            }
+
+            // If empty string, that's allowed (to clear email)
+            if (email === '') {
+                return next();
+            }
+
+            // Validate email format
+            const emailValidation = validator.validateEmail(email);
+            if (!emailValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    message: emailValidation.message
+                });
+            }
+
+            // Check max length
+            if (email.length > 255) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email address is too long'
+                });
+            }
+        }
+
+        next();
+    },
+
+    /**
      * Validate role update request
      */
     validateRoleUpdate(req, res, next) {
