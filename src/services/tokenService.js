@@ -243,7 +243,7 @@ class TokenService {
             if (session) {
                 session.token_id = newToken.id;
                 session.last_activity = new Date();
-                session.expires_at = new Date(Date.now() + (newToken.expiresIn * 1000));
+                // Don't update expires_at - session should last for full refresh token duration
                 await session.save();
             }
 

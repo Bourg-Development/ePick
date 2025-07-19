@@ -412,7 +412,8 @@ class AuthService {
                 where: {
                     refresh_token_id: decoded.id,
                     user_id: decoded.userId,
-                    is_valid: true
+                    is_valid: true,
+                    expires_at: { [Op.gt]: new Date() } // Check session hasn't expired
                 }
             });
 
@@ -869,7 +870,7 @@ class AuthService {
             ip_address: context.ip,
             device_fingerprint: context.deviceFingerprint,
             user_agent: context.userAgent,
-            expires_at: new Date(Date.now() + (accessToken.expiresIn * 1000)),
+            expires_at: new Date(Date.now() + (refreshToken.expiresIn * 1000)), // Use refresh token expiry for session
             refresh_token_expires_at: new Date(Date.now() + (refreshToken.expiresIn * 1000))
         });
 

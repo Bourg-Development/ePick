@@ -4,6 +4,7 @@ const deviceFingerprintUtil = require('../utils/deviceFingerprint');
 const logService = require('../services/logService');
 const db = require('../db');
 const { ACCESS_TOKEN_COOKIE_EXPIRY } = require('../config/environment')
+const { Op } = require('sequelize');
 
 /**
  * Helper function to clear authentication cookies
@@ -84,12 +85,13 @@ const authenticate = async (req, res, next) => {
 
         // Extract device fingerprint
         const deviceFingerprint = deviceFingerprintUtil.getFingerprint(req);
-        // Verify session is still valid
+        // Verify session is still valid and not expired
         const session = await db.Session.findOne({
             where: {
                 token_id: decoded.id,
                 user_id: decoded.userId,
-                is_valid: true
+                is_valid: true,
+                expires_at: { [Op.gt]: new Date() } // Check session hasn't expired
             }
         });
 
