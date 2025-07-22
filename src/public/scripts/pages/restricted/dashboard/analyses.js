@@ -136,7 +136,7 @@ function initializePage() {
     const pagination = document.getElementById('pagination');
     const addNewBtn = document.getElementById('addNewBtn');
     const refreshBtn = document.getElementById('refreshBtn');
-    const dashboardBtn = document.getElementById('dashboardBtn');
+    // Dashboard functionality removed
 
     // Export elements
     const exportDropdownBtn = document.getElementById('exportDropdownBtn');
@@ -146,7 +146,7 @@ function initializePage() {
     // Modals
     const addAnalysisModal = document.getElementById('addAnalysisModal');
     const updateStatusModal = document.getElementById('updateStatusModal');
-    const dashboardModal = document.getElementById('dashboardModal');
+    // Dashboard modal removed
     const confirmModal = document.getElementById('confirmModal');
     const addDoctorModal = document.getElementById('addDoctorModal');
     const cancelAnalysisModal = document.getElementById('cancelAnalysisModal');
@@ -160,7 +160,7 @@ function initializePage() {
             if(activeExportDropdown !== null) return closeExportDropdown();
             addAnalysisModal?.classList.remove('show');
             updateStatusModal?.classList.remove('show');
-            dashboardModal?.classList.remove('show');
+            // Dashboard modal removed
             confirmModal?.classList.remove('show');
             exportModal?.classList.remove('show');
             addDoctorModal?.classList.remove('show');
@@ -233,9 +233,7 @@ function initializePage() {
         if(refreshBtn){
             refreshBtn.addEventListener('click', loadAnalyses);
         }
-        if(dashboardBtn){
-            dashboardBtn.addEventListener('click', showDashboardModal);
-        }
+        // Dashboard button removed
 
         // Export functionality
         if (exportDropdownBtn) {
@@ -398,20 +396,7 @@ function initializePage() {
             updateStatusForm.addEventListener('submit', handleUpdateStatus);
         }
 
-        // Dashboard Modal
-        const closeDashboardModalBtn = document.getElementById('closeDashboardModalBtn');
-        const closeDashboardBtn = document.getElementById('closeDashboardBtn');
-
-        if(closeDashboardModalBtn) {
-            closeDashboardModalBtn.addEventListener('click', () => {
-                dashboardModal.classList.remove('show');
-            });
-        }
-        if(closeDashboardBtn) {
-            closeDashboardBtn.addEventListener('click', () => {
-                dashboardModal.classList.remove('show');
-            });
-        }
+        // Dashboard Modal functionality removed
 
         // Confirm Modal
         const closeConfirmBtn = document.getElementById('closeConfirmBtn');
@@ -1106,7 +1091,8 @@ function initializePage() {
         }
     }
 
-    async function loadDashboard() {
+    // Dashboard functionality removed
+    /*async function loadDashboard() {
         try {
             const [statsData, dashboardData] = await Promise.all([
                 api.get('/analyses/reports/statistics'),
@@ -1740,7 +1726,7 @@ function initializePage() {
         updateStatusModal.classList.add('show');
     }
 
-    async function showDashboardModal() {
+    async function showDashboardModal() {*/
         try {
             dashboardModal.classList.add('show');
 
@@ -1789,7 +1775,7 @@ function initializePage() {
         `).join('');
     }
 
-    function renderDashboardTable(dashboard) {
+    /*function renderDashboardTable(dashboard) {
         const tbody = document.querySelector('#dashboardTable tbody');
         if(!tbody) return;
 
@@ -1807,7 +1793,7 @@ function initializePage() {
                 <td><span class="status-badge ${getStatusClass(analysis.status)}">${analysis.status}</span></td>
             </tr>
         `).join('');
-    }
+    }*/
 
     function showCancelAnalysisModal(analysisId) {
         const analysis = analyses.find(a => a.id === analysisId);

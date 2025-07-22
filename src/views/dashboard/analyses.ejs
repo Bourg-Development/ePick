@@ -39,13 +39,6 @@
             </div>
         <% } %>
 
-        <button class="btn btn-secondary" id="dashboardBtn">
-            <span class="material-symbols-outlined" style="font-size: 16px;">
-                dashboard
-            </span>
-            <%= __('common.dashboard') %>
-        </button>
-
         <button class="btn btn-secondary" id="refreshBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">
                 refresh
@@ -282,40 +275,6 @@
     </div>
 </div>
 
-<!-- Dashboard Modal -->
-<div class="modal-overlay" id="dashboardModal">
-    <div class="modal dashboard-modal">
-        <div class="modal-header">
-            <h2>Analysis Dashboard</h2>
-            <button class="modal-close" id="closeDashboardModalBtn">&times;</button>
-        </div>
-        <div class="dashboard-content">
-            <div class="stats-grid" id="statsGrid">
-                <!-- Stats will be populated by JavaScript -->
-            </div>
-            <div class="dashboard-table-wrapper">
-                <h3>Today's Analyses</h3>
-                <table id="dashboardTable">
-                    <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Doctor</th>
-                        <th>Room</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- Dashboard table rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" id="closeDashboardBtn">Close</button>
-        </div>
-    </div>
-</div>
 
 <!-- Cancel Analysis Modal -->
 <div class="modal-overlay" id="cancelAnalysisModal">
@@ -606,77 +565,6 @@
         color: #495057;
     }
 
-    .dashboard-modal {
-        max-width: 900px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    .dashboard-content {
-        margin: 20px 0;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .stat-card {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 16px;
-        text-align: center;
-        border: 1px solid #e9ecef;
-    }
-
-    .stat-number {
-        font-size: 24px;
-        font-weight: bold;
-        color: #495057;
-        margin-bottom: 4px;
-    }
-
-    .stat-label {
-        font-size: 14px;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .dashboard-table-wrapper {
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        overflow: hidden;
-    }
-
-    .dashboard-table-wrapper h3 {
-        margin: 0;
-        padding: 16px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-        font-size: 16px;
-        color: #495057;
-    }
-
-    #dashboardTable {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    #dashboardTable th,
-    #dashboardTable td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    #dashboardTable th {
-        background: #f8f9fa;
-        font-weight: 600;
-        color: #495057;
-    }
 
     /* Status Badges */
     .status-badge {
@@ -796,14 +684,6 @@
             grid-template-columns: 1fr;
         }
 
-        .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        }
-
-        .dashboard-modal {
-            margin: 10px;
-            max-width: calc(100% - 20px);
-        }
     }
 
     /* Recurring Analysis Styles */
