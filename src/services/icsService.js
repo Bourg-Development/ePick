@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const db = require('../db');
 const { Op } = require('sequelize');
 const cryptoService = require('./cryptoService');
+const { BASE_URL } = require('../config/environment');
 
 class ICSService {
     /**
@@ -306,8 +307,7 @@ class ICSService {
                 return null;
             }
 
-            const baseUrl = process.env.APP_URL || 'http://localhost:4000';
-            return `${baseUrl}/api/ics/feed/${userId}/${user.ics_feed_token}`;
+            return `${BASE_URL}/api/ics/feed/${userId}/${user.ics_feed_token}`;
         } catch (error) {
             console.error('Error getting feed URL:', error);
             return null;
