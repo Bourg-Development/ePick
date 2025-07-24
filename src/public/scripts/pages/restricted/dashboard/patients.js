@@ -486,7 +486,7 @@ function initializePage() {
         });
 
         if (elements.searchInput) {
-            elements.searchInput.addEventListener('input', handleSearch);
+            elements.searchInput.addEventListener('input', debounce(handleSearch, 500));
         }
 
         // Pagination event listeners

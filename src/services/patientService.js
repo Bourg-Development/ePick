@@ -193,9 +193,66 @@ class PatientService {
      */
     async getPatients(filters = {}, page = 1, limit = 20) {
         try {
-            // If searching by name or matricule, use encrypted search
-            if (filters.name || filters.matriculeNational) {
-                const searchTerm = filters.name || filters.matriculeNational;
+            // Debug: console.log('PatientService.getPatients called with filters:', filters);
+            
+            // Debug: Check what matricules exist in database
+            // if (filters.search) {
+            //     const sampleMatricules = await db.Patient.findAll({
+            //         attributes: ['matricule_national'],
+            //         limit: 5
+            //     });
+            //     console.log('Sample matricules in database:', sampleMatricules.map(p => p.matricule_national));
+            // }
+            
+            // Remove empty search filter
+            if (filters.search !== undefined && filters.search.trim() === '') {
+                delete filters.search;
+            }
+            
+            // Check if search term might be a room number or doctor name
+            if (filters.search && !filters.name && !filters.matriculeNational) {
+                const searchTerm = filters.search.trim();
+                // Debug: console.log('Taking SPECIAL SEARCH path for term:', searchTerm);
+                
+                // Try to find all matching rooms or doctors
+                // Debug: console.log('Searching for rooms/doctors with term:', searchTerm);
+                
+                const roomSearchResults = await db.Room.findAll({
+                    where: {
+                        room_number: {
+                            [Op.iLike]: `%${searchTerm}%`
+                        }
+                    },
+                    attributes: ['id', 'room_number']
+                });
+                
+                const doctorSearchResults = await db.Doctor.findAll({
+                    where: {
+                        name: {
+                            [Op.iLike]: `%${searchTerm}%`
+                        }
+                    },
+                    attributes: ['id', 'name']
+                });
+                
+                // Debug: console.log('Found rooms:', roomSearchResults.length, 'Found doctors:', doctorSearchResults.length);
+                
+                // Always set up special search (which includes patient name/matricule fallback)
+                const roomIds = roomSearchResults.map(r => r.id);
+                const doctorIds = doctorSearchResults.map(d => d.id);
+                
+                filters._specialSearch = {
+                    roomIds,
+                    doctorIds,
+                    originalSearch: searchTerm
+                };
+                filters.search = null; // Clear search to prevent double searching
+            }
+            
+            // If searching by name, matricule, or generic search term, use encrypted search
+            if (filters.search || filters.name || filters.matriculeNational) {
+                const searchTerm = filters.search || filters.name || filters.matriculeNational;
+                // Debug: console.log('Taking ENCRYPTED SEARCH path for term:', searchTerm);
                 const searchOptions = {
                     limit: limit * 2, // Get more results to account for filtering
                     activeOnly: filters.active !== false,
@@ -212,7 +269,8 @@ class PatientService {
 
                 const result = await encryptedSearchService.searchPatients(searchTerm, searchOptions);
                 
-                // Simulate pagination on filtered results
+                // Don't do direct matricule search since matricules are encrypted
+                // Just return the encrypted search results
                 const startIndex = (page - 1) * limit;
                 const endIndex = startIndex + limit;
                 const paginatedPatients = result.patients.slice(startIndex, endIndex);
@@ -230,12 +288,53 @@ class PatientService {
             // Regular filtering for non-encrypted fields
             const whereClause = {};
 
-            if (filters.doctorId) {
-                whereClause.doctor_id = filters.doctorId;
-            }
+            // Handle special search for room/doctor names
+            if (filters._specialSearch) {
+                const orConditions = [];
+                
+                if (filters._specialSearch.roomIds.length > 0) {
+                    orConditions.push({ room_id: { [Op.in]: filters._specialSearch.roomIds } });
+                }
+                
+                if (filters._specialSearch.doctorIds.length > 0) {
+                    orConditions.push({ doctor_id: { [Op.in]: filters._specialSearch.doctorIds } });
+                }
+                
+                // Also try encrypted search for the original term in case it's a patient name/matricule
+                const encryptedResult = await encryptedSearchService.searchPatients(
+                    filters._specialSearch.originalSearch,
+                    {
+                        limit: limit * 2,
+                        activeOnly: filters.active !== false,
+                        includeAssociations: true
+                    }
+                );
+                
+                // Debug: console.log('Encrypted search found patients:', encryptedResult.patients.length);
+                
+                // If we found patients by name/matricule, add their IDs to the search
+                if (encryptedResult.patients.length > 0) {
+                    const patientIds = encryptedResult.patients.map(p => p.id);
+                    orConditions.push({ id: { [Op.in]: patientIds } });
+                }
+                
+                // Don't do direct matricule search since matricules are encrypted
+                // The encrypted search above should handle matricule matching through hashes
+                
+                if (orConditions.length > 0) {
+                    whereClause[Op.or] = orConditions;
+                } else {
+                    // No results found by any method, return empty set
+                    whereClause.id = { [Op.in]: [] }; // This will return no results
+                }
+            } else {
+                if (filters.doctorId) {
+                    whereClause.doctor_id = filters.doctorId;
+                }
 
-            if (filters.roomId) {
-                whereClause.room_id = filters.roomId;
+                if (filters.roomId) {
+                    whereClause.room_id = filters.roomId;
+                }
             }
 
             if (filters.active !== undefined) {
@@ -243,6 +342,8 @@ class PatientService {
             }
 
             const offset = (page - 1) * limit;
+
+            // Debug: console.log('Final whereClause:', JSON.stringify(whereClause, null, 2));
 
             // Get patients with pagination - optimize for admin table view
             const { count, rows } = await db.Patient.findAndCountAll({

@@ -108,6 +108,7 @@ class PatientController {
     async getPatients(req, res) {
         try {
             const {
+                search,
                 name,
                 matriculeNational,
                 doctorId,
@@ -118,6 +119,7 @@ class PatientController {
             } = req.query;
 
             const filters = {
+                search,
                 name,
                 matriculeNational,
                 doctorId: doctorId ? parseInt(doctorId) : undefined,
