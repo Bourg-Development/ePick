@@ -1092,7 +1092,8 @@ function initializePage() {
     }
 
     // Dashboard functionality removed
-    /*async function loadDashboard() {
+    /*
+    async function loadDashboard() {
         try {
             const [statsData, dashboardData] = await Promise.all([
                 api.get('/analyses/reports/statistics'),
@@ -1110,6 +1111,7 @@ function initializePage() {
             throw error;
         }
     }
+    */
 
     async function searchPatients(term) {
         try {
@@ -1726,7 +1728,8 @@ function initializePage() {
         updateStatusModal.classList.add('show');
     }
 
-    async function showDashboardModal() {*/
+    /*
+    async function showDashboardModal() {
         try {
             dashboardModal.classList.add('show');
 
@@ -1775,7 +1778,7 @@ function initializePage() {
         `).join('');
     }
 
-    /*function renderDashboardTable(dashboard) {
+   function renderDashboardTable(dashboard) {
         const tbody = document.querySelector('#dashboardTable tbody');
         if(!tbody) return;
 
@@ -1793,7 +1796,8 @@ function initializePage() {
                 <td><span class="status-badge ${getStatusClass(analysis.status)}">${analysis.status}</span></td>
             </tr>
         `).join('');
-    }*/
+    }
+    */
 
     function showCancelAnalysisModal(analysisId) {
         const analysis = analyses.find(a => a.id === analysisId);
