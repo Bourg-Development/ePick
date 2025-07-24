@@ -137,6 +137,14 @@ function initializePage() {
     const addNewBtn = document.getElementById('addNewBtn');
     const refreshBtn = document.getElementById('refreshBtn');
     // Dashboard functionality removed
+    
+    // Bulk Actions Elements
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const bulkActionsContainer = document.getElementById('bulkActionsContainer');
+    const bulkSelectionInfo = document.getElementById('bulkSelectionInfo');
+    const bulkActionsBtn = document.getElementById('bulkActionsBtn');
+    const bulkActionsDropdown = document.getElementById('bulkActionsDropdown');
+    const bulkCancelAnalysisModal = document.getElementById('bulkCancelAnalysisModal');
 
     // Export elements
     const exportDropdownBtn = document.getElementById('exportDropdownBtn');
@@ -170,6 +178,167 @@ function initializePage() {
             loadAnalyses();
         }
     };
+    
+    // Bulk Actions Functions
+    function setupBulkActionsEventListeners() {
+        // Select all checkbox
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:not(:disabled)');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkSelectionInfo();
+        });
+        
+        // Individual row checkboxes (delegated event)
+        tableBody.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateBulkSelectionInfo();
+                updateSelectAllCheckbox();
+            }
+        });
+        
+        // Bulk actions dropdown
+        bulkActionsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            bulkActionsDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!bulkActionsBtn.contains(e.target) && !bulkActionsDropdown.contains(e.target)) {
+                bulkActionsDropdown.classList.remove('show');
+            }
+        });
+        
+        // Bulk action items
+        bulkActionsDropdown.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const actionElement = e.target.closest('[data-action]');
+            if (actionElement) {
+                const action = actionElement.dataset.action;
+                await handleBulkAction(action);
+                bulkActionsDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    function updateBulkSelectionInfo() {
+        const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+        bulkSelectionInfo.textContent = `${selectedCount} selected`;
+        
+        // Show/hide bulk actions container
+        if (selectedCount > 0) {
+            bulkActionsContainer.style.display = 'flex';
+        } else {
+            bulkActionsContainer.style.display = 'none';
+        }
+    }
+    
+    function updateSelectAllCheckbox() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:not(:disabled)');
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        
+        if (checkboxes.length === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (checkedBoxes.length === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (checkedBoxes.length === checkboxes.length) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        }
+    }
+    
+    async function handleBulkAction(action) {
+        const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+            .map(cb => parseInt(cb.dataset.id));
+        
+        if (selectedIds.length === 0) {
+            showToast('No analyses selected', 'warning');
+            return;
+        }
+        
+        switch (action) {
+            case 'cancel-selected':
+                await bulkCancelAnalyses(selectedIds);
+                break;
+            default:
+                showToast('Unknown action', 'error');
+        }
+    }
+    
+    async function bulkCancelAnalyses(analysisIds) {
+        // Store the analysis IDs for the modal
+        window.bulkCancelAnalysisIds = analysisIds;
+        
+        // Update the modal with the count
+        const bulkCancelAnalysisCount = document.getElementById('bulkCancelAnalysisCount');
+        if (bulkCancelAnalysisCount) {
+            bulkCancelAnalysisCount.textContent = analysisIds.length;
+        }
+        
+        // Clear the reason field
+        const bulkCancelReason = document.getElementById('bulkCancelReason');
+        if (bulkCancelReason) {
+            bulkCancelReason.value = '';
+        }
+        
+        // Show the modal
+        bulkCancelAnalysisModal.classList.add('show');
+    }
+    
+    async function handleBulkCancelAnalysis(e) {
+        e.preventDefault();
+        
+        const analysisIds = window.bulkCancelAnalysisIds;
+        const bulkCancelReason = document.getElementById('bulkCancelReason');
+        const reason = bulkCancelReason ? bulkCancelReason.value.trim() : '';
+        
+        if (!reason) {
+            showToast('Please provide a cancellation reason', 'error');
+            return;
+        }
+        
+        if (!analysisIds || analysisIds.length === 0) {
+            showToast('No analyses selected', 'error');
+            return;
+        }
+        
+        // Client-side validation will be handled by the server
+        // The server will return appropriate error messages with configurable limits
+        
+        try {
+            // Hide the modal
+            bulkCancelAnalysisModal.classList.remove('show');
+            
+            showToast('Cancelling analyses...', 'info');
+            
+            const result = await api.post('/analyses/bulk-cancel', {
+                analysisIds: analysisIds,
+                reason: reason
+            });
+            
+            if (result.success) {
+                showToast(`Successfully cancelled ${result.data.successCount} analyses`, 'success');
+                
+                // Clear selections
+                document.querySelectorAll('.row-checkbox:checked').forEach(cb => cb.checked = false);
+                selectAllCheckbox.checked = false;
+                updateBulkSelectionInfo();
+                
+                // Reload the table
+                await loadAnalyses();
+            } else {
+                showToast(result.message || 'Failed to cancel analyses', 'error');
+            }
+        } catch (error) {
+            console.error('Bulk cancel error:', error);
+            showToast(getErrorMessage(error), 'error');
+        }
+    }
 
     // Initialize
     init();
@@ -238,6 +407,11 @@ function initializePage() {
         // Export functionality
         if (exportDropdownBtn) {
             setupExportEventListeners();
+        }
+        
+        // Bulk Actions functionality
+        if (selectAllCheckbox) {
+            setupBulkActionsEventListeners();
         }
 
         // Column sorting
@@ -449,6 +623,25 @@ function initializePage() {
         }
         if(cancelAnalysisForm) {
             cancelAnalysisForm.addEventListener('submit', handleCancelAnalysis);
+        }
+
+        // Bulk Cancel Analysis Modal
+        const closeBulkCancelModalBtn = document.getElementById('closeBulkCancelModalBtn');
+        const cancelBulkCancelBtn = document.getElementById('cancelBulkCancelBtn');
+        const bulkCancelAnalysisForm = document.getElementById('bulkCancelAnalysisForm');
+
+        if(closeBulkCancelModalBtn) {
+            closeBulkCancelModalBtn.addEventListener('click', () => {
+                bulkCancelAnalysisModal.classList.remove('show');
+            });
+        }
+        if(cancelBulkCancelBtn) {
+            cancelBulkCancelBtn.addEventListener('click', () => {
+                bulkCancelAnalysisModal.classList.remove('show');
+            });
+        }
+        if(bulkCancelAnalysisForm) {
+            bulkCancelAnalysisForm.addEventListener('submit', handleBulkCancelAnalysis);
         }
 
         // Audit Logs Modal
@@ -1243,7 +1436,7 @@ function initializePage() {
         if(!tableBody) return;
 
         if (analyses.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--medium-gray);">No analyses found</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">No analyses found</td></tr>';
             return;
         }
 
@@ -1274,6 +1467,9 @@ function initializePage() {
             const notesDisplay = getNotesDisplay(analysis.notes);
 
             row.innerHTML = `
+                <td>
+                    <input type="checkbox" class="row-checkbox" data-id="${analysis.id}" ${analysis.status === 'Cancelled' || analysis.status === 'Completed' ? 'disabled' : ''}>
+                </td>
                 <td>
                     <span class="analysis-date ${dateClass}">
                         ${window.formatDate ? window.formatDate(analysisDate) : analysisDate.toLocaleDateString()}
@@ -1905,14 +2101,9 @@ function initializePage() {
         const analysisId = parseInt(document.getElementById('cancelAnalysisId').value);
         const reason = document.getElementById('cancelAnalysisReason').value.trim();
 
-        // Validation
+        // Basic validation - detailed validation will be handled by server
         if (!reason) {
             showToast(__('messages.validation.cancellationReason'), 'error');
-            return;
-        }
-
-        if (reason.length < 10) {
-            showToast(__('messages.validation.cancellationDetailedReason'), 'error');
             return;
         }
 
@@ -2983,7 +3174,7 @@ function initializePage() {
 
     function showLoading() {
         if(tableBody){
-            tableBody.innerHTML = '<tr><td colspan="8" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>Loading analyses...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="9" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>Loading analyses...</td></tr>';
         }
         if(recordCount){
             recordCount.textContent = 'Loading...';
@@ -2992,7 +3183,7 @@ function initializePage() {
 
     function showError(message) {
         if(tableBody){
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--dark-red);">${message}</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--dark-red);">${message}</td></tr>`;
         }
         if(recordCount){
             recordCount.textContent = 'Error loading analyses';

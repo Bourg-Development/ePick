@@ -552,6 +552,90 @@ class AnalysisController {
     }
 
     /**
+     * Bulk cancel analyses
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async bulkCancelAnalyses(req, res) {
+        try {
+            const { analysisIds, reason } = req.body;
+            const { userId } = req.auth;
+
+            if (!analysisIds || !Array.isArray(analysisIds) || analysisIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Analysis IDs array is required'
+                });
+            }
+
+            if (!reason) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cancellation reason is required'
+                });
+            }
+
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown',
+                isBulkAction: true
+            };
+
+            const userContext = await new AnalysisController()._extractUserContext(req);
+
+            const results = {
+                success: true,
+                successCount: 0,
+                failedCount: 0,
+                failed: []
+            };
+
+            // Process each analysis
+            for (const analysisId of analysisIds) {
+                try {
+                    const result = await analysisService.cancelAnalysis(
+                        parseInt(analysisId),
+                        reason,
+                        userId,
+                        context,
+                        userContext
+                    );
+
+                    if (result.success) {
+                        results.successCount++;
+                    } else {
+                        results.failedCount++;
+                        results.failed.push({
+                            id: analysisId,
+                            reason: result.message
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Failed to cancel analysis ${analysisId}:`, error);
+                    results.failedCount++;
+                    results.failed.push({
+                        id: analysisId,
+                        reason: 'Processing error'
+                    });
+                }
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: `Bulk cancellation completed`,
+                data: results
+            });
+        } catch (error) {
+            console.error('Bulk cancel analyses error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to process bulk cancellation'
+            });
+        }
+    }
+
+    /**
      * Get analysis statistics
      * @param {Object} req - Express request
      * @param {Object} res - Express response

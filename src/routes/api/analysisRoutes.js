@@ -28,6 +28,14 @@ router.post('/',
     analysisController.createAnalysis
 );
 
+// Bulk cancel analyses
+router.post('/bulk-cancel',
+    generalRateLimit,
+    validation.validateBulkCancel,
+    requirePermission(['analyses.update', 'write.all']),
+    analysisController.bulkCancelAnalyses
+);
+
 // Get analysis audit logs (must come before /:id route)
 router.get('/:id/audit-logs',
     generalRateLimit,

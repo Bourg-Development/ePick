@@ -1561,6 +1561,78 @@ const validation = {
     },
 
     /**
+     * Validate bulk cancel request
+     */
+    async validateBulkCancel(req, res, next) {
+        const { analysisIds, reason } = req.body;
+
+        // Validate analysisIds
+        if (!analysisIds || !Array.isArray(analysisIds) || analysisIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Analysis IDs array is required and must not be empty'
+            });
+        }
+
+        // Validate each ID
+        for (const id of analysisIds) {
+            if (isNaN(parseInt(id)) || parseInt(id) <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'All analysis IDs must be positive integers'
+                });
+            }
+        }
+
+        // Validate reason
+        if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Cancellation reason is required'
+            });
+        }
+
+        try {
+            // Get configurable limits from organization settings
+            const db = require('../db');
+            
+            const minLengthSetting = await db.OrganizationSettings.findOne({
+                where: { setting_key: 'cancellation_reason_min_length' }
+            });
+            const maxCountSetting = await db.OrganizationSettings.findOne({
+                where: { setting_key: 'bulk_cancellation_max_count' }
+            });
+
+            const minLength = minLengthSetting ? parseInt(minLengthSetting.setting_value) : 10;
+            const maxCount = maxCountSetting ? parseInt(maxCountSetting.setting_value) : 100;
+
+            // Validate reason length
+            if (reason.trim().length < minLength) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Cancellation reason must be at least ${minLength} characters long`
+                });
+            }
+
+            // Validate bulk count limit
+            if (analysisIds.length > maxCount) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Cannot cancel more than ${maxCount} analyses at once`
+                });
+            }
+
+            next();
+        } catch (error) {
+            console.error('Validation error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Validation failed'
+            });
+        }
+    },
+
+    /**
      * Validate analysis status update
      */
     validateAnalysisStatusUpdate(req, res, next) {
@@ -1587,7 +1659,7 @@ const validation = {
     /**
      * Validate analysis cancellation
      */
-    validateAnalysisCancel(req, res, next) {
+    async validateAnalysisCancel(req, res, next) {
         const { reason } = req.body;
 
         if (!reason || reason.trim().length === 0) {
@@ -1597,14 +1669,40 @@ const validation = {
             });
         }
 
-        if (reason.length > 500) {
-            return res.status(400).json({
+        try {
+            // Get configurable minimum length from organization settings
+            const db = require('../db');
+            
+            const minLengthSetting = await db.OrganizationSettings.findOne({
+                where: { setting_key: 'cancellation_reason_min_length' }
+            });
+
+            const minLength = minLengthSetting ? parseInt(minLengthSetting.setting_value) : 10;
+
+            // Validate minimum length
+            if (reason.trim().length < minLength) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Cancellation reason must be at least ${minLength} characters long`
+                });
+            }
+
+            // Keep the existing maximum length check
+            if (reason.length > 500) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cancellation reason is too long (maximum 500 characters)'
+                });
+            }
+
+            next();
+        } catch (error) {
+            console.error('Validation error:', error);
+            return res.status(500).json({
                 success: false,
-                message: 'Cancellation reason is too long'
+                message: 'Validation failed'
             });
         }
-
-        next();
     },
 
     /**

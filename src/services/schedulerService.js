@@ -57,6 +57,9 @@ class SchedulerService {
         // Prescription verification job (runs at configurable intervals)
         this.setupPrescriptionVerificationJob();
 
+        // Cancelled analysis archiving job (runs daily at 2:00 AM)
+        this.setupCancelledAnalysisArchivingJob();
+
         // System status checking job (runs every 5 minutes)
         this.setupStatusCheckingJob();
 
@@ -158,6 +161,84 @@ class SchedulerService {
             };
         } catch (error) {
             console.error('Error in manual recurring analysis processing:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Setup cancelled analysis archiving job
+     * Runs daily at 2:00 AM to archive old cancelled analyses
+     */
+    setupCancelledAnalysisArchivingJob() {
+        const jobName = 'archive-cancelled-analyses';
+        
+        // Run every day at 2:00 AM
+        const job = cron.schedule('0 2 * * *', async () => {
+            console.log('Starting scheduled cancelled analysis archiving...');
+            
+            try {
+                const db = require('../db');
+                
+                // Call the database function to archive old cancelled analyses
+                const result = await db.sequelize.query(
+                    'SELECT archive_old_cancelled_analyses() as archived_count',
+                    { 
+                        type: db.Sequelize.QueryTypes.SELECT,
+                        plain: true 
+                    }
+                );
+                
+                const archivedCount = result.archived_count;
+                
+                if (archivedCount > 0) {
+                    console.log(`Cancelled analysis archiving completed: ${archivedCount} analyses archived`);
+                } else {
+                    console.log('Cancelled analysis archiving completed: No analyses needed archiving');
+                }
+            } catch (error) {
+                console.error('Error in scheduled cancelled analysis archiving:', error);
+            }
+        }, {
+            scheduled: false,
+            timezone: "America/New_York"
+        });
+
+        this.cronJobs.set(jobName, job);
+        job.start();
+        
+        console.log(`Scheduled job '${jobName}' created and started (runs daily at 2:00 AM)`);
+    }
+
+    /**
+     * Manually trigger cancelled analysis archiving (for testing/admin use)
+     */
+    async triggerCancelledAnalysisArchiving() {
+        console.log('Manually triggering cancelled analysis archiving...');
+        
+        try {
+            const db = require('../db');
+            
+            const result = await db.sequelize.query(
+                'SELECT archive_old_cancelled_analyses() as archived_count',
+                { 
+                    type: db.Sequelize.QueryTypes.SELECT,
+                    plain: true 
+                }
+            );
+            
+            const archivedCount = result.archived_count;
+            
+            console.log(`Manual cancelled analysis archiving completed: ${archivedCount} analyses archived`);
+            
+            return {
+                success: true,
+                archivedCount
+            };
+        } catch (error) {
+            console.error('Error in manual cancelled analysis archiving:', error);
             return {
                 success: false,
                 error: error.message

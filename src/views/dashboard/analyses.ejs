@@ -45,6 +45,30 @@
             </span>
             <%= __('common.refresh') %>
         </button>
+        
+        <!-- Bulk Actions -->
+        <div class="bulk-actions-container" id="bulkActionsContainer" style="display: none;">
+            <span class="bulk-selection-info" id="bulkSelectionInfo">0 selected</span>
+            <div class="dropdown">
+                <button class="btn btn-secondary" id="bulkActionsBtn">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">
+                        checklist
+                    </span>
+                    Bulk Actions
+                    <span class="material-symbols-outlined dropdown-arrow" style="font-size: 16px;">
+                        arrow_drop_down
+                    </span>
+                </button>
+                <div class="dropdown-content bulk-actions-dropdown" id="bulkActionsDropdown">
+                    <% if (permissions.includes('analyses.update') || permissions.includes('write.all')) { %>
+                    <a href="#" data-action="cancel-selected">
+                        <span class="material-symbols-outlined">cancel</span>
+                        Cancel Selected
+                    </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -78,6 +102,9 @@
     <table id="analysisTable">
         <thead>
         <tr>
+            <th style="width: 40px;">
+                <input type="checkbox" id="selectAllCheckbox" title="Select All">
+            </th>
             <th data-sort="analysis_date">
                 <%= __('table.date') %>
                 <span class="material-symbols-outlined">
@@ -306,11 +333,37 @@
 
             <label class="form-label" for="cancelAnalysisReason">Reason for Cancellation <span class="required">*</span></label>
             <textarea class="form-control" id="cancelAnalysisReason" rows="4" required placeholder="<%= __('placeholders.cancellationReason') %>"></textarea>
-            <small class="form-help">This reason will be recorded and may be required for reporting purposes</small>
+            <small class="form-help">This reason will be recorded and may be required for reporting purposes. A minimum length is required.</small>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelCancelAnalysisBtn">Keep Analysis</button>
                 <button type="submit" class="btn btn-danger">Cancel Analysis</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Cancel Analysis Modal -->
+<div class="modal-overlay" id="bulkCancelAnalysisModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Bulk Cancel Analyses</h2>
+            <button class="modal-close" id="closeBulkCancelModalBtn">&times;</button>
+        </div>
+        <form id="bulkCancelAnalysisForm">
+            <div class="analysis-info-section">
+                <h3>Cancellation Details</h3>
+                <p id="bulkCancelCount">You are about to cancel <strong id="bulkCancelAnalysisCount">0</strong> analyses.</p>
+                <p style="color: #dc3545; font-weight: 500;">This action cannot be undone.</p>
+            </div>
+
+            <label class="form-label" for="bulkCancelReason">Cancellation Reason <span class="required">*</span></label>
+            <textarea class="form-control" id="bulkCancelReason" rows="3" required placeholder="Please provide a detailed reason for cancelling these analyses..."></textarea>
+            <small class="form-help">This reason will be recorded for all cancelled analyses. A minimum length is required.</small>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelBulkCancelBtn">Cancel</button>
+                <button type="submit" class="btn btn-danger">Cancel Selected Analyses</button>
             </div>
         </form>
     </div>
