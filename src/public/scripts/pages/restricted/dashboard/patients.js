@@ -365,6 +365,12 @@ function initializePage() {
         if (cancelModalBtn) cancelModalBtn.addEventListener('click', () => patientModal.style.display = 'none');
         if (patientForm) patientForm.addEventListener('submit', handlePatientSubmit);
         
+        // Auto-fill date of birth from matricule
+        const matriculeInput = document.getElementById('matriculeNational');
+        if (matriculeInput) {
+            matriculeInput.addEventListener('input', handleMatriculeInput);
+        }
+        
         // Export modal events
         const closeExportModalBtn = document.getElementById('closeExportModalBtn');
         const cancelExportBtn = document.getElementById('cancelExportBtn');
@@ -533,6 +539,94 @@ function initializePage() {
         const searchTerm = elements.searchInput.value.trim();
         currentPage = 1; // Reset to first page when searching
         loadData(currentPage, searchTerm);
+    }
+    
+    // Handle matricule input and auto-fill date of birth
+    function handleMatriculeInput(event) {
+        const matricule = event.target.value.trim();
+        const dateOfBirthInput = document.getElementById('dateOfBirth');
+        
+        if (!dateOfBirthInput) return;
+        
+        // Check if matricule has the required length (13 digits)
+        if (matricule.length >= 8) {
+            const birthDate = extractDateFromMatricule(matricule);
+            if (birthDate) {
+                // Format date as YYYY-MM-DD for HTML date input (avoid timezone issues)
+                const year = birthDate.getFullYear();
+                const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+                const day = String(birthDate.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+                
+                console.log('Final formatted date for input:', formattedDate);
+                dateOfBirthInput.value = formattedDate;
+                
+                // Add visual feedback
+                dateOfBirthInput.style.backgroundColor = '#e8f5e8';
+                dateOfBirthInput.style.transition = 'background-color 0.3s ease';
+                
+                // Add tooltip to show it was auto-filled
+                const originalTitle = dateOfBirthInput.title;
+                dateOfBirthInput.title = 'Auto-filled from matricule';
+                
+                setTimeout(() => {
+                    dateOfBirthInput.style.backgroundColor = '';
+                    dateOfBirthInput.title = originalTitle || '';
+                }, 3000);
+            }
+        } else if (matricule.length < 8) {
+            // Clear date of birth if matricule is too short
+            dateOfBirthInput.value = '';
+        }
+    }
+    
+    // Extract date of birth from Belgian matricule (YYYYMMDD format in first 8 digits)
+    function extractDateFromMatricule(matricule) {
+        try {
+            // Extract first 8 digits (YYYYMMDD)
+            const dateStr = matricule.substring(0, 8);
+            
+            // Validate that it's 8 digits
+            if (!/^\d{8}$/.test(dateStr)) {
+                return null;
+            }
+            
+            const year = parseInt(dateStr.substring(0, 4));
+            const month = parseInt(dateStr.substring(4, 6));
+            const day = parseInt(dateStr.substring(6, 8));
+            
+            // Validate date components
+            if (year < 1900 || year > new Date().getFullYear()) {
+                return null;
+            }
+            if (month < 1 || month > 12) {
+                return null;
+            }
+            if (day < 1 || day > 31) {
+                return null;
+            }
+            
+            // Create date object (month is 0-indexed in JavaScript)
+            const date = new Date(year, month - 1, day);
+            
+            // Verify the date is valid (handles invalid dates like Feb 30)
+            if (date.getFullYear() !== year || 
+                date.getMonth() !== month - 1 || 
+                date.getDate() !== day) {
+                return null;
+            }
+            
+            // Debug the extraction to ensure correctness
+            console.log('Matricule:', matricule);
+            console.log('Extracted dateStr:', dateStr);
+            console.log('Parsed year:', year, 'month:', month, 'day:', day);
+            console.log('Created date:', date.toISOString().split('T')[0]);
+            
+            return date;
+        } catch (error) {
+            console.error('Error extracting date from matricule:', error);
+            return null;
+        }
     }
 
     // Handle filter
