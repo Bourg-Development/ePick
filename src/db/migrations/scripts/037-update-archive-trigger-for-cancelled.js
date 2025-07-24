@@ -51,7 +51,7 @@ module.exports = {
             $$ LANGUAGE plpgsql;
         `);
 
-        -- Create a function to archive old cancelled analyses (to be called by scheduled job)
+        // Create a function to archive old cancelled analyses (to be called by scheduled job)
         await queryInterface.sequelize.query(`
             CREATE OR REPLACE FUNCTION archive_old_cancelled_analyses()
             RETURNS INTEGER AS $$
