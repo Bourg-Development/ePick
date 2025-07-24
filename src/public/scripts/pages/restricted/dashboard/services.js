@@ -350,7 +350,7 @@ function initializePage() {
         if (!confirm('Are you sure you want to delete this service?')) return;
         
         try {
-            const result = await api.delete(`/admin/service/${serviceId}`);
+            const result = await api.delete(`/admin/services/${serviceId}`);
             if (result.success) {
                 showNotification('Service deleted successfully', 'success');
                 await loadServices();
@@ -605,9 +605,9 @@ function initializePage() {
         try {
             let result;
             if (isEdit) {
-                result = await api.put(`/admin/service/${isEdit}`, serviceData);
+                result = await api.put(`/admin/services/${isEdit}`, serviceData);
             } else {
-                result = await api.post('/admin/service', serviceData);
+                result = await api.post('/admin/services', serviceData);
             }
             
             if (result.success) {

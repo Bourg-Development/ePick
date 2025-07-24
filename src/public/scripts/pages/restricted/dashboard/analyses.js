@@ -1445,6 +1445,17 @@ function initializePage() {
             addAnalysisForm.reset();
         }
 
+        // Clear the data-selected-id attributes and values from search inputs
+        const searchInputs = ['newAnalysisPatientSearch', 'newAnalysisDoctorSearch', 'newAnalysisRoomSearch'];
+        searchInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = '';
+                input.removeAttribute('data-selected-id');
+                input.style.backgroundColor = ''; // Clear any background color
+            }
+        });
+
         // Set default date to today
         const newAnalysisDate = document.getElementById('newAnalysisDate');
         if(newAnalysisDate) {
@@ -2106,6 +2117,17 @@ function initializePage() {
         if (addAnalysisForm) {
             addAnalysisForm.reset();
         }
+
+        // Clear the data-selected-id attributes and values from search inputs
+        const searchInputs = ['newAnalysisPatientSearch', 'newAnalysisDoctorSearch', 'newAnalysisRoomSearch'];
+        searchInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = '';
+                input.removeAttribute('data-selected-id');
+                input.style.backgroundColor = ''; // Clear any background color
+            }
+        });
 
         // Reset recurring analysis fields
         const enableRecurring = document.getElementById('enableRecurring');

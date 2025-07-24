@@ -139,9 +139,12 @@ function initializePage() {
     // Update pagination info and controls
     function updatePaginationInfo(pagination) {
         if (elements.paginationInfo) {
-            const start = ((pagination.currentPage - 1) * 20) + 1;
-            const end = Math.min(pagination.currentPage * 20, pagination.total);
-            elements.paginationInfo.textContent = `Showing ${start}-${end} of ${pagination.total} patients`;
+            console.log('Pagination object received:', pagination);
+            const currentPage = parseInt(pagination.currentPage) || 1;
+            const total = parseInt(pagination.total) || 0;
+            const start = ((currentPage - 1) * 20) + 1;
+            const end = Math.min(currentPage * 20, total);
+            elements.paginationInfo.textContent = `Showing ${start}-${end} of ${total} patients`;
         }
         
         // Update pagination buttons
