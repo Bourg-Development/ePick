@@ -23,6 +23,7 @@ const systemRoutes = require('./api/systemRoutes');
 const announcementRoutes = require('./api/announcementRoutes');
 const forensicsRoutes = require('./api/forensicsRoutes');
 const dataImportExportRoutes = require('./api/dataImportExportRoutes');
+const icsRoutes = require('./api/icsRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/admin', adminRoutes);
@@ -46,5 +47,6 @@ router.use('/system', systemRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/forensics', forensicsRoutes);
 router.use('/data', dataImportExportRoutes);
+router.use('/ics', icsRoutes);
 
 module.exports = router;

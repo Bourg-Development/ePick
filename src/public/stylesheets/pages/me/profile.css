@@ -408,6 +408,166 @@
     border: 1px solid var(--light-gray);
 }
 
+/* ICS Feed Section */
+.ics-feed-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ics-feed-info h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-black);
+}
+
+.ics-feed-info p {
+    color: var(--medium-gray);
+    margin: 0 0 16px 0;
+}
+
+.ics-feed-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--very-light-gray);
+    border-radius: 8px;
+    width: fit-content;
+}
+
+.ics-feed-status .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--medium-gray);
+}
+
+.ics-feed-status .status-text {
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+.ics-feed-status.enabled {
+    background: #e8f5e9;
+}
+
+.ics-feed-status.enabled .material-symbols-outlined,
+.ics-feed-status.enabled .status-text {
+    color: #4CAF50;
+}
+
+.ics-feed-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ics-feed-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: var(--text-black);
+}
+
+/* Switch Styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--light-gray);
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--blood-red);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+input:disabled + .slider {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.ics-feed-url-container {
+    margin-top: 8px;
+}
+
+.ics-feed-url-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--medium-gray);
+}
+
+.url-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.url-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    background: var(--very-light-gray);
+}
+
+.url-input-group .btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+}
+
+.url-input-group .btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.help-text {
+    display: block;
+    color: var(--medium-gray);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
 .twofa-badge {
     display: inline-block;
     padding: 4px 10px;

@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function init() {
         setupEventListeners();
+        setupIcsFeedListeners();
         await loadAllData();
     }
 
@@ -133,7 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
         await Promise.all([
             loadProfile(),
             loadSessionInfo(),
-            loadAuthActivity()
+            loadAuthActivity(),
+            loadIcsFeedStatus()
         ]);
 
         showToast('Profile data refreshed successfully', 'success');
@@ -735,6 +737,213 @@ document.addEventListener('DOMContentLoaded', function() {
             loadSessionInfo();
         }
     });
+
+    // ICS Feed Functions
+    let icsFeedEnabled = false;
+    let icsFeedUrl = null;
+
+    async function loadIcsFeedStatus() {
+        try {
+            console.log('Loading ICS feed status...');
+            const response = await api.get('/ics/url');
+            console.log('ICS feed response:', response);
+            
+            if (response.success && response.data) {
+                icsFeedEnabled = response.data.enabled;
+                icsFeedUrl = response.data.feedUrl;
+                
+                console.log('ICS feed loaded:', { enabled: icsFeedEnabled, url: icsFeedUrl });
+                updateIcsFeedUI();
+            } else {
+                console.log('ICS feed response not successful or no data');
+                updateIcsFeedStatus('error', 'Failed to load status');
+            }
+        } catch (error) {
+            console.error('Error loading ICS feed status:', error);
+            updateIcsFeedStatus('error', 'Failed to load status');
+        }
+    }
+
+    function updateIcsFeedUI() {
+        console.log('Updating ICS feed UI...');
+        const toggle = document.getElementById('icsFeedToggle');
+        const urlContainer = document.getElementById('icsFeedUrlContainer');
+        const urlInput = document.getElementById('icsFeedUrl');
+        const statusElement = document.getElementById('icsFeedStatus');
+        
+        console.log('Elements found:', { 
+            toggle: !!toggle, 
+            urlContainer: !!urlContainer, 
+            urlInput: !!urlInput, 
+            statusElement: !!statusElement 
+        });
+        
+        // Enable toggle
+        if (toggle) {
+            toggle.disabled = false;
+            toggle.checked = icsFeedEnabled;
+            console.log('Toggle updated:', { disabled: toggle.disabled, checked: toggle.checked });
+        }
+        
+        // Update status
+        updateIcsFeedStatus(icsFeedEnabled ? 'enabled' : 'disabled', 
+                           icsFeedEnabled ? 'Feed enabled' : 'Feed disabled');
+        
+        // Show/hide URL
+        if (urlContainer) {
+            urlContainer.style.display = icsFeedEnabled ? 'block' : 'none';
+        }
+        
+        // Set URL value
+        if (urlInput && icsFeedUrl) {
+            urlInput.value = icsFeedUrl;
+        }
+    }
+
+    function updateIcsFeedStatus(status, text) {
+        const statusElement = document.getElementById('icsFeedStatus');
+        if (statusElement) {
+            statusElement.className = `ics-feed-status ${status}`;
+            const statusText = statusElement.querySelector('.status-text');
+            if (statusText) {
+                statusText.textContent = text;
+            }
+        }
+    }
+
+    function setupIcsFeedListeners() {
+        console.log('Setting up ICS feed listeners...');
+        const toggle = document.getElementById('icsFeedToggle');
+        const copyBtn = document.getElementById('copyIcsFeedBtn');
+        const subscribeBtn = document.getElementById('subscribeIcsFeedBtn');
+        
+        console.log('ICS elements for listeners:', { toggle: !!toggle, copyBtn: !!copyBtn, subscribeBtn: !!subscribeBtn });
+        
+        if (toggle) {
+            console.log('Adding event listener to ICS toggle');
+            toggle.addEventListener('change', handleIcsFeedToggle);
+            
+            // Test if listener is working
+            toggle.addEventListener('click', function() {
+                console.log('ICS toggle clicked (click event)');
+            });
+        } else {
+            console.error('ICS feed toggle element not found');
+        }
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', handleCopyIcsFeedUrl);
+        }
+
+        if (subscribeBtn) {
+            subscribeBtn.addEventListener('click', handleSubscribeIcsFeed);
+        }
+    }
+
+    async function handleIcsFeedToggle(e) {
+        const enabled = e.target.checked;
+        const toggle = e.target;
+        
+        console.log('ICS feed toggle clicked:', { enabled, toggleElement: toggle });
+        
+        // Disable toggle during operation
+        toggle.disabled = true;
+        updateIcsFeedStatus('loading', enabled ? 'Enabling feed...' : 'Disabling feed...');
+        
+        try {
+            const endpoint = enabled ? '/ics/enable' : '/ics/disable';
+            console.log('Making request to:', endpoint);
+            const response = await api.post(endpoint);
+            console.log('Toggle response:', response);
+            
+            if (response.success) {
+                icsFeedEnabled = response.data.enabled;
+                icsFeedUrl = response.data.feedUrl;
+                
+                console.log('Feed updated successfully:', { enabled: icsFeedEnabled, url: icsFeedUrl });
+                updateIcsFeedUI();
+                showToast(`ICS feed ${enabled ? 'enabled' : 'disabled'} successfully`, 'success');
+            } else {
+                console.log('Toggle failed:', response.message);
+                // Revert toggle on error
+                toggle.checked = !enabled;
+                showToast(response.message || 'Failed to update ICS feed', 'error');
+            }
+        } catch (error) {
+            console.error('Error toggling ICS feed:', error);
+            // Revert toggle on error
+            toggle.checked = !enabled;
+            showToast('Failed to update ICS feed', 'error');
+        } finally {
+            toggle.disabled = false;
+        }
+    }
+
+    function handleCopyIcsFeedUrl() {
+        const urlInput = document.getElementById('icsFeedUrl');
+        if (!urlInput || !urlInput.value) return;
+        
+        // Copy to clipboard
+        urlInput.select();
+        urlInput.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            document.execCommand('copy');
+            showToast('Feed URL copied to clipboard', 'success');
+            
+            // Change button text temporarily
+            const copyBtn = document.getElementById('copyIcsFeedBtn');
+            if (copyBtn) {
+                const originalHtml = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="material-symbols-outlined">check</span> Copied';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHtml;
+                }, 2000);
+            }
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            showToast('Failed to copy URL', 'error');
+        }
+        
+        // Clear selection
+        window.getSelection().removeAllRanges();
+    }
+
+    function handleSubscribeIcsFeed() {
+        const urlInput = document.getElementById('icsFeedUrl');
+        if (!urlInput || !urlInput.value) {
+            showToast('No feed URL available', 'error');
+            return;
+        }
+
+        // Convert http/https URL to webcal for calendar subscription
+        const httpUrl = urlInput.value;
+        const webcalUrl = httpUrl.replace(/^https?:/, 'webcal:');
+        
+        console.log('Subscribing to webcal URL:', webcalUrl);
+        
+        try {
+            // Open webcal URL - this will prompt the user's default calendar app
+            window.location.href = webcalUrl;
+            
+            showToast('Opening calendar application...', 'success');
+            
+            // Change button text temporarily
+            const subscribeBtn = document.getElementById('subscribeIcsFeedBtn');
+            if (subscribeBtn) {
+                const originalHtml = subscribeBtn.innerHTML;
+                subscribeBtn.innerHTML = '<span class="material-symbols-outlined">check</span> Opening...';
+                setTimeout(() => {
+                    subscribeBtn.innerHTML = originalHtml;
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Error opening webcal URL:', error);
+            showToast('Failed to open calendar application', 'error');
+        }
+    }
+
+    // ICS feed listeners are now called directly in init()
 
     // Export functions for potential external use
     window.profileManager = {

@@ -160,6 +160,50 @@
         </div>
     </div>
 
+    <!-- ICS Feed Card -->
+    <div class="profile-card">
+        <div class="card-header">
+            <h3>Calendar Integration</h3>
+            <span class="card-icon material-symbols-outlined">calendar_month</span>
+        </div>
+        <div class="card-content">
+            <div class="ics-feed-section">
+                <div class="ics-feed-info">
+                    <h4>ICS Feed for Analyses</h4>
+                    <p>Subscribe to your analyses calendar in your favorite calendar app (Google Calendar, Outlook, Apple Calendar, etc.)</p>
+                    <div class="ics-feed-status" id="icsFeedStatus">
+                        <span class="material-symbols-outlined">sync</span>
+                        <span class="status-text">Loading...</span>
+                    </div>
+                </div>
+                <div class="ics-feed-controls">
+                    <div class="ics-feed-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="icsFeedToggle" disabled>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Enable ICS Feed</span>
+                    </div>
+                    <div class="ics-feed-url-container" id="icsFeedUrlContainer" style="display: none;">
+                        <label>Feed URL:</label>
+                        <div class="url-input-group">
+                            <input type="text" id="icsFeedUrl" readonly class="form-control">
+                            <button class="btn btn-primary" id="copyIcsFeedBtn">
+                                <span class="material-symbols-outlined">content_copy</span>
+                                Copy
+                            </button>
+                            <button class="btn btn-secondary" id="subscribeIcsFeedBtn">
+                                <span class="material-symbols-outlined">calendar_add_on</span>
+                                Subscribe
+                            </button>
+                        </div>
+                        <small class="help-text">Copy the URL to manually add to your calendar, or click Subscribe for direct integration</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Activity Card -->
     <div class="profile-card">
         <div class="card-header">

@@ -84,6 +84,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        ics_feed_token: {
+            type: DataTypes.STRING(64),
+            allowNull: true,
+            unique: true
+        },
         created_at: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
