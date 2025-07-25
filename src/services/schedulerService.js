@@ -60,6 +60,9 @@ class SchedulerService {
         // Cancelled analysis archiving job (runs daily at 2:00 AM)
         this.setupCancelledAnalysisArchivingJob();
 
+        // Recurring analysis job (runs daily at 6:05 AM)
+        this.setupRecurringAnalysisJob();
+
         // System status checking job (runs every 5 minutes)
         this.setupStatusCheckingJob();
 

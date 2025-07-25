@@ -6,7 +6,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/bin/www",
     "migrate": "node src/db/migrations/run-migrations.js",
-    "create-admin": "node src/commands/create-admin.js"
+    "create-admin": "node src/commands/create-admin.js",
+    "archive-cancelled": "node src/commands/archive-cancelled.js"
   },
   "keywords": [],
   "author": "",
