@@ -301,42 +301,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Insert image from file
     function insertImageFromFile(file) {
+        // Check file size first
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            showToast('Image too large. Please use an image smaller than 5MB.', 'error');
+            return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.maxWidth = '100%';
-            img.style.height = 'auto';
-            img.style.cursor = 'pointer';
-            img.alt = file.name || 'Inserted image';
-            img.className = 'resizable-image';
+            // Create canvas for compression
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const tempImg = new Image();
             
-            // Insert the image at cursor position
-            const htmlEditor = document.getElementById('htmlEditor');
-            htmlEditor.focus();
-            
-            try {
-                document.execCommand('insertHTML', false, img.outerHTML);
-            } catch (error) {
-                // Fallback: insert at the end
-                const selection = window.getSelection();
-                const range = document.createRange();
+            tempImg.onload = function() {
+                // Calculate new dimensions (max 1200px width)
+                const maxWidth = 1200;
+                const maxHeight = 1200;
+                let { width, height } = tempImg;
                 
-                if (htmlEditor.lastChild) {
-                    range.setStartAfter(htmlEditor.lastChild);
-                } else {
-                    range.setStart(htmlEditor, 0);
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
                 }
-                range.collapse(true);
-                range.insertNode(img);
                 
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
+                // Set canvas dimensions
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(tempImg, 0, 0, width, height);
+                
+                // Convert to blob with compression
+                canvas.toBlob(function(blob) {
+                    const compressedReader = new FileReader();
+                    compressedReader.onload = function(compressedEvent) {
+                        const img = document.createElement('img');
+                        img.src = compressedEvent.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.cursor = 'pointer';
+                        img.alt = file.name || 'Inserted image';
+                        img.className = 'resizable-image';
+                        
+                        // Insert the image at cursor position
+                        const htmlEditor = document.getElementById('htmlEditor');
+                        htmlEditor.focus();
+                        
+                        try {
+                            document.execCommand('insertHTML', false, img.outerHTML);
+                        } catch (error) {
+                            // Fallback: insert at the end
+                            const selection = window.getSelection();
+                            const range = document.createRange();
+                            
+                            if (htmlEditor.lastChild) {
+                                range.setStartAfter(htmlEditor.lastChild);
+                            } else {
+                                range.setStart(htmlEditor, 0);
+                            }
+                            range.collapse(true);
+                            range.insertNode(img);
+                            
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                        
+                        // Update the hidden textarea
+                        document.getElementById('contentHtml').value = htmlEditor.innerHTML;
+                        
+                        // Show compression info
+                        const originalSize = (file.size / 1024).toFixed(1);
+                        const compressedSize = (blob.size / 1024).toFixed(1);
+                        showToast(`Image inserted (${originalSize}KB → ${compressedSize}KB)`, 'success');
+                    };
+                    compressedReader.readAsDataURL(blob);
+                }, 'image/jpeg', 0.8); // 80% quality JPEG
+            };
             
-            // Update the hidden textarea
-            document.getElementById('contentHtml').value = htmlEditor.innerHTML;
-            showToast('Image inserted successfully', 'success');
+            tempImg.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
@@ -1362,6 +1407,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!data.list_id || !data.name || !data.subject || (!data.content_html && !data.content_text)) {
             showToast('Please fill in all required fields', 'error');
             return;
+        }
+        
+        // Check content size and warn if large
+        const contentSize = new Blob([JSON.stringify(data)]).size;
+        const maxSafeSize = 8 * 1024 * 1024; // 8MB
+        
+        if (contentSize > maxSafeSize) {
+            showToast('Campaign content is very large. Consider reducing image sizes.', 'warning');
         }
         
         try {

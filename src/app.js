@@ -60,8 +60,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Request body parsing
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Layouts
 app.use(expressLayouts);
