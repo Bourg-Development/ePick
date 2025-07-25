@@ -98,9 +98,22 @@ class ArchiveController {
                 return res.status(404).json(result);
             }
 
+            // Decrypt archived analysis data
+            const archive = result.data;
+            
+            // Decrypt the archived fields (patient_name, doctor_name, notes, results)
+            const archivedFields = ['patient_name', 'doctor_name', 'notes', 'results'];
+            archive.dataValues = EncryptionHooks.prepareFromDatabase(archive.dataValues, archivedFields);
+            
+            // Decrypt associated patient data if present
+            if (archive.patient && archive.patient.matricule_national) {
+                const patientFields = ['name', 'matricule_national', 'phone', 'address'];
+                archive.patient.dataValues = EncryptionHooks.prepareFromDatabase(archive.patient.dataValues, patientFields);
+            }
+
             return res.status(200).json({
                 success: true,
-                data: result.data
+                data: archive
             });
         } catch (error) {
             console.error('Get archived analysis error:', error);
@@ -153,10 +166,24 @@ class ArchiveController {
                 return res.status(404).json(result);
             }
 
+            // Decrypt archived analyses data
+            const decryptedArchivedAnalyses = result.archivedAnalyses.map(archive => {
+                // Decrypt the archived fields
+                const archivedFields = ['patient_name', 'doctor_name', 'notes', 'results'];
+                archive.dataValues = EncryptionHooks.prepareFromDatabase(archive.dataValues, archivedFields);
+                
+                // Decrypt associated patient data if present
+                if (archive.patient && archive.patient.matricule_national) {
+                    const patientFields = ['name', 'matricule_national', 'phone', 'address'];
+                    archive.patient.dataValues = EncryptionHooks.prepareFromDatabase(archive.patient.dataValues, patientFields);
+                }
+                return archive;
+            });
+
             return res.status(200).json({
                 success: true,
                 patient: result.patient,
-                data: result.archivedAnalyses,
+                data: decryptedArchivedAnalyses,
                 pagination: {
                     page: result.page,
                     limit: result.limit,
@@ -193,10 +220,24 @@ class ArchiveController {
                 return res.status(404).json(result);
             }
 
+            // Decrypt archived analyses data
+            const decryptedArchivedAnalyses = result.archivedAnalyses.map(archive => {
+                // Decrypt the archived fields
+                const archivedFields = ['patient_name', 'doctor_name', 'notes', 'results'];
+                archive.dataValues = EncryptionHooks.prepareFromDatabase(archive.dataValues, archivedFields);
+                
+                // Decrypt associated patient data if present
+                if (archive.patient && archive.patient.matricule_national) {
+                    const patientFields = ['name', 'matricule_national', 'phone', 'address'];
+                    archive.patient.dataValues = EncryptionHooks.prepareFromDatabase(archive.patient.dataValues, patientFields);
+                }
+                return archive;
+            });
+
             return res.status(200).json({
                 success: true,
                 doctor: result.doctor,
-                data: result.archivedAnalyses,
+                data: decryptedArchivedAnalyses,
                 pagination: {
                     page: result.page,
                     limit: result.limit,
