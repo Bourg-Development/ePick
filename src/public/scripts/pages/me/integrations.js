@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ]);
         } catch (error) {
             console.error('Error initializing integrations page:', error);
-            showToast('Failed to load integration settings', 'error');
+            showToast(__('profile.integrations.failedToLoadSettings'), 'error');
         }
     }
 
@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (enabled && url) {
             statusIcon.textContent = 'check_circle';
-            statusText.textContent = 'Calendar feed is active';
+            statusText.textContent = __('profile.integrations.calendarFeedActive');
             icsFeedStatus.style.color = '#27ae60';
             
             icsFeedUrlInput.value = url;
             icsFeedUrlContainer.style.display = 'block';
         } else {
             statusIcon.textContent = 'cancel';
-            statusText.textContent = 'Calendar feed is disabled';
+            statusText.textContent = __('profile.integrations.calendarFeedDisabled');
             icsFeedStatus.style.color = '#e74c3c';
             
             icsFeedUrlContainer.style.display = 'none';
@@ -126,12 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         icsFeedEnabled = true;
                         icsFeedUrl = feedUrl;
                         updateIcsFeedUI(true, feedUrl);
-                        showToast('Calendar feed enabled successfully', 'success');
+                        showToast(__('profile.integrations.calendarFeedEnabledSuccess'), 'success');
                     } else {
-                        throw new Error('Feed URL not found in response');
+                        throw new Error(__('profile.integrations.feedUrlNotFound'));
                     }
                 } else {
-                    throw new Error(response.message || 'Failed to enable ICS feed');
+                    throw new Error(response.message || __('profile.integrations.failedToEnableIcs'));
                 }
             } else {
                 // Disable ICS feed
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     icsFeedEnabled = false;
                     icsFeedUrl = '';
                     updateIcsFeedUI(false);
-                    showToast('Calendar feed disabled successfully', 'success');
+                    showToast(__('profile.integrations.calendarFeedDisabledSuccess'), 'success');
                 } else {
-                    throw new Error(response.message || 'Failed to disable ICS feed');
+                    throw new Error(response.message || __('profile.integrations.failedToDisableIcs'));
                 }
             }
         } catch (error) {
@@ -159,13 +159,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!icsFeedUrl) return;
         
         navigator.clipboard.writeText(icsFeedUrl).then(() => {
-            showToast('Feed URL copied to clipboard', 'success');
+            showToast(__('profile.integrations.feedUrlCopied'), 'success');
         }).catch(error => {
             console.error('Error copying to clipboard:', error);
             // Fallback selection method
             icsFeedUrlInput.select();
             document.execCommand('copy');
-            showToast('Feed URL copied to clipboard', 'success');
+            showToast(__('profile.integrations.feedUrlCopied'), 'success');
         });
     }
 
@@ -240,9 +240,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const response = await api.put('/user/preferences', { preferences });
             if (response.success) {
-                showToast('Email notification preferences saved', 'success');
+                showToast(__('profile.integrations.emailPreferencesSaved'), 'success');
             } else {
-                throw new Error(response.message || 'Failed to save preferences');
+                throw new Error(response.message || __('profile.integrations.failedToSavePreferences'));
             }
         } catch (error) {
             console.error('Error saving email preferences:', error);
@@ -260,6 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update language select if preference exists
                 if (response.preferences.language) {
                     languageSelect.value = response.preferences.language;
+                    languageSelect.dataset.currentLang = response.preferences.language;
+                } else {
+                    // Set default to 'en' if no language preference exists
+                    languageSelect.dataset.currentLang = 'en';
                 }
                 
                 // Update date format
@@ -287,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentLanguage = languageSelect.dataset.currentLang || 'en';
         
         if (selectedLanguage === currentLanguage) {
-            showToast('Language is already set to this value', 'success');
+            showToast(__('profile.integrations.languageAlreadySet'), 'success');
             return;
         }
         
@@ -302,18 +306,33 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const response = await api.put('/user/preferences', { preferences });
             
+            console.log('Language API response received:', response);
+            console.log('DEBUG - User ID:', response.debug?.userId);
+            console.log('DEBUG - Language sent:', response.debug?.languageInPreferences);
+            console.log('DEBUG - Language in DB after save:', response.debug?.actualUserLanguageInDB);
+            
             if (response.success) {
-                languageStatus.textContent = 'Language preference saved. Refresh the page to see changes.';
+                languageStatus.textContent = 'Language preference saved. Applying changes...';
                 languageStatus.className = 'setting-status success';
-                showToast('Language preference saved successfully', 'success');
+                showToast(__('profile.integrations.languagePreferenceSaved'), 'success');
                 
                 // Update current preferences
                 currentPreferences = preferences;
                 
                 // Update dataset for future comparisons
                 languageSelect.dataset.currentLang = selectedLanguage;
+                
+                // Hide save button since preference is now saved
+                saveLanguageBtn.style.display = 'none';
+                
+                // Automatically reload the page to apply the new language
+                console.log('Language preference saved, reloading page in 500ms');
+                setTimeout(() => {
+                    console.log(__('profile.integrations.reloadingPage'));
+                    window.location.reload();
+                }, 500); // Give user time to see the success message
             } else {
-                throw new Error(response.message || 'Failed to save language preference');
+                throw new Error(response.message || __('profile.integrations.failedToSaveLanguage'));
             }
         } catch (error) {
             console.error('Error saving language preference:', error);
@@ -344,9 +363,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
-                dateFormatStatus.textContent = 'Date format saved successfully';
+                dateFormatStatus.textContent = __('profile.integrations.dateFormatSavedSuccess');
                 dateFormatStatus.className = 'setting-status success';
-                showToast('Date format preference saved', 'success');
+                showToast(__('profile.integrations.datePreferenceSaved'), 'success');
                 
                 // Update current preferences
                 currentPreferences = preferences;
@@ -354,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Hide save button
                 saveDateFormatBtn.style.display = 'none';
             } else {
-                throw new Error(response.message || 'Failed to save date format');
+                throw new Error(response.message || __('profile.integrations.failedToSaveDateFormat'));
             }
         } catch (error) {
             console.error('Error saving date format:', error);
@@ -382,9 +401,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
-                timeFormatStatus.textContent = 'Time format saved successfully';
+                timeFormatStatus.textContent = __('profile.integrations.timeFormatSavedSuccess');
                 timeFormatStatus.className = 'setting-status success';
-                showToast('Time format preference saved', 'success');
+                showToast(__('profile.integrations.timePreferenceSaved'), 'success');
                 
                 // Update current preferences
                 currentPreferences = preferences;
@@ -392,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Hide save button
                 saveTimeFormatBtn.style.display = 'none';
             } else {
-                throw new Error(response.message || 'Failed to save time format');
+                throw new Error(response.message || __('profile.integrations.failedToSaveTimeFormat'));
             }
         } catch (error) {
             console.error('Error saving time format:', error);
@@ -420,9 +439,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
-                timezoneStatus.textContent = 'Time zone saved successfully';
+                timezoneStatus.textContent = __('profile.integrations.timeZoneSavedSuccess');
                 timezoneStatus.className = 'setting-status success';
-                showToast('Time zone preference saved', 'success');
+                showToast(__('profile.integrations.timezonePreferenceSaved'), 'success');
                 
                 // Update current preferences
                 currentPreferences = preferences;
@@ -430,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Hide save button
                 saveTimezoneBtn.style.display = 'none';
             } else {
-                throw new Error(response.message || 'Failed to save time zone');
+                throw new Error(response.message || __('profile.integrations.failedToSaveTimezone'));
             }
         } catch (error) {
             console.error('Error saving time zone:', error);
@@ -466,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (error.message) {
             return error.message;
         }
-        return 'An unexpected error occurred';
+        return __('profile.integrations.unexpectedError');
     }
 
     // Event Listeners
@@ -588,12 +607,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
+        if (!dateString) return __('profile.integrations.unknown');
         try {
             const date = new Date(dateString);
             return date.toLocaleDateString();
         } catch (error) {
-            return 'Invalid date';
+            return __('profile.integrations.invalidDate');
         }
     }
 
@@ -618,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 renderMailingLists(data.data?.subscriptions || []);
             } else {
-                showMailingListsError('Failed to load mailing list subscriptions');
+                showMailingListsError(__('profile.integrations.failedToLoadMailingSubscriptions'));
             }
         } catch (error) {
             console.error('Load mailing lists error:', error);
@@ -645,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="mailing-list-item" data-list-id="${subscription.id}">
                     <div class="mailing-list-info">
                         <h4 class="mailing-list-name">${escapeHtml(subscription.name)}</h4>
-                        <p class="mailing-list-description">${escapeHtml(subscription.description || 'No description available')}</p>
+                        <p class="mailing-list-description">${escapeHtml(subscription.description || __('profile.integrations.noDescriptionAvailable'))}</p>
                         <div class="mailing-list-meta">
                             <span>Subscribed: ${formatDate(subscription.subscribed_at)}</span>
                         </div>
@@ -710,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 1000);
                 }
             } else {
-                showToast('Failed to unsubscribe: ' + (response.message || 'Unknown error'), 'error');
+                showToast(__('profile.integrations.failedToUnsubscribe') + ': ' + (response.message || __('profile.integrations.unknownError')), 'error');
                 
                 // Reset button state
                 if (button) {

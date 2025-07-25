@@ -202,6 +202,11 @@ class UserController {
         try {
             const { userId } = req.auth;
             const { preferences } = req.body;
+            
+            console.log('updatePreferences API called:', {
+                userId,
+                preferences: JSON.stringify(preferences)
+            });
 
             if (!preferences) {
                 return res.status(400).json({
@@ -211,9 +216,41 @@ class UserController {
             }
 
             // Update preferences
+            console.log('Calling userService.updateUserPreferences with:', preferences);
             const result = await userService.updateUserPreferences(userId, preferences);
 
-            return res.status(result.success ? 200 : 400).json(result);
+            // If language was updated successfully, set the cookie
+            if (result.success && preferences.language) {
+                res.cookie('lang', preferences.language, { 
+                    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+                    httpOnly: true,
+                    sameSite: 'lax'
+                });
+            }
+
+            // Check if language was actually saved to user table
+            let actualUserLanguage = null;
+            if (preferences.language) {
+                const db = require('../../db');
+                const user = await db.User.findByPk(userId, {
+                    attributes: ['preferred_language']
+                });
+                actualUserLanguage = user?.preferred_language;
+            }
+
+            // Add debug info to response
+            const debugInfo = {
+                ...result,
+                debug: {
+                    userId,
+                    preferencesReceived: preferences,
+                    languageInPreferences: preferences.language,
+                    actualUserLanguageInDB: actualUserLanguage,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            return res.status(result.success ? 200 : 400).json(debugInfo);
         } catch (error) {
             console.error('Update preferences error:', error);
             return res.status(500).json({

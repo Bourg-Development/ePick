@@ -100,28 +100,52 @@ class I18n {
 
 // i18n middleware
 async function i18nMiddleware(req, res, next) {
-  // Get locale from various sources
-  let locale = req.query.lang || 
-               req.cookies.lang;
+  console.log('i18n middleware called for URL:', req.url, 'user:', req.auth?.userId);
   
-  // If user is authenticated, try to get their preference
+  // Get locale from various sources - prioritize query param first
+  let locale = req.query.lang;
+  
+  console.log('i18n - initial locale sources:', {
+    queryLang: req.query.lang,
+    cookieLang: req.cookies.lang,
+    userAuth: req.auth?.userId
+  });
+  
+  // If user is authenticated, try to get their preference (unless overridden by query param)
   if (req.auth && req.auth.userId && !locale) {
     try {
       const db = require('../db');
       const user = await db.User.findByPk(req.auth.userId, {
         attributes: ['preferred_language']
       });
+      console.log('DEBUG i18n middleware - user language check:', {
+        userId: req.auth.userId,
+        preferred_language: user?.preferred_language,
+        currentLocale: locale,
+        queryLang: req.query.lang,
+        cookieLang: req.cookies.lang
+      });
       if (user && user.preferred_language) {
         locale = user.preferred_language;
+        console.log('DEBUG i18n middleware - using user preferred language:', locale);
+      } else {
+        console.log('DEBUG i18n middleware - no user preferred language found');
       }
     } catch (err) {
       console.error('Error fetching user language preference:', err);
     }
   }
   
+  // If still no locale, check cookie
+  if (!locale) {
+    locale = req.cookies.lang;
+    console.log('DEBUG i18n middleware - using cookie language:', locale);
+  }
+  
   // Fallback to accept-language header or default
   if (!locale) {
     locale = req.acceptsLanguages(i18n.config.locales) || i18n.config.defaultLocale;
+    console.log('DEBUG i18n middleware - using fallback language:', locale);
   }
 
   // Ensure locale is valid
@@ -132,6 +156,8 @@ async function i18nMiddleware(req, res, next) {
   // Create i18n instance for this request
   req.i18n = Object.create(i18n);
   req.i18n.setLocale(locale);
+  
+  console.log('i18n middleware - final locale set:', locale, 'for user:', req.auth?.userId);
 
   // Helper functions
   res.locals.__ = (key, ...args) => req.i18n.__(key, ...args);

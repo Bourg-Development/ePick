@@ -275,6 +275,80 @@ window.translations = {
     },
     profile: {
         integrations: {
+            title: "<%= __('profile.integrations.title') %>",
+            description: "<%= __('profile.integrations.description') %>",
+            calendarIntegration: "<%= __('profile.integrations.calendarIntegration') %>",
+            calendarIntegrationDesc: "<%= __('profile.integrations.calendarIntegrationDesc') %>",
+            enableIcsFeed: "<%= __('profile.integrations.enableIcsFeed') %>",
+            feedUrl: "<%= __('profile.integrations.feedUrl') %>",
+            copy: "<%= __('profile.integrations.copy') %>",
+            subscribe: "<%= __('profile.integrations.subscribe') %>",
+            copyManualHelp: "<%= __('profile.integrations.copyManualHelp') %>",
+            emailNotifications: "<%= __('profile.integrations.emailNotifications') %>",
+            emailNotificationsDesc: "<%= __('profile.integrations.emailNotificationsDesc') %>",
+            securityNotifications: "<%= __('profile.integrations.securityNotifications') %>",
+            securityNotificationsDesc: "<%= __('profile.integrations.securityNotificationsDesc') %>",
+            loginAlerts: "<%= __('profile.integrations.loginAlerts') %>",
+            loginAlertsDesc: "<%= __('profile.integrations.loginAlertsDesc') %>",
+            passwordChanges: "<%= __('profile.integrations.passwordChanges') %>",
+            passwordChangesDesc: "<%= __('profile.integrations.passwordChangesDesc') %>",
+            securitySettingsChanges: "<%= __('profile.integrations.securitySettingsChanges') %>",
+            securitySettingsChangesDesc: "<%= __('profile.integrations.securitySettingsChangesDesc') %>",
+            systemNotifications: "<%= __('profile.integrations.systemNotifications') %>",
+            systemNotificationsDesc: "<%= __('profile.integrations.systemNotificationsDesc') %>",
+            systemMaintenance: "<%= __('profile.integrations.systemMaintenance') %>",
+            systemMaintenanceDesc: "<%= __('profile.integrations.systemMaintenanceDesc') %>",
+            accountUpdates: "<%= __('profile.integrations.accountUpdates') %>",
+            accountUpdatesDesc: "<%= __('profile.integrations.accountUpdatesDesc') %>",
+            emailLists: "<%= __('profile.integrations.emailLists') %>",
+            emailListsDesc: "<%= __('profile.integrations.emailListsDesc') %>",
+            loadingMailingLists: "<%= __('profile.integrations.loadingMailingLists') %>",
+            manageSubscriptions: "<%= __('profile.integrations.manageSubscriptions') %>",
+            noActiveSubscriptions: "<%= __('profile.integrations.noActiveSubscriptions') %>",
+            notSubscribedToLists: "<%= __('profile.integrations.notSubscribedToLists') %>",
+            failedToLoadLists: "<%= __('profile.integrations.failedToLoadLists') %>",
+            retry: "<%= __('profile.integrations.retry') %>",
+            displayPreferences: "<%= __('profile.integrations.displayPreferences') %>",
+            displayPreferencesDesc: "<%= __('profile.integrations.displayPreferencesDesc') %>",
+            language: "<%= __('profile.integrations.language') %>",
+            languageHelp: "<%= __('profile.integrations.languageHelp') %>",
+            dateFormat: "<%= __('profile.integrations.dateFormat') %>",
+            dateFormatHelp: "<%= __('profile.integrations.dateFormatHelp') %>",
+            timeFormat: "<%= __('profile.integrations.timeFormat') %>",
+            timeFormatHelp: "<%= __('profile.integrations.timeFormatHelp') %>",
+            timeZone: "<%= __('profile.integrations.timeZone') %>",
+            timeZoneHelp: "<%= __('profile.integrations.timeZoneHelp') %>",
+            failedToLoadSettings: "<%= __('profile.integrations.failedToLoadSettings') %>",
+            calendarFeedActive: "<%= __('profile.integrations.calendarFeedActive') %>",
+            calendarFeedDisabled: "<%= __('profile.integrations.calendarFeedDisabled') %>",
+            calendarFeedEnabledSuccess: "<%= __('profile.integrations.calendarFeedEnabledSuccess') %>",
+            feedUrlNotFound: "<%= __('profile.integrations.feedUrlNotFound') %>",
+            failedToEnableIcs: "<%= __('profile.integrations.failedToEnableIcs') %>",
+            calendarFeedDisabledSuccess: "<%= __('profile.integrations.calendarFeedDisabledSuccess') %>",
+            failedToDisableIcs: "<%= __('profile.integrations.failedToDisableIcs') %>",
+            feedUrlCopied: "<%= __('profile.integrations.feedUrlCopied') %>",
+            emailPreferencesSaved: "<%= __('profile.integrations.emailPreferencesSaved') %>",
+            failedToSavePreferences: "<%= __('profile.integrations.failedToSavePreferences') %>",
+            languageAlreadySet: "<%= __('profile.integrations.languageAlreadySet') %>",
+            languagePreferenceSaved: "<%= __('profile.integrations.languagePreferenceSaved') %>",
+            reloadingPage: "<%= __('profile.integrations.reloadingPage') %>",
+            failedToSaveLanguage: "<%= __('profile.integrations.failedToSaveLanguage') %>",
+            dateFormatSavedSuccess: "<%= __('profile.integrations.dateFormatSavedSuccess') %>",
+            datePreferenceSaved: "<%= __('profile.integrations.datePreferenceSaved') %>",
+            failedToSaveDateFormat: "<%= __('profile.integrations.failedToSaveDateFormat') %>",
+            timeFormatSavedSuccess: "<%= __('profile.integrations.timeFormatSavedSuccess') %>",
+            timePreferenceSaved: "<%= __('profile.integrations.timePreferenceSaved') %>",
+            failedToSaveTimeFormat: "<%= __('profile.integrations.failedToSaveTimeFormat') %>",
+            timeZoneSavedSuccess: "<%= __('profile.integrations.timeZoneSavedSuccess') %>",
+            timezonePreferenceSaved: "<%= __('profile.integrations.timezonePreferenceSaved') %>",
+            failedToSaveTimezone: "<%= __('profile.integrations.failedToSaveTimezone') %>",
+            unexpectedError: "<%= __('profile.integrations.unexpectedError') %>",
+            unknown: "<%= __('profile.integrations.unknown') %>",
+            invalidDate: "<%= __('profile.integrations.invalidDate') %>",
+            failedToLoadMailingSubscriptions: "<%= __('profile.integrations.failedToLoadMailingSubscriptions') %>",
+            noDescriptionAvailable: "<%= __('profile.integrations.noDescriptionAvailable') %>",
+            failedToUnsubscribe: "<%= __('profile.integrations.failedToUnsubscribe') %>",
+            unknownError: "<%= __('profile.integrations.unknownError') %>",
             loadingStatus: "<%= __('profile.integrations.loadingStatus') %>"
         },
         recentActivity: {
@@ -330,20 +404,18 @@ window.translations = {
     }
 };
 
+// Debug: Show current locale
+console.log('Current page locale:', '<%= locale %>');
+console.log('Available locales:', ['en', 'fr', 'de']); // Hardcoded for debugging
+
 // Helper function to get translation
 window.__ = function(key) {
-    console.log('Translation requested:', key);
-    console.log('Available translations:', window.translations);
     const keys = key.split('.');
     let result = window.translations;
     for (const k of keys) {
         result = result[k];
-        if (!result) {
-            console.log('Translation not found for key:', key);
-            return key; // Return key if translation not found
-        }
+        if (!result) return key; // Return key if translation not found
     }
-    console.log('Translation found:', result);
     return result;
 };
 </script>

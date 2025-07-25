@@ -1057,6 +1057,27 @@ class UserService {
                 }
             }
 
+            // Also validate individual notification preferences if provided
+            if (preferences.notifications && preferences.notifications.email !== undefined && preferences.notifications.email) {
+                // Check if user has a personal email address before allowing email notifications
+                const user = await db.User.findByPk(userId);
+
+                if (!user) {
+                    return {
+                        success: false,
+                        message: 'User not found'
+                    };
+                }
+
+                const hasPersonalEmail = user.email;
+                if (!hasPersonalEmail) {
+                    return {
+                        success: false,
+                        message: 'Cannot enable email notifications - no personal email address on file'
+                    };
+                }
+            }
+
             // Update preferences
             userPreferences.preferences = {
                 ...userPreferences.preferences,
@@ -1064,6 +1085,33 @@ class UserService {
             };
 
             await userPreferences.save();
+
+            // If language preference is provided, also update the user's preferred_language field
+            // so that the i18n middleware can detect it automatically
+            if (preferences.language) {
+                console.log('DEBUG - Language preference detected:', preferences.language);
+                console.log('DEBUG - Attempting to update user ID:', userId);
+                
+                const user = await db.User.findByPk(userId);
+                if (user) {
+                    const oldLang = user.preferred_language;
+                    console.log('DEBUG - User found, current language:', oldLang);
+                    console.log('DEBUG - Setting preferred_language to:', preferences.language);
+                    
+                    user.preferred_language = preferences.language;
+                    const saveResult = await user.save();
+                    console.log('DEBUG - Save result:', saveResult ? 'success' : 'failed');
+                    
+                    // Re-fetch to verify the save worked
+                    const verifyUser = await db.User.findByPk(userId, {
+                        attributes: ['preferred_language']
+                    });
+                    console.log('DEBUG - Verification query result:', verifyUser?.preferred_language);
+                    console.log('DEBUG - Language update complete: from', oldLang, 'to', verifyUser?.preferred_language);
+                } else {
+                    console.log('DEBUG - ERROR: User not found for ID:', userId);
+                }
+            }
 
             return {
                 success: true,
@@ -1458,67 +1506,6 @@ class UserService {
         }
     }
 
-    /**
-     * Update user preferences
-     * @param {number} userId - User ID
-     * @param {Object} preferences - Preferences object
-     * @returns {Promise<Object>} Result object
-     */
-    async updateUserPreferences(userId, preferences) {
-        try {
-            // Validate notification preferences if provided
-            if (preferences.notifications && preferences.notifications.email !== undefined) {
-                // Check if user has a personal email address before allowing email notifications
-                const user = await db.User.findByPk(userId);
-
-                if (!user) {
-                    return {
-                        success: false,
-                        message: 'User not found'
-                    };
-                }
-
-                const hasPersonalEmail = user.email;
-                if (preferences.notifications.email && !hasPersonalEmail) {
-                    return {
-                        success: false,
-                        message: 'Cannot enable email notifications - no personal email address on file'
-                    };
-                }
-            }
-
-            // Find or create user preferences
-            let userPrefs = await db.UserPreference.findOne({
-                where: { user_id: userId }
-            });
-
-            if (!userPrefs) {
-                userPrefs = await db.UserPreference.create({
-                    user_id: userId,
-                    preferences: {}
-                });
-            }
-
-            // Get current preferences and update them
-            const currentPrefs = userPrefs.preferences || {};
-            const updatedPrefs = { ...currentPrefs, ...preferences };
-
-            userPrefs.preferences = updatedPrefs;
-            await userPrefs.save();
-
-            return {
-                success: true,
-                message: 'Preferences updated successfully',
-                preferences: updatedPrefs
-            };
-        } catch (error) {
-            console.error('Update user preferences error:', error);
-            return {
-                success: false,
-                message: 'Failed to update preferences'
-            };
-        }
-    }
 
     /**
      * Assign a system role to a user (system-only method)
