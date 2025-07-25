@@ -69,17 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await api.get('/ics/url');
             
-            if (response.success) {
-                // Check for url in either response.url or response.data?.url
-                const feedUrl = response.url || response.data?.url;
-                if (feedUrl) {
-                    icsFeedEnabled = true;
-                    icsFeedUrl = feedUrl;
-                    updateIcsFeedUI(true, feedUrl);
-                } else {
-                    icsFeedEnabled = false;
-                    updateIcsFeedUI(false);
-                }
+            if (response.success && response.data) {
+                const isEnabled = response.data.enabled;
+                const feedUrl = response.data.feedUrl;
+                
+                icsFeedEnabled = isEnabled;
+                icsFeedUrl = feedUrl || '';
+                updateIcsFeedUI(isEnabled, feedUrl);
             } else {
                 icsFeedEnabled = false;
                 updateIcsFeedUI(false);
