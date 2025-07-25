@@ -37,21 +37,40 @@ function initializePage() {
     // Translation fallback function
     if (typeof __ === 'undefined') {
         window.__ = function(key) {
-            const translations = {
-                'messages.success.roleUpdated': 'Role updated successfully',
-                'messages.success.emailUpdated': 'Email updated successfully',
-                'messages.success.userUpdated': 'User updated successfully',
-                'messages.success.userCreated': 'User created successfully',
-                'messages.success.userLocked': 'User locked successfully',
-                'messages.success.userUnlocked': 'User unlocked successfully',
-                'messages.validation.usernameDigits': 'Username must be exactly 6 digits',
-                'messages.validation.selectRole': 'Please select a role',
-                'messages.validation.fullNameLength': 'Full name must be between 2 and 100 characters',
-                'messages.error.loadingUserDetails': 'Error loading user details',
-                'messages.error.errorLoadingUserDetails': 'Failed to load user details',
-                'messages.info.noChanges': 'No changes detected'
+            // Temporary hardcoded translations for testing
+            const hardcodedTranslations = {
+                'editUser': 'Modifier l\'utilisateur',
+                'generateRefCode': 'Générer le code de référence',
+                'resetPassword': 'Réinitialiser le mot de passe',
+                'viewServiceInfo': 'Voir les infos du service',
+                'lockUser': 'Verrouiller l\'utilisateur',
+                'unlockUser': 'Déverrouiller l\'utilisateur',
+                'notifications.massPreferences.selectOneUser': 'Veuillez sélectionner au moins un utilisateur',
+                'notifications.massPreferences.selectOnePreference': 'Veuillez sélectionner au moins une préférence à mettre à jour',
+                'notifications.massPreferences.selectOnePreferenceReset': 'Veuillez sélectionner au moins une préférence à réinitialiser',
+                'notifications.massPreferences.errorUpdating': 'Erreur lors de la mise à jour des préférences',
+                'notifications.massPreferences.errorResetting': 'Erreur lors de la réinitialisation des préférences',
+                'users.noUsersFound': 'Aucun utilisateur trouvé',
+                'export.noFiltersAppliedUsers': 'Aucun filtre appliqué - export de tous les utilisateurs',
+                'filter.allRoles': 'Tous les rôles',
+                'filter.selectRole': 'Sélectionner un rôle',
+                'filter.allServices': 'Tous les services'
             };
-            return translations[key] || key;
+            
+            if (hardcodedTranslations[key]) {
+                return hardcodedTranslations[key];
+            }
+            
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value[k];
+                    if (!value) break;
+                }
+                return value || key;
+            }
+            return key;
         };
     }
 
@@ -531,7 +550,7 @@ function initializePage() {
                 `<span class="filter-tag">${filter}</span>`
             ).join('');
         } else {
-            currentFilters.innerHTML = '<span class="filter-info">No filters applied - exporting all users</span>';
+            currentFilters.innerHTML = `<span class="filter-info">${__('export.noFiltersAppliedUsers')}</span>`;
         }
     }
 
@@ -996,7 +1015,7 @@ function initializePage() {
     // UI Functions
     function renderTable() {
         if (users.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--medium-gray);">No users found</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--medium-gray);">${__('users.noUsersFound')}</td></tr>`;
             return;
         }
 
@@ -1146,9 +1165,9 @@ function initializePage() {
 
         roleSelects.forEach((select, index) => {
             if (index === 0) {
-                select.innerHTML = '<option value="">All Roles</option>';
+                select.innerHTML = `<option value="">${__('filter.allRoles')}</option>`;
             } else {
-                select.innerHTML = index === 1 ? '<option value="">Select a role</option>' : '';
+                select.innerHTML = index === 1 ? `<option value="">${__('filter.selectRole')}</option>` : '';
             }
 
             roles.forEach(role => {
@@ -1162,7 +1181,7 @@ function initializePage() {
 
     function populateServiceSelects() {
         if (serviceFilter) {
-            serviceFilter.innerHTML = '<option value="">All Services</option>';
+            serviceFilter.innerHTML = `<option value="">${__('filter.allServices')}</option>`;
             services.forEach(service => {
                 const option = document.createElement('option');
                 option.value = service.id;
@@ -1575,7 +1594,7 @@ function initializePage() {
         let dropdownHTML = `
             <div class="dropdown-item" data-action="edit">
                 <span class="material-symbols-outlined">edit</span>
-                Edit User
+                ${__('editUser')}
             </div>
         `;
 
@@ -1583,14 +1602,14 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="generate-ref-code">
                     <span class="material-symbols-outlined">qr_code</span>
-                    Generate Reference Code
+                    ${__('generateRefCode')}
                 </div>
             `;
         } else {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="reset-password">
                     <span class="material-symbols-outlined">lock_reset</span>
-                    Reset Password
+                    ${__('resetPassword')}
                 </div>
             `;
         }
@@ -1599,7 +1618,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="view-service">
                     <span class="material-symbols-outlined">business</span>
-                    View Service Info
+                    ${__('viewServiceInfo')}
                 </div>
             `;
         }
@@ -1607,7 +1626,7 @@ function initializePage() {
         dropdownHTML += `
             <div class="dropdown-item" data-action="toggle-lock">
                 <span class="material-symbols-outlined">${user.account_locked ? 'lock_open' : 'lock'}</span>
-                ${user.account_locked ? 'Unlock' : 'Lock'} Account
+                ${user.account_locked ? __('unlockUser') : __('lockUser')}
             </div>
         `;
 

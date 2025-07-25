@@ -42,42 +42,31 @@ function initializePage() {
     // Translation function fallback
     if (typeof __ === 'undefined') {
         window.__ = function(key) {
-            // Simple translation map for the most common messages
-            const translations = {
-                'messages.password.requiredForExport': 'Password is required for export',
-                'messages.export.selectColumns': 'Please select at least one column to export',
-                'messages.export.completed': 'Export completed',
-                'messages.export.enterPasswordInfo': 'export - Enter your password',
-                'messages.error.loadingAnalysisTypes': 'Failed to load analysis types',
-                'messages.error.errorLoadingAnalysisTypes': 'Error loading analysis types',
-                'messages.success.statusUpdated': 'Status updated successfully',
-                'messages.success.analysisPostponed': 'Analysis postponed to',
-                'messages.success.analysisCancelled': 'Analysis cancelled successfully',
-                'messages.validation.doctorName': 'Doctor name is required',
-                'messages.validation.specialization': 'Specialization is required',
-                'messages.success.doctorCreated': 'Doctor created:',
-                'messages.error.loadingDashboard': 'Failed to load dashboard',
-                'messages.validation.cancellationReason': 'Please select a cancellation reason',
-                'messages.validation.cancellationDetailedReason': 'Please provide a detailed reason (minimum 10 characters)',
-                'messages.validation.workingDay': 'is not a working day',
-                'messages.validation.maxAnalysesReached': 'Maximum analyses reached for',
-                'messages.validation.intervalRequired': 'Interval is required for recurring analyses',
-                'messages.validationErrors': 'Validation errors:',
-                'messages.validation.recurrenceRequired': 'Please select if this is a recurring analysis',
-                'messages.validation.totalOccurrencesMin': 'Total occurrences must be at least 1',
-                'messages.validation.intervalMin': 'Interval must be at least 1',
-                'messages.validation.validInterval': 'Please enter a valid interval',
-                'messages.validation.totalOccurrencesRange': 'Total occurrences must be between 1 and 365',
-                'messages.success.recurringCreated': 'Recurring analysis created',
-                'messages.success.analysisScheduled': 'Analysis scheduled successfully',
-                'messages.error.notRecurringSeries': 'This analysis is not part of a recurring series',
-                'messages.error.analysisNotFound': 'Analysis not found',
-                'messages.success.prescriptionValidated': 'Prescription validated successfully',
-                'messages.error.prescriptionFailed': 'Failed to validate prescription',
-                'messages.error.errorValidatingPrescription': 'Error validating prescription',
-                'messages.error.sessionExpired': 'Session expired. Please log in again.'
+            // Temporary hardcoded translations for testing
+            const hardcodedTranslations = {
+                'updateStatus': 'Mettre à jour le statut',
+                'validatePrescription': 'Valider la prescription',
+                'cancelAnalysis': 'Annuler l\'analyse',
+                'viewAuditLogs': 'Voir les journaux d\'audit',
+                'actions.postpone': 'Reporter',
+                'analyses.noAnalysesFound': 'Aucune analyse trouvée',
+                'export.noFiltersApplied': 'Aucun filtre appliqué - export de toutes les analyses'
             };
-            return translations[key] || key;
+            
+            if (hardcodedTranslations[key]) {
+                return hardcodedTranslations[key];
+            }
+            
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value[k];
+                    if (!value) break;
+                }
+                return value || key;
+            }
+            return key;
         };
     }
 
@@ -813,7 +802,7 @@ function initializePage() {
                 `<span class="filter-tag">${filter}</span>`
             ).join('');
         } else {
-            currentFilters.innerHTML = '<span class="filter-info">No filters applied - exporting all analyses</span>';
+            currentFilters.innerHTML = `<span class="filter-info">${__('export.noFiltersApplied')}</span>`;
         }
     }
 
@@ -1436,7 +1425,7 @@ function initializePage() {
         if(!tableBody) return;
 
         if (analyses.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">No analyses found</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">${__('analyses.noAnalysesFound')}</td></tr>`;
             return;
         }
 
@@ -2854,7 +2843,7 @@ function initializePage() {
         let dropdownHTML = `
             <div class="dropdown-item" data-action="update-status">
                 <span class="material-symbols-outlined">edit</span>
-                Update Status
+                ${__('updateStatus')}
             </div>
         `;
 
@@ -2863,7 +2852,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="validate-prescription">
                     <span class="material-symbols-outlined">medication</span>
-                    Validate Prescription
+                    ${__('validatePrescription')}
                 </div>
             `;
         }
@@ -2872,7 +2861,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="postpone">
                     <span class="material-symbols-outlined">schedule</span>
-                    Postpone
+                    ${__('actions.postpone')}
                 </div>
             `;
         }
@@ -2881,7 +2870,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="cancel">
                     <span class="material-symbols-outlined">cancel</span>
-                    Cancel Analysis
+                    ${__('cancelAnalysis')}
                 </div>
             `;
         }
@@ -2905,7 +2894,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="view-audit-logs">
                     <span class="material-symbols-outlined">history</span>
-                    View Audit Logs
+                    ${__('viewAuditLogs')}
                 </div>
             `;
         }

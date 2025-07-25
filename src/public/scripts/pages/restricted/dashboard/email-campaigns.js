@@ -2,6 +2,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
 
+    // Translation function fallback
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value[k];
+                    if (!value) break;
+                }
+                return value || key;
+            }
+            return key;
+        };
+    }
+
     // State management
     let currentPage = 1;
     let totalPages = 1;

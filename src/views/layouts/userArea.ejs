@@ -106,7 +106,20 @@ window.translations = {
             noChanges: "<%= __('messages.info.noChanges') %>",
             serviceUsers: "<%= __('messages.info.serviceUsers') %>"
         },
-        validationErrors: "<%= __('messages.validation_errors') %>"
+        validationErrors: "<%= __('messages.validation_errors') %>",
+        success: {
+            bulkAction: {
+                noSelection: "<%= __('messages.success.bulkAction.noSelection') %>",
+                unknownAction: "<%= __('messages.success.bulkAction.unknownAction') %>",
+                provideCancellationReason: "<%= __('messages.success.bulkAction.provideCancellationReason') %>",
+                cancellingAnalyses: "<%= __('messages.success.bulkAction.cancellingAnalyses') %>",
+                loadingPatientDetails: "<%= __('messages.success.bulkAction.loadingPatientDetails') %>",
+                noAssignedDoctorRoom: "<%= __('messages.success.bulkAction.noAssignedDoctorRoom') %>",
+                failedLoadPatientDetails: "<%= __('messages.success.bulkAction.failedLoadPatientDetails') %>",
+                failedAutoFillDetails: "<%= __('messages.success.bulkAction.failedAutoFillDetails') %>",
+                failedLoadAuditLogs: "<%= __('messages.success.bulkAction.failedLoadAuditLogs') %>"
+            }
+        }
     },
     placeholders: {
         analysisNotes: "<%= __('placeholders.analysisNotes') %>",
@@ -196,17 +209,141 @@ window.translations = {
         notificationSettings: "<%= __('labels.notificationSettings') %>",
         displaySettings: "<%= __('labels.displaySettings') %>",
         languageSettings: "<%= __('labels.languageSettings') %>"
+    },
+    archive: {
+        noArchivedAnalyses: "<%= __('archive.noArchivedAnalyses') %>",
+        cleanupTitle: "<%= __('archive.cleanupTitle') %>",
+        cleanupWarning: "<%= __('archive.cleanupWarning') %>",
+        cleanupButton: "<%= __('archive.cleanupButton') %>",
+        detailsTitle: "<%= __('archive.detailsTitle') %>",
+        deletionWarning: "<%= __('archive.deletionWarning') %>",
+        deletionDescription: "<%= __('archive.deletionDescription') %>",
+        cancelCleanup: "<%= __('archive.cancelCleanup') %>",
+        cleanupSuccess: "<%= __('archive.cleanupSuccess') %>",
+        cleanupError: "<%= __('archive.cleanupError') %>",
+        deletionSuccess: "<%= __('archive.deletionSuccess') %>",
+        deletionError: "<%= __('archive.deletionError') %>",
+        detailsError: "<%= __('archive.detailsError') %>",
+        closeDetails: "<%= __('archive.closeDetails') %>",
+        analysisDetails: "<%= __('archive.analysisDetails') %>",
+        originalData: "<%= __('archive.originalData') %>",
+        archivedDate: "<%= __('archive.archivedDate') %>",
+        archiveReason: "<%= __('archive.archiveReason') %>",
+        loadingDetails: "<%= __('archive.loadingDetails') %>",
+        exportSuccess: "<%= __('archive.exportSuccess') %>",
+        exportError: "<%= __('archive.exportError') %>",
+        confirmDeletion: "<%= __('archive.confirmDeletion') %>",
+        confirmDeletionText: "<%= __('archive.confirmDeletionText') %>",
+        permanentDelete: "<%= __('archive.permanentDelete') %>",
+        cancelDeletion: "<%= __('archive.cancelDeletion') %>",
+        loadingArchive: "<%= __('archive.loadingArchive') %>",
+        analysisType: "<%= __('archive.analysisType') %>",
+        patient: "<%= __('archive.patient') %>",
+        doctor: "<%= __('archive.doctor') %>",
+        room: "<%= __('archive.room') %>",
+        originalStatus: "<%= __('archive.originalStatus') %>",
+        scheduledDate: "<%= __('archive.scheduledDate') %>",
+        completedDate: "<%= __('archive.completedDate') %>",
+        notes: "<%= __('archive.notes') %>",
+        noNotes: "<%= __('archive.noNotes') %>",
+        matricule: "<%= __('archive.matricule') %>",
+        patientName: "<%= __('archive.patientName') %>",
+        doctorName: "<%= __('archive.doctorName') %>",
+        roomNumber: "<%= __('archive.roomNumber') %>",
+        analysisId: "<%= __('archive.analysisId') %>",
+        service: "<%= __('archive.service') %>",
+        noPatient: "<%= __('archive.noPatient') %>",
+        noDoctor: "<%= __('archive.noDoctor') %>",
+        noRoom: "<%= __('archive.noRoom') %>",
+        showingRecords: "<%= __('archive.showingRecords') %>",
+        failedToLoadDetails: "<%= __('archive.failedToLoadDetails') %>",
+        basicInformation: "<%= __('archive.basicInformation') %>",
+        archiveId: "<%= __('archive.archiveId') %>",
+        originalAnalysisId: "<%= __('archive.originalAnalysisId') %>",
+        patientInformation: "<%= __('archive.patientInformation') %>",
+        medicalTeam: "<%= __('archive.medicalTeam') %>",
+        timeline: "<%= __('archive.timeline') %>",
+        archiveInformation: "<%= __('archive.archiveInformation') %>",
+        archivedBy: "<%= __('archive.archivedBy') %>",
+        system: "<%= __('archive.system') %>",
+        createdBy: "<%= __('archive.createdBy') %>",
+        completedBy: "<%= __('archive.completedBy') %>",
+        viewDetails: "<%= __('archive.viewDetails') %>",
+        cleanupMinDays: "<%= __('archive.cleanupMinDays') %>",
+        cleanupDetailedReason: "<%= __('archive.cleanupDetailedReason') %>",
+        cleanupConfirmation: "<%= __('archive.cleanupConfirmation') %>"
+    },
+    profile: {
+        integrations: {
+            loadingStatus: "<%= __('profile.integrations.loadingStatus') %>"
+        },
+        recentActivity: {
+            loadingLogins: "<%= __('profile.recentActivity.loadingLogins') %>",
+            showMore: "<%= __('profile.recentActivity.showMore') %>"
+        }
+    },
+    patients: {
+        roomNumber: "<%= __('patients.roomNumber') %>",
+        unassigned: "<%= __('patients.unassigned') %>"
+    },
+    notifications: {
+        massPreferences: {
+            selectOneUser: "<%= __('notifications.massPreferences.selectOneUser') %>",
+            selectOnePreference: "<%= __('notifications.massPreferences.selectOnePreference') %>",
+            selectOnePreferenceReset: "<%= __('notifications.massPreferences.selectOnePreferenceReset') %>",
+            errorUpdating: "<%= __('notifications.massPreferences.errorUpdating') %>",
+            errorResetting: "<%= __('notifications.massPreferences.errorResetting') %>"
+        }
+    },
+    export: {
+        preparing: "<%= __('export.preparing') %>",
+        exportData: "<%= __('export.exportData') %>",
+        usingCurrentFilters: "<%= __('export.usingCurrentFilters') %>",
+        quickCsv: "<%= __('export.quickCsv') %>",
+        noFiltersApplied: "<%= __('export.noFiltersApplied') %>",
+        noFiltersAppliedUsers: "<%= __('export.noFiltersAppliedUsers') %>"
+    },
+    analyses: {
+        noAnalysesFound: "<%= __('analyses.noAnalysesFound') %>"
+    },
+    users: {
+        noUsersFound: "<%= __('users.noUsersFound') %>"
+    },
+    filter: {
+        allRoles: "<%= __('filter.allRoles') %>",
+        selectRole: "<%= __('filter.selectRole') %>",
+        allServices: "<%= __('filter.allServices') %>"
+    },
+    // Add individual translation keys at the root level
+    updateStatus: "<%= __('updateStatus') %>",
+    editUser: "<%= __('editUser') %>", 
+    generateRefCode: "<%= __('generateRefCode') %>",
+    resetPassword: "<%= __('resetPassword') %>",
+    validatePrescription: "<%= __('validatePrescription') %>",
+    viewServiceInfo: "<%= __('viewServiceInfo') %>",
+    lockUser: "<%= __('lockUser') %>",
+    unlockUser: "<%= __('unlockUser') %>",
+    viewAuditLogs: "<%= __('viewAuditLogs') %>",
+    cancelAnalysis: "<%= __('cancelAnalysis') %>",
+    actions: {
+        postpone: "<%= __('actions.postpone') %>"
     }
 };
 
 // Helper function to get translation
 window.__ = function(key) {
+    console.log('Translation requested:', key);
+    console.log('Available translations:', window.translations);
     const keys = key.split('.');
     let result = window.translations;
     for (const k of keys) {
         result = result[k];
-        if (!result) return key; // Return key if translation not found
+        if (!result) {
+            console.log('Translation not found for key:', key);
+            return key; // Return key if translation not found
+        }
     }
+    console.log('Translation found:', result);
     return result;
 };
 </script>

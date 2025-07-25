@@ -1,4 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Translation function fallback
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            // Temporary hardcoded translations for testing
+            const hardcodedTranslations = {
+                'archive.viewDetails': 'Voir les détails',
+                'archive.loadingArchive': 'Chargement des analyses archivées...',
+                'archive.noArchivedAnalyses': 'Aucune analyse archivée trouvée',
+                'archive.showingRecords': 'Affichage des enregistrements',
+                'common.loading': 'Chargement...',
+                'status.unexpectedError': 'Erreur inattendue',
+                'export.preparing': 'Préparation...',
+                'export.exportData': 'Exporter les données',
+                'export.usingCurrentFilters': 'Utilisation des filtres actuels',
+                'export.quickCsv': 'Export CSV rapide'
+            };
+            
+            if (hardcodedTranslations[key]) {
+                return hardcodedTranslations[key];
+            }
+            
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value[k];
+                    if (!value) break;
+                }
+                return value || key;
+            }
+            return key;
+        };
+    }
+
     // Wait for date formatting functions to be available
     let attempts = 0;
     const maxAttempts = 50; // 5 seconds max wait

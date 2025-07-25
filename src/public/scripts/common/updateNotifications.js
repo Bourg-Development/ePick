@@ -2,6 +2,22 @@
 (function() {
     'use strict';
 
+    // Translation function fallback
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value[k];
+                    if (!value) break;
+                }
+                return value || key;
+            }
+            return key;
+        };
+    }
+
     // Check for pending updates on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Only check for authenticated users
