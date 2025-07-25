@@ -35,7 +35,7 @@ async function archiveCancelledAnalyses() {
             where: {
                 status: 'Cancelled',
                 [db.Sequelize.Op.and]: [
-                    db.Sequelize.literal(`DATE(updated_at) <= CURRENT_DATE - INTERVAL '${archiveDelay} days'`)
+                    db.Sequelize.literal(`DATE("Analysis"."updated_at") <= CURRENT_DATE - INTERVAL '${archiveDelay} days'`)
                 ]
             },
             include: [
