@@ -92,6 +92,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
+        // Format dropdown
+        const formatSelect = document.getElementById('formatSelect');
+        formatSelect.addEventListener('change', function() {
+            const format = this.value;
+            if (format) {
+                handleFormatChange(format);
+                this.value = ''; // Reset to default
+            }
+        });
+
         // Sync HTML editor with textarea
         htmlEditor.addEventListener('input', function() {
             contentHtml.value = this.innerHTML;
@@ -136,6 +146,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Button editing functionality
         initializeButtonEditing();
+
+        // Initialize paste handling for images
+        initializePasteHandling();
+
+        // Initialize image resizing
+        initializeImageResizing();
     }
 
     // Handle editor commands
@@ -152,14 +168,14 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'underline':
                 document.execCommand('underline', false, null);
                 break;
-            case 'h2':
-                document.execCommand('formatBlock', false, '<h2>');
-                break;
             case 'link':
                 const url = prompt('Enter URL:');
                 if (url) {
                     document.execCommand('createLink', false, url);
                 }
+                break;
+            case 'image':
+                handleImageInsert();
                 break;
             case 'insertVariable':
                 showVariableMenu();
@@ -168,6 +184,70 @@ document.addEventListener('DOMContentLoaded', function() {
         
         htmlEditor.focus();
     }
+
+    // Handle format changes from dropdown
+    function handleFormatChange(format) {
+        const htmlEditor = document.getElementById('htmlEditor');
+        
+        // Focus the editor first
+        htmlEditor.focus();
+        
+        try {
+            // Apply the format using execCommand
+            switch(format) {
+                case 'p':
+                    document.execCommand('formatBlock', false, '<p>');
+                    break;
+                case 'h1':
+                    document.execCommand('formatBlock', false, '<h1>');
+                    break;
+                case 'h2':
+                    document.execCommand('formatBlock', false, '<h2>');
+                    break;
+                case 'h3':
+                    document.execCommand('formatBlock', false, '<h3>');
+                    break;
+                case 'h4':
+                    document.execCommand('formatBlock', false, '<h4>');
+                    break;
+                case 'blockquote':
+                    document.execCommand('formatBlock', false, '<blockquote>');
+                    break;
+                case 'pre':
+                    document.execCommand('formatBlock', false, '<pre>');
+                    break;
+                default:
+                    console.log('Unknown format:', format);
+            }
+        } catch (error) {
+            console.error('Error applying format:', error);
+            
+            // Fallback: wrap selection in appropriate tag
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const selectedText = range.toString();
+                
+                if (selectedText) {
+                    const wrapper = document.createElement(format);
+                    wrapper.textContent = selectedText;
+                    range.deleteContents();
+                    range.insertNode(wrapper);
+                    
+                    // Clear selection and position cursor after element
+                    selection.removeAllRanges();
+                    const newRange = document.createRange();
+                    newRange.setStartAfter(wrapper);
+                    newRange.collapse(true);
+                    selection.addRange(newRange);
+                }
+            }
+        }
+        
+        // Update the hidden textarea
+        document.getElementById('contentHtml').value = htmlEditor.innerHTML;
+    }
+
 
     // Show variable insertion menu
     function showVariableMenu() {
@@ -202,6 +282,352 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }, 100);
     }
+
+    // Handle image insertion
+    function handleImageInsert() {
+        const imageUpload = document.getElementById('imageUpload');
+        imageUpload.click();
+    }
+
+    // Handle image file selection
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            insertImageFromFile(file);
+        }
+        // Clear the input so the same file can be selected again
+        e.target.value = '';
+    });
+
+    // Insert image from file
+    function insertImageFromFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+            img.style.cursor = 'pointer';
+            img.alt = file.name || 'Inserted image';
+            img.className = 'resizable-image';
+            
+            // Insert the image at cursor position
+            const htmlEditor = document.getElementById('htmlEditor');
+            htmlEditor.focus();
+            
+            try {
+                document.execCommand('insertHTML', false, img.outerHTML);
+            } catch (error) {
+                // Fallback: insert at the end
+                const selection = window.getSelection();
+                const range = document.createRange();
+                
+                if (htmlEditor.lastChild) {
+                    range.setStartAfter(htmlEditor.lastChild);
+                } else {
+                    range.setStart(htmlEditor, 0);
+                }
+                range.collapse(true);
+                range.insertNode(img);
+                
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            
+            // Update the hidden textarea
+            document.getElementById('contentHtml').value = htmlEditor.innerHTML;
+            showToast('Image inserted successfully', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Handle paste events for images
+    function initializePasteHandling() {
+        const htmlEditor = document.getElementById('htmlEditor');
+        
+        htmlEditor.addEventListener('paste', function(e) {
+            // Check if clipboard contains files
+            const items = e.clipboardData.items;
+            let hasImage = false;
+            
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.type.startsWith('image/')) {
+                    e.preventDefault();
+                    hasImage = true;
+                    
+                    const file = item.getAsFile();
+                    if (file) {
+                        insertImageFromFile(file);
+                    }
+                    break;
+                }
+            }
+            
+            // If no image was found, let the default paste behavior proceed
+            if (!hasImage) {
+                // Allow default paste but clean up the content
+                setTimeout(() => {
+                    document.getElementById('contentHtml').value = htmlEditor.innerHTML;
+                }, 10);
+            }
+        });
+    }
+
+    // Initialize image resizing functionality
+    function initializeImageResizing() {
+        const htmlEditor = document.getElementById('htmlEditor');
+        
+        // Add click event for images
+        htmlEditor.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+                e.stopPropagation();
+                showImageResizeModal(e.target);
+            }
+        });
+    }
+
+    // Show image resize modal
+    function showImageResizeModal(imageElement) {
+        // Remove any existing modal
+        const existingModal = document.querySelector('.image-resize-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Get current image dimensions
+        const currentWidth = imageElement.style.width || imageElement.offsetWidth + 'px';
+        const currentHeight = imageElement.style.height || 'auto';
+        const maxWidth = imageElement.style.maxWidth || '100%';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'image-resize-modal';
+        modal.innerHTML = `
+            <div class="image-resize-overlay"></div>
+            <div class="image-resize-content">
+                <div class="image-resize-header">
+                    <h3>Resize Image</h3>
+                    <button class="close-btn" onclick="closeImageResizeModal()">&times;</button>
+                </div>
+                <div class="image-resize-body">
+                    <div class="resize-preview">
+                        <img src="${imageElement.src}" alt="${imageElement.alt}" class="preview-image">
+                    </div>
+                    <div class="resize-controls">
+                        <div class="size-presets">
+                            <h4>Quick Sizes</h4>
+                            <div class="preset-buttons">
+                                <button class="preset-btn" data-size="small">Small (200px)</button>
+                                <button class="preset-btn" data-size="medium">Medium (400px)</button>
+                                <button class="preset-btn" data-size="large">Large (600px)</button>
+                                <button class="preset-btn" data-size="full">Full Width (100%)</button>
+                            </div>
+                        </div>
+                        <div class="custom-size">
+                            <h4>Custom Size</h4>
+                            <div class="size-inputs">
+                                <div class="input-group">
+                                    <label>Width:</label>
+                                    <input type="number" id="imageWidth" placeholder="Width" min="10" max="800">
+                                    <select id="widthUnit">
+                                        <option value="px">px</option>
+                                        <option value="%">%</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Max Width:</label>
+                                    <input type="text" id="imageMaxWidth" value="100%" placeholder="e.g. 100%, 600px">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alignment-controls">
+                            <h4>Alignment</h4>
+                            <div class="alignment-buttons">
+                                <button class="align-btn" data-align="left">
+                                    <span class="material-symbols-outlined">format_align_left</span>
+                                    Left
+                                </button>
+                                <button class="align-btn" data-align="center">
+                                    <span class="material-symbols-outlined">format_align_center</span>
+                                    Center
+                                </button>
+                                <button class="align-btn" data-align="right">
+                                    <span class="material-symbols-outlined">format_align_right</span>
+                                    Right
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-resize-footer">
+                    <button class="btn btn-secondary" onclick="closeImageResizeModal()">Cancel</button>
+                    <button class="btn btn-danger" id="deleteImageBtn">Delete Image</button>
+                    <button class="btn btn-primary" id="applyResizeBtn">Apply Changes</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Setup event listeners
+        setupImageResizeEvents(modal, imageElement);
+
+        // Show modal
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    // Setup image resize modal events
+    function setupImageResizeEvents(modal, imageElement) {
+        const previewImage = modal.querySelector('.preview-image');
+        const widthInput = modal.querySelector('#imageWidth');
+        const widthUnit = modal.querySelector('#widthUnit');
+        const maxWidthInput = modal.querySelector('#imageMaxWidth');
+        const applyBtn = modal.querySelector('#applyResizeBtn');
+        const deleteBtn = modal.querySelector('#deleteImageBtn');
+
+        // Parse current width
+        const currentWidth = imageElement.style.width;
+        if (currentWidth) {
+            const match = currentWidth.match(/(\d+)(px|%)/);
+            if (match) {
+                widthInput.value = match[1];
+                widthUnit.value = match[2];
+            }
+        }
+
+        // Preset buttons
+        modal.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const size = this.dataset.size;
+                let width, unit, maxWidth;
+                
+                switch(size) {
+                    case 'small':
+                        width = 200;
+                        unit = 'px';
+                        maxWidth = '100%';
+                        break;
+                    case 'medium':
+                        width = 400;
+                        unit = 'px';
+                        maxWidth = '100%';
+                        break;
+                    case 'large':
+                        width = 600;
+                        unit = 'px';
+                        maxWidth = '100%';
+                        break;
+                    case 'full':
+                        width = 100;
+                        unit = '%';
+                        maxWidth = '100%';
+                        break;
+                }
+                
+                widthInput.value = width;
+                widthUnit.value = unit;
+                maxWidthInput.value = maxWidth;
+                updatePreview();
+            });
+        });
+
+        // Alignment buttons
+        modal.querySelectorAll('.align-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                modal.querySelectorAll('.align-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const align = this.dataset.align;
+                const container = previewImage.parentElement;
+                container.style.textAlign = align;
+            });
+        });
+
+        // Input changes
+        widthInput.addEventListener('input', updatePreview);
+        widthUnit.addEventListener('change', updatePreview);
+        maxWidthInput.addEventListener('input', updatePreview);
+
+        function updatePreview() {
+            const width = widthInput.value;
+            const unit = widthUnit.value;
+            const maxWidth = maxWidthInput.value;
+            
+            if (width) {
+                previewImage.style.width = width + unit;
+            } else {
+                previewImage.style.width = '';
+            }
+            
+            if (maxWidth) {
+                previewImage.style.maxWidth = maxWidth;
+            }
+        }
+
+        // Apply changes
+        applyBtn.addEventListener('click', function() {
+            const width = widthInput.value;
+            const unit = widthUnit.value;
+            const maxWidth = maxWidthInput.value;
+            const activeAlign = modal.querySelector('.align-btn.active');
+            
+            // Apply size changes
+            if (width) {
+                imageElement.style.width = width + unit;
+            } else {
+                imageElement.style.removeProperty('width');
+            }
+            
+            if (maxWidth) {
+                imageElement.style.maxWidth = maxWidth;
+            }
+            
+            // Apply alignment changes
+            if (activeAlign) {
+                const align = activeAlign.dataset.align;
+                let wrapper = imageElement.parentElement;
+                
+                // Create wrapper if needed
+                if (wrapper.tagName !== 'DIV' || !wrapper.style.textAlign) {
+                    const newWrapper = document.createElement('div');
+                    newWrapper.style.textAlign = align;
+                    imageElement.parentNode.insertBefore(newWrapper, imageElement);
+                    newWrapper.appendChild(imageElement);
+                } else {
+                    wrapper.style.textAlign = align;
+                }
+            }
+            
+            // Update the hidden textarea
+            document.getElementById('contentHtml').value = document.getElementById('htmlEditor').innerHTML;
+            
+            showToast('Image resized successfully', 'success');
+            closeImageResizeModal();
+        });
+
+        // Delete image
+        deleteBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this image?')) {
+                imageElement.remove();
+                document.getElementById('contentHtml').value = document.getElementById('htmlEditor').innerHTML;
+                showToast('Image deleted', 'success');
+                closeImageResizeModal();
+            }
+        });
+    }
+
+    // Close image resize modal
+    window.closeImageResizeModal = function() {
+        const modal = document.querySelector('.image-resize-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
+        }
+    };
 
     // Store last cursor position for component insertion
     let lastCursorPosition = null;

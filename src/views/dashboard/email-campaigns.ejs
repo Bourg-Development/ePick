@@ -180,6 +180,19 @@ const pageScripts = ['/pages/restricted/dashboard/email-campaigns.js'];
                         <div class="tab-content">
                             <div class="tab-pane active" id="htmlTab">
                                 <div class="editor-toolbar">
+                                    <div class="format-dropdown">
+                                        <select class="format-select" id="formatSelect" title="Text Style">
+                                            <option value="">Format</option>
+                                            <option value="p">Normal Text</option>
+                                            <option value="h1">Heading 1</option>
+                                            <option value="h2">Heading 2</option>
+                                            <option value="h3">Heading 3</option>
+                                            <option value="h4">Heading 4</option>
+                                            <option value="blockquote">Quote</option>
+                                            <option value="pre">Code Block</option>
+                                        </select>
+                                    </div>
+                                    <div class="toolbar-separator"></div>
                                     <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
                                         <span class="material-symbols-outlined">format_bold</span>
                                     </button>
@@ -190,11 +203,11 @@ const pageScripts = ['/pages/restricted/dashboard/email-campaigns.js'];
                                         <span class="material-symbols-outlined">format_underlined</span>
                                     </button>
                                     <div class="toolbar-separator"></div>
-                                    <button type="button" class="toolbar-btn" data-command="h2" title="Heading">
-                                        <span class="material-symbols-outlined">title</span>
-                                    </button>
                                     <button type="button" class="toolbar-btn" data-command="link" title="Link">
                                         <span class="material-symbols-outlined">link</span>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" data-command="image" title="Insert Image">
+                                        <span class="material-symbols-outlined">image</span>
                                     </button>
                                     <div class="toolbar-separator"></div>
                                     <button type="button" class="toolbar-btn" data-command="insertVariable" title="Insert Variable">
@@ -277,6 +290,7 @@ const pageScripts = ['/pages/restricted/dashboard/email-campaigns.js'];
                                     </div>
                                 </div>
                                 <div contenteditable="true" id="htmlEditor" class="html-editor"></div>
+                                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
                                 <textarea id="contentHtml" name="content_html" style="display: none;"></textarea>
                             </div>
                             <div class="tab-pane" id="textTab">
