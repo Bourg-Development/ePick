@@ -91,7 +91,7 @@ function initializePage() {
             updateStats();
         } catch (error) {
             console.error('Error loading data:', error);
-            showNotification('Failed to load data', 'error');
+            showNotification(__('patients.failedLoadData'), 'error');
         }
     }
 
@@ -118,11 +118,11 @@ function initializePage() {
                     updatePaginationInfo(result.pagination);
                 }
             } else {
-                throw new Error(result.message || 'Failed to load patients');
+                throw new Error(result.message || __('patients.failedLoadPatients'));
             }
         } catch (error) {
             console.error('Error loading patients:', error);
-            showNotification('Failed to load patients', 'error');
+            showNotification(__('patients.failedLoadPatients'), 'error');
         } finally {
             showLoading(false);
         }
@@ -169,7 +169,7 @@ function initializePage() {
             if (result.success) {
                 roomsData = result.data || [];
             } else {
-                throw new Error(result.message || 'Failed to load rooms');
+                throw new Error(result.message || __('patients.failedLoadRooms'));
             }
         } catch (error) {
             console.error('Error loading rooms:', error);
@@ -185,7 +185,7 @@ function initializePage() {
                 doctorsData = result.data || [];
                 console.log('Loaded doctors:', doctorsData);
             } else {
-                throw new Error(result.message || 'Failed to load doctors');
+                throw new Error(result.message || __('patients.failedLoadDoctors'));
             }
         } catch (error) {
             console.error('Error loading doctors:', error);
@@ -200,7 +200,7 @@ function initializePage() {
                 servicesData = result.services || [];
                 console.log('Loaded services:', servicesData);
             } else {
-                throw new Error(result.message || 'Failed to load services');
+                throw new Error(result.message || __('patients.failedLoadServices'));
             }
         } catch (error) {
             console.error('Error loading services:', error);
@@ -263,10 +263,10 @@ function initializePage() {
                         </span>
                     </td>
                     <td>
-                        <span class="assignment-name">${room ? `Room ${room.room_number}` : 'Unassigned'}</span>
+                        <span class="assignment-name">${room ? __('patients.roomNumber').replace('{number}', room.room_number) : __('patients.unassigned')}</span>
                     </td>
                     <td>
-                        <span class="assignment-name">${doctor ? doctor.name : 'Unassigned'}</span>
+                        <span class="assignment-name">${doctor ? doctor.name : __('patients.unassigned')}</span>
                     </td>
                     <td>
                         ${window.userPermissions && window.userPermissions.includes('patients.view') ? `
@@ -275,12 +275,12 @@ function initializePage() {
                         </button>
                         ` : ''}
                         ${window.userPermissions && window.userPermissions.includes('patients.update') ? `
-                        <button class="action-btn edit" onclick="editPatient(${patient.id})" title="Edit">
+                        <button class="action-btn edit" onclick="editPatient(${patient.id})" title="${__('patients.edit')}">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
                         ` : ''}
                         ${window.userPermissions && window.userPermissions.includes('patients.delete') ? `
-                        <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="Delete">
+                        <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="${__('patients.delete')}">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                         ` : ''}
@@ -721,10 +721,10 @@ function initializePage() {
                         </span>
                     </td>
                     <td>
-                        <span class="assignment-name">${room ? `Room ${room.room_number}` : 'Unassigned'}</span>
+                        <span class="assignment-name">${room ? __('patients.roomNumber').replace('{number}', room.room_number) : __('patients.unassigned')}</span>
                     </td>
                     <td>
-                        <span class="assignment-name">${doctor ? doctor.name : 'Unassigned'}</span>
+                        <span class="assignment-name">${doctor ? doctor.name : __('patients.unassigned')}</span>
                     </td>
                     <td>
                         ${window.userPermissions && window.userPermissions.includes('patients.view') ? `
@@ -733,12 +733,12 @@ function initializePage() {
                         </button>
                         ` : ''}
                         ${window.userPermissions && window.userPermissions.includes('patients.update') ? `
-                        <button class="action-btn edit" onclick="editPatient(${patient.id})" title="Edit">
+                        <button class="action-btn edit" onclick="editPatient(${patient.id})" title="${__('patients.edit')}">
                             <span class="material-symbols-outlined">edit</span>
                         </button>
                         ` : ''}
                         ${window.userPermissions && window.userPermissions.includes('patients.delete') ? `
-                        <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="Delete">
+                        <button class="action-btn delete" onclick="deletePatient(${patient.id})" title="${__('patients.delete')}">
                             <span class="material-symbols-outlined">delete</span>
                         </button>
                         ` : ''}

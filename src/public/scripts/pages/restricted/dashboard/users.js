@@ -2482,7 +2482,7 @@ function initializePage() {
                 userIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
                 
                 if (userIds.length === 0) {
-                    showToast('Please select at least one user', 'error');
+                    showToast(__('notifications.massPreferences.selectOneUser'), 'error');
                     return;
                 }
             }
@@ -2503,7 +2503,7 @@ function initializePage() {
             });
 
             if (Object.keys(preferences).length === 0) {
-                showToast('Please select at least one preference to update', 'error');
+                showToast(__('notifications.massPreferences.selectOnePreference'), 'error');
                 return;
             }
 
@@ -2522,7 +2522,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Error applying mass update:', error);
-            showToast('Error updating preferences: ' + error.message, 'error');
+            showToast(__('notifications.massPreferences.errorUpdating') + ': ' + error.message, 'error');
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;
@@ -2548,7 +2548,7 @@ function initializePage() {
                 userIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
                 
                 if (userIds.length === 0) {
-                    showToast('Please select at least one user', 'error');
+                    showToast(__('notifications.massPreferences.selectOneUser'), 'error');
                     return;
                 }
             }
@@ -2559,7 +2559,7 @@ function initializePage() {
                 preferenceKeys = Array.from(selectedPrefs).map(cb => cb.value);
                 
                 if (preferenceKeys.length === 0) {
-                    showToast('Please select at least one preference to reset', 'error');
+                    showToast(__('notifications.massPreferences.selectOnePreferenceReset'), 'error');
                     return;
                 }
             }
@@ -2586,7 +2586,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Error resetting preferences:', error);
-            showToast('Error resetting preferences: ' + error.message, 'error');
+            showToast(__('notifications.massPreferences.errorResetting') + ': ' + error.message, 'error');
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;

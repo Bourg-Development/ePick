@@ -383,35 +383,35 @@ function initializePage() {
         const activeFilters = [];
 
         if (searchInput && searchInput.value.trim()) {
-            activeFilters.push(`Search: "${searchInput.value.trim()}"`);
+            activeFilters.push(`${__('common.search')}: "${searchInput.value.trim()}"`);
         }
 
         if (statusFilter && statusFilter.value) {
-            activeFilters.push(`Status: ${statusFilter.value}`);
+            activeFilters.push(`${__('table.status')}: ${statusFilter.value}`);
         }
 
         if (typeFilter && typeFilter.value) {
-            activeFilters.push(`Type: ${typeFilter.value}`);
+            activeFilters.push(`${__('table.type')}: ${typeFilter.value}`);
         }
 
         if (priorityFilter && priorityFilter.value) {
-            activeFilters.push(`Priority: ${priorityFilter.value}`);
+            activeFilters.push(`${__('table.priority')}: ${priorityFilter.value}`);
         }
 
         if (analysisStartDateFilter && analysisStartDateFilter.value) {
-            activeFilters.push(`Analysis From: ${analysisStartDateFilter.value}`);
+            activeFilters.push(`${__('filter.analysisStartDate')}: ${analysisStartDateFilter.value}`);
         }
 
         if (analysisEndDateFilter && analysisEndDateFilter.value) {
-            activeFilters.push(`Analysis To: ${analysisEndDateFilter.value}`);
+            activeFilters.push(`${__('filter.analysisEndDate')}: ${analysisEndDateFilter.value}`);
         }
 
         if (archivedStartDateFilter && archivedStartDateFilter.value) {
-            activeFilters.push(`Archived From: ${archivedStartDateFilter.value}`);
+            activeFilters.push(`${__('filter.archivedStartDate')}: ${archivedStartDateFilter.value}`);
         }
 
         if (archivedEndDateFilter && archivedEndDateFilter.value) {
-            activeFilters.push(`Archived To: ${archivedEndDateFilter.value}`);
+            activeFilters.push(`${__('filter.archivedEndDate')}: ${archivedEndDateFilter.value}`);
         }
 
         if (activeFilters.length > 0) {
@@ -419,7 +419,7 @@ function initializePage() {
                 `<span class="filter-tag">${filter}</span>`
             ).join('');
         } else {
-            currentFilters.innerHTML = '<span class="filter-info">No filters applied - exporting all archived analyses</span>';
+            currentFilters.innerHTML = `<span class="filter-info">${__('export.usingCurrentFilters')}</span>`;
         }
     }
 
@@ -433,7 +433,7 @@ function initializePage() {
             showExportProgress(true);
             await performExport(format);
             exportModal.classList.remove('show');
-            showToast(`Export completed successfully (${format.toUpperCase()})`, 'success');
+            showToast(`${__('messages.export.completed')} (${format.toUpperCase()})`, 'success');
         } catch (error) {
             console.error('Export error:', error);
             showToast(getErrorMessage(error), 'error');
@@ -451,7 +451,7 @@ function initializePage() {
             formatRadio.checked = true;
         }
 
-        showToast(`Quick ${format.toUpperCase()} export ready`, 'info');
+        showToast(`${__('export.quickCsv')} ${__('common.loading')}`, 'info');
     }
 
     async function performExport(format) {
@@ -547,12 +547,12 @@ function initializePage() {
             if (show) {
                 exportBtn.innerHTML = `
                     <div class="export-spinner"></div>
-                    Exporting...
+                    ${__('export.preparing')}
                 `;
             } else {
                 exportBtn.innerHTML = `
                     <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
-                    Export Data
+                    ${__('export.exportData')}
                 `;
             }
         }
@@ -633,7 +633,7 @@ function initializePage() {
         if(!tableBody) return;
 
         if (archivedAnalyses.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">No archived analyses found</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--medium-gray);">${__('archive.noArchivedAnalyses')}</td></tr>`;
             return;
         }
 
@@ -728,7 +728,7 @@ function initializePage() {
 
     function getPatientDisplay(archive) {
         if (!archive.patient_name) {
-            return '<span class="patient-none">No Patient</span>';
+            return `<span class="patient-none">${__('archive.noPatient')}</span>`;
         }
 
         let matriculeDisplay = '';
@@ -746,7 +746,7 @@ function initializePage() {
 
     function getDoctorDisplay(archive) {
         if (!archive.doctor_name) {
-            return '<span class="doctor-none">No Doctor</span>';
+            return `<span class="doctor-none">${__('archive.noDoctor')}</span>`;
         }
 
         return `
@@ -758,7 +758,7 @@ function initializePage() {
 
     function getRoomDisplay(archive) {
         if (!archive.room_number) {
-            return '<span class="room-none">No Room</span>';
+            return `<span class="room-none">${__('archive.noRoom')}</span>`;
         }
 
         return `
@@ -830,7 +830,10 @@ function initializePage() {
 
         const start = (currentPage - 1) * limit + 1;
         const end = Math.min(currentPage * limit, totalArchives);
-        recordCount.textContent = `Showing ${start}-${end} of ${totalArchives} archived analyses`;
+        recordCount.textContent = `${__('archive.showingRecords')}`
+            .replace('{start}', start)
+            .replace('{end}', end)
+            .replace('{total}', totalArchives);
     }
 
     async function showArchiveDetailsModal(archiveId) {
@@ -840,7 +843,7 @@ function initializePage() {
             // Show loading state
             const archiveDetailsContent = document.getElementById('archiveDetailsContent');
             if(archiveDetailsContent) {
-                archiveDetailsContent.innerHTML = '<div class="loading">Loading archived analysis details...</div>';
+                archiveDetailsContent.innerHTML = `<div class="loading">${__('archive.loadingDetails')}</div>`;
             }
 
             const archiveData = await getArchivedAnalysisById(archiveId);
@@ -850,7 +853,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Archive details error:', error);
-            showToast('Failed to load archive details', 'error');
+            showToast(__('archive.failedToLoadDetails'), 'error');
         }
     }
 
@@ -864,30 +867,30 @@ function initializePage() {
 
         archiveDetailsContent.innerHTML = `
             <div class="archive-info-section">
-                <h3>Basic Information</h3>
+                <h3>${__('archive.basicInformation')}</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Archive ID:</span>
+                        <span class="info-label">${__('archive.archiveId')}:</span>
                         <span class="info-value">${archive.id}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Original Analysis ID:</span>
+                        <span class="info-label">${__('archive.originalAnalysisId')}:</span>
                         <span class="info-value">${archive.original_analysis_id || 'N/A'}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Analysis Type:</span>
+                        <span class="info-label">${__('table.type')}:</span>
                         <span class="info-value">
                             <span class="type-badge ${getTypeClass(archive.analysis_type)}">${archive.analysis_type}</span>
                         </span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Priority:</span>
+                        <span class="info-label">${__('table.priority')}:</span>
                         <span class="info-value">
                             <span class="priority-badge ${getPriorityClass(archive.priority)}">${archive.priority || 'Normal'}</span>
                         </span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Status:</span>
+                        <span class="info-label">${__('table.status')}:</span>
                         <span class="info-value">
                             <span class="status-badge ${getStatusClass(archive.status)}">${archive.status}</span>
                         </span>
@@ -896,15 +899,15 @@ function initializePage() {
             </div>
 
             <div class="archive-info-section">
-                <h3>Patient Information</h3>
+                <h3>${__('archive.patientInformation')}</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Patient Name:</span>
+                        <span class="info-label">${__('table.patient')}:</span>
                         <span class="info-value">${archive.patient_name || 'N/A'}</span>
                     </div>
                     ${archive.patient ? `
                         <div class="info-item">
-                            <span class="info-label">Matricule National:</span>
+                            <span class="info-label">${__('patient.matricule')}:</span>
                             <span class="info-value">${archive.patient.matricule_national || 'N/A'}</span>
                         </div>
                     ` : ''}
@@ -912,59 +915,59 @@ function initializePage() {
             </div>
 
             <div class="archive-info-section">
-                <h3>Medical Team</h3>
+                <h3>${__('archive.medicalTeam')}</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Doctor:</span>
+                        <span class="info-label">${__('table.doctor')}:</span>
                         <span class="info-value">${archive.doctor_name || 'N/A'}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Room:</span>
+                        <span class="info-label">${__('table.room')}:</span>
                         <span class="info-value">${archive.room_number || 'N/A'}</span>
                     </div>
                 </div>
             </div>
 
             <div class="archive-info-section">
-                <h3>Timeline</h3>
+                <h3>${__('archive.timeline')}</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Analysis Date:</span>
+                        <span class="info-label">${__('table.analysisDate')}:</span>
                         <span class="info-value">${window.formatDateTime ? window.formatDateTime(analysisDate) : analysisDate.toLocaleDateString() + ' ' + analysisDate.toLocaleTimeString()}</span>
                     </div>
                     ${completedDate ? `
                         <div class="info-item">
-                            <span class="info-label">Completed Date:</span>
+                            <span class="info-label">${__('analysis.completedDate')}:</span>
                             <span class="info-value">${window.formatDateTime ? window.formatDateTime(completedDate) : completedDate.toLocaleDateString() + ' ' + completedDate.toLocaleTimeString()}</span>
                         </div>
                     ` : ''}
                     <div class="info-item">
-                        <span class="info-label">Archived Date:</span>
+                        <span class="info-label">${__('table.archivedDate')}:</span>
                         <span class="info-value">${window.formatDateTime ? window.formatDateTime(archivedDate) : archivedDate.toLocaleDateString() + ' ' + archivedDate.toLocaleTimeString()}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Postponements:</span>
+                        <span class="info-label">${__('table.postponements')}:</span>
                         <span class="info-value">${getPostponementDisplay(archive.postponed_count)}</span>
                     </div>
                 </div>
             </div>
 
             <div class="archive-info-section">
-                <h3>Archive Information</h3>
+                <h3>${__('archive.archiveInformation')}</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Archived By:</span>
-                        <span class="info-value">${archive.archivedBy?.username || 'System'}</span>
+                        <span class="info-label">${__('archive.archivedBy')}:</span>
+                        <span class="info-value">${archive.archivedBy?.username || __('archive.system')}</span>
                     </div>
                     ${archive.creator ? `
                         <div class="info-item">
-                            <span class="info-label">Created By:</span>
+                            <span class="info-label">${__('archive.createdBy')}:</span>
                             <span class="info-value">${archive.creator.username}</span>
                         </div>
                     ` : ''}
                     ${archive.completedBy ? `
                         <div class="info-item">
-                            <span class="info-label">Completed By:</span>
+                            <span class="info-label">${__('archive.completedBy')}:</span>
                             <span class="info-value">${archive.completedBy.username}</span>
                         </div>
                     ` : ''}
@@ -1003,17 +1006,17 @@ function initializePage() {
 
         // Validation
         if (!days || days < 365) {
-            showToast('Must specify at least 365 days for cleanup', 'error');
+            showToast(__('archive.cleanupMinDays'), 'error');
             return;
         }
 
         if (!reason || reason.length < 20) {
-            showToast('Please provide a detailed reason (at least 20 characters)', 'error');
+            showToast(__('archive.cleanupDetailedReason'), 'error');
             return;
         }
 
         // Confirmation
-        const confirmed = confirm(`Are you sure you want to permanently delete all archived analyses older than ${days} days? This action cannot be undone.`);
+        const confirmed = confirm(__('archive.cleanupConfirmation').replace('{days}', days));
         if (!confirmed) {
             return;
         }
@@ -1048,7 +1051,7 @@ function initializePage() {
         dropdown.innerHTML = `
             <div class="dropdown-item" data-action="view-details">
                 <span class="material-symbols-outlined">visibility</span>
-                View Details
+                ${__('archive.viewDetails')}
             </div>
         `;
 
@@ -1158,15 +1161,15 @@ function initializePage() {
     // Utility Functions
     function getErrorMessage(error) {
         if (error.status === 401) {
-            return 'Authentication required. Please log in again.';
+            return __('status.sessionExpired');
         }
 
         if (error.status === 403) {
-            return 'You do not have permission to perform this action.';
+            return __('status.permissionDenied');
         }
 
         if (error.message.includes('Network error')) {
-            return 'Network error. Please check your connection and try again.';
+            return __('status.networkError');
         }
 
         if (error.data && typeof error.data === 'object' && error.data.message) {
@@ -1183,21 +1186,21 @@ function initializePage() {
 
         switch (error.status) {
             case 400:
-                return 'Invalid request. Please check your input.';
+                return __('status.badRequest');
             case 404:
-                return 'Resource not found.';
+                return __('status.notFound');
             case 429:
-                return 'Too many requests. Please try again later.';
+                return __('status.tooManyRequests');
             case 500:
-                return 'Server error. Please try again later.';
+                return __('status.serverError');
             default:
-                return error.message || 'An unexpected error occurred';
+                return error.message || __('status.unexpectedError');
         }
     }
 
     function handleAuthError(error) {
         if (error.status === 401) {
-            showToast('Your session has expired. Please log in again.', 'error');
+            showToast(__('status.sessionExpired'), 'error');
             setTimeout(() => {
                 // window.location.href = '/login';
             }, 2000);
@@ -1208,10 +1211,10 @@ function initializePage() {
 
     function showLoading() {
         if(tableBody){
-            tableBody.innerHTML = '<tr><td colspan="9" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>Loading archived analyses...</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="9" class="loading"><span class="material-symbols-outlined">hourglass_empty</span><br>${__('archive.loadingArchive')}</td></tr>`;
         }
         if(recordCount){
-            recordCount.textContent = 'Loading...';
+            recordCount.textContent = __('common.loading');
         }
     }
 
@@ -1220,7 +1223,7 @@ function initializePage() {
             tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--dark-red);">${message}</td></tr>`;
         }
         if(recordCount){
-            recordCount.textContent = 'Error loading archived analyses';
+            recordCount.textContent = __('status.unexpectedError');
         }
     }
 

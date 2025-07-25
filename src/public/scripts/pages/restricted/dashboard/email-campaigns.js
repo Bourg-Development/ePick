@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check file size first
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
-            showToast('Image too large. Please use an image smaller than 5MB.', 'error');
+            showToast(__('campaigns.imageTooLarge'), 'error');
             return;
         }
         
@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the hidden textarea
             document.getElementById('contentHtml').value = document.getElementById('htmlEditor').innerHTML;
             
-            showToast('Image resized successfully', 'success');
+            showToast(__('campaigns.imageResized'), 'success');
             closeImageResizeModal();
         });
 
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (confirm('Are you sure you want to delete this image?')) {
                 imageElement.remove();
                 document.getElementById('contentHtml').value = document.getElementById('htmlEditor').innerHTML;
-                showToast('Image deleted', 'success');
+                showToast(__('campaigns.imageDeleted'), 'success');
                 closeImageResizeModal();
             }
         });
@@ -886,7 +886,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeButtonEditModal();
 
         // Show success message
-        showToast('Button updated successfully!', 'success');
+        showToast(__('campaigns.buttonUpdated'), 'success');
     };
 
     // Close button edit modal
@@ -1164,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading campaigns:', error);
-            showToast('Failed to load campaigns', 'error');
+            showToast(__('campaigns.failedLoadCampaigns'), 'error');
         } finally {
             showLoading(false);
         }
@@ -1238,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading campaign details:', error);
-            showToast('Failed to load campaign details', 'error');
+            showToast(__('campaigns.failedLoadDetails'), 'error');
         }
     };
 
@@ -1291,7 +1291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading campaign:', error);
-            showToast('Failed to load campaign', 'error');
+            showToast(__('campaigns.failedLoadCampaign'), 'error');
         }
     };
 
@@ -1302,14 +1302,14 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await api.post(`/mailing/campaign/${campaignId}/send`);
             if (response.success) {
-                showToast('Campaign sent successfully!', 'success');
+                showToast(__('campaigns.campaignSent'), 'success');
                 loadCampaigns();
             } else {
                 showToast(response.message || 'Failed to send campaign', 'error');
             }
         } catch (error) {
             console.error('Error sending campaign:', error);
-            showToast('Failed to send campaign', 'error');
+            showToast(__('campaigns.failedSendCampaign'), 'error');
         }
     };
 
@@ -1333,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error loading analytics:', error);
-            showToast('Failed to load analytics', 'error');
+            showToast(__('campaigns.failedLoadAnalytics'), 'error');
         }
     };
 
@@ -1441,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Send the campaign
                     const sendResponse = await api.post(`/mailing/campaign/${campaign.id}/send`);
                     if (sendResponse.success) {
-                        showToast('Campaign sent successfully!', 'success');
+                        showToast(__('campaigns.campaignSent'), 'success');
                     } else {
                         showToast(sendResponse.message || 'Campaign saved but failed to send', 'warning');
                     }

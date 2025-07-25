@@ -1,9 +1,9 @@
 <div class="header">
-    <h1>My Profile</h1>
+    <h1><%= __('profile.title') %></h1>
     <div class="header-actions">
         <button class="btn btn-secondary" id="refreshBtn">
             <span class="material-symbols-outlined" style="font-size: 16px;">refresh</span>
-            Refresh
+            <%= __('profile.refreshProfile') %>
         </button>
     </div>
 </div>
@@ -33,34 +33,34 @@
     <!-- Profile Overview Card -->
     <div class="profile-card">
         <div class="card-header">
-            <h3>Profile Overview</h3>
+            <h3><%= __('profile.profileOverview') %></h3>
             <div class="card-actions">
                 <a href="/user/account" class="btn btn-sm btn-primary">
                     <span class="material-symbols-outlined" style="font-size: 14px;">edit</span>
-                    Edit Details
+                    <%= __('profile.editDetails') %>
                 </a>
             </div>
         </div>
         <div class="card-content">
             <div class="info-grid">
                 <div class="info-item">
-                    <label class="info-label">Username</label>
+                    <label class="info-label"><%= __('profile.username') %></label>
                     <div class="info-value" id="profileUsername2"><%= __('profile.loading') %></div>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Full Name</label>
+                    <label class="info-label"><%= __('profile.fullName') %></label>
                     <div class="info-value" id="profileFullName"><%= __('profile.loading') %></div>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Email Address</label>
+                    <label class="info-label"><%= __('profile.emailAddress') %></label>
                     <div class="info-value" id="profileEmail"><%= __('profile.loading') %></div>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Role</label>
+                    <label class="info-label"><%= __('profile.role') %></label>
                     <div class="info-value" id="profileRole"><%= __('profile.loading') %></div>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Service Assignment</label>
+                    <label class="info-label"><%= __('profile.serviceAssignment') %></label>
                     <div class="info-value" id="profileService"><%= __('profile.loading') %></div>
                 </div>
             </div>
@@ -70,28 +70,28 @@
     <!-- Security Overview Card -->
     <div class="profile-card">
         <div class="card-header">
-            <h3>Security Status</h3>
+            <h3><%= __('profile.security.title') %></h3>
             <div class="card-actions">
                 <a href="/user/privacy" class="btn btn-sm btn-primary">
                     <span class="material-symbols-outlined" style="font-size: 14px;">security</span>
-                    Security Settings
+                    <%= __('privacy.security.title') %>
                 </a>
             </div>
         </div>
         <div class="card-content">
             <div class="info-grid">
                 <div class="info-item">
-                    <label class="info-label">Two-Factor Authentication</label>
+                    <label class="info-label"><%= __('profile.twoFactorAuth') %></label>
                     <div class="info-value">
                         <span class="status-badge" id="totpStatus"><%= __('profile.loading') %></span>
                         <span class="status-badge" id="webauthnStatus" style="margin-left: 8px;"><%= __('profile.loading') %></span>
                     </div>
-                    <small class="info-help">TOTP and WebAuthn/FIDO2 status</small>
+                    <small class="info-help"><%= __('profile.security.totpDescription') %></small>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Last Password Change</label>
+                    <label class="info-label"><%= __('profile.lastPasswordChange') %></label>
                     <div class="info-value" id="lastPasswordChange"><%= __('profile.loading') %></div>
-                    <small class="info-help">When you last updated your password</small>
+                    <small class="info-help"><%= __('profile.lastPasswordHelp') %></small>
                 </div>
             </div>
         </div>
@@ -151,30 +151,30 @@
     <!-- Integrations Overview Card -->
     <div class="profile-card">
         <div class="card-header">
-            <h3>Integrations & Notifications</h3>
+            <h3><%= __('profile.integrations.title') %></h3>
             <div class="card-actions">
                 <a href="/user/integrations" class="btn btn-sm btn-primary">
                     <span class="material-symbols-outlined" style="font-size: 14px;">settings</span>
-                    Manage
+                    <%= __('profile.integrations.manage') %>
                 </a>
             </div>
         </div>
         <div class="card-content">
             <div class="info-grid">
                 <div class="info-item">
-                    <label class="info-label">Calendar Integration</label>
+                    <label class="info-label"><%= __('profile.integrations.calendarIntegration') %></label>
                     <div class="info-value">
                         <div class="ics-feed-status" id="icsFeedStatus">
                             <span class="material-symbols-outlined">sync</span>
                             <span class="status-text">Loading...</span>
                         </div>
                     </div>
-                    <small class="info-help">ICS feed for analyses in your calendar</small>
+                    <small class="info-help"><%= __('profile.integrations.calendarHelp') %></small>
                 </div>
                 <div class="info-item">
-                    <label class="info-label">Email Notifications</label>
-                    <div class="info-value" id="emailNotificationStatus">Loading...</div>
-                    <small class="info-help">Security alerts and system notifications</small>
+                    <label class="info-label"><%= __('profile.integrations.emailNotifications') %></label>
+                    <div class="info-value" id="emailNotificationStatus"><%= __('profile.integrations.loadingStatus') %></div>
+                    <small class="info-help"><%= __('profile.integrations.emailNotificationsHelp') %></small>
                 </div>
             </div>
         </div>
@@ -199,14 +199,14 @@
 
             <div class="activity-content">
                 <div class="activity-list active" id="recentLogins">
-                    <div class="loading">Loading recent logins...</div>
+                    <div class="loading"><%= __('profile.recentActivity.loadingLogins') %></div>
                 </div>
                 <div class="activity-list" id="failedLogins" style="display: none;"></div>
                 <div class="activity-list" id="passwordChanges" style="display: none;"></div>
 
                 <button class="show-more-btn" id="showMoreBtn" style="display: none;">
                     <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
-                    Show More
+                    <%= __('profile.recentActivity.showMore') %>
                 </button>
             </div>
         </div>
@@ -223,36 +223,36 @@
             </div>
             <form id="editProfileForm">
                 <div class="form-section">
-                    <label class="form-label" for="editFullName">Full Name</label>
-                    <input type="text" class="form-control" id="editFullName" maxlength="255" placeholder="Your full name">
-                    <small class="form-help">Your display name for identification</small>
+                    <label class="form-label" for="editFullName"><%= __('profile.editModal.fullNameLabel') %></label>
+                    <input type="text" class="form-control" id="editFullName" maxlength="255" placeholder="<%= __('profile.editModal.fullNamePlaceholder') %>">
+                    <small class="form-help"><%= __('profile.editModal.fullNameHelp') %></small>
                 </div>
 
                 <div class="form-section">
-                    <label class="form-label" for="editEmail">Email Address</label>
-                    <input type="email" class="form-control" id="editEmail" placeholder="your.email@example.com">
-                    <small class="form-help">Used for account communications and notifications</small>
+                    <label class="form-label" for="editEmail"><%= __('profile.editModal.emailLabel') %></label>
+                    <input type="email" class="form-control" id="editEmail" placeholder="<%= __('profile.editModal.emailPlaceholder') %>">
+                    <small class="form-help"><%= __('profile.editModal.emailHelp') %></small>
                 </div>
 
                 <div class="form-divider"></div>
 
                 <div class="form-section">
-                    <h3>Two-Factor Authentication</h3>
+                    <h3><%= __('profile.editModal.twoFactorTitle') %></h3>
                     <div class="twofa-options">
                         <div class="twofa-option">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="editTotpEnabled" class="form-checkbox">
-                                <label class="form-label" for="editTotpEnabled">Enable TOTP Authenticator</label>
+                                <label class="form-label" for="editTotpEnabled"><%= __('profile.editModal.totpEnabled') %></label>
                             </div>
-                            <small class="form-help">Use apps like Google Authenticator, Authy, or 1Password</small>
+                            <small class="form-help"><%= __('profile.editModal.totpHelp') %></small>
                         </div>
 
                         <div class="twofa-option">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="editWebauthnEnabled" class="form-checkbox">
-                                <label class="form-label" for="editWebauthnEnabled">Enable WebAuthn/FIDO2</label>
+                                <label class="form-label" for="editWebauthnEnabled"><%= __('profile.editModal.webauthnEnabled') %></label>
                             </div>
-                            <small class="form-help">Use security keys, fingerprint, or face recognition</small>
+                            <small class="form-help"><%= __('profile.editModal.webauthnHelp') %></small>
                         </div>
                     </div>
                 </div>

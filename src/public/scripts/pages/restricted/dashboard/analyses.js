@@ -257,7 +257,7 @@ function initializePage() {
             .map(cb => parseInt(cb.dataset.id));
         
         if (selectedIds.length === 0) {
-            showToast('No analyses selected', 'warning');
+            showToast(__('messages.success.bulkAction.noSelection'), 'warning');
             return;
         }
         
@@ -266,7 +266,7 @@ function initializePage() {
                 await bulkCancelAnalyses(selectedIds);
                 break;
             default:
-                showToast('Unknown action', 'error');
+                showToast(__('messages.success.bulkAction.unknownAction'), 'error');
         }
     }
     
@@ -298,7 +298,7 @@ function initializePage() {
         const reason = bulkCancelReason ? bulkCancelReason.value.trim() : '';
         
         if (!reason) {
-            showToast('Please provide a cancellation reason', 'error');
+            showToast(__('messages.success.bulkAction.provideCancellationReason'), 'error');
             return;
         }
         
@@ -314,7 +314,7 @@ function initializePage() {
             // Hide the modal
             bulkCancelAnalysisModal.classList.remove('show');
             
-            showToast('Cancelling analyses...', 'info');
+            showToast(__('messages.success.bulkAction.cancellingAnalyses'), 'info');
             
             const result = await api.post('/analyses/bulk-cancel', {
                 analysisIds: analysisIds,
@@ -1840,7 +1840,7 @@ function initializePage() {
 
     async function handlePatientSelection(patientId){
         try{
-            showToast('Loading patient details...', 'info');
+            showToast(__('messages.success.bulkAction.loadingPatientDetails'), 'info');
 
             const patientDetails = await getPatientDetails(patientId);
 
@@ -1883,14 +1883,14 @@ function initializePage() {
                 if (autoFilledItems.length > 0) {
                     showToast(`Auto-filled: ${autoFilledItems.join(' and ')}`, 'success');
                 } else {
-                    showToast('No doctor or room assigned to this patient', 'warning');
+                    showToast(__('messages.success.bulkAction.noAssignedDoctorRoom'), 'warning');
                 }
             } else {
-                showToast('Failed to load patient details', 'error');
+                showToast(__('messages.success.bulkAction.failedLoadPatientDetails'), 'error');
             }
         } catch (error) {
             console.error('Error auto-filling patient details:', error);
-            showToast('Failed to auto-fill patient details', 'error');
+            showToast(__('messages.success.bulkAction.failedAutoFillDetails'), 'error');
         }
     }
 
@@ -2086,7 +2086,7 @@ function initializePage() {
                 }
             } else {
                 auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">Failed to load audit logs</td></tr>';
-                showToast('Failed to load audit logs', 'error');
+                showToast(__('messages.success.bulkAction.failedLoadAuditLogs'), 'error');
             }
         } catch (error) {
             console.error('Error loading audit logs:', error);
