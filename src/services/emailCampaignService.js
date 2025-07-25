@@ -219,18 +219,17 @@ class EmailCampaignService {
             await campaign.update(fieldsToUpdate);
 
             // Log the update
-            await logService.logSecurityEvent({
+            await logService.securityLog({
+                eventType: 'campaign.updated',
                 userId: updatedBy,
-                event: 'campaign.updated',
-                resource: 'EmailCampaign',
-                resourceId: campaignId,
-                details: {
+                targetId: campaignId,
+                targetType: 'EmailCampaign',
+                ipAddress: context?.ip,
+                metadata: {
                     campaign_name: campaign.name,
                     updated_fields: Object.keys(fieldsToUpdate),
-                    ip_address: context?.ip,
                     user_agent: context?.userAgent
-                },
-                context
+                }
             });
 
             // Return updated campaign
@@ -239,7 +238,7 @@ class EmailCampaignService {
                     {
                         model: db.MailingList,
                         as: 'mailingList',
-                        attributes: ['id', 'name', 'is_active', 'subscriber_count']
+                        attributes: ['id', 'name', 'is_active']
                     },
                     {
                         model: db.User,

@@ -1133,7 +1133,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Campaign form dropdown
         campaignList.innerHTML = '<option value="">Select a mailing list</option>';
         mailingLists.forEach(list => {
-            campaignList.innerHTML += `<option value="${list.id}">${escapeHtml(list.name)} (${list.subscriber_count} subscribers)</option>`;
+            const subscriberCount = list.subscriber_count || 0;
+            campaignList.innerHTML += `<option value="${list.id}">${escapeHtml(list.name)} (${subscriberCount} subscribers)</option>`;
         });
     }
 
@@ -1459,7 +1460,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error saving campaign:', error);
-            showToast('Failed to save campaign', 'error');
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response,
+                data: error.response?.data
+            });
+            
+            let errorMessage = 'Failed to save campaign';
+            if (error.response && error.response.data) {
+                if (error.response.data.errors && error.response.data.errors.length > 0) {
+                    errorMessage = error.response.data.errors.map(err => err.msg).join(', ');
+                } else if (error.response.data.message) {
+                    errorMessage = error.response.data.message;
+                }
+            }
+            showToast(errorMessage, 'error');
         }
     }
 
