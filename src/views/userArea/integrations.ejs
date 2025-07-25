@@ -1,0 +1,313 @@
+<div class="header">
+    <h1>Integrations & Notifications</h1>
+    <p>Manage your calendar feeds, email notifications, and external connections</p>
+</div>
+
+<div class="settings-container">
+    <!-- Calendar Integration -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">calendar_month</span>
+                Calendar Integration
+            </h2>
+            <p>Subscribe to your analyses calendar in your favorite calendar app</p>
+        </div>
+        <div class="card-content">
+            <div class="ics-feed-section">
+                <div class="ics-feed-info">
+                    <div class="ics-feed-status" id="icsFeedStatus">
+                        <span class="material-symbols-outlined">sync</span>
+                        <span class="status-text">Loading...</span>
+                    </div>
+                </div>
+                <div class="ics-feed-controls">
+                    <div class="ics-feed-toggle">
+                        <label class="switch">
+                            <input type="checkbox" id="icsFeedToggle" disabled>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Enable ICS Feed</span>
+                    </div>
+                    <div class="ics-feed-url-container" id="icsFeedUrlContainer" style="display: none;">
+                        <label>Feed URL:</label>
+                        <div class="url-input-group">
+                            <input type="text" id="icsFeedUrl" readonly class="form-control">
+                            <button class="btn btn-primary" id="copyIcsFeedBtn">
+                                <span class="material-symbols-outlined">content_copy</span>
+                                Copy
+                            </button>
+                            <button class="btn btn-secondary" id="subscribeIcsFeedBtn">
+                                <span class="material-symbols-outlined">calendar_add_on</span>
+                                Subscribe
+                            </button>
+                        </div>
+                        <small class="help-text">Copy the URL to manually add to your calendar, or click Subscribe for direct integration</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Notifications -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">email</span>
+                Email Notifications
+            </h2>
+            <p>Configure when and how you receive email notifications</p>
+        </div>
+        <div class="card-content">
+            <div class="notification-availability" id="emailAvailabilityStatus">
+                <!-- This will be populated by JavaScript -->
+            </div>
+
+            <div class="notification-categories" id="emailNotificationCategories" style="display: none;">
+                <div class="notification-category">
+                    <div class="category-header">
+                        <h3>Security Notifications</h3>
+                        <p>Important security alerts and account activity</p>
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Login Alerts</h4>
+                                <p>Get notified when someone signs into your account</p>
+                            </div>
+                            <div class="option-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailLoginAlerts">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Password Changes</h4>
+                                <p>Get notified when your password is changed</p>
+                            </div>
+                            <div class="option-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailPasswordChanges">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Security Settings Changes</h4>
+                                <p>Get notified when 2FA or security settings are modified</p>
+                            </div>
+                            <div class="option-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailSecurityChanges">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-category">
+                    <div class="category-header">
+                        <h3>System Notifications</h3>
+                        <p>Updates about system changes and important announcements</p>
+                    </div>
+                    <div class="notification-options">
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>System Maintenance</h4>
+                                <p>Get notified about scheduled maintenance and updates</p>
+                            </div>
+                            <div class="option-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailSystemMaintenance">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="notification-option">
+                            <div class="option-info">
+                                <h4>Account Updates</h4>
+                                <p>Get notified about important account or service changes</p>
+                            </div>
+                            <div class="option-control">
+                                <label class="switch">
+                                    <input type="checkbox" id="emailAccountUpdates">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mailing Lists -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">mail</span>
+                Email Lists
+            </h2>
+            <p>Manage your email list subscriptions and preferences</p>
+        </div>
+        <div class="card-content">
+            <div class="mailing-lists-container" id="mailingListsContainer">
+                <div class="loading-state" id="mailingListsLoading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading mailing lists...</span>
+                </div>
+                
+                <div class="mailing-lists-content" id="mailingListsContent" style="display: none;">
+                    <div class="mailing-lists-header">
+                        <p>Manage your current email list subscriptions</p>
+                    </div>
+                    
+                    <div class="mailing-lists-list" id="mailingListsList">
+                        <!-- Mailing lists will be populated here -->
+                    </div>
+                    
+                    <div class="no-subscriptions" id="noSubscriptions" style="display: none;">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined">unsubscribe</span>
+                            <h3>No Active Subscriptions</h3>
+                            <p>You're not currently subscribed to any mailing lists</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="error-state" id="mailingListsError" style="display: none;">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>Failed to load mailing lists</span>
+                    <button class="btn btn-secondary retry-btn" id="retryLoadLists">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display Preferences -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">tune</span>
+                Display Preferences  
+            </h2>
+            <p>Customize how information is displayed throughout the application</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <label class="setting-label" for="languageSelect">
+                    Language
+                </label>
+                <div class="setting-input-group">
+                    <select class="setting-input" id="languageSelect" data-current-lang="<%= locale %>">
+                        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>
+                            🇺🇸 English
+                        </option>
+                        <option value="fr" <%= locale === 'fr' ? 'selected' : '' %>>
+                            🇫🇷 Français
+                        </option>
+                        <option value="es" <%= locale === 'es' ? 'selected' : '' %>>
+                            🇪🇸 Español
+                        </option>
+                        <option value="de" <%= locale === 'de' ? 'selected' : '' %>>
+                            🇩🇪 Deutsch
+                        </option>
+                        <option value="lu" <%= locale === 'lu' ? 'selected' : '' %>>
+                            🇱🇺 Lëtzebuergesch
+                        </option>
+                    </select>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" id="saveLanguageBtn">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Changes will take effect after page refresh</small>
+                <div class="setting-status" id="status-language"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="dateFormatSelect">
+                    Date Format
+                </label>
+                <div class="setting-input-group">
+                    <select class="setting-input" id="dateFormatSelect">
+                        <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</option>
+                        <option value="DD.MM.YYYY">DD.MM.YYYY (31.12.2024)</option>
+                    </select>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" id="saveDateFormatBtn">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Choose how dates are displayed throughout the application</small>
+                <div class="setting-status" id="status-dateformat"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="timeFormatSelect">
+                    Time Format
+                </label>
+                <div class="setting-input-group">
+                    <select class="setting-input" id="timeFormatSelect">
+                        <option value="24h">24-hour (14:30)</option>
+                        <option value="12h">12-hour (2:30 PM)</option>
+                    </select>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" id="saveTimeFormatBtn">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Choose between 24-hour and 12-hour time display</small>
+                <div class="setting-status" id="status-timeformat"></div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" for="timezoneSelect">
+                    Time Zone
+                </label>
+                <div class="setting-input-group">
+                    <select class="setting-input" id="timezoneSelect">
+                        <option value="Europe/Luxembourg">Europe/Luxembourg (CET/CEST)</option>
+                        <option value="Europe/Paris">Europe/Paris (CET/CEST)</option>
+                        <option value="Europe/Berlin">Europe/Berlin (CET/CEST)</option>
+                        <option value="Europe/London">Europe/London (GMT/BST)</option>
+                        <option value="America/New_York">America/New York (EST/EDT)</option>
+                        <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                        <option value="America/Los_Angeles">America/Los Angeles (PST/PDT)</option>
+                        <option value="UTC">UTC (Coordinated Universal Time)</option>
+                    </select>
+                    <div class="input-actions">
+                        <button class="btn btn-sm btn-primary save-btn" id="saveTimezoneBtn">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">All times will be displayed in your selected time zone</small>
+                <div class="setting-status" id="status-timezone"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <div class="toast-content">
+        <span class="toast-icon material-symbols-outlined"></span>
+        <span class="toast-message"></span>
+    </div>
+</div>
