@@ -173,13 +173,13 @@ class SchedulerService {
 
     /**
      * Setup cancelled analysis archiving job
-     * Runs daily at 2:00 AM to archive old cancelled analyses
+     * Runs every hour to archive old cancelled analyses
      */
     setupCancelledAnalysisArchivingJob() {
         const jobName = 'archive-cancelled-analyses';
         
-        // Run every day at 2:00 AM
-        const job = cron.schedule('0 2 * * *', async () => {
+        // Run every hour at the top of the hour
+        const job = cron.schedule('0 * * * *', async () => {
             console.log('Starting scheduled cancelled analysis archiving...');
             
             try {
@@ -212,7 +212,7 @@ class SchedulerService {
         this.cronJobs.set(jobName, job);
         job.start();
         
-        console.log(`Scheduled job '${jobName}' created and started (runs daily at 2:00 AM)`);
+        console.log(`Scheduled job '${jobName}' created and started (runs every hour)`);
     }
 
     /**
