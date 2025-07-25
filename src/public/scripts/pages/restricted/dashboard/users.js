@@ -2282,8 +2282,338 @@ function initializePage() {
         return details.length > 0 ? details.join(', ') : 'N/A';
     }
 
+    // Mass Preferences Management (System Admin Only)
+    const massPreferencesBtn = document.getElementById('massPreferencesBtn');
+    const massPreferencesModal = document.getElementById('massPreferencesModal');
+    
+    if (massPreferencesBtn && massPreferencesModal) {
+        massPreferencesBtn.addEventListener('click', openMassPreferencesModal);
+        initializeMassPreferencesModal();
+    }
+
+    async function openMassPreferencesModal() {
+        massPreferencesModal.classList.add('show');
+        await loadPreferencesSummary();
+    }
+
+    function closeMassPreferencesModal() {
+        massPreferencesModal.classList.remove('show');
+    }
+
+    function initializeMassPreferencesModal() {
+        // Tab switching
+        const tabButtons = massPreferencesModal.querySelectorAll('.tab-button');
+        const tabContents = massPreferencesModal.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${targetTab}-tab`).classList.add('active');
+            });
+        });
+
+        // Target user selection handlers
+        const updateTargetRadios = document.querySelectorAll('input[name="updateTarget"]');
+        const resetTargetRadios = document.querySelectorAll('input[name="resetTarget"]');
+        const resetModeRadios = document.querySelectorAll('input[name="resetMode"]');
+
+        updateTargetRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const selectedUsersGroup = document.getElementById('selectedUsersGroup');
+                selectedUsersGroup.style.display = radio.value === 'selected' ? 'block' : 'none';
+                if (radio.value === 'selected') {
+                    loadUserSelection('userSelection');
+                }
+            });
+        });
+
+        resetTargetRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const resetSelectedUsersGroup = document.getElementById('resetSelectedUsersGroup');
+                resetSelectedUsersGroup.style.display = radio.value === 'selected' ? 'block' : 'none';
+                if (radio.value === 'selected') {
+                    loadUserSelection('resetUserSelection');
+                }
+            });
+        });
+
+        resetModeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const specificPreferencesGroup = document.getElementById('specificPreferencesGroup');
+                specificPreferencesGroup.style.display = radio.value === 'specific' ? 'block' : 'none';
+            });
+        });
+
+        // Action button handlers
+        document.getElementById('applyMassUpdateBtn').addEventListener('click', applyMassUpdate);
+        document.getElementById('applyResetBtn').addEventListener('click', applyPreferencesReset);
+    }
+
+    async function loadPreferencesSummary() {
+        const summaryContainer = document.getElementById('preferencesSummary');
+        
+        try {
+            summaryContainer.innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <span>Loading preferences summary...</span>
+                </div>
+            `;
+
+            const response = await api.get('/admin/user-preferences/summary');
+            
+            if (response.success) {
+                renderPreferencesSummary(response.data);
+            } else {
+                throw new Error(response.message || 'Failed to load preferences summary');
+            }
+        } catch (error) {
+            console.error('Error loading preferences summary:', error);
+            summaryContainer.innerHTML = `
+                <div class="error-state">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>Error loading preferences summary: ${error.message}</span>
+                </div>
+            `;
+        }
+    }
+
+    function renderPreferencesSummary(data) {
+        const summaryContainer = document.getElementById('preferencesSummary');
+        const { summary, users } = data;
+
+        let html = `
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <h4>Total Users</h4>
+                    <span class="stat-value">${summary.totalUsers}</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Active Users</h4>
+                    <span class="stat-value">${summary.activeUsers}</span>
+                </div>
+                <div class="stat-card">
+                    <h4>Users with Preferences</h4>
+                    <span class="stat-value">${summary.usersWithPreferences}</span>
+                </div>
+            </div>
+        `;
+
+        if (Object.keys(summary.commonPreferences).length > 0) {
+            html += '<div class="preferences-breakdown">';
+            html += '<h4>Preference Usage</h4>';
+            
+            Object.entries(summary.commonPreferences).forEach(([key, data]) => {
+                html += `
+                    <div class="preference-breakdown">
+                        <h5>${formatPreferenceName(key)}</h5>
+                        <div class="preference-values">
+                `;
+                
+                data.values.forEach(({ value, count, percentage }) => {
+                    html += `
+                        <div class="preference-value">
+                            <span class="value">${formatPreferenceValue(value)}</span>
+                            <span class="count">${count} users (${percentage}%)</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            });
+            
+            html += '</div>';
+        }
+
+        summaryContainer.innerHTML = html;
+    }
+
+    async function loadUserSelection(containerId) {
+        const container = document.getElementById(containerId);
+        
+        try {
+            const response = await api.get('/admin/user-preferences/summary');
+            
+            if (response.success) {
+                const users = response.data.users.filter(u => u.active);
+                
+                let html = '<div class="user-checkboxes">';
+                users.forEach(user => {
+                    html += `
+                        <label class="user-checkbox">
+                            <input type="checkbox" name="selectedUsers" value="${user.id}">
+                            <span>${user.username} (${user.email})</span>
+                        </label>
+                    `;
+                });
+                html += '</div>';
+                
+                container.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error loading users:', error);
+            container.innerHTML = '<div class="error-state">Error loading users</div>';
+        }
+    }
+
+    async function applyMassUpdate() {
+        const btn = document.getElementById('applyMassUpdateBtn');
+        const originalText = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined loading">hourglass_empty</span> Updating...';
+
+            const updateTarget = document.querySelector('input[name="updateTarget"]:checked').value;
+            const updateMode = document.getElementById('updateMode').value;
+            
+            let userIds = [];
+            if (updateTarget === 'all') {
+                userIds = ['all'];
+            } else {
+                const selectedCheckboxes = document.querySelectorAll('input[name="selectedUsers"]:checked');
+                userIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+                
+                if (userIds.length === 0) {
+                    showToast('Please select at least one user', 'error');
+                    return;
+                }
+            }
+
+            // Collect preferences to update
+            const preferences = {};
+            const prefElements = ['language', 'dateFormat', 'timeFormat', 'emailNotifications', 'timezone'];
+            
+            prefElements.forEach(pref => {
+                const element = document.getElementById(`pref-${pref}`);
+                if (element && element.value) {
+                    let value = element.value;
+                    // Convert string booleans to actual booleans
+                    if (value === 'true') value = true;
+                    if (value === 'false') value = false;
+                    preferences[pref] = value;
+                }
+            });
+
+            if (Object.keys(preferences).length === 0) {
+                showToast('Please select at least one preference to update', 'error');
+                return;
+            }
+
+            const response = await api.post('/admin/user-preferences/mass-update', {
+                userIds,
+                preferences,
+                overwriteMode: updateMode
+            });
+
+            if (response.success) {
+                showToast(response.message, 'success');
+                await loadPreferencesSummary(); // Refresh the summary
+            } else {
+                throw new Error(response.message || 'Failed to update preferences');
+            }
+
+        } catch (error) {
+            console.error('Error applying mass update:', error);
+            showToast('Error updating preferences: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    async function applyPreferencesReset() {
+        const btn = document.getElementById('applyResetBtn');
+        const originalText = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined loading">hourglass_empty</span> Resetting...';
+
+            const resetTarget = document.querySelector('input[name="resetTarget"]:checked').value;
+            const resetMode = document.querySelector('input[name="resetMode"]:checked').value;
+            
+            let userIds = [];
+            if (resetTarget === 'all') {
+                userIds = ['all'];
+            } else {
+                const selectedCheckboxes = document.querySelectorAll('#resetUserSelection input[name="selectedUsers"]:checked');
+                userIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+                
+                if (userIds.length === 0) {
+                    showToast('Please select at least one user', 'error');
+                    return;
+                }
+            }
+
+            let preferenceKeys = [];
+            if (resetMode === 'specific') {
+                const selectedPrefs = document.querySelectorAll('input[name="resetPrefs"]:checked');
+                preferenceKeys = Array.from(selectedPrefs).map(cb => cb.value);
+                
+                if (preferenceKeys.length === 0) {
+                    showToast('Please select at least one preference to reset', 'error');
+                    return;
+                }
+            }
+
+            const confirmMessage = resetMode === 'all' 
+                ? 'Are you sure you want to reset ALL preferences for the selected users? This cannot be undone.'
+                : `Are you sure you want to reset the selected preferences (${preferenceKeys.join(', ')}) for the selected users? This cannot be undone.`;
+                
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            const response = await api.post('/admin/user-preferences/reset', {
+                userIds,
+                preferenceKeys: resetMode === 'all' ? [] : preferenceKeys
+            });
+
+            if (response.success) {
+                showToast(response.message, 'success');
+                await loadPreferencesSummary(); // Refresh the summary
+            } else {
+                throw new Error(response.message || 'Failed to reset preferences');
+            }
+
+        } catch (error) {
+            console.error('Error resetting preferences:', error);
+            showToast('Error resetting preferences: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    function formatPreferenceName(key) {
+        const nameMap = {
+            'language': 'Language',
+            'dateFormat': 'Date Format',
+            'timeFormat': 'Time Format',
+            'timezone': 'Timezone',
+            'emailNotifications': 'Email Notifications'
+        };
+        return nameMap[key] || key;
+    }
+
+    function formatPreferenceValue(value) {
+        if (typeof value === 'boolean') {
+            return value ? 'Enabled' : 'Disabled';
+        }
+        return value || 'Not set';
+    }
+
     // Make functions available globally
     window.showUserDetailsPopup = showUserDetailsPopup;
+    window.closeMassPreferencesModal = closeMassPreferencesModal;
     
     // Initialize popup when page loads
     initializeUserDetailsPopup();

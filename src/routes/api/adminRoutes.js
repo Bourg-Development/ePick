@@ -509,4 +509,23 @@ router.get('/system/error-logs',
     systemController.getErrorLogs
 );
 
+// User Preferences Management
+router.get('/user-preferences/summary',
+    apiRateLimit,
+    requireRole('system_admin'),
+    adminController.getUserPreferencesSummary
+);
+
+router.post('/user-preferences/mass-update',
+    apiRateLimit,
+    requireRole('system_admin'),
+    adminController.massUpdateUserPreferences
+);
+
+router.post('/user-preferences/reset',
+    apiRateLimit,
+    requireRole('system_admin'),
+    adminController.resetUserPreferences
+);
+
 module.exports = router;

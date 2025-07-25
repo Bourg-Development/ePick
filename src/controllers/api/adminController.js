@@ -3683,6 +3683,319 @@ class AdminController {
         }
     }
 
+    /**
+     * Get user preferences summary for mass management
+     */
+    async getUserPreferencesSummary(req, res) {
+        try {
+            const db = require('../../db');
+            
+            // Get all users with their preferences
+            const users = await db.User.findAll({
+                attributes: ['id', 'username', 'email'],
+                include: [{
+                    model: db.UserPreference,
+                    as: 'preferences',
+                    required: false
+                }],
+                order: [['username', 'ASC']]
+            });
+
+            // Analyze preference patterns
+            const preferenceSummary = {
+                totalUsers: users.length,
+                activeUsers: users.filter(u => u.active).length,
+                usersWithPreferences: users.filter(u => u.preferences).length,
+                commonPreferences: {}
+            };
+
+            // Analyze common preference values
+            const allPreferences = users
+                .filter(u => u.preferences && u.preferences.preferences)
+                .map(u => u.preferences.preferences);
+
+            if (allPreferences.length > 0) {
+                const preferenceKeys = [...new Set(allPreferences.flatMap(p => Object.keys(p)))];
+                
+                preferenceKeys.forEach(key => {
+                    const values = allPreferences
+                        .map(p => p[key])
+                        .filter(v => v !== undefined);
+                    
+                    const valueCounts = {};
+                    values.forEach(v => {
+                        const str = JSON.stringify(v);
+                        valueCounts[str] = (valueCounts[str] || 0) + 1;
+                    });
+
+                    preferenceSummary.commonPreferences[key] = {
+                        totalSet: values.length,
+                        values: Object.entries(valueCounts)
+                            .map(([value, count]) => ({
+                                value: JSON.parse(value),
+                                count,
+                                percentage: Math.round((count / values.length) * 100)
+                            }))
+                            .sort((a, b) => b.count - a.count)
+                    };
+                });
+            }
+
+            return res.json({
+                success: true,
+                data: {
+                    summary: preferenceSummary,
+                    users: users.map(user => ({
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        active: user.active,
+                        hasPreferences: !!user.preferences,
+                        preferences: user.preferences?.preferences || {}
+                    }))
+                }
+            });
+
+        } catch (error) {
+            console.error('Get user preferences summary error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch user preferences summary'
+            });
+        }
+    }
+
+    /**
+     * Mass update user preferences
+     */
+    async massUpdateUserPreferences(req, res) {
+        try {
+            const { userIds, preferences, overwriteMode = 'merge' } = req.body;
+            const { userId: adminUserId } = req.auth;
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: require('../../utils/deviceFingerprint').getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
+
+            // Validate input
+            if (!Array.isArray(userIds) || userIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'User IDs array is required and cannot be empty'
+                });
+            }
+
+            if (!preferences || typeof preferences !== 'object') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Preferences object is required'
+                });
+            }
+
+            const db = require('../../db');
+            const logService = require('../../services/logService');
+
+            // Special handling for "all users"
+            let targetUserIds = userIds;
+            if (userIds.includes('all')) {
+                const allUsers = await db.User.findAll({
+                                    attributes: ['id']
+                });
+                targetUserIds = allUsers.map(u => u.id);
+            }
+
+            const results = {
+                updated: 0,
+                created: 0,
+                failed: 0,
+                errors: []
+            };
+
+            // Process each user
+            for (const userId of targetUserIds) {
+                try {
+                    const [userPreference, created] = await db.UserPreference.findOrCreate({
+                        where: { user_id: userId },
+                        defaults: {
+                            user_id: userId,
+                            preferences: preferences
+                        }
+                    });
+
+                    if (created) {
+                        results.created++;
+                    } else {
+                        let updatedPreferences;
+                        
+                        if (overwriteMode === 'overwrite') {
+                            updatedPreferences = preferences;
+                        } else {
+                            // Merge mode (default)
+                            updatedPreferences = {
+                                ...userPreference.preferences,
+                                ...preferences
+                            };
+                        }
+
+                        await userPreference.update({
+                            preferences: updatedPreferences
+                        });
+                        
+                        results.updated++;
+                    }
+
+                    // Log the action
+                    await logService.securityLog({
+                        eventType: 'USER_PREFERENCES_MASS_UPDATE',
+                        userId: adminUserId,
+                        targetType: 'user',
+                        targetId: userId,
+                        ipAddress: context.ip,
+                        deviceFingerprint: context.deviceFingerprint,
+                        metadata: {
+                            updatedPreferences: Object.keys(preferences),
+                            overwriteMode
+                        }
+                    });
+
+                } catch (userError) {
+                    console.error(`Error updating preferences for user ${userId}:`, userError);
+                    results.failed++;
+                    results.errors.push({
+                        userId,
+                        error: userError.message
+                    });
+                }
+            }
+
+            return res.json({
+                success: true,
+                message: `Mass preference update completed: ${results.updated} updated, ${results.created} created, ${results.failed} failed`,
+                data: results
+            });
+
+        } catch (error) {
+            console.error('Mass update user preferences error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to update user preferences'
+            });
+        }
+    }
+
+    /**
+     * Reset user preferences to defaults
+     */
+    async resetUserPreferences(req, res) {
+        try {
+            const { userIds, preferenceKeys } = req.body;
+            const { userId: adminUserId } = req.auth;
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: require('../../utils/deviceFingerprint').getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
+
+            // Validate input
+            if (!Array.isArray(userIds) || userIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'User IDs array is required and cannot be empty'
+                });
+            }
+
+            const db = require('../../db');
+            const logService = require('../../services/logService');
+
+            // Special handling for "all users"
+            let targetUserIds = userIds;
+            if (userIds.includes('all')) {
+                const allUsers = await db.User.findAll({
+                                    attributes: ['id']
+                });
+                targetUserIds = allUsers.map(u => u.id);
+            }
+
+            const results = {
+                updated: 0,
+                deleted: 0,
+                failed: 0,
+                errors: []
+            };
+
+            // Process each user
+            for (const userId of targetUserIds) {
+                try {
+                    const userPreference = await db.UserPreference.findOne({
+                        where: { user_id: userId }
+                    });
+
+                    if (!userPreference) {
+                        continue; // No preferences to reset
+                    }
+
+                    if (!preferenceKeys || preferenceKeys.length === 0) {
+                        // Delete all preferences
+                        await userPreference.destroy();
+                        results.deleted++;
+                    } else {
+                        // Remove specific preference keys
+                        const currentPrefs = userPreference.preferences || {};
+                        const updatedPrefs = { ...currentPrefs };
+                        
+                        preferenceKeys.forEach(key => {
+                            delete updatedPrefs[key];
+                        });
+
+                        if (Object.keys(updatedPrefs).length === 0) {
+                            await userPreference.destroy();
+                            results.deleted++;
+                        } else {
+                            await userPreference.update({
+                                preferences: updatedPrefs
+                            });
+                            results.updated++;
+                        }
+                    }
+
+                    // Log the action
+                    await logService.securityLog({
+                        eventType: 'USER_PREFERENCES_RESET',
+                        userId: adminUserId,
+                        targetType: 'user',
+                        targetId: userId,
+                        ipAddress: context.ip,
+                        deviceFingerprint: context.deviceFingerprint,
+                        metadata: {
+                            resetKeys: preferenceKeys || 'all'
+                        }
+                    });
+
+                } catch (userError) {
+                    console.error(`Error resetting preferences for user ${userId}:`, userError);
+                    results.failed++;
+                    results.errors.push({
+                        userId,
+                        error: userError.message
+                    });
+                }
+            }
+
+            return res.json({
+                success: true,
+                message: `Preference reset completed: ${results.updated} updated, ${results.deleted} deleted, ${results.failed} failed`,
+                data: results
+            });
+
+        } catch (error) {
+            console.error('Reset user preferences error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to reset user preferences'
+            });
+        }
+    }
 
     /**
      * Extract request context information
