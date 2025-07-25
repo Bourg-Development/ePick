@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 emailAccountUpdates: emailAccountUpdates.checked
             };
             
-            const response = await api.post('/user/preferences', { preferences });
+            const response = await api.put('/user/preferences', { preferences });
             if (response.success) {
                 showToast('Email notification preferences saved', 'success');
             } else {
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 language: selectedLanguage
             };
             
-            const response = await api.post('/user/preferences', { preferences });
+            const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
                 languageStatus.textContent = 'Language preference saved. Refresh the page to see changes.';
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dateFormat: selectedFormat
             };
             
-            const response = await api.post('/user/preferences', { preferences });
+            const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
                 dateFormatStatus.textContent = 'Date format saved successfully';
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeFormat: selectedFormat
             };
             
-            const response = await api.post('/user/preferences', { preferences });
+            const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
                 timeFormatStatus.textContent = 'Time format saved successfully';
@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 timezone: selectedTimezone
             };
             
-            const response = await api.post('/user/preferences', { preferences });
+            const response = await api.put('/user/preferences', { preferences });
             
             if (response.success) {
                 timezoneStatus.textContent = 'Time zone saved successfully';
