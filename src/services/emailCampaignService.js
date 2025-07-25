@@ -144,6 +144,127 @@ class EmailCampaignService {
     }
 
     /**
+     * Update an existing email campaign
+     * @param {number} campaignId - Campaign ID to update
+     * @param {Object} updateData - Campaign update data
+     * @param {string} [updateData.name] - Campaign name
+     * @param {string} [updateData.subject] - Email subject
+     * @param {string} [updateData.content_html] - HTML content
+     * @param {string} [updateData.content_text] - Text content
+     * @param {string} [updateData.sender_email] - Sender email
+     * @param {string} [updateData.sender_name] - Sender name
+     * @param {string} [updateData.reply_to] - Reply-to email
+     * @param {string} [updateData.campaign_type] - Campaign type
+     * @param {Date} [updateData.scheduled_at] - Schedule date
+     * @param {number} updatedBy - User ID updating the campaign
+     * @param {Object} context - Request context
+     * @returns {Promise<Object>} Update result
+     */
+    async updateCampaign(campaignId, updateData, updatedBy, context) {
+        try {
+            // Find the campaign
+            const campaign = await db.EmailCampaign.findByPk(campaignId, {
+                include: [
+                    {
+                        model: db.MailingList,
+                        as: 'mailingList',
+                        attributes: ['id', 'name', 'is_active']
+                    }
+                ]
+            });
+
+            if (!campaign) {
+                return {
+                    success: false,
+                    message: 'Campaign not found'
+                };
+            }
+
+            // Only allow updates to draft campaigns
+            if (campaign.status !== 'draft') {
+                return {
+                    success: false,
+                    message: 'Only draft campaigns can be updated'
+                };
+            }
+
+            // Validate content
+            if (updateData.content_html || updateData.content_text) {
+                if (!updateData.content_html && !updateData.content_text) {
+                    return {
+                        success: false,
+                        message: 'Campaign must have either HTML or text content'
+                    };
+                }
+            }
+
+            // Prepare update data
+            const allowedFields = [
+                'name', 'subject', 'content_html', 'content_text',
+                'sender_email', 'sender_name', 'reply_to', 
+                'campaign_type', 'scheduled_at'
+            ];
+
+            const fieldsToUpdate = {};
+            for (const field of allowedFields) {
+                if (updateData.hasOwnProperty(field)) {
+                    fieldsToUpdate[field] = updateData[field];
+                }
+            }
+
+            // Add metadata
+            fieldsToUpdate.updated_at = new Date();
+
+            // Update the campaign
+            await campaign.update(fieldsToUpdate);
+
+            // Log the update
+            await logService.logSecurityEvent({
+                userId: updatedBy,
+                event: 'campaign.updated',
+                resource: 'EmailCampaign',
+                resourceId: campaignId,
+                details: {
+                    campaign_name: campaign.name,
+                    updated_fields: Object.keys(fieldsToUpdate),
+                    ip_address: context?.ip,
+                    user_agent: context?.userAgent
+                },
+                context
+            });
+
+            // Return updated campaign
+            const updatedCampaign = await db.EmailCampaign.findByPk(campaignId, {
+                include: [
+                    {
+                        model: db.MailingList,
+                        as: 'mailingList',
+                        attributes: ['id', 'name', 'is_active', 'subscriber_count']
+                    },
+                    {
+                        model: db.User,
+                        as: 'creator',
+                        attributes: ['id', 'username', 'full_name']
+                    }
+                ]
+            });
+
+            return {
+                success: true,
+                message: 'Campaign updated successfully',
+                data: updatedCampaign
+            };
+
+        } catch (error) {
+            console.error('Update campaign error:', error);
+            return {
+                success: false,
+                message: 'Failed to update campaign'
+            };
+        }
+    }
+
+    /**
      * Send campaign immediately or schedule for later
      * @param {number} campaignId - Campaign ID
      * @param {number} sentBy - User ID sending the campaign

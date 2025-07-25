@@ -146,11 +146,18 @@ class EmailCampaignController {
      */
     async updateCampaign(req, res) {
         try {
-            // Note: Update functionality would need to be implemented in emailCampaignService
-            return res.status(501).json({
-                success: false,
-                message: 'Campaign update not yet implemented'
-            });
+            const { campaignId } = req.params;
+            const { userId: updatedBy } = req.auth;
+            const context = this._getRequestContext(req);
+
+            const result = await emailCampaignService.updateCampaign(
+                parseInt(campaignId),
+                req.body,
+                updatedBy,
+                context
+            );
+
+            return res.status(result.success ? 200 : 400).json(result);
         } catch (error) {
             console.error('Update campaign error:', error);
             return res.status(500).json({
