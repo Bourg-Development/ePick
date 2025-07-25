@@ -12,9 +12,8 @@ router.use((req, res, next) => {
 })
 
 router.get('/profile', userController.profile);
-router.get('/settings/account', userController.accountSettings);
-router.get('/settings/privacy', userController.privacySettings);
-router.get('/settings/notifications', userController.notificationSettings);
-router.get('/settings/preferences', userController.preferences);
+router.get('/account', userController.accountSettings);
+router.get('/privacy', userController.privacySettings);
+router.get('/integrations', userController.integrations);
 
 module.exports = router;

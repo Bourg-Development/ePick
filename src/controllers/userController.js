@@ -71,30 +71,16 @@ module.exports = {
         }
     },
 
-    notificationSettings: async (req, res) => {
+    integrations: async (req, res) => {
         try {
-            res.render('userArea/notifications', {
-                title: 'Notification Settings - ePick',
-                styles: ['/pages/me/notifications.css'],
-                scripts: ['/pages/me/notifications.js']
+            res.render('userArea/integrations', {
+                title: 'Integrations & Notifications - ePick',
+                styles: ['/pages/me/integrations.css'],
+                scripts: ['/pages/me/integrations.js'],
+                locale: req.locale || 'en'
             });
         } catch (error) {
-            console.error('Error loading notification settings page:', error);
-            res.status(500).render('errors/500', {
-                title: 'Server Error'
-            });
-        }
-    },
-
-    preferences: async (req, res) => {
-        try {
-            res.render('userArea/preferences', {
-                title: 'Preferences',
-                styles: [],
-                scripts: ['/pages/me/preferences.js']
-            });
-        } catch (error) {
-            console.error('Error loading preferences page:', error);
+            console.error('Error loading integrations page:', error);
             res.status(500).render('errors/500', {
                 title: 'Server Error'
             });

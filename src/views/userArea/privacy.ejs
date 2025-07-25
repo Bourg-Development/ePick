@@ -66,6 +66,55 @@
         </div>
     </div>
 
+    <!-- Password Management -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h2>
+                <span class="material-symbols-outlined">key</span>
+                Password Management
+            </h2>
+            <p>Change your account password and manage security settings</p>
+        </div>
+        <div class="card-content">
+            <div class="setting-group">
+                <label class="setting-label">Change Password</label>
+                <div class="password-change-container">
+                    <div class="password-field">
+                        <label class="field-label" for="currentPasswordInput">Current Password</label>
+                        <input type="password" class="setting-input" id="currentPasswordInput" placeholder="Enter your current password">
+                    </div>
+                    <div class="password-field">
+                        <label class="field-label" for="newPasswordInput">New Password</label>
+                        <input type="password" class="setting-input" id="newPasswordInput" placeholder="Enter your new password">
+                    </div>
+                    <div class="password-field">
+                        <label class="field-label" for="confirmPasswordInput">Confirm New Password</label>
+                        <input type="password" class="setting-input" id="confirmPasswordInput" placeholder="Confirm your new password">
+                    </div>
+                    <div class="password-actions">
+                        <button class="btn btn-primary" id="changePasswordBtn">
+                            <span class="material-symbols-outlined">key</span>
+                            Update Password
+                        </button>
+                    </div>
+                </div>
+                <small class="setting-help">Password must be at least 8 characters long and contain a mix of letters, numbers, and symbols</small>
+                <div class="setting-status" id="status-password"></div>
+            </div>
+
+            <div class="setting-group readonly">
+                <label class="setting-label">Password History</label>
+                <div class="password-info">
+                    <div class="info-item">
+                        <span class="info-label">Last Changed:</span>
+                        <span class="info-value" id="lastPasswordChange">Loading...</span>
+                    </div>
+                </div>
+                <small class="setting-help">Passwords cannot be reused from your last 5 password changes</small>
+            </div>
+        </div>
+    </div>
+
     <!-- Session Management -->
     <div class="settings-card">
         <div class="card-header">
@@ -447,6 +496,79 @@
     color: var(--medium-gray);
     font-size: 13px;
     font-style: italic;
+}
+
+/* Password Management Styles */
+.password-change-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.password-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-black);
+}
+
+.password-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.password-info {
+    padding: 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-black);
+    font-size: 14px;
+}
+
+.info-value {
+    color: var(--medium-gray);
+    font-size: 14px;
+    text-align: right;
+}
+
+.setting-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.setting-input:focus {
+    outline: none;
+    border-color: var(--blood-red);
 }
 
 /* Session Management Styles */

@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         timeout: 15000
     });
 
-    // Check if profile is editable from server
-    const editableProfile = document.getElementById('editProfileBtn') !== null;
+    // Profile is now read-only overview
+    const editableProfile = false;
 
     // State variables
     let currentProfile = null;
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let showingMore = false;
 
     // DOM Elements
-    const editProfileBtn = document.getElementById('editProfileBtn');
     const refreshBtn = document.getElementById('refreshBtn');
     const refreshSessionBtn = document.getElementById('refreshSessionBtn');
     const refreshActivityBtn = document.getElementById('refreshActivityBtn');
@@ -62,15 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function init() {
         setupEventListeners();
-        setupIcsFeedListeners();
         await loadAllData();
     }
 
     function setupEventListeners() {
         // Button listeners
-        if (editProfileBtn) {
-            editProfileBtn.addEventListener('click', showEditProfileModal);
-        }
         refreshBtn.addEventListener('click', loadAllData);
         refreshSessionBtn.addEventListener('click', loadSessionInfo);
         refreshActivityBtn.addEventListener('click', loadAuthActivity);
@@ -135,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadProfile(),
             loadSessionInfo(),
             loadAuthActivity(),
-            loadIcsFeedStatus()
+            loadIcsFeedStatusOverview()
         ]);
 
         showToast('Profile data refreshed successfully', 'success');
@@ -192,6 +187,38 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Load activity error:', error);
             if (handleAuthError(error)) return;
             showActivityError('Failed to load activity: ' + getErrorMessage(error));
+        }
+    }
+
+    async function loadIcsFeedStatusOverview() {
+        try {
+            const response = await api.get('/ics/url');
+            const statusElement = document.getElementById('icsFeedStatus');
+            
+            if (statusElement) {
+                const statusIcon = statusElement.querySelector('.material-symbols-outlined');
+                const statusText = statusElement.querySelector('.status-text');
+                
+                if (response.success && response.url) {
+                    statusIcon.textContent = 'check_circle';
+                    statusText.textContent = 'Active';
+                    statusElement.style.color = '#27ae60';
+                } else {
+                    statusIcon.textContent = 'cancel';
+                    statusText.textContent = 'Disabled';
+                    statusElement.style.color = '#e74c3c';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading ICS feed status overview:', error);
+            const statusElement = document.getElementById('icsFeedStatus');
+            if (statusElement) {
+                const statusIcon = statusElement.querySelector('.material-symbols-outlined');
+                const statusText = statusElement.querySelector('.status-text');
+                statusIcon.textContent = 'error';
+                statusText.textContent = 'Error';
+                statusElement.style.color = '#f39c12';
+            }
         }
     }
 

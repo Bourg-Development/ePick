@@ -13,7 +13,7 @@
                 </a>
             </li>
 
-            <li class="settings-menu <%- path.includes('/settings') ? 'active expanded' : null %>">
+            <li class="settings-menu <%- path.includes('/account') || path.includes('/privacy') || path.includes('/integrations') ? 'active expanded' : null %>">
                 <a href="#" class="settings-toggle">
                     <span class="material-symbols-outlined">
                         settings
@@ -24,36 +24,28 @@
                     </span>
                 </a>
                 <ul class="submenu">
-                    <li class="<%- path.includes('/settings/account') ? 'active' : null %>">
-                        <a href="/user/settings/account">
+                    <li class="<%- path.includes('/account') ? 'active' : null %>">
+                        <a href="/user/account">
                             <span class="material-symbols-outlined">
                                 manage_accounts
                             </span>
                             <span><%= __('navigation.accountSettings') %></span>
                         </a>
                     </li>
-                    <li class="<%- path.includes('/settings/privacy') ? 'active' : null %>">
-                        <a href="/user/settings/privacy">
+                    <li class="<%- path.includes('/privacy') ? 'active' : null %>">
+                        <a href="/user/privacy">
                             <span class="material-symbols-outlined">
                                 privacy_tip
                             </span>
                             <span><%= __('navigation.privacySecurity') %></span>
                         </a>
                     </li>
-                    <li class="<%- path.includes('/settings/notifications') ? 'active' : null %>">
-                        <a href="/user/settings/notifications">
+                    <li class="<%- path.includes('/integrations') ? 'active' : null %>">
+                        <a href="/user/integrations">
                             <span class="material-symbols-outlined">
-                                notifications
+                                sync
                             </span>
-                            <span><%= __('navigation.notifications') %></span>
-                        </a>
-                    </li>
-                    <li class="<%- path.includes('/settings/preferences') ? 'active' : null %>">
-                        <a href="/user/settings/preferences">
-                            <span class="material-symbols-outlined">
-                                tune
-                            </span>
-                            <span><%= __('navigation.preferences') %></span>
+                            <span>Integrations & Notifications</span>
                         </a>
                     </li>
                 </ul>
