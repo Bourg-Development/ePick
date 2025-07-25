@@ -176,17 +176,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function subscribeToIcsFeed() {
         if (!icsFeedUrl) return;
         
-        // Ensure URL has protocol before converting to webcal
-        let fullUrl = icsFeedUrl;
-        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
-            // If no protocol, assume HTTPS
-            fullUrl = 'https://' + fullUrl;
-        }
-        
         // Convert HTTP/HTTPS URL to webcal for calendar subscription
-        const webcalUrl = fullUrl.replace(/^https?:\/\//, 'webcal://');
+        const webcalUrl = icsFeedUrl.replace(/^https?:/, 'webcal:');
         console.log('Original URL:', icsFeedUrl);
-        console.log('Full URL:', fullUrl);
         console.log('Webcal URL:', webcalUrl);
         
         window.open(webcalUrl, '_blank');
