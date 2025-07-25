@@ -1421,8 +1421,11 @@ document.addEventListener('DOMContentLoaded', function() {
             let response;
             
             if (campaignId) {
-                // Update existing campaign
-                response = await api.put(`/mailing/campaign/${campaignId}`, data);
+                // Update existing campaign - remove list_id as it cannot be changed
+                const updateData = { ...data };
+                delete updateData.list_id;
+                delete updateData.id; // Also remove the ID from the data
+                response = await api.put(`/mailing/campaign/${campaignId}`, updateData);
             } else {
                 // Create new campaign
                 const listId = data.list_id;
@@ -1448,7 +1451,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeModal();
                 loadCampaigns();
             } else {
-                showToast(response.message || 'Failed to save campaign', 'error');
+                let errorMessage = response.message || 'Failed to save campaign';
+                if (response.errors && response.errors.length > 0) {
+                    errorMessage = response.errors.map(err => err.msg).join(', ');
+                }
+                showToast(errorMessage, 'error');
             }
         } catch (error) {
             console.error('Error saving campaign:', error);

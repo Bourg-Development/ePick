@@ -146,6 +146,16 @@ class EmailCampaignController {
      */
     async updateCampaign(req, res) {
         try {
+            // Check for validation errors
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Validation failed',
+                    errors: errors.array()
+                });
+            }
+
             const { campaignId } = req.params;
             const { userId: updatedBy } = req.auth;
             const context = this._getRequestContext(req);
@@ -465,7 +475,28 @@ class EmailCampaignController {
             body('content_text')
                 .optional()
                 .isLength({ min: 1 })
-                .withMessage('Text content cannot be empty if provided')
+                .withMessage('Text content cannot be empty if provided'),
+            body('sender_email')
+                .optional()
+                .isEmail()
+                .withMessage('Sender email must be valid'),
+            body('sender_name')
+                .optional()
+                .trim()
+                .isLength({ max: 100 })
+                .withMessage('Sender name must be less than 100 characters'),
+            body('reply_to')
+                .optional()
+                .isEmail()
+                .withMessage('Reply-to email must be valid'),
+            body('campaign_type')
+                .optional()
+                .isIn(['announcement', 'newsletter', 'alert', 'system', 'marketing'])
+                .withMessage('Invalid campaign type'),
+            body('scheduled_at')
+                .optional()
+                .isISO8601()
+                .withMessage('Invalid scheduled date format')
         ];
     }
 
