@@ -28,16 +28,15 @@ async function archiveCancelledAnalyses() {
         console.log('');
 
         // Check for cancelled analyses that should be archived
+        // Use date-based comparison: analyses cancelled on day X will be archived on day X+delay
         const archiveDelay = settings.find(s => s.setting_key === 'cancelled_analysis_archive_delay')?.setting_value || 1;
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - parseInt(archiveDelay));
-
+        
         const candidateAnalyses = await db.Analysis.findAll({
             where: {
                 status: 'Cancelled',
-                updated_at: {
-                    [db.Sequelize.Op.lt]: cutoffDate
-                }
+                [db.Sequelize.Op.and]: [
+                    db.Sequelize.literal(`DATE(updated_at) <= CURRENT_DATE - INTERVAL '${archiveDelay} days'`)
+                ]
             },
             include: [
                 { model: db.Patient, as: 'patient', attributes: ['name'] },
