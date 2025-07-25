@@ -40,7 +40,7 @@ class ICSService {
     }
 
     /**
-     * Generate ICS feed for a user's service analyses
+     * Generate ICS feed for a user's analyses based on their permissions
      * @param {number} userId - User ID
      * @param {string} token - Feed token
      * @returns {Promise<string>} - ICS feed content
@@ -62,23 +62,49 @@ class ICSService {
                 throw new Error('ICS feed is not enabled for this user');
             }
 
-            // Get user's service
-            const userService = user.service;
-            if (!userService) {
-                // Return empty calendar if user has no services
-                const calendar = ical({
-                    name: 'ePick Analyses',
-                    description: 'No analyses found - User has no assigned services',
-                    timezone: 'Europe/Luxembourg'
-                });
-                return calendar.toString();
+            // Get user context to determine access level
+            const userFullData = await db.User.findByPk(userId, {
+                include: [
+                    {
+                        model: db.Service,
+                        as: 'service',
+                        attributes: ['id', 'name', 'can_view_all_analyses']
+                    },
+                    {
+                        model: db.Role,
+                        as: 'role',
+                        attributes: ['name'],
+                        include: [{
+                            model: db.Permission,
+                            as: 'permissions',
+                            attributes: ['name'],
+                            through: { attributes: [] }
+                        }]
+                    }
+                ]
+            });
+
+            if (!userFullData) {
+                throw new Error('User not found');
             }
 
-            // Get analyses for user's service (upcoming and recent)
+            // Build user context for permission checking
+            const userContext = {
+                userId: userId,
+                role: userFullData.role?.name,
+                permissions: userFullData.role?.permissions?.map(p => p.name) || [],
+                serviceId: userFullData.service?.id,
+                service: userFullData.service
+            };
+
+            // Check if user can view all analyses
+            const canViewAll = this._canViewAllAnalyses(userContext);
+
+            // Get analyses based on user permissions (upcoming and recent)
             const dateLimit = new Date();
             dateLimit.setMonth(dateLimit.getMonth() - 1); // Include analyses from past month
 
-            const analyses = await db.Analysis.findAll({
+            const queryOptions = {
                 where: {
                     analysis_date: {
                         [Op.gte]: dateLimit
@@ -105,20 +131,44 @@ class ICSService {
                         include: [{
                             model: db.Service,
                             as: 'service',
-                            attributes: ['id', 'name'],
-                            where: {
-                                id: userService.id
-                            }
+                            attributes: ['id', 'name']
                         }]
                     }
                 ],
                 order: [['analysis_date', 'ASC']]
-            });
+            };
+
+            // Apply service filtering if user doesn't have full access
+            if (!canViewAll) {
+                if (!userContext.serviceId) {
+                    // User has no service and no full access - return empty calendar
+                    const calendar = ical({
+                        name: 'ePick Analyses',
+                        description: 'No analyses found - User has no assigned services and no full access',
+                        timezone: 'Europe/Luxembourg'
+                    });
+                    return calendar.toString();
+                }
+                
+                queryOptions.include[2].where = { service_id: userContext.serviceId };
+                queryOptions.include[2].required = true; // INNER JOIN to enforce the filter
+            }
+
+            const analyses = await db.Analysis.findAll(queryOptions);
+
+            // Determine calendar name based on access level
+            const calendarName = canViewAll 
+                ? 'ePick Analyses - All Services' 
+                : `ePick Analyses - ${userContext.service?.name || 'Your Service'}`;
+
+            const calendarDescription = canViewAll
+                ? `All blood analyses for ${userFullData.full_name || userFullData.username} with full access`
+                : `Blood analyses for ${userFullData.full_name || userFullData.username} in ${userContext.service?.name || 'assigned service'}`;
 
             // Create calendar
             const calendar = ical({
-                name: `ePick Analyses - ${userService.name}`,
-                description: `Blood analyses for ${user.full_name || user.username} in ${userService.name}`,
+                name: calendarName,
+                description: calendarDescription,
                 timezone: 'Europe/Luxembourg',
                 ttl: 3600 // 1 hour cache
             });
@@ -312,6 +362,33 @@ class ICSService {
             console.error('Error getting feed URL:', error);
             return null;
         }
+    }
+
+    /**
+     * Check if user can view all analyses (same logic as analysisService)
+     * @private
+     * @param {Object} userContext - User context object
+     * @returns {boolean} - Whether user can view all analyses
+     */
+    _canViewAllAnalyses(userContext) {
+        if (!userContext) return false;
+        
+        // System admin can view all analyses
+        if (userContext.role === 'system_admin') {
+            return true;
+        }
+        
+        // Regular admins can view all analyses
+        if (userContext.role === 'admin' || (userContext.permissions && userContext.permissions.includes('admin'))) {
+            return true;
+        }
+
+        // Services with special permission can view all analyses
+        if (userContext.service && userContext.service.can_view_all_analyses) {
+            return true;
+        }
+
+        return false;
     }
 }
 
