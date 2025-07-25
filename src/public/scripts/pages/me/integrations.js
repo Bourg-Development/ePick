@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const toastMessage = toast.querySelector('.toast-message');
         
         toastIcon.textContent = type === 'success' ? 'check_circle' : 'error';
-        toastIcon.className = `toast-icon ${type}`;
+        toastIcon.className = `toast-icon material-symbols-outlined ${type}`;
         toastMessage.textContent = message;
         
         toast.classList.add('show');
