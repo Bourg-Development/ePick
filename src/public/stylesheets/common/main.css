@@ -31,6 +31,14 @@ main {
     flex: 1 0 auto;
 }
 
+/* ======== Material Icons ======== */
+.material-symbols-outlined {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
 /* ======== Shared Components ======== */
 h1, h2, h3, h4{
     font-weight: bold;
