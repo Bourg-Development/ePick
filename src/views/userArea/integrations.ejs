@@ -1,6 +1,6 @@
 <div class="header">
-    <h1>Integrations & Notifications</h1>
-    <p>Manage your calendar feeds, email notifications, and external connections</p>
+    <h1><%= __('profile.integrations.title') %></h1>
+    <p><%= __('profile.integrations.description') %></p>
 </div>
 
 <div class="settings-container">
@@ -9,9 +9,9 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">calendar_month</span>
-                Calendar Integration
+                <%= __('profile.integrations.calendarIntegration') %>
             </h2>
-            <p>Subscribe to your analyses calendar in your favorite calendar app</p>
+            <p><%= __('profile.integrations.calendarIntegrationDesc') %></p>
         </div>
         <div class="card-content">
             <div class="ics-feed-section">
@@ -27,22 +27,22 @@
                             <input type="checkbox" id="icsFeedToggle" disabled>
                             <span class="slider"></span>
                         </label>
-                        <span class="toggle-label">Enable ICS Feed</span>
+                        <span class="toggle-label"><%= __('profile.integrations.enableIcsFeed') %></span>
                     </div>
                     <div class="ics-feed-url-container" id="icsFeedUrlContainer" style="display: none;">
-                        <label>Feed URL:</label>
+                        <label><%= __('profile.integrations.feedUrl') %></label>
                         <div class="url-input-group">
                             <input type="text" id="icsFeedUrl" readonly class="form-control">
                             <button class="btn btn-primary" id="copyIcsFeedBtn">
                                 <span class="material-symbols-outlined">content_copy</span>
-                                Copy
+                                <%= __('profile.integrations.copy') %>
                             </button>
                             <button class="btn btn-secondary" id="subscribeIcsFeedBtn">
                                 <span class="material-symbols-outlined">calendar_add_on</span>
-                                Subscribe
+                                <%= __('profile.integrations.subscribe') %>
                             </button>
                         </div>
-                        <small class="help-text">Copy the URL to manually add to your calendar, or click Subscribe for direct integration</small>
+                        <small class="help-text"><%= __('profile.integrations.copyManualHelp') %></small>
                     </div>
                 </div>
             </div>
@@ -54,9 +54,9 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">email</span>
-                Email Notifications
+                <%= __('profile.integrations.emailNotifications') %>
             </h2>
-            <p>Configure when and how you receive email notifications</p>
+            <p><%= __('profile.integrations.emailNotificationsDesc') %></p>
         </div>
         <div class="card-content">
             <div class="notification-availability" id="emailAvailabilityStatus">
@@ -66,14 +66,14 @@
             <div class="notification-categories" id="emailNotificationCategories" style="display: none;">
                 <div class="notification-category">
                     <div class="category-header">
-                        <h3>Security Notifications</h3>
-                        <p>Important security alerts and account activity</p>
+                        <h3><%= __('profile.integrations.securityNotifications') %></h3>
+                        <p><%= __('profile.integrations.securityNotificationsDesc') %></p>
                     </div>
                     <div class="notification-options">
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Login Alerts</h4>
-                                <p>Get notified when someone signs into your account</p>
+                                <h4><%= __('profile.integrations.loginAlerts') %></h4>
+                                <p><%= __('profile.integrations.loginAlertsDesc') %></p>
                             </div>
                             <div class="option-control">
                                 <label class="switch">
@@ -85,8 +85,8 @@
                         
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Password Changes</h4>
-                                <p>Get notified when your password is changed</p>
+                                <h4><%= __('profile.integrations.passwordChanges') %></h4>
+                                <p><%= __('profile.integrations.passwordChangesDesc') %></p>
                             </div>
                             <div class="option-control">
                                 <label class="switch">
@@ -98,8 +98,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Security Settings Changes</h4>
-                                <p>Get notified when 2FA or security settings are modified</p>
+                                <h4><%= __('profile.integrations.securitySettingsChanges') %></h4>
+                                <p><%= __('profile.integrations.securitySettingsChangesDesc') %></p>
                             </div>
                             <div class="option-control">
                                 <label class="switch">
@@ -113,14 +113,14 @@
 
                 <div class="notification-category">
                     <div class="category-header">
-                        <h3>System Notifications</h3>
-                        <p>Updates about system changes and important announcements</p>
+                        <h3><%= __('profile.integrations.systemNotifications') %></h3>
+                        <p><%= __('profile.integrations.systemNotificationsDesc') %></p>
                     </div>
                     <div class="notification-options">
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>System Maintenance</h4>
-                                <p>Get notified about scheduled maintenance and updates</p>
+                                <h4><%= __('profile.integrations.systemMaintenance') %></h4>
+                                <p><%= __('profile.integrations.systemMaintenanceDesc') %></p>
                             </div>
                             <div class="option-control">
                                 <label class="switch">
@@ -132,8 +132,8 @@
 
                         <div class="notification-option">
                             <div class="option-info">
-                                <h4>Account Updates</h4>
-                                <p>Get notified about important account or service changes</p>
+                                <h4><%= __('profile.integrations.accountUpdates') %></h4>
+                                <p><%= __('profile.integrations.accountUpdatesDesc') %></p>
                             </div>
                             <div class="option-control">
                                 <label class="switch">
@@ -153,20 +153,20 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">mail</span>
-                Email Lists
+                <%= __('profile.integrations.emailLists') %>
             </h2>
-            <p>Manage your email list subscriptions and preferences</p>
+            <p><%= __('profile.integrations.emailListsDesc') %></p>
         </div>
         <div class="card-content">
             <div class="mailing-lists-container" id="mailingListsContainer">
                 <div class="loading-state" id="mailingListsLoading">
                     <div class="loading-spinner"></div>
-                    <span>Loading mailing lists...</span>
+                    <span><%= __('profile.integrations.loadingMailingLists') %></span>
                 </div>
                 
                 <div class="mailing-lists-content" id="mailingListsContent" style="display: none;">
                     <div class="mailing-lists-header">
-                        <p>Manage your current email list subscriptions</p>
+                        <p><%= __('profile.integrations.manageSubscriptions') %></p>
                     </div>
                     
                     <div class="mailing-lists-list" id="mailingListsList">
@@ -176,18 +176,18 @@
                     <div class="no-subscriptions" id="noSubscriptions" style="display: none;">
                         <div class="empty-state">
                             <span class="material-symbols-outlined">unsubscribe</span>
-                            <h3>No Active Subscriptions</h3>
-                            <p>You're not currently subscribed to any mailing lists</p>
+                            <h3><%= __('profile.integrations.noActiveSubscriptions') %></h3>
+                            <p><%= __('profile.integrations.notSubscribedToLists') %></p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="error-state" id="mailingListsError" style="display: none;">
                     <span class="material-symbols-outlined">error</span>
-                    <span>Failed to load mailing lists</span>
+                    <span><%= __('profile.integrations.failedToLoadLists') %></span>
                     <button class="btn btn-secondary retry-btn" id="retryLoadLists">
                         <span class="material-symbols-outlined">refresh</span>
-                        Retry
+                        <%= __('profile.integrations.retry') %>
                     </button>
                 </div>
             </div>
@@ -199,14 +199,14 @@
         <div class="card-header">
             <h2>
                 <span class="material-symbols-outlined">tune</span>
-                Display Preferences  
+                <%= __('profile.integrations.displayPreferences') %>
             </h2>
-            <p>Customize how information is displayed throughout the application</p>
+            <p><%= __('profile.integrations.displayPreferencesDesc') %></p>
         </div>
         <div class="card-content">
             <div class="setting-group">
                 <label class="setting-label" for="languageSelect">
-                    Language
+                    <%= __('profile.integrations.language') %>
                 </label>
                 <div class="setting-input-group">
                     <select class="setting-input" id="languageSelect" data-current-lang="<%= locale %>">
@@ -226,13 +226,13 @@
                         </button>
                     </div>
                 </div>
-                <small class="setting-help">Changes will take effect after page refresh</small>
+                <small class="setting-help"><%= __('profile.integrations.languageHelp') %></small>
                 <div class="setting-status" id="status-language"></div>
             </div>
 
             <div class="setting-group">
                 <label class="setting-label" for="dateFormatSelect">
-                    Date Format
+                    <%= __('profile.integrations.dateFormat') %>
                 </label>
                 <div class="setting-input-group">
                     <select class="setting-input" id="dateFormatSelect">
@@ -247,13 +247,13 @@
                         </button>
                     </div>
                 </div>
-                <small class="setting-help">Choose how dates are displayed throughout the application</small>
+                <small class="setting-help"><%= __('profile.integrations.dateFormatHelp') %></small>
                 <div class="setting-status" id="status-dateformat"></div>
             </div>
 
             <div class="setting-group">
                 <label class="setting-label" for="timeFormatSelect">
-                    Time Format
+                    <%= __('profile.integrations.timeFormat') %>
                 </label>
                 <div class="setting-input-group">
                     <select class="setting-input" id="timeFormatSelect">
@@ -266,13 +266,13 @@
                         </button>
                     </div>
                 </div>
-                <small class="setting-help">Choose between 24-hour and 12-hour time display</small>
+                <small class="setting-help"><%= __('profile.integrations.timeFormatHelp') %></small>
                 <div class="setting-status" id="status-timeformat"></div>
             </div>
 
             <div class="setting-group">
                 <label class="setting-label" for="timezoneSelect">
-                    Time Zone
+                    <%= __('profile.integrations.timeZone') %>
                 </label>
                 <div class="setting-input-group">
                     <select class="setting-input" id="timezoneSelect">
@@ -291,7 +291,7 @@
                         </button>
                     </div>
                 </div>
-                <small class="setting-help">All times will be displayed in your selected time zone</small>
+                <small class="setting-help"><%= __('profile.integrations.timeZoneHelp') %></small>
                 <div class="setting-status" id="status-timezone"></div>
             </div>
         </div>
