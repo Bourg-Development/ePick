@@ -16,6 +16,7 @@ const BlacklistedToken = require('./models/BlacklistedToken')(sequelize, Sequeli
 const AnomalyDetection = require('./models/AnomalyDetection')(sequelize, Sequelize);
 const RateLimit = require('./models/RateLimit')(sequelize, Sequelize);
 const UserPreference = require('./models/UserPreference')(sequelize, Sequelize);
+const CSRFToken = require('./models/CSRFToken')(sequelize, Sequelize);
 
 // Import blood analysis models
 const OrganizationSettings = require('./models/OrganizationSettings')(sequelize, Sequelize);
@@ -277,6 +278,7 @@ module.exports = {
     AnomalyDetection,
     RateLimit,
     UserPreference,
+    CSRFToken,
     // Blood analysis models
     OrganizationSettings,
     Doctor,

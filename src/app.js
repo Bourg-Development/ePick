@@ -21,6 +21,7 @@ const { i18nMiddleware } = require('./config/i18n');
 
 const authMiddleware = require('./middleware/authentication');
 const { checkMaintenanceMode } = require('./middleware/maintenanceMode');
+const { setCSRFToken } = require('./middleware/csrf');
 
 
 // Create Express app
@@ -45,14 +46,52 @@ app.use((req, res, next) => {
 
 // Security headers
 app.use(helmet({
-    contentSecurityPolicy: NODE_ENV !== 'development'
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-hashes'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"],
+            mediaSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            childSrc: ["'self'"],
+            frameSrc: ["'self'"],
+            workerSrc: ["'self'"],
+            manifestSrc: ["'self'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+            frameAncestors: ["'self'"],
+            upgradeInsecureRequests: NODE_ENV === 'production' ? [] : null
+        },
+        reportOnly: false
+    },
+    crossOriginEmbedderPolicy: false, // Allow embedding for better compatibility
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "same-origin" },
+    originAgentCluster: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    strictTransportSecurity: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: false
+    },
+    xContentTypeOptions: false, // Helmet enables this by default
+    xDnsPrefetchControl: { allow: false },
+    xDownloadOptions: false, // Helmet enables this by default  
+    xFrameOptions: { action: 'sameorigin' },
+    xPermittedCrossDomainPolicies: false,
+    xPoweredBy: false, // Hide X-Powered-By header
+    xXssProtection: false // Modern browsers don't need this
 }));
 
 // CORS configuration
 const corsOptions = {
     origin: CORS_ORIGIN || '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-Fingerprint'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-Fingerprint', 'X-CSRF-Token', 'X-XSRF-Token'],
     exposedHeaders: ['X-Request-ID', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
     credentials: true,
     maxAge: 86400 // 24 hours
@@ -157,6 +196,9 @@ app.use(i18nMiddleware);
 
 // Maintenance mode check (before routes, will handle auth internally)
 app.use(checkMaintenanceMode);
+
+// CSRF token setup for all routes (generates tokens when needed)
+app.use(setCSRFToken);
 
 // API Routes
 app.use('/api', apiRoutes);

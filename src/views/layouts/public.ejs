@@ -28,6 +28,9 @@
         <%- include('../partials/public/footer.ejs') %>
     </footer>
 
+    <!-- CSRF Protection -->
+    <script src="/static/scripts/common/csrf.js"></script>
+    
     <% if (typeof scripts !== 'undefined') { %>
         <% scripts.forEach(script => { %>
             <script src="/static/scripts/<%= script %>"></script>
