@@ -106,7 +106,12 @@ class DeviceFingerprintUtil {
      * @returns {boolean} Whether fingerprints match
      */
     validateFingerprint(providedFingerprint, expectedFingerprint, strictMode = false, req = null) {
-        // If request object is provided, use secure validation
+        // Basic validation first - if they match exactly, it's valid
+        if (providedFingerprint === expectedFingerprint) {
+            return true;
+        }
+        
+        // If request object is provided, use secure validation for additional checks
         if (req) {
             const validation = secureFingerprint.validateClientFingerprint(
                 req,

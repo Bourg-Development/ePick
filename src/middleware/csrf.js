@@ -44,8 +44,8 @@ class CSRFProtection {
                 .update(tokenData)
                 .digest('hex');
             
-            // Create token identifier for this session/user with additional entropy
-            const tokenKey = this._getTokenKey(req, randomSalt);
+            // Create token identifier for this session/user (consistent for retrieval)
+            const tokenKey = this._getTokenKey(req);
             
             // Add random expiration jitter to prevent timing-based prediction (55-65 minutes)
             const baseExpiry = 60 * 60 * 1000; // 1 hour
@@ -181,8 +181,7 @@ class CSRFProtection {
      * @returns {string} Token key
      */
     _getTokenKey(req, entropy = null) {
-        // Base components for key generation
-        const timestamp = Date.now();
+        // Base components for key generation (without timestamp for consistency)
         const randomComponent = entropy || secureRandom.randomBytes(8);
         
         let keyComponents = [];
@@ -193,26 +192,23 @@ class CSRFProtection {
                 'session',
                 req.auth.sessionId,
                 req.auth.userId.toString(),
-                req.ip,
-                timestamp.toString()
+                req.ip
             ];
         } else if (req.auth && req.auth.userId) {
             keyComponents = [
                 'user',
                 req.auth.userId.toString(),
-                req.ip,
-                timestamp.toString()
+                req.ip
             ];
         } else {
-            // For unauthenticated users, use more entropy
+            // For unauthenticated users, use consistent identifiers
             const userAgent = req.headers['user-agent'] || 'unknown';
             const acceptLanguage = req.headers['accept-language'] || 'unknown';
             keyComponents = [
                 'anonymous',
                 req.ip,
                 userAgent,
-                acceptLanguage,
-                timestamp.toString()
+                acceptLanguage
             ];
         }
         
@@ -281,36 +277,30 @@ class CSRFProtection {
     async _validateTokenTimingSafe(req, token) {
         const startTime = Date.now();
         
-        // Generate multiple possible token keys to check against
-        const possibleKeys = this._generatePossibleTokenKeys(req);
+        // Get the primary token key for this session/user
+        const tokenKey = this._getTokenKey(req);
         let isValid = false;
         
         // Check in-memory store first
-        for (const tokenKey of possibleKeys) {
-            const storedData = this.tokenStore.get(tokenKey);
-            if (storedData && this._timingSafeCompare(storedData.token, token) && 
-                storedData.expiresAt > Date.now() && !storedData.used) {
-                isValid = true;
-                break;
-            }
+        const storedData = this.tokenStore.get(tokenKey);
+        if (storedData && this._timingSafeCompare(storedData.token, token) && 
+            storedData.expiresAt > Date.now() && !storedData.used) {
+            isValid = true;
         }
 
         // Check database as fallback if not found in memory
         if (!isValid) {
             try {
-                for (const tokenKey of possibleKeys) {
-                    const dbToken = await db.CSRFToken.findOne({
-                        where: {
-                            token_key: tokenKey,
-                            expires_at: { [Op.gt]: new Date() },
-                            used: false
-                        }
-                    });
-                    
-                    if (dbToken && this._timingSafeCompare(dbToken.token_value, token)) {
-                        isValid = true;
-                        break;
+                const dbToken = await db.CSRFToken.findOne({
+                    where: {
+                        token_key: tokenKey,
+                        expires_at: { [Op.gt]: new Date() },
+                        used: false
                     }
+                });
+                
+                if (dbToken && this._timingSafeCompare(dbToken.token_value, token)) {
+                    isValid = true;
                 }
             } catch (error) {
                 console.error('Database CSRF token validation error:', error);
@@ -339,25 +329,29 @@ class CSRFProtection {
     _generatePossibleTokenKeys(req) {
         const keys = [];
         
-        // Generate keys for different time windows to handle timing variations
-        const now = Date.now();
-        const timeWindows = [now, now - 1000, now - 2000]; // Current and previous 2 seconds
+        // Generate keys with different entropy values to handle variations
+        const entropyVariations = [
+            null, // Default entropy
+            secureRandom.randomBytes(8),
+            secureRandom.randomBytes(8)
+        ];
         
-        for (const timestamp of timeWindows) {
-            // Temporarily modify timestamp for key generation
-            const originalNow = Date.now;
-            Date.now = () => timestamp;
-            
+        for (const entropy of entropyVariations) {
             try {
-                keys.push(this._getTokenKey(req));
+                keys.push(this._getTokenKey(req, entropy));
             } catch (error) {
                 // Ignore errors and continue
-            } finally {
-                Date.now = originalNow;
             }
         }
         
-        return keys;
+        // Also try the main key without any entropy variations
+        try {
+            keys.push(this._getTokenKey(req));
+        } catch (error) {
+            // Ignore errors
+        }
+        
+        return [...new Set(keys)]; // Remove duplicates
     }
 
     /**
