@@ -13,10 +13,12 @@ const Logger = require('../utils/logger'); // Import Winston Logger
 console.log(1)
 
 /**
- * Load environment variables from db.env file
+ * Load environment variables from .env file
+ * Note: Secrets validation happens automatically when config/environment.js is loaded
+ * The app will fail to start if secrets are not properly configured in production
  */
 process.env.DOTENV_CONFIG_VERBOSE = 'false';
-dotenv.config({ override: false, debug: false });  // Load variables from db.env
+dotenv.config({ override: false, debug: false });  // Load variables from .env
 
 /**
  * Get port from environment and store in Express.

@@ -1,6 +1,14 @@
 // config/environment.js
 require('dotenv').config();
 
+const { validateSecrets } = require('./secretsValidator');
+
+/**
+ * Validate and get secure secrets configuration
+ * This will fail fast if secrets are not properly configured in production
+ */
+const secureSecrets = validateSecrets();
+
 /**
  * Environment configuration variables with secure defaults
  */
@@ -26,16 +34,16 @@ module.exports = {
     DB_PASSWORD: process.env.DB_PASSWORD || '',
     DB_SSL: process.env.DB_SSL === 'true',
 
-    // JWT config
-    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || 'change-me-in-production-access',
-    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || 'change-me-in-production-refresh',
+    // JWT config (secrets validated and secured)
+    ACCESS_TOKEN_SECRET: secureSecrets.ACCESS_TOKEN_SECRET,
+    REFRESH_TOKEN_SECRET: secureSecrets.REFRESH_TOKEN_SECRET,
     ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY || '15m',
     ACCESS_TOKEN_COOKIE_EXPIRY: process.env.ACCESS_TOKEN_COOKIE_EXPIRY ||'86400',
     REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY || '7d',
 
-    // Security config
-    PEPPER: process.env.PEPPER || 'change-me-in-production-pepper',
-    CRYPTO_SECRET: process.env.CRYPTO_SECRET || 'change-me-in-production-crypto-32chars',
+    // Security config (secrets validated and secured)
+    PEPPER: secureSecrets.PEPPER,
+    CRYPTO_SECRET: secureSecrets.CRYPTO_SECRET,
     LOG_ENCRYPTION_ENABLED: process.env.LOG_ENCRYPTION_ENABLED === 'true',
     REFERENCE_CODE_EXPIRY_DAYS: parseInt(process.env.REFERENCE_CODE_EXPIRY_DAYS || '7'),
 
