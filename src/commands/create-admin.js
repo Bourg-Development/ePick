@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const argon2 = require('argon2');
 const { Pool } = require('pg');
 const readline = require('readline');
+const secureRandom = require('../utils/secureRandom');
 
 // Database connection configuration
 const dbConfig = {
@@ -48,8 +49,8 @@ const generatePassword = (length = 16) => {
         password += allChars.charAt(randomBytes[i + 2] % allChars.length);
     }
 
-    // Shuffle password
-    return password.split('').sort(() => 0.5 - Math.random()).join('');
+    // Securely shuffle password using cryptographically secure randomness
+    return secureRandom.shuffleString(password);
 };
 
 /**

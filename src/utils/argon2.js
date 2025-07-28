@@ -2,6 +2,7 @@
 const argon2 = require('argon2');
 const crypto = require('crypto');
 const { PEPPER } = require('../config/environment');
+const secureRandom = require('./secureRandom');
 
 /**
  * Utility for Argon2id password hashing and verification
@@ -98,8 +99,8 @@ class Argon2Util {
                 password += allChars.charAt(randomByte % allChars.length);
             }
 
-            // Shuffle the password
-            password = password.split('').sort(() => 0.5 - Math.random()).join('');
+            // Securely shuffle the password using cryptographically secure randomness
+            password = secureRandom.shuffleString(password);
 
             return password;
         } catch (error) {

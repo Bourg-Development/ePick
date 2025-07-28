@@ -5,6 +5,7 @@ const db = require('../db');
 const logService = require('./logService');
 const emailService = require('./emailService');
 const { REFERENCE_CODE_EXPIRY_DAYS } = require('../config/environment');
+const secureRandom = require('../utils/secureRandom');
 
 /**
  * Service for managing user registration reference codes
@@ -422,11 +423,8 @@ class ReferenceCodeService {
      * @returns {string} Formatted reference code
      */
     _generateCode() {
-        // Generate 9 random digits
-        const digits = [];
-        for (let i = 0; i < 9; i++) {
-            digits.push(Math.floor(Math.random() * 10));
-        }
+        // Generate 9 cryptographically secure random digits
+        const digits = secureRandom.randomDigits(9);
 
         // Format as xxx-xxx-xxx
         return [

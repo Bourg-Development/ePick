@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
+const secureRandom = require('../utils/secureRandom');
 
 /**
  * Service for email campaign management and sending
@@ -675,7 +676,7 @@ class EmailCampaignService {
                             } catch (error) {
                                 console.error('Mark delivered error:', error);
                             }
-                        }, Math.random() * 5000); // Random delay 0-5 seconds
+                        }, secureRandom.randomInt(0, 5000)); // Secure random delay 0-5 seconds
 
                     } else {
                         await tracking.markBounced(sendResult.message || 'Unknown error');
