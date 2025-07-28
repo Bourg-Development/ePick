@@ -188,8 +188,8 @@ const authenticate = async (req, res, next) => {
                 });
                 
                 return res.status(401).json(errorResponse);
+            }
         }
-
 
         // Store auth info temporarily
         const authInfo = {
