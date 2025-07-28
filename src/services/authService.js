@@ -9,6 +9,7 @@ const logService = require('./logService');
 const cryptoService = require('./cryptoService');
 const detectionService = require('./detectionService');
 const { PEPPER } = require('../config/environment');
+const { timingSafePasswordVerification, timingSafeUserLookup, simulateUserProcessing } = require('../utils/timingSafeAuth');
 
 /**
  * Military-grade authentication service
@@ -26,18 +27,34 @@ class AuthService {
         const { ip, deviceFingerprint, userAgent } = context;
 
         try {
-            // Find user by username with correct associations
-            const user = await db.User.findOne({
-                where: { username },
-                include: [{
-                    association: 'role',
-                    include: [{ association: 'permissions' }]
-                }]
-            });
+            // Timing-safe user lookup to prevent username enumeration
+            const lookupResult = await timingSafeUserLookup(async (username) => {
+                return await db.User.findOne({
+                    where: { username },
+                    include: [{
+                        association: 'role',
+                        include: [{ association: 'permissions' }]
+                    }]
+                });
+            }, username);
 
-            // Generic error for security (prevents username enumeration)
-            if (!user) {
-                await this._logFailedAttempt(null, username, 'user_not_found', context);
+            const user = lookupResult.user;
+
+            // Timing-safe password verification
+            // This ensures consistent timing whether user exists or not
+            const verificationResult = await timingSafePasswordVerification(password, user);
+
+            // Handle authentication failure with constant timing
+            if (!user || !verificationResult.isValid) {
+                // Log the appropriate failure reason
+                if (!user) {
+                    await this._logFailedAttempt(null, username, 'user_not_found', context);
+                    // Simulate user processing to maintain consistent timing
+                    await simulateUserProcessing();
+                } else {
+                    await this._handleFailedLogin(user, context);
+                }
+                
                 return { success: false, message: 'Invalid credentials' };
             }
 
@@ -53,13 +70,8 @@ class AuthService {
                 }
             }
 
-            // Check if password is correct
-            const isPasswordValid = await this._verifyPassword(password, user.password_hash, user.salt);
-
-            if (!isPasswordValid) {
-                await this._handleFailedLogin(user, context);
-                return { success: false, message: 'Invalid credentials' };
-            }
+            // Password has already been verified in timing-safe manner above
+            // No need to check again - this prevents timing leaks
 
             // Reset failed login attempts on successful login
             user.failed_login_attempts = 0;

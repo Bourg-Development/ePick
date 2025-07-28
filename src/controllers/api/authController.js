@@ -7,6 +7,7 @@ const validator = require('../../utils/validator');
 const envConfig = require('../../config/environment');
 const tokenService = require('../../services/tokenService');
 const logService = require('../../services/logService');
+const { safeRedirectUrl } = require('../../utils/urlValidator');
 
 /**
  * Authentication controller for handling user auth operations
@@ -304,10 +305,33 @@ class AuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            const redirectUrl = req.query.redirect;
-            if(redirectUrl){
-                return res.status(200).redirect(redirectUrl);
-            }else{
+            const requestedRedirectUrl = req.query.redirect;
+            if (requestedRedirectUrl) {
+                // Validate and sanitize the redirect URL to prevent open redirect attacks
+                const redirectResult = safeRedirectUrl(requestedRedirectUrl, { 
+                    userId: result.userId, 
+                    role: result.role 
+                });
+                
+                // Log security attempt if fallback was used
+                if (redirectResult.isFallback) {
+                    await logService.securityLog({
+                        eventType: 'auth.redirect_blocked',
+                        severity: 'medium',
+                        userId: result.userId,
+                        ipAddress: req.ip,
+                        deviceFingerprint: req.get('X-Device-Fingerprint') || null,
+                        metadata: {
+                            requestedUrl: requestedRedirectUrl,
+                            reason: redirectResult.reason,
+                            safeUrl: redirectResult.url,
+                            userAgent: req.get('User-Agent')
+                        }
+                    });
+                }
+                
+                return res.status(200).redirect(redirectResult.url);
+            } else {
                 // Success - send tokens
                 return res.status(200).json({
                     success: true,

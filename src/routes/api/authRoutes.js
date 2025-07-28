@@ -5,6 +5,7 @@ const authController = require('../../controllers/api/authController');
 const authMiddleware = require('../../middleware/authentication');
 const { authRateLimit, refreshRateLimit } = require('../../middleware/rateLimit');
 const validation = require('../../middleware/validation');
+const { validateRedirectMiddleware } = require('../../utils/urlValidator');
 
 /**
  * Public authentication routes (no authentication required)
@@ -35,6 +36,7 @@ router.post('/verify-webauthn',
 // Refresh token - CRITICAL: This must be defined BEFORE any auth middleware
 router.get('/refresh-token',
     refreshRateLimit,
+    validateRedirectMiddleware('redirect'), // Validate redirect parameter for security
     validation.validateRefreshToken,
     authController.refreshToken
 );

@@ -5,6 +5,24 @@ const logService = require('../services/logService');
 const db = require('../db');
 const { ACCESS_TOKEN_COOKIE_EXPIRY } = require('../config/environment')
 const { Op } = require('sequelize');
+const { validateRedirectUrl } = require('../utils/urlValidator');
+
+/**
+ * Helper function to create safe redirect URL for token refresh
+ * Validates the original URL to prevent open redirect attacks
+ */
+const createSafeRedirectUrl = (originalUrl) => {
+    // Validate the original URL
+    const validation = validateRedirectUrl(originalUrl);
+    
+    if (validation.valid) {
+        return `/api/auth/refresh-token?redirect=${encodeURIComponent(validation.sanitized)}`;
+    }
+    
+    // If URL is invalid, redirect to token refresh without redirect parameter
+    // This will default to the dashboard after successful token refresh
+    return `/api/auth/refresh-token`;
+};
 
 /**
  * Helper function to clear authentication cookies
@@ -45,7 +63,7 @@ const authenticate = async (req, res, next) => {
             decoded = await tokenService.verifyToken(token, 'access');
         }catch (e) {
                 if (req.headers.accept?.includes('text/html')) {
-                    return res.redirect(`/api/auth/refresh-token?redirect=${encodeURIComponent(req.originalUrl)}`)
+                    return res.redirect(createSafeRedirectUrl(req.originalUrl));
                 }
                 return res.status(401).json({ error: 'Your access token is invalid. You will now be redirected to refresh it.' })
         }
