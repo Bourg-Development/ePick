@@ -34,27 +34,5 @@ module.exports = {
             styles: [ '/pages/restricted/dashboard/security.css' ], 
             scripts: [ '/pages/restricted/dashboard/security.js' ]
         });
-    },
-    dataManagement: (req, res) => {
-        // Check if user has import/export permissions
-        const hasImportPermission = req.auth.permissions.some(p => 
-            p.includes('.import') || p.includes('import.') || p.includes('import_')
-        );
-        const hasExportPermission = req.auth.permissions.some(p => 
-            p.includes('.export') || p.includes('export.') || p.includes('export_')
-        );
-        
-        if (req.auth.role !== 'system_admin' && !hasImportPermission && !hasExportPermission) {
-            return res.status(403).render('errors/unauthorized', {
-                title: 'Access Denied',
-                message: 'You do not have permission to access data management.'
-            });
-        }
-        
-        res.render('dashboard/data-management', {
-            title: 'Data Management - ePick', 
-            styles: [ '/pages/restricted/dashboard/data-management.css' ], 
-            scripts: [ '/pages/restricted/dashboard/data-management.js' ]
-        });
     }
 }

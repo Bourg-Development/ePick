@@ -26,7 +26,6 @@ const statusRoutes = require('./api/statusRoutes');
 const systemRoutes = require('./api/systemRoutes');
 const announcementRoutes = require('./api/announcementRoutes');
 const forensicsRoutes = require('./api/forensicsRoutes');
-const dataImportExportRoutes = require('./api/dataImportExportRoutes');
 const icsRoutes = require('./api/icsRoutes');
 
 // CSRF token endpoints (no CSRF protection needed for token generation)
@@ -54,7 +53,6 @@ router.use('/prescriptions', verifyCSRFToken, prescriptionRoutes);
 router.use('/system', verifyCSRFToken, systemRoutes);
 router.use('/announcements', verifyCSRFToken, announcementRoutes);
 router.use('/forensics', verifyCSRFToken, forensicsRoutes);
-router.use('/data', verifyCSRFToken, dataImportExportRoutes);
 router.use('/ics', verifyCSRFToken, icsRoutes);
 
 // Read-only routes (no CSRF protection needed)

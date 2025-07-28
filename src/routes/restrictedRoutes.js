@@ -28,7 +28,6 @@ router.get('/dashboard/analyses', dashboardController.analyses)
 router.get('/dashboard/users', dashboardController.users)
 router.get('/dashboard/archive', dashboardController.archive)
 router.get('/dashboard/security', dashboardController.security)
-router.get('/dashboard/data-management', dashboardController.dataManagement)
 
 // Prescription verification route
 router.get('/prescriptions/verify/:recurringAnalysisId', (req, res) => {
