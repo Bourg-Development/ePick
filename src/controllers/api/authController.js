@@ -8,6 +8,7 @@ const envConfig = require('../../config/environment');
 const tokenService = require('../../services/tokenService');
 const logService = require('../../services/logService');
 const { safeRedirectUrl } = require('../../utils/urlValidator');
+const secureErrorHandler = require('../../utils/secureErrorHandler');
 
 /**
  * Authentication controller for handling user auth operations
@@ -33,10 +34,12 @@ class AuthController {
                         username: username || ''
                     });
                 }
-                return res.status(400).json({
-                    success: false,
-                    message: 'Username and password are required'
-                });
+                const errorResponse = secureErrorHandler.handleError(
+                    { code: 'validation.missing_field', name: 'ValidationError' },
+                    req,
+                    { missingFields: ['username', 'password'] }
+                );
+                return res.status(400).json(errorResponse);
             }
 
             // Extract request context
@@ -54,7 +57,11 @@ class AuthController {
                         username: username || ''
                     });
                 }
-                return res.status(401).json(result);
+                const errorResponse = secureErrorHandler.handleAuthError('invalid_credentials', req, {
+                    username: username,
+                    loginAttempt: true
+                });
+                return res.status(401).json(errorResponse);
             }
 
             // If 2FA is required, send special response
@@ -107,10 +114,11 @@ class AuthController {
                 });
             }
             
-            return res.status(500).json({
-                success: false,
-                message: 'Authentication failed'
+            const errorResponse = secureErrorHandler.handleError(error, req, {
+                controllerMethod: 'login',
+                username: req.body.username
             });
+            return res.status(500).json(errorResponse);
         }
     }
 
@@ -124,10 +132,12 @@ class AuthController {
             const { userId, totpCode } = req.body;
 
             if (!userId || !totpCode) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'User ID and TOTP code are required'
-                });
+                const errorResponse = secureErrorHandler.handleError(
+                    { code: 'validation.missing_field', name: 'ValidationError' },
+                    req,
+                    { missingFields: ['userId', 'totpCode'] }
+                );
+                return res.status(400).json(errorResponse);
             }
 
             // Validate TOTP format (6 digits)

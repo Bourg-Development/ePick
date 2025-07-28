@@ -1,6 +1,7 @@
 // middleware/errorHandler.js
 const logService = require('../services/logService');
 const { NODE_ENV } = require('../config/environment');
+const secureErrorHandler = require('../utils/secureErrorHandler');
 
 /**
  * Global error handling middleware
@@ -36,57 +37,9 @@ const errorHandler = async (err, req, res, next) => {
         console.error('Error logging failed:', logError);
     }
 
-    // Handle specific error types
-    if (err.name === 'SequelizeValidationError') {
-        return res.status(400).json({
-            success: false,
-            message: 'Validation error',
-            errors: err.errors.map(e => ({
-                field: e.path,
-                message: e.message
-            }))
-        });
-    }
-
-    if (err.name === 'SequelizeUniqueConstraintError') {
-        return res.status(409).json({
-            success: false,
-            message: 'Resource already exists'
-        });
-    }
-
-    if (err.name === 'SequelizeForeignKeyConstraintError') {
-        return res.status(400).json({
-            success: false,
-            message: 'Invalid reference to a related resource'
-        });
-    }
-
-    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid credentials'
-        });
-    }
-
-    // Default error response
-    const statusCode = err.statusCode || 500;
-    const errorMessage = statusCode === 500 ?
-        'Internal server error' : // Generic message for 500 errors
-        err.message || 'Something went wrong';
-
-    res.status(statusCode).json({
-        success: false,
-        message: errorMessage,
-        // Only include error details in non-production environments
-        ...(NODE_ENV !== 'production' && {
-            error: {
-                name: err.name,
-                message: err.message,
-                stack: err.stack
-            }
-        })
-    });
+    // Use secure error handler for consistent, safe error responses
+    const errorResponse = secureErrorHandler.createApiResponse(err, req);
+    res.status(errorResponse.statusCode).json(errorResponse.body);
 };
 
 module.exports = errorHandler;

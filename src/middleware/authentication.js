@@ -6,6 +6,7 @@ const db = require('../db');
 const { ACCESS_TOKEN_COOKIE_EXPIRY } = require('../config/environment')
 const { Op } = require('sequelize');
 const { validateRedirectUrl } = require('../utils/urlValidator');
+const secureErrorHandler = require('../utils/secureErrorHandler');
 
 /**
  * Helper function to create safe redirect URL for token refresh
@@ -47,8 +48,7 @@ const clearAuthCookies = (res) => {
  * Verifies JWT tokens and sets user authentication context
  */
 const authenticate = async (req, res, next) => {
-    console.log('Auth middleware running on:', req.path);
-    console.log('Cookies in auth middleware:', req.cookies);
+    // Authentication middleware running
 
     try {
         // Extract token from headers
@@ -62,10 +62,16 @@ const authenticate = async (req, res, next) => {
         try{
             decoded = await tokenService.verifyToken(token, 'access');
         }catch (e) {
-                if (req.headers.accept?.includes('text/html')) {
-                    return res.redirect(createSafeRedirectUrl(req.originalUrl));
-                }
-                return res.status(401).json({ error: 'Your access token is invalid. You will now be redirected to refresh it.' })
+            // Handle token verification error securely
+            const errorResponse = secureErrorHandler.handleAuthError('token_invalid', req, {
+                tokenPresent: !!token,
+                verificationError: e.message
+            });
+            
+            if (req.headers.accept?.includes('text/html')) {
+                return res.redirect(createSafeRedirectUrl(req.originalUrl));
+            }
+            return res.status(401).json(errorResponse);
         }
 
         // Check if the token is blacklisted
@@ -90,13 +96,15 @@ const authenticate = async (req, res, next) => {
                 }
             });
 
+            const errorResponse = secureErrorHandler.handleAuthError('blacklisted_token', req, {
+                tokenId: decoded.id,
+                reason: blacklistedToken.reason
+            });
+            
             if (req.headers.accept?.includes('text/html')) {
                 return res.redirect('/auth/login?error=session_expired')
             }
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Your session has been revoked. Please log in again.' 
-            });
+            return res.status(401).json(errorResponse);
         }
 
 
@@ -114,34 +122,72 @@ const authenticate = async (req, res, next) => {
         });
 
         if (!session) {
+            const errorResponse = secureErrorHandler.handleAuthError('session_invalid', req, {
+                tokenId: decoded.id,
+                userId: decoded.userId
+            });
+            
             if (req.headers.accept?.includes('text/html')) {
                 return res.redirect(`/api/auth/refresh-token?redirect=${encodeURIComponent(req.originalUrl)}`)
             }
-            return res.status(401).json({ error: 'Your session is invalid. You will now be redirected to refresh it.' })
-
+            return res.status(401).json(errorResponse);
         }
 
-        // Optional: Verify device fingerprint if session has this feature enabled
-        if (session.device_fingerprint &&
-            session.device_fingerprint !== deviceFingerprint) {
-            // Log potential token misuse
-            await logService.securityLog({
-                eventType: 'session.device_mismatch',
-                severity: 'high',
-                userId: decoded.userId,
-                ipAddress: req.ip,
+        // Enhanced device fingerprint validation with anti-spoofing
+        if (session.device_fingerprint) {
+            // Use secure validation that checks against server calculation
+            const isValidFingerprint = deviceFingerprintUtil.validateFingerprint(
                 deviceFingerprint,
-                metadata: {
-                    userAgent: req.headers['user-agent'] || 'unknown',
-                    tokenId: decoded.id,
-                    expectedDevice: session.device_fingerprint
+                session.device_fingerprint,
+                false, // Non-strict mode allows minor variations
+                req   // Pass request for secure validation
+            );
+            
+            if (!isValidFingerprint) {
+                // Get detailed validation info for logging
+                const secureFingerprint = require('../utils/secureDeviceFingerprint');
+                const validation = secureFingerprint.validateWithSession(
+                    req,
+                    deviceFingerprint,
+                    session
+                );
+                
+                // Log security event with detailed information
+                await logService.securityLog({
+                    eventType: validation.securityConcern || 'session.device_mismatch',
+                    severity: validation.securityConcern === 'possible_session_hijack' ? 'critical' : 'high',
+                    userId: decoded.userId,
+                    ipAddress: req.ip,
+                    deviceFingerprint,
+                    metadata: {
+                        userAgent: req.headers['user-agent'] || 'unknown',
+                        tokenId: decoded.id,
+                        expectedDevice: session.device_fingerprint.substring(0, 16) + '...',
+                        providedDevice: deviceFingerprint.substring(0, 16) + '...',
+                        similarity: validation.similarity,
+                        reason: validation.reason,
+                        suspicious: validation.suspicious,
+                        securityChecks: validation.securityChecks
+                    }
+                });
+                
+                // Invalidate session if this looks like a hijack attempt
+                if (validation.securityConcern === 'possible_session_hijack') {
+                    session.is_valid = false;
+                    session.invalidated_at = new Date();
+                    session.invalidation_reason = 'security_violation_device_hijack';
+                    await session.save();
                 }
-            });
-
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
+                
+                const errorResponse = secureErrorHandler.handleAuthError('device_mismatch', req, {
+                    expectedDevice: session.device_fingerprint.substring(0, 16) + '...',
+                    providedDevice: deviceFingerprint.substring(0, 16) + '...',
+                    similarity: validation.similarity,
+                    reason: validation.reason,
+                    securityConcern: validation.securityConcern
+                });
+                
+                return res.status(401).json(errorResponse);
         }
 
 
@@ -179,10 +225,10 @@ const authenticate = async (req, res, next) => {
 
                     // Update auth info with new token ID
                     authInfo.tokenId = newToken.id;
-                    console.log('Token rotated for user:', decoded.userId);
+                    // Token rotated successfully
                 }
             } catch (error) {
-                console.error('Token rotation failed:', error);
+                // Token rotation failed, continuing with existing token
                 // Continue with existing token if rotation fails
             }
         } else {
@@ -190,7 +236,7 @@ const authenticate = async (req, res, next) => {
             try {
                 await session.update({ last_activity: new Date() });
             } catch (error) {
-                console.error('Failed to update session activity:', error);
+                // Failed to update session activity
             }
         }
 
@@ -202,11 +248,12 @@ const authenticate = async (req, res, next) => {
 
         return next();
     } catch (error) {
-        console.error('Authentication middleware error:', error);
-        return res.status(401).json({
-            success: false,
-            message: 'Authentication failed'
+        // Authentication middleware error occurred
+        const errorResponse = secureErrorHandler.handleError(error, req, {
+            middlewareFunction: 'authenticate',
+            path: req.path
         });
+        return res.status(401).json(errorResponse);
     }
 };
 
@@ -225,14 +272,17 @@ const nonAuth = async (req, res, next) => {
                 return next();
             }
             
+            const errorResponse = secureErrorHandler.handleAuthError('token_expired', req, {
+                tokenPresent: !!token,
+                path: req.path
+            });
+            
             if (req.headers.accept?.includes('text/html')) {
                 return res.redirect(`/api/auth/refresh-token?redirect=${encodeURIComponent(req.originalUrl)}`)
             }
-            return res.status(401).json({ error: 'Your access token has expired. You will now be redirected to refresh it.' })
+            return res.status(401).json(errorResponse);
         }
-        console.log(e.code)
-        console.log(e.originalError.name)
-        console.log(2)
+        // Token verification error in nonAuth middleware
         return res.status(401).render('errors/unauthorized', { type: 'noAuth', layout: 'layouts/auth', title: '401 | Auth required' } );
     }
 
