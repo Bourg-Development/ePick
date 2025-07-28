@@ -1,8 +1,10 @@
 // utils/deviceFingerprint.js
 const crypto = require('crypto');
+const secureFingerprint = require('./secureDeviceFingerprint');
 
 /**
  * Utility for generating and validating device fingerprints
+ * Enhanced with anti-spoofing protection
  */
 class DeviceFingerprintUtil {
     /**
@@ -12,14 +14,39 @@ class DeviceFingerprintUtil {
      */
 
     getFingerprint(req) {
-        // Try to get fingerprint from header first (if client-side fingerprinting is used)
+        // Always generate server-side fingerprint for security
+        const serverFingerprintData = secureFingerprint.generateSecureFingerprint(req);
+        
+        // Check if client provided a fingerprint
         const clientFingerprint = req.get('X-Device-Fingerprint');
+        
         if (clientFingerprint) {
-            return clientFingerprint;
+            // Validate client fingerprint against server calculation
+            const validation = secureFingerprint.validateClientFingerprint(
+                req,
+                clientFingerprint,
+                null // No stored fingerprint for initial generation
+            );
+            
+            // Log suspicious attempts
+            if (validation.suspicious || !validation.valid) {
+                console.warn('Device fingerprint validation issue:', {
+                    clientFingerprint: clientFingerprint.substring(0, 16) + '...',
+                    serverFingerprint: serverFingerprintData.fingerprint.substring(0, 16) + '...',
+                    reason: validation.reason,
+                    ip: req.ip,
+                    userAgent: req.headers['user-agent']
+                });
+            }
+            
+            // Only use client fingerprint if it matches server calculation
+            if (validation.valid && validation.exactMatch) {
+                return clientFingerprint;
+            }
         }
-
-        // Generate server-side fingerprint
-        return this.generateServerFingerprint(req);
+        
+        // Return secure server-generated fingerprint
+        return serverFingerprintData.fingerprint;
     }
 
     /**
@@ -71,19 +98,39 @@ class DeviceFingerprintUtil {
     }
     /**
      * Validate if a fingerprint matches expected value
+     * Enhanced with anti-spoofing protection
      * @param {string} providedFingerprint - Fingerprint provided by client
      * @param {string} expectedFingerprint - Expected fingerprint from database
      * @param {boolean} strictMode - Whether to enforce strict matching
+     * @param {Object} req - Express request object for validation
      * @returns {boolean} Whether fingerprints match
      */
-    validateFingerprint(providedFingerprint, expectedFingerprint, strictMode = false) {
-        // In strict mode, require exact match
+    validateFingerprint(providedFingerprint, expectedFingerprint, strictMode = false, req = null) {
+        // If request object is provided, use secure validation
+        if (req) {
+            const validation = secureFingerprint.validateClientFingerprint(
+                req,
+                providedFingerprint,
+                expectedFingerprint
+            );
+            
+            // In strict mode, require exact match and no suspicion
+            if (strictMode) {
+                return validation.valid && !validation.suspicious && validation.similarity >= 0.95;
+            }
+            
+            // In non-strict mode, allow some variation
+            return validation.valid && validation.similarity >= 0.7;
+        }
+        
+        // Fallback to legacy validation if no request object
+        // This maintains backward compatibility but is less secure
+        console.warn('Device fingerprint validation without request object is deprecated');
+        
         if (strictMode) {
             return providedFingerprint === expectedFingerprint;
         }
 
-        // In non-strict mode, check if the first 16 characters match
-        // This allows for minor variations in browser/device
         if (!providedFingerprint || !expectedFingerprint) {
             return false;
         }
