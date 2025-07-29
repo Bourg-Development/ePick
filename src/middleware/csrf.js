@@ -125,7 +125,7 @@ class CSRFProtection {
 
             // Get token from various sources
             const submittedToken = this._extractToken(req);
-            const cookieToken = req.cookies._csrf;
+            const cookieToken = req.cookies && req.cookies._csrf;
 
 
             if (!submittedToken || !cookieToken) {
@@ -227,8 +227,8 @@ class CSRFProtection {
      */
     _extractToken(req) {
         // Check multiple sources for the token
-        return req.body._csrf ||
-               req.query._csrf ||
+        return (req.body && req.body._csrf) ||
+               (req.query && req.query._csrf) ||
                req.headers['x-csrf-token'] ||
                req.headers['x-xsrf-token'] ||
                null;
