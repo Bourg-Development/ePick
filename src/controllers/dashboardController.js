@@ -20,6 +20,9 @@ module.exports = {
     patients: (req, res) => {
         res.render('dashboard/patients', {title: 'Patient Management - ePick', styles: [ '/pages/restricted/dashboard/patients.css' ], scripts: [ '/pages/restricted/dashboard/patients.js' ] });
     },
+    doctors: (req, res) => {
+        res.render('dashboard/doctors', {title: 'Doctor Management - ePick', styles: [ '/pages/restricted/dashboard/doctors.css' ], scripts: [ '/pages/restricted/dashboard/doctors.js' ] });
+    },
     security: (req, res) => {
         // Check if user has forensics permissions
         if (req.auth.role !== 'system_admin' && !req.auth.permissions.includes('forensics.dashboard')) {

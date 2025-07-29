@@ -31,7 +31,9 @@
     "warning": "Avertissement",
     "info": "Information",
     "refresh": "Actualiser",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "active": "Actif",
+    "inactive": "Inactif"
   },
   "auth": {
     "loginTitle": "Connectez-vous à votre compte",
@@ -387,12 +389,24 @@
   },
   "filters": {
     "searchPlaceholder": "Rechercher par patient, médecin ou chambre...",
+    "searchPatients": "Rechercher des patients...",
+    "searchServices": "Rechercher des services...",
+    "searchRooms": "Rechercher par numéro de chambre ou service...",
+    "searchDoctors": "Rechercher par nom, spécialisation ou email...",
     "allStatuses": "Tous les statuts",
     "allTypes": "Tous les types",
     "allPriorities": "Toutes les priorités",
     "allRoles": "Tous les rôles",
     "allServices": "Tous les services",
+    "allSpecialties": "Toutes les spécialisations",
+    "allRooms": "Toutes les chambres",
+    "allDoctors": "Tous les médecins",
+    "allGenders": "Tous les genres",
+    "male": "Homme",
+    "female": "Femme",
+    "other": "Autre",
     "active": "Actif",
+    "inactive": "Inactif",
     "locked": "Verrouillé",
     "startDate": "Date de début",
     "endDate": "Date de fin",
@@ -536,6 +550,8 @@
     "orgSensitiveWarning": "Vous avez sélectionné des colonnes contenant des valeurs de configuration sensibles. Assurez-vous d'avoir l'autorisation appropriée et de manipuler ces données selon vos politiques de sécurité.",
     "preparingExport": "Préparation de l'exportation...",
     "preparing": "Préparation de l'exportation...",
+    "success": "Exportation réussie",
+    "error": "Erreur lors de l'exportation",
     "modal": {
       "title": "Exporter les analyses",
       "privacyNotice": "Avis de confidentialité des données médicales",
@@ -1292,6 +1308,41 @@
       "roomsList": "Liste des chambres",
       "searchPlaceholder": "Rechercher par numéro de chambre ou service..."
     },
+    "doctors": {
+      "title": "Médecins",
+      "subtitle": "Gérer le personnel médical et les spécialistes",
+      "create": "Créer médecin",
+      "createDoctor": "Créer nouveau médecin",
+      "editDoctor": "Modifier médecin",
+      "exportDoctors": "Exporter médecins",
+      "doctorDetails": "Détails du médecin",
+      "name": "Nom complet",
+      "namePlaceholder": "Dr. Jean Dupont",
+      "specialization": "Spécialisation",
+      "specializationPlaceholder": "ex. Cardiologie, Neurologie",
+      "specializationHelp": "Spécialisation médicale ou département",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33 1 23 45 67 89",
+      "phoneHelp": "Numéro de téléphone de contact",
+      "email": "Email",
+      "emailPlaceholder": "medecin@hopital.com",
+      "emailHelp": "Adresse email de contact",
+      "notes": "Notes",
+      "notesPlaceholder": "Informations supplémentaires sur le médecin...",
+      "notesHelp": "Notes optionnelles ou informations supplémentaires",
+      "totalDoctors": "Total médecins",
+      "activeDoctors": "Médecins actifs",
+      "specializations": "Spécialisations",
+      "doctorsList": "Liste des médecins",
+      "searchPlaceholder": "Rechercher par nom, spécialisation ou email...",
+      "noDoctorsFound": "Aucun médecin trouvé",
+      "failedLoadData": "Échec du chargement des données médecins",
+      "failedLoadDoctors": "Échec du chargement des médecins",
+      "saveSuccess": "Médecin enregistré avec succès",
+      "saveError": "Échec de l'enregistrement du médecin",
+      "deleteSuccess": "Médecin supprimé avec succès",
+      "deleteError": "Échec de la suppression du médecin"
+    },
     "services": {
       "title": "Services",
       "subtitle": "Gérer les services et départements de l'hôpital",
@@ -1699,6 +1750,28 @@
       "create": "Créer la chambre",
       "update": "Mettre à jour la chambre"
     },
+    "createDoctor": {
+      "title": "Créer un médecin",
+      "editTitle": "Modifier le médecin",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Prénom",
+      "lastName": "Nom",
+      "lastNamePlaceholder": "Nom",
+      "specialization": "Spécialisation",
+      "specializationPlaceholder": "ex. Cardiologie, Neurologie",
+      "email": "Email",
+      "emailPlaceholder": "medecin@hopital.com",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+33 1 23 45 67 89",
+      "notes": "Notes",
+      "notesPlaceholder": "Informations supplémentaires...",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "cancel": "Annuler",
+      "create": "Créer médecin",
+      "update": "Modifier médecin"
+    },
     "addDoctor": {
       "title": "Ajouter un nouveau médecin",
       "doctorName": "Nom du médecin",
@@ -1770,6 +1843,15 @@
       "doctor": "Médecin",
       "actions": "Actions"
     },
+    "doctors": {
+      "doctorName": "Nom du médecin",
+      "specialization": "Spécialisation",
+      "email": "Email",
+      "phone": "Téléphone",
+      "status": "Statut",
+      "createdAt": "Créé le",
+      "actions": "Actions"
+    },
     "services": {
       "serviceName": "Nom du service",
       "email": "Email",
@@ -1787,35 +1869,32 @@
       "actions": "Actions"
     }
   },
-  "filters": {
-    "searchPatients": "Rechercher des patients...",
-    "searchServices": "Rechercher des services...",
-    "searchRooms": "Rechercher par numéro de chambre ou service...",
-    "allRooms": "Toutes les chambres",
-    "allDoctors": "Tous les médecins",
-    "allGenders": "Tous les genres",
-    "allStatuses": "Tous les statuts",
-    "allServices": "Tous les services",
-    "male": "Homme",
-    "female": "Femme",
-    "other": "Autre",
-    "active": "Actif",
-    "inactive": "Inactif",
-    "itemsPerPage": "Éléments par page"
-  },
   "buttons": {
     "refresh": "Actualiser",
     "advancedOptions": "Options avancées",
     "quickExportCSV": "Exportation rapide (CSV)",
     "quickExportExcel": "Exportation rapide (Excel)",
     "previous": "Précédent",
-    "next": "Suivant"
+    "next": "Suivant",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "export": "Exporter"
+  },
+  "dialogs": {
+    "confirmDelete": "Confirmer la suppression",
+    "deleteDoctorConfirm": "Êtes-vous sûr de vouloir supprimer ce médecin",
+    "actionCannotBeUndone": "Cette action ne peut pas être annulée"
   },
   "pagination": {
     "page": "Page",
     "of": "de",
     "loading": "Chargement...",
-    "recordCount": "Affichage de {start} à {end} sur {total} enregistrements"
+    "recordCount": "Affichage de {start} à {end} sur {total} enregistrements",
+    "pageInfo": "Page {current} de {total} ({count} enregistrements)"
   },
   "dashboard": {
     "home": {

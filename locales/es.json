@@ -31,7 +31,10 @@
     "warning": "Advertencia",
     "info": "Información",
     "refresh": "Actualizar",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "status": "Estado"
   },
   "auth": {
     "loginTitle": "Inicia sesión en tu cuenta",
@@ -363,12 +366,24 @@
   },
   "filters": {
     "searchPlaceholder": "Buscar por paciente, médico o habitación...",
+    "searchPatients": "Buscar pacientes...",
+    "searchServices": "Buscar servicios...",
+    "searchRooms": "Buscar por número de habitación o servicio...",
+    "searchDoctors": "Buscar médicos...",
     "allStatuses": "Todos los estados",
     "allTypes": "Todos los tipos",
     "allPriorities": "Todas las prioridades",
     "allRoles": "Todos los roles",
     "allServices": "Todos los servicios",
+    "allSpecialties": "Todas las especialidades",
+    "allRooms": "Todas las habitaciones",
+    "allDoctors": "Todos los médicos",
+    "allGenders": "Todos los géneros",
+    "male": "Masculino",
+    "female": "Femenino",
+    "other": "Otro",
     "active": "Activo",
+    "inactive": "Inactivo",
     "locked": "Bloqueado",
     "startDate": "Fecha de inicio",
     "endDate": "Fecha de fin",
@@ -1340,23 +1355,15 @@
       "occupancy": "Ocupación",
       "status": "Estado",
       "actions": "Acciones"
+    },
+    "doctors": {
+      "doctorName": "Nombre del médico",
+      "specialization": "Especialización",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "actions": "Acciones"
     }
-  },
-  "filters": {
-    "searchPatients": "Buscar pacientes...",
-    "searchServices": "Buscar servicios...",
-    "searchRooms": "Buscar por número de habitación o servicio...",
-    "allRooms": "Todas las habitaciones",
-    "allDoctors": "Todos los médicos",
-    "allGenders": "Todos los géneros",
-    "allStatuses": "Todos los estados",
-    "allServices": "Todos los servicios",
-    "male": "Masculino",
-    "female": "Femenino",
-    "other": "Otro",
-    "active": "Activo",
-    "inactive": "Inactivo",
-    "itemsPerPage": "Elementos por página"
   },
   "buttons": {
     "refresh": "Actualizar",
@@ -1364,13 +1371,33 @@
     "quickExportCSV": "Exportación rápida (CSV)",
     "quickExportExcel": "Exportación rápida (Excel)",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "export": "Exportar"
+  },
+  "dialogs": {
+    "confirmDelete": "Confirmar eliminación",
+    "deleteDoctorConfirm": "¿Está seguro de que desea eliminar este médico?",
+    "actionCannotBeUndone": "Esta acción no se puede deshacer"
+  },
+  "labels": {
+    "createDoctor": "Crear médico"
   },
   "pagination": {
     "page": "Página",
     "of": "de",
     "loading": "Cargando...",
-    "recordCount": "Mostrando {start} a {end} de {total} registros"
+    "recordCount": "Mostrando {start} a {end} de {total} registros",
+    "pageInfo": "Página {current} de {total} ({count} registros)"
+  },
+  "export": {
+    "success": "Exportación completada exitosamente",
+    "error": "Error durante la exportación"
   },
   "dashboard": {
     "home": {
@@ -1498,6 +1525,33 @@
       "other": "Otro",
       "roomNumber": "Habitación {0}",
       "unassigned": "Sin asignar"
+    },
+    "doctors": {
+      "title": "Médicos",
+      "subtitle": "Gestionar médicos y especialistas",
+      "createDoctor": "Crear nuevo médico",
+      "editDoctor": "Editar médico",
+      "name": "Nombre completo",
+      "namePlaceholder": "Dr. Juan García",
+      "specialization": "Especialización",
+      "specializationPlaceholder": "ej. Medicina General, Cardiología",
+      "specializationHelp": "Especialización médica del doctor",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "doctor@hospital.es",
+      "emailHelp": "Dirección de correo electrónico de contacto",
+      "phone": "Teléfono",
+      "phonePlaceholder": "+34123456789",
+      "phoneHelp": "Número de teléfono de contacto",
+      "notes": "Notas",
+      "notesPlaceholder": "Notas adicionales...",
+      "notesHelp": "Información adicional sobre el médico",
+      "noDoctorsFound": "No se encontraron médicos",
+      "saveSuccess": "Médico guardado exitosamente",
+      "saveError": "Error al guardar el médico",
+      "deleteSuccess": "Médico eliminado exitosamente",
+      "deleteError": "Error al eliminar el médico",
+      "failedLoadData": "Error al cargar datos",
+      "failedLoadDoctors": "Error al cargar médicos"
     }
   }
 }

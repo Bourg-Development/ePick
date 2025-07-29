@@ -43,6 +43,7 @@ router.get('/settings/org-settings', dashboardController.org_settings)
 router.get('/settings/rooms', dashboardController.rooms)
 router.get('/settings/services', dashboardController.services)
 router.get('/settings/patients', dashboardController.patients)
+router.get('/settings/doctors', dashboardController.doctors)
 
 // Administration routes
 router.get('/administration/mailing-lists', administrationController.mailingLists)

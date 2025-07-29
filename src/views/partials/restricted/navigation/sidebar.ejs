@@ -145,6 +145,16 @@
                                 </a>
                             </li>
                         <% } %>
+                        <% if (role === 'system_admin' || role === 'admin' || permissions.includes('doctors.view')) { %>
+                            <li class="<%- path.includes('/doctors') ? 'active' : null %>">
+                                <a href="/restricted/settings/doctors">
+                                    <span class="material-symbols-outlined">
+                                        medical_information
+                                    </span>
+                                    <span><%= __('dashboard.doctors.title') %></span>
+                                </a>
+                            </li>
+                        <% } %>
                     </ul>
                 </li>
             <% } %>

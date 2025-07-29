@@ -1,0 +1,298 @@
+<div class="header">
+    <h1><%= __('dashboard.doctors.title') %></h1>
+    <div class="header-actions">
+        <% if (permissions.includes('doctors.create')) { %>
+        <button class="btn btn-primary" id="createDoctorBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                person_add
+            </span>
+            <%= __('labels.createDoctor') %>
+        </button>
+        <% } %>
+
+        <!-- Export Dropdown -->
+        <% if (permissions.includes('doctors.export') || permissions.includes('export.all')) { %>
+        <div class="dropdown-container export-dropdown-container">
+            <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                <span class="material-symbols-outlined" style="font-size: 16px;">
+                    download
+                </span>
+                <%= __('common.export') %>
+                <span class="material-symbols-outlined dropdown-arrow">
+                    arrow_drop_down
+                </span>
+            </button>
+            <div class="dropdown-menu export-dropdown" id="exportDropdown">
+                <div class="dropdown-item" data-action="export-advanced">
+                    <span class="material-symbols-outlined">settings</span>
+                    <%= __('buttons.advancedOptions') %>
+                </div>
+                <div class="dropdown-item" data-action="export-quick-csv">
+                    <span class="material-symbols-outlined">table_view</span>
+                    <%= __('buttons.quickExportCSV') %>
+                </div>
+                <div class="dropdown-item" data-action="export-quick-excel">
+                    <span class="material-symbols-outlined">grid_on</span>
+                    <%= __('buttons.quickExportExcel') %>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <button class="btn btn-secondary" id="refreshBtn">
+            <span class="material-symbols-outlined" style="font-size: 16px;">
+                refresh
+            </span>
+            <%= __('buttons.refresh') %>
+        </button>
+    </div>
+</div>
+
+<div class="filters">
+    <div class="search-box">
+        <span class="search-icon">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </span>
+        <input type="text" class="search-input" id="searchInput" placeholder="<%= __('filters.searchDoctors') %>">
+    </div>
+    <select class="filter-select" id="filterSpecialty">
+        <option value=""><%= __('filters.allSpecialties') %></option>
+        <!-- Populated dynamically -->
+    </select>
+    <select class="filter-select" id="statusFilter">
+        <option value=""><%= __('filters.allStatuses') %></option>
+        <option value="active"><%= __('filters.active') %></option>
+        <option value="inactive"><%= __('filters.inactive') %></option>
+    </select>
+    <input type="number" class="filter-input" id="limitInput" placeholder="<%= __('filters.itemsPerPage') %>" min="10" max="100" value="20">
+</div>
+
+<div class="table-wrapper">
+    <table id="doctorsTable">
+        <thead>
+            <tr>
+                <th data-sort="name">
+                    <%= __('tables.doctors.doctorName') %>
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="specialization">
+                    <%= __('tables.doctors.specialization') %>
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="email">
+                    <%= __('tables.doctors.email') %>
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="phone">
+                    <%= __('tables.doctors.phone') %>
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th data-sort="active">
+                    <%= __('tables.doctors.status') %>
+                    <span class="material-symbols-outlined">
+                        swap_vert
+                    </span>
+                </th>
+                <th><%= __('tables.doctors.actions') %></th>
+            </tr>
+        </thead>
+        <tbody id="doctorsTableBody">
+            <!-- Data populated by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<div class="table-footer">
+    <div id="paginationInfo"><%= __('pagination.loading') %></div>
+    <div class="pagination" id="pagination">
+        <button class="pagination-btn" id="prevPageBtn" disabled>
+            <span class="material-symbols-outlined">chevron_left</span>
+            <%= __('buttons.previous') %>
+        </button>
+        <span id="currentPageInfo"><%= __('pagination.page') %> 1 <%= __('pagination.of') %> 1</span>
+        <button class="pagination-btn" id="nextPageBtn" disabled>
+            <%= __('buttons.next') %>
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    </div>
+</div>
+
+<!-- Create/Edit Doctor Modal -->
+<div class="modal" id="doctorModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle"><%= __('dashboard.doctors.createDoctor') %></h2>
+            <button class="modal-close" id="modalClose">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="doctorForm">
+                <input type="hidden" id="doctorId">
+                
+                <div class="form-group">
+                    <label for="doctorName"><%= __('dashboard.doctors.name') %> *</label>
+                    <input type="text" id="doctorName" name="name" placeholder="<%= __('dashboard.doctors.namePlaceholder') %>" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="specialization"><%= __('dashboard.doctors.specialization') %></label>
+                        <input type="text" id="specialization" name="specialization" placeholder="<%= __('dashboard.doctors.specializationPlaceholder') %>">
+                        <small><%= __('dashboard.doctors.specializationHelp') %></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="status"><%= __('common.status') %> *</label>
+                        <select id="status" name="status" required>
+                            <option value="true"><%= __('common.active') %></option>
+                            <option value="false"><%= __('common.inactive') %></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email"><%= __('dashboard.doctors.email') %></label>
+                        <input type="email" id="email" name="email" placeholder="<%= __('dashboard.doctors.emailPlaceholder') %>">
+                        <small><%= __('dashboard.doctors.emailHelp') %></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone"><%= __('dashboard.doctors.phone') %></label>
+                        <input type="tel" id="phone" name="phone" placeholder="<%= __('dashboard.doctors.phonePlaceholder') %>">
+                        <small><%= __('dashboard.doctors.phoneHelp') %></small>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelBtn"><%= __('buttons.cancel') %></button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" form="doctorForm"><%= __('buttons.save') %></button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><%= __('dialogs.confirmDelete') %></h2>
+            <button class="modal-close" id="deleteModalClose">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p id="deleteMessage"><%= __('dialogs.deleteDoctorConfirm') %></p>
+            <div class="warning-box">
+                <span class="material-symbols-outlined">warning</span>
+                <span><%= __('dialogs.actionCannotBeUndone') %></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteBtn"><%= __('buttons.cancel') %></button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn"><%= __('buttons.delete') %></button>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal" id="exportModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><%= __('export.title') %></h2>
+            <button class="modal-close" id="exportModalClose">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="exportForm">
+                <div class="form-group">
+                    <label><%= __('export.format') %></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="format" value="csv" checked>
+                            <span class="radio-custom"></span>
+                            CSV
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="format" value="excel">
+                            <span class="radio-custom"></span>
+                            Excel
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="format" value="pdf">
+                            <span class="radio-custom"></span>
+                            PDF
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= __('export.columns') %></label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="name" checked>
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.doctorName') %>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="specialization" checked>
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.specialization') %>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="email">
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.email') %>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="phone">
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.phone') %>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="status" checked>
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.status') %>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="columns" value="created_at">
+                            <span class="checkbox-custom"></span>
+                            <%= __('tables.doctors.createdAt') %>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="exportLimit"><%= __('export.recordLimit') %></label>
+                    <select id="exportLimit" name="limit">
+                        <option value="100">100</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="all"><%= __('export.allRecords') %></option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('buttons.cancel') %></button>
+            <button type="submit" class="btn btn-primary" id="startExportBtn" form="exportForm"><%= __('buttons.export') %></button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Pass permissions to JavaScript -->
+<script>
+    window.userPermissions = <%- JSON.stringify(permissions) %>;
+</script>

@@ -35,6 +35,11 @@
 <script>
 // Make translations available to JavaScript
 window.translations = {
+    common: {
+        active: "<%= __('common.active') %>",
+        inactive: "<%= __('common.inactive') %>",
+        loading: "<%= __('common.loading') %>"
+    },
     patients: {
         roomPrefix: "<%= locale === 'fr' ? 'Chambre' : locale === 'es' ? 'Habitación' : 'Room' %>",
         unassigned: "<%= __('patients.unassigned') %>",
@@ -42,6 +47,40 @@ window.translations = {
         formatRoomNumber: function(roomNumber) {
             return this.roomPrefix + ' ' + roomNumber;
         }
+    },
+    filters: {
+        allSpecialties: "<%= __('filters.allSpecialties') %>"
+    },
+    buttons: {
+        edit: "<%= __('buttons.edit') %>",
+        delete: "<%= __('buttons.delete') %>",
+        create: "<%= __('buttons.create') %>",
+        update: "<%= __('buttons.update') %>"
+    },
+    dashboard: {
+        doctors: {
+            noDoctorsFound: "<%= __('dashboard.doctors.noDoctorsFound') %>",
+            failedLoadData: "<%= __('dashboard.doctors.failedLoadData') %>",
+            failedLoadDoctors: "<%= __('dashboard.doctors.failedLoadDoctors') %>",
+            createDoctor: "<%= __('dashboard.doctors.createDoctor') %>",
+            editDoctor: "<%= __('dashboard.doctors.editDoctor') %>",
+            saveSuccess: "<%= __('dashboard.doctors.saveSuccess') %>",
+            saveError: "<%= __('dashboard.doctors.saveError') %>",
+            deleteSuccess: "<%= __('dashboard.doctors.deleteSuccess') %>",
+            deleteError: "<%= __('dashboard.doctors.deleteError') %>"
+        }
+    },
+    dialogs: {
+        deleteDoctorConfirm: "<%= __('dialogs.deleteDoctorConfirm') %>"
+    },
+    export: {
+        success: "<%= __('export.success') %>",
+        error: "<%= __('export.error') %>"
+    },
+    pagination: {
+        page: "<%= __('pagination.page') %>",
+        of: "<%= __('pagination.of') %>",
+        pageInfo: "<%= __('pagination.pageInfo') %>"
     }
 };
 </script>
