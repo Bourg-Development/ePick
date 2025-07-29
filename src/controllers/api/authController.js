@@ -356,7 +356,25 @@ class AuthController {
             }
         } catch (error) {
             console.error('Token refresh error:', error);
-            return res.status(500).redirect('/auth/login')
+            
+            // Clear authentication cookies
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
+            
+            // Check if this is an API request or browser request
+            const isApiRequest = req.headers.accept?.includes('application/json') && 
+                               !req.headers.accept?.includes('text/html');
+            
+            if (isApiRequest) {
+                // For API requests, return error
+                return res.status(500).json({
+                    success: false,
+                    message: 'Token refresh failed'
+                });
+            } else {
+                // For browser requests, redirect to login
+                return res.redirect('/auth/login');
+            }
         }
     }
 

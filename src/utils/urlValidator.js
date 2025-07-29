@@ -226,31 +226,40 @@ function safeRedirectUrl(url, user = null, fallback = null) {
  */
 function validateRedirectMiddleware(paramName = 'redirect') {
     return (req, res, next) => {
-        const redirectUrl = req.query[paramName] || req.body[paramName];
-        
-        if (redirectUrl) {
-            const validation = validateRedirectUrl(redirectUrl);
+        try {
+            // Ensure req.query and req.body exist
+            if (!req.query) req.query = {};
+            if (!req.body) req.body = {};
             
-            if (!validation.valid) {
-                // Log the security attempt
-                console.warn('Security: Invalid redirect URL attempted:', {
-                    url: redirectUrl,
-                    reason: validation.reason,
-                    ip: req.ip,
-                    userAgent: req.get('User-Agent'),
-                    user: req.auth?.userId || 'anonymous'
-                });
+            const redirectUrl = req.query[paramName] || req.body[paramName];
+            
+            if (redirectUrl) {
+                const validation = validateRedirectUrl(redirectUrl);
                 
-                // Remove the invalid redirect parameter
-                delete req.query[paramName];
-                delete req.body[paramName];
-                
-                // Optionally add a warning header
-                res.set('X-Redirect-Warning', 'Invalid redirect URL removed');
+                if (!validation.valid) {
+                    // Log the security attempt
+                    console.warn('Security: Invalid redirect URL attempted:', {
+                        url: redirectUrl,
+                        reason: validation.reason,
+                        ip: req.ip,
+                        userAgent: req.get('User-Agent'),
+                        user: req.auth?.userId || 'anonymous'
+                    });
+                    
+                    // Remove the invalid redirect parameter
+                    delete req.query[paramName];
+                    delete req.body[paramName];
+                    
+                    // Optionally add a warning header
+                    res.set('X-Redirect-Warning', 'Invalid redirect URL removed');
+                }
             }
+            
+            next();
+        } catch (error) {
+            console.error('Error in validateRedirectMiddleware:', error);
+            next(); // Continue even if validation fails
         }
-        
-        next();
     };
 }
 

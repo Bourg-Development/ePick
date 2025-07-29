@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Check if user can view users (for admin endpoints)
                 if (window.userPermissions && window.userPermissions.includes('read.users')) {
-                    promises.push(api.get('/users?limit=100'));
+                    promises.push(api.get('/admin/users?limit=100'));
                 } else {
                     // Create a resolved promise with default data
                     promises.push(Promise.resolve({ status: 'fulfilled', value: { success: false, message: 'No permission' } }));
