@@ -342,17 +342,26 @@ class AuthController {
                 
                 return res.status(200).redirect(redirectResult.url);
             } else {
-                // Success - send tokens
-                return res.status(200).json({
-                    success: true,
-                    userId: result.userId,
-                    username: result.username,
-                    role: result.role,
-                    permissions: result.permissions,
-                    accessToken: result.accessToken,
-                    refreshToken: result.refreshToken,
-                    expiresIn: result.expiresIn
-                });
+                // Check if this is an API request or browser request
+                const isApiRequest = req.headers.accept?.includes('application/json') && 
+                                   !req.headers.accept?.includes('text/html');
+                
+                if (isApiRequest) {
+                    // For API requests, send tokens as JSON
+                    return res.status(200).json({
+                        success: true,
+                        userId: result.userId,
+                        username: result.username,
+                        role: result.role,
+                        permissions: result.permissions,
+                        accessToken: result.accessToken,
+                        refreshToken: result.refreshToken,
+                        expiresIn: result.expiresIn
+                    });
+                } else {
+                    // For browser requests, redirect to dashboard
+                    return res.status(200).redirect('/restricted/dashboard');
+                }
             }
         } catch (error) {
             console.error('Token refresh error:', error);
