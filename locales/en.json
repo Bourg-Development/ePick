@@ -1110,7 +1110,9 @@
       "information": "Information",
       "analysisHistory": "Analysis History",
       "fullName": "Full Name",
-      "searchPlaceholder": "Search by name, matricule, or room..."
+      "searchPlaceholder": "Search by name, matricule, or room...",
+      "roomNumber": "Room {0}",
+      "unassigned": "Unassigned"
     }
   },
   "messages": {

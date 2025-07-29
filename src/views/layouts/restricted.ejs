@@ -32,6 +32,20 @@
 
 <%- datePreferencesScript %>
 
+<script>
+// Make translations available to JavaScript
+window.translations = {
+    patients: {
+        roomPrefix: "<%= locale === 'fr' ? 'Chambre' : locale === 'es' ? 'Habitación' : 'Room' %>",
+        unassigned: "<%= __('patients.unassigned') %>",
+        // Helper function to format room number
+        formatRoomNumber: function(roomNumber) {
+            return this.roomPrefix + ' ' + roomNumber;
+        }
+    }
+};
+</script>
+
 <!-- CSRF Protection -->
 <script src="/static/scripts/common/csrf.js"></script>
 

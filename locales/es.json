@@ -1495,7 +1495,9 @@
       "selectGender": "Seleccionar género",
       "male": "Masculino",
       "female": "Femenino",
-      "other": "Otro"
+      "other": "Otro",
+      "roomNumber": "Habitación {0}",
+      "unassigned": "Sin asignar"
     }
   }
 }

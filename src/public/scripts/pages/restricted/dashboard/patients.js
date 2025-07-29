@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Translation function fallback
     if (typeof __ === 'undefined') {
-        window.__ = function(key) {
+        window.__ = function(key, ...args) {
             if (window.translations) {
                 const keys = key.split('.');
                 let value = window.translations;
@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     value = value[k];
                     if (!value) break;
                 }
+                
+                // If translation found and has arguments, handle placeholder replacement
+                if (value && typeof value === 'string' && args.length > 0) {
+                    args.forEach((arg, index) => {
+                        value = value.replace(`{${index}}`, arg);
+                    });
+                }
+                
                 return value || key;
             }
             return key;
@@ -279,7 +287,7 @@ function initializePage() {
                         </span>
                     </td>
                     <td>
-                        <span class="assignment-name">${room ? __('patients.roomNumber').replace('{number}', room.room_number) : __('patients.unassigned')}</span>
+                        <span class="assignment-name">${room ? (window.translations?.patients?.formatRoomNumber ? window.translations.patients.formatRoomNumber(room.room_number) : `Room ${room.room_number}`) : __('patients.unassigned')}</span>
                     </td>
                     <td>
                         <span class="assignment-name">${doctor ? doctor.name : __('patients.unassigned')}</span>
@@ -737,7 +745,7 @@ function initializePage() {
                         </span>
                     </td>
                     <td>
-                        <span class="assignment-name">${room ? __('patients.roomNumber').replace('{number}', room.room_number) : __('patients.unassigned')}</span>
+                        <span class="assignment-name">${room ? (window.translations?.patients?.formatRoomNumber ? window.translations.patients.formatRoomNumber(room.room_number) : `Room ${room.room_number}`) : __('patients.unassigned')}</span>
                     </td>
                     <td>
                         <span class="assignment-name">${doctor ? doctor.name : __('patients.unassigned')}</span>
