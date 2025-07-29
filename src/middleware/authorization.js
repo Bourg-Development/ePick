@@ -1,5 +1,6 @@
 // middleware/authorization.js
 const logService = require('../services/logService');
+const secureErrorHandler = require('../utils/secureErrorHandler');
 
 /**
  * Factory function to create permission-based authorization middleware
@@ -25,15 +26,6 @@ const requirePermission = (requiredPermissions) => {
 
             const { userId, username, role, permissions: userPermissions } = req.auth;
             
-            // Debug logging for permission issues
-            console.log('Authorization check:', {
-                userId,
-                username, 
-                role,
-                userPermissions,
-                requiredPermissions: permissions,
-                path: req.path
-            });
 
             // Check if any required permission is a system permission
             const hasSystemPermission = permissions.some(permission => 
@@ -138,18 +130,9 @@ const requireRole = (allowedRoles) => {
 
             const { userId, username, role } = req.auth;
 
-            // Debug logging for role check
-            console.log('Role check:', {
-                userId,
-                username,
-                role,
-                allowedRoles: roles,
-                path: req.path
-            });
 
             // System admin can access any role-restricted endpoint
             if (role === 'system_admin') {
-                console.log('System admin access granted');
                 return next();
             }
 

@@ -127,6 +127,7 @@ class CSRFProtection {
             const submittedToken = this._extractToken(req);
             const cookieToken = req.cookies._csrf;
 
+
             if (!submittedToken || !cookieToken) {
                 await this._logCSRFViolation(req, 'missing_token');
                 return res.status(403).json({
@@ -181,9 +182,7 @@ class CSRFProtection {
      * @returns {string} Token key
      */
     _getTokenKey(req, entropy = null) {
-        // Base components for key generation (without timestamp for consistency)
-        const randomComponent = entropy || secureRandom.randomBytes(8);
-        
+        // Base components for key generation (consistent for same user/session)
         let keyComponents = [];
         
         // Use session ID if available
@@ -191,8 +190,7 @@ class CSRFProtection {
             keyComponents = [
                 'session',
                 req.auth.sessionId,
-                req.auth.userId.toString(),
-                req.ip
+                req.auth.userId.toString()
             ];
         } else if (req.auth && req.auth.userId) {
             keyComponents = [
@@ -207,18 +205,18 @@ class CSRFProtection {
             keyComponents = [
                 'anonymous',
                 req.ip,
-                userAgent,
-                acceptLanguage
+                crypto.createHash('md5').update(userAgent).digest('hex').substring(0, 8),
+                crypto.createHash('md5').update(acceptLanguage).digest('hex').substring(0, 8)
             ];
         }
         
-        // Add entropy and create secure hash
-        const keyData = keyComponents.join(':') + ':' + randomComponent.toString('hex');
+        // Create consistent hash without random component
+        const keyData = keyComponents.join(':');
         const hash = crypto.createHash('sha256')
             .update(keyData)
             .digest('hex');
             
-        return `${keyComponents[0]}:${hash}`;
+        return `${keyComponents[0]}:${hash.substring(0, 16)}`;
     }
 
     /**
@@ -320,39 +318,6 @@ class CSRFProtection {
         return isValid;
     }
 
-    /**
-     * Generate possible token keys for timing-safe validation
-     * @private
-     * @param {Object} req - Express request
-     * @returns {string[]} Array of possible token keys
-     */
-    _generatePossibleTokenKeys(req) {
-        const keys = [];
-        
-        // Generate keys with different entropy values to handle variations
-        const entropyVariations = [
-            null, // Default entropy
-            secureRandom.randomBytes(8),
-            secureRandom.randomBytes(8)
-        ];
-        
-        for (const entropy of entropyVariations) {
-            try {
-                keys.push(this._getTokenKey(req, entropy));
-            } catch (error) {
-                // Ignore errors and continue
-            }
-        }
-        
-        // Also try the main key without any entropy variations
-        try {
-            keys.push(this._getTokenKey(req));
-        } catch (error) {
-            // Ignore errors
-        }
-        
-        return [...new Set(keys)]; // Remove duplicates
-    }
 
     /**
      * Validate CSRF token (legacy method - kept for compatibility)
