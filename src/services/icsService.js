@@ -174,7 +174,7 @@ class ICSService {
             });
 
             // Add events for each analysis
-            analyses.forEach(analysis => {
+            for (const analysis of analyses) {
                 // Decrypt sensitive fields
                 const patientName = this.decryptField(analysis.patient.name);
                 const doctorName = this.decryptField(analysis.doctor.name);
@@ -182,15 +182,16 @@ class ICSService {
                 console.log('Patient name (decrypted):', patientName);
                 console.log('Doctor name (decrypted):', doctorName);
                 
-                const analysisType = analysis.analysis_type || 'Blood Analysis';
+                const analysisTypeCode = analysis.analysis_type || 'Blood Analysis';
+                const analysisTypeName = await this.getAnalysisTypeName(analysisTypeCode);
                 
                 const analysisDate = new Date(analysis.analysis_date);
                 
                 const event = calendar.createEvent({
                     start: analysisDate,
                     allDay: true,
-                    summary: `${analysisType} - ${patientName}`,
-                    description: this.buildEventDescription(analysis, patientName, doctorName),
+                    summary: `${analysisTypeName} - ${patientName}`,
+                    description: this.buildEventDescription(analysis, patientName, doctorName, analysisTypeName),
                     location: analysis.room ? `Room ${analysis.room.room_number}` : 'TBD',
                     uid: `analysis-${analysis.id}@epick.fondation.lu`,
                     status: this.mapAnalysisStatus(analysis.status),
@@ -205,7 +206,7 @@ class ICSService {
                     type: 'display',
                     trigger: 900 // 15 minutes before
                 });
-            });
+            }
 
             return calendar.toString();
         } catch (error) {
@@ -240,14 +241,15 @@ class ICSService {
      * @param {Object} analysis - Analysis object
      * @param {string} patientName - Decrypted patient name
      * @param {string} doctorName - Decrypted doctor name
+     * @param {string} analysisTypeName - Analysis type name
      * @returns {string} - Event description
      */
-    buildEventDescription(analysis, patientName, doctorName) {
+    buildEventDescription(analysis, patientName, doctorName, analysisTypeName) {
         const parts = [
             `Patient: ${patientName}`,
             `Doctor: ${doctorName}`,
             `Service: ${analysis.room?.service?.name || 'Unknown Service'}`,
-            `Type: ${analysis.analysis_type || 'Blood Analysis'}`,
+            `Type: ${analysisTypeName}`,
             `Status: ${analysis.status}`
         ];
 
@@ -260,6 +262,28 @@ class ICSService {
         }
 
         return parts.join('\n');
+    }
+
+    /**
+     * Get analysis type name from code
+     * @param {string} code - Analysis type code
+     * @returns {Promise<string>} - Analysis type name
+     */
+    async getAnalysisTypeName(code) {
+        try {
+            const orgSettingsService = require('./organizationSettingsService');
+            const typesResult = await orgSettingsService.getAnalysisTypes();
+            
+            if (typesResult.success && typesResult.analysisTypes) {
+                const type = typesResult.analysisTypes.find(t => t.code === code);
+                return type ? type.name : code;
+            }
+            
+            return code; // Return code if name not found
+        } catch (error) {
+            console.error('Error getting analysis type name:', error);
+            return code; // Return code on error
+        }
     }
 
     /**
