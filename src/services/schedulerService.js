@@ -57,8 +57,8 @@ class SchedulerService {
         // Prescription verification job (runs at configurable intervals)
         this.setupPrescriptionVerificationJob();
 
-        // Cancelled analysis archiving job (runs daily at 2:00 AM)
-        this.setupCancelledAnalysisArchivingJob();
+        // Archive jobs (cancelled and completed analyses) - runs at configurable intervals
+        this.setupArchivingJobs();
 
         // Recurring analysis job (runs daily at 6:05 AM)
         this.setupRecurringAnalysisJob();
@@ -172,47 +172,198 @@ class SchedulerService {
     }
 
     /**
-     * Setup cancelled analysis archiving job
-     * Runs every hour to archive old cancelled analyses
+     * Setup archiving jobs for both cancelled and completed analyses
+     * Runs at configurable intervals with configurable timezone
      */
-    setupCancelledAnalysisArchivingJob() {
-        const jobName = 'archive-cancelled-analyses';
-        
-        // Run every hour at the top of the hour
-        const job = cron.schedule('0 * * * *', async () => {
-            console.log('Starting scheduled cancelled analysis archiving...');
+    async setupArchivingJobs() {
+        try {
+            // Get the archiving interval from organization settings
+            const valueResult = await organizationSettingsService.getSetting('archiving_check_interval_value', 1);
+            const unitResult = await organizationSettingsService.getSetting('archiving_check_interval_unit', 'hours');
+            const timezoneResult = await organizationSettingsService.getSetting('archiving_timezone', 'America/New_York');
             
+            const intervalValue = valueResult.success ? parseInt(valueResult.setting.value) : 1;
+            const intervalUnit = unitResult.success ? unitResult.setting.value : 'hours';
+            const timezone = timezoneResult.success ? timezoneResult.setting.value : 'America/New_York';
+            
+            let cronPattern;
+            let description;
+            
+            // Build cron pattern based on interval unit
+            switch (intervalUnit) {
+                case 'minutes':
+                    if (intervalValue === 1) {
+                        cronPattern = '* * * * *'; // Every minute
+                        description = 'every minute';
+                    } else if (intervalValue <= 59) {
+                        cronPattern = `*/${intervalValue} * * * *`; // Every N minutes
+                        description = `every ${intervalValue} minutes`;
+                    } else {
+                        console.warn(`Invalid minute interval: ${intervalValue}. Using default 1 hour.`);
+                        cronPattern = '0 * * * *';
+                        description = 'every hour (fallback)';
+                    }
+                    break;
+                case 'hours':
+                    if (intervalValue === 1) {
+                        cronPattern = '0 * * * *'; // Every hour
+                        description = 'every hour';
+                    } else if (intervalValue <= 23) {
+                        cronPattern = `0 */${intervalValue} * * *`; // Every N hours
+                        description = `every ${intervalValue} hours`;
+                    } else {
+                        console.warn(`Invalid hour interval: ${intervalValue}. Using default 1 hour.`);
+                        cronPattern = '0 * * * *';
+                        description = 'every hour (fallback)';
+                    }
+                    break;
+                case 'days':
+                    if (intervalValue === 1) {
+                        cronPattern = '0 2 * * *'; // Daily at 2:00 AM
+                        description = 'daily at 2:00 AM';
+                    } else if (intervalValue <= 30) {
+                        cronPattern = `0 2 */${intervalValue} * *`; // Every N days at 2:00 AM
+                        description = `every ${intervalValue} days at 2:00 AM`;
+                    } else {
+                        console.warn(`Invalid day interval: ${intervalValue}. Using default daily.`);
+                        cronPattern = '0 2 * * *';
+                        description = 'daily at 2:00 AM (fallback)';
+                    }
+                    break;
+                default:
+                    console.warn(`Invalid interval unit: ${intervalUnit}. Using default 1 hour.`);
+                    cronPattern = '0 * * * *';
+                    description = 'every hour (fallback)';
+            }
+            
+            // Setup cancelled analysis archiving job
+            const cancelledJobName = 'archive-cancelled-analyses';
+            const cancelledJob = cron.schedule(cronPattern, async () => {
+                console.log('Starting scheduled cancelled analysis archiving...');
+                
+                try {
+                    const db = require('../db');
+                    
+                    const result = await db.sequelize.query(
+                        'SELECT archive_old_cancelled_analyses() as archived_count',
+                        { 
+                            type: db.Sequelize.QueryTypes.SELECT,
+                            plain: true 
+                        }
+                    );
+                    
+                    const archivedCount = result.archived_count;
+                    
+                    if (archivedCount > 0) {
+                        console.log(`Cancelled analysis archiving completed: ${archivedCount} analyses archived`);
+                    } else {
+                        console.log('Cancelled analysis archiving completed: No analyses needed archiving');
+                    }
+                } catch (error) {
+                    console.error('Error in scheduled cancelled analysis archiving:', error);
+                }
+            }, {
+                scheduled: false,
+                timezone: timezone
+            });
+            
+            this.cronJobs.set(cancelledJobName, cancelledJob);
+            cancelledJob.start();
+            
+            // Setup completed analysis archiving job
+            const completedJobName = 'archive-completed-analyses';
+            const completedJob = cron.schedule(cronPattern, async () => {
+                console.log('Starting scheduled completed analysis archiving...');
+                
+                try {
+                    const db = require('../db');
+                    
+                    const result = await db.sequelize.query(
+                        'SELECT archive_old_completed_analyses() as archived_count',
+                        { 
+                            type: db.Sequelize.QueryTypes.SELECT,
+                            plain: true 
+                        }
+                    );
+                    
+                    const archivedCount = result.archived_count;
+                    
+                    if (archivedCount > 0) {
+                        console.log(`Completed analysis archiving completed: ${archivedCount} analyses archived`);
+                    } else {
+                        console.log('Completed analysis archiving completed: No analyses needed archiving');
+                    }
+                } catch (error) {
+                    console.error('Error in scheduled completed analysis archiving:', error);
+                }
+            }, {
+                scheduled: false,
+                timezone: timezone
+            });
+            
+            this.cronJobs.set(completedJobName, completedJob);
+            completedJob.start();
+            
+            console.log(`Archiving jobs created and started (${description}, timezone: ${timezone})`);
+            
+        } catch (error) {
+            console.error('Error setting up archiving jobs:', error);
+            // Fallback to default configuration
+            console.log('Using fallback archiving configuration...');
+            this.setupFallbackArchivingJobs();
+        }
+    }
+
+    /**
+     * Fallback archiving jobs setup (if settings can't be loaded)
+     */
+    setupFallbackArchivingJobs() {
+        // Cancelled analysis archiving - every hour
+        const cancelledJob = cron.schedule('0 * * * *', async () => {
+            console.log('Starting fallback cancelled analysis archiving...');
             try {
                 const db = require('../db');
-                
-                // Call the database function to archive old cancelled analyses
                 const result = await db.sequelize.query(
                     'SELECT archive_old_cancelled_analyses() as archived_count',
-                    { 
-                        type: db.Sequelize.QueryTypes.SELECT,
-                        plain: true 
-                    }
+                    { type: db.Sequelize.QueryTypes.SELECT, plain: true }
                 );
-                
                 const archivedCount = result.archived_count;
-                
                 if (archivedCount > 0) {
                     console.log(`Cancelled analysis archiving completed: ${archivedCount} analyses archived`);
                 } else {
                     console.log('Cancelled analysis archiving completed: No analyses needed archiving');
                 }
             } catch (error) {
-                console.error('Error in scheduled cancelled analysis archiving:', error);
+                console.error('Error in fallback cancelled analysis archiving:', error);
             }
-        }, {
-            scheduled: false,
-            timezone: "America/New_York"
-        });
-
-        this.cronJobs.set(jobName, job);
-        job.start();
+        }, { scheduled: false, timezone: "America/New_York" });
         
-        console.log(`Scheduled job '${jobName}' created and started (runs every hour)`);
+        // Completed analysis archiving - every hour
+        const completedJob = cron.schedule('0 * * * *', async () => {
+            console.log('Starting fallback completed analysis archiving...');
+            try {
+                const db = require('../db');
+                const result = await db.sequelize.query(
+                    'SELECT archive_old_completed_analyses() as archived_count',
+                    { type: db.Sequelize.QueryTypes.SELECT, plain: true }
+                );
+                const archivedCount = result.archived_count;
+                if (archivedCount > 0) {
+                    console.log(`Completed analysis archiving completed: ${archivedCount} analyses archived`);
+                } else {
+                    console.log('Completed analysis archiving completed: No analyses needed archiving');
+                }
+            } catch (error) {
+                console.error('Error in fallback completed analysis archiving:', error);
+            }
+        }, { scheduled: false, timezone: "America/New_York" });
+        
+        this.cronJobs.set('archive-cancelled-analyses', cancelledJob);
+        this.cronJobs.set('archive-completed-analyses', completedJob);
+        cancelledJob.start();
+        completedJob.start();
+        
+        console.log('Fallback archiving jobs started (every hour, America/New_York timezone)');
     }
 
     /**
@@ -242,6 +393,40 @@ class SchedulerService {
             };
         } catch (error) {
             console.error('Error in manual cancelled analysis archiving:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Manually trigger completed analysis archiving (for testing/admin use)
+     */
+    async triggerCompletedAnalysisArchiving() {
+        console.log('Manually triggering completed analysis archiving...');
+        
+        try {
+            const db = require('../db');
+            
+            const result = await db.sequelize.query(
+                'SELECT archive_old_completed_analyses() as archived_count',
+                { 
+                    type: db.Sequelize.QueryTypes.SELECT,
+                    plain: true 
+                }
+            );
+            
+            const archivedCount = result.archived_count;
+            
+            console.log(`Manual completed analysis archiving completed: ${archivedCount} analyses archived`);
+            
+            return {
+                success: true,
+                archivedCount
+            };
+        } catch (error) {
+            console.error('Error in manual completed analysis archiving:', error);
             return {
                 success: false,
                 error: error.message
