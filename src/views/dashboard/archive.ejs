@@ -22,9 +22,9 @@
                         <span class="material-symbols-outlined">table_view</span>
                         <%= __('export.quickCsv') %>
                     </div>
-                    <div class="dropdown-item" data-action="export-quick-json">
-                        <span class="material-symbols-outlined">code</span>
-                        <%= __('export.quickJson') %>
+                    <div class="dropdown-item" data-action="export-quick-excel">
+                        <span class="material-symbols-outlined">grid_on</span>
+                        <%= __('export.quickExcel') %>
                     </div>
                 </div>
             </div>
@@ -220,13 +220,21 @@
             <button class="modal-close" id="closeExportModalBtn">&times;</button>
         </div>
         <form id="exportForm">
+            <input type="text" name="username" style="display:none" autocomplete="username" aria-hidden="true">
             <!-- PII Warning -->
             <div class="export-warning">
                 <span class="material-symbols-outlined warning-icon">warning</span>
                 <div class="warning-content">
-                    <strong><%= __('export.medicalDataNotice') %></strong>
-                    <p><%= __('export.medicalDataDescription') %></p>
+                    <strong><%= __('export.medicalPrivacyNotice') %></strong>
+                    <p><%= __('export.medicalPrivacyWarning') %></p>
                 </div>
+            </div>
+
+            <!-- Password Verification -->
+            <div class="form-section">
+                <label class="form-label" for="exportPassword"><%= __('export.yourPassword') %> <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" required placeholder="<%= __('export.passwordPlaceholder') %>" autocomplete="current-password">
+                <small class="form-help"><%= __('export.passwordHelp') %></small>
             </div>
 
             <!-- Export Format -->
@@ -241,12 +249,32 @@
                         </span>
                     </label>
                     <label class="format-option">
+                        <input type="radio" name="exportFormat" value="excel">
+                        <span class="format-details">
+                            <strong><%= __('export.excelFormat') %></strong>
+                            <small><%= __('export.excelDescription') %></small>
+                        </span>
+                    </label>
+                    <label class="format-option">
                         <input type="radio" name="exportFormat" value="json">
                         <span class="format-details">
                             <strong><%= __('export.jsonFormat') %></strong>
                             <small><%= __('export.jsonDescription') %></small>
                         </span>
                     </label>
+                </div>
+            </div>
+
+            <!-- Column Selection -->
+            <div class="form-section">
+                <label class="form-label"><%= __('export.columnSelection') %></label>
+                <div class="column-selection-header">
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn"><%= __('export.selectAll') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn"><%= __('export.selectNone') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn"><%= __('export.safeColumnsOnly') %></button>
+                </div>
+                <div class="column-grid" id="columnGrid">
+                    <!-- Populated dynamically -->
                 </div>
             </div>
 
@@ -259,17 +287,12 @@
             </div>
 
             <!-- Sensitive Data Warning -->
-            <div class="sensitive-warning" id="sensitiveWarning">
+            <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
                 <span class="material-symbols-outlined warning-icon">error</span>
                 <div class="warning-content">
-                    <strong><%= __('export.sensitiveDataWarning') %></strong>
-                    <p><%= __('export.sensitiveDataDescription') %></p>
+                    <strong><%= __('export.sensitiveDataSelected') %></strong>
+                    <p><%= __('export.sensitiveDataWarning') %></p>
                 </div>
-            </div>
-
-            <div class="export-progress" id="exportProgress">
-                <div class="export-spinner"></div>
-                <span><%= __('export.preparing') %></span>
             </div>
 
             <div class="modal-footer">
@@ -665,5 +688,222 @@
         table {
             min-width: 1000px;
         }
+    }
+
+    /* Export Modal Styles */
+    .export-modal {
+        max-width: 600px;
+    }
+
+    .export-warning,
+    .sensitive-warning {
+        display: flex;
+        gap: 12px;
+        padding: 12px;
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        margin-bottom: 16px;
+    }
+
+    .sensitive-warning {
+        background: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .warning-icon {
+        color: #856404;
+        flex-shrink: 0;
+    }
+
+    .sensitive-warning .warning-icon {
+        color: #721c24;
+    }
+
+    .warning-content {
+        flex: 1;
+    }
+
+    .warning-content strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #856404;
+    }
+
+    .sensitive-warning .warning-content strong {
+        color: #721c24;
+    }
+
+    .warning-content p {
+        margin: 0;
+        font-size: 14px;
+        color: #856404;
+    }
+
+    .sensitive-warning .warning-content p {
+        color: #721c24;
+    }
+
+    .format-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .format-option {
+        display: flex;
+        align-items: flex-start;
+        padding: 12px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .format-option:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+    }
+
+    .format-option input[type="radio"] {
+        margin-right: 12px;
+        margin-top: 2px;
+    }
+
+    .format-option input[type="radio"]:checked + .format-details strong {
+        color: #007bff;
+    }
+
+    .format-details {
+        flex: 1;
+    }
+
+    .format-details strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .format-details small {
+        display: block;
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    .column-selection-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .btn-outline {
+        background: white;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        padding: 4px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline:hover {
+        background: #f8f9fa;
+        border-color: #007bff;
+        color: #007bff;
+    }
+
+    .column-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 8px;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        background: #f8f9fa;
+    }
+
+    .column-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .column-checkbox:hover {
+        background: #e9ecef;
+    }
+
+    .column-checkbox input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .column-checkbox label {
+        cursor: pointer;
+        font-size: 14px;
+        margin: 0;
+        flex: 1;
+    }
+
+    .column-checkbox.sensitive label {
+        color: #dc3545;
+        font-weight: 500;
+    }
+
+    .current-filters {
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    }
+
+    .filter-info {
+        color: #6c757d;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    .filter-tag {
+        display: inline-block;
+        padding: 4px 8px;
+        margin: 2px;
+        background: #007bff;
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .export-progress {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin: 16px 0;
+    }
+
+    .export-progress.show {
+        display: flex;
+    }
+
+    .export-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>

@@ -312,11 +312,27 @@ class ArchiveService {
     /**
      * Export archived analyses data
      * @param {Object} filters - Filter criteria (same as getArchivedAnalyses)
-     * @param {string} [format='json'] - Export format (json, csv)
+     * @param {string} [format='json'] - Export format (json, csv, excel)
+     * @param {Array} [columns=[]] - Selected columns to export
+     * @param {number} userId - User performing the export
+     * @param {Object} context - Request context for audit logging
      * @returns {Promise<Object>} Export result
      */
-    async exportArchivedAnalyses(filters = {}, format = 'json') {
+    async exportArchivedAnalyses(filters = {}, format = 'json', columns = [], userId, context) {
         try {
+            // Log export action
+            await db.AuditLog.create({
+                user_id: userId,
+                entity_type: 'ArchivedAnalysis',
+                entity_id: null,
+                action: 'export',
+                old_values: null,
+                new_values: JSON.stringify({ format, columns: columns.length, filters }),
+                ip_address: context.ip,
+                user_agent: context.userAgent,
+                device_fingerprint: context.deviceFingerprint
+            });
+
             // Get all matching archived analyses without pagination
             const result = await this.getArchivedAnalyses(filters, 1, 1000000); // Large limit to get all
 
@@ -324,22 +340,31 @@ class ArchiveService {
                 return result;
             }
 
-            const data = result.archivedAnalyses.map(analysis => ({
-                id: analysis.id,
-                originalAnalysisId: analysis.original_analysis_id,
-                analysisDate: analysis.analysis_date,
-                patientName: analysis.patient_name,
-                matriculeNational: analysis.patient?.matricule_national || 'N/A',
-                doctorName: analysis.doctor_name,
-                roomNumber: analysis.room_number,
-                status: analysis.status,
-                analysisType: analysis.analysis_type,
-                priority: analysis.priority,
-                postponedCount: analysis.postponed_count,
-                completedAt: analysis.completed_at,
-                archivedAt: analysis.archived_at,
-                archivedBy: analysis.archivedBy?.username || 'System'
-            }));
+            // Build data based on selected columns
+            const columnMapping = {
+                analysis_date: (a) => a.analysis_date,
+                archived_at: (a) => a.archived_at,
+                patient_name: (a) => a.patient_name,
+                patient_matricule: (a) => a.patient?.matricule_national || 'N/A',
+                doctor_name: (a) => a.doctor_name,
+                room_number: (a) => a.room_number,
+                analysis_type: (a) => a.analysis_type,
+                status: (a) => a.status,
+                postponed_count: (a) => a.postponed_count,
+                priority: (a) => a.priority || 'Normal',
+                completed_at: (a) => a.completed_at,
+                notes: (a) => a.notes || ''
+            };
+
+            const data = result.archivedAnalyses.map(analysis => {
+                const row = {};
+                columns.forEach(col => {
+                    if (columnMapping[col]) {
+                        row[col] = columnMapping[col](analysis);
+                    }
+                });
+                return row;
+            });
 
             if (format === 'csv') {
                 // Convert to CSV format
@@ -351,13 +376,16 @@ class ArchiveService {
                     };
                 }
 
-                const headers = Object.keys(data[0]).join(',');
+                const headers = columns.join(',');
                 const csvRows = data.map(row =>
-                    Object.values(row).map(value =>
-                        typeof value === 'string' && value.includes(',')
-                            ? `"${value}"`
-                            : value
-                    ).join(',')
+                    columns.map(col => {
+                        const value = row[col];
+                        if (value === null || value === undefined) return '';
+                        if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+                            return `"${value.replace(/"/g, '""')}"`;
+                        }
+                        return value;
+                    }).join(',')
                 );
 
                 const csvData = [headers, ...csvRows].join('\n');
@@ -367,6 +395,14 @@ class ArchiveService {
                     data: csvData,
                     format: 'csv',
                     count: data.length
+                };
+            } else if (format === 'excel') {
+                // For now, return an error since xlsx is not installed
+                // In production, you would use: const XLSX = require('xlsx');
+                return {
+                    success: false,
+                    message: 'Excel export is not available. Please install xlsx package.',
+                    format: 'excel'
                 };
             }
 

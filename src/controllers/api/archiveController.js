@@ -261,9 +261,28 @@ class ArchiveController {
      */
     async exportArchivedAnalyses(req, res) {
         try {
-            const { filters, format = 'json' } = req.body;
+            const { filters, format = 'json', password, columns = [] } = req.body;
+            const { userId } = req.auth;
 
-            const result = await archiveService.exportArchivedAnalyses(filters, format);
+            // Verify user password for security
+            const authService = require('../../services/authService');
+            const isValidPassword = await authService.verifyUserPassword(userId, password);
+            
+            if (!isValidPassword) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid password'
+                });
+            }
+
+            // Log export attempt
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
+
+            const result = await archiveService.exportArchivedAnalyses(filters, format, columns, userId, context);
 
             if (!result.success) {
                 return res.status(400).json(result);
@@ -274,6 +293,14 @@ class ArchiveController {
                 res.setHeader('Content-Type', 'text/csv');
                 res.setHeader('Content-Disposition', 'attachment; filename="archived_analyses.csv"');
                 return res.status(200).send(result.data);
+            } else if (format === 'excel') {
+                // For Excel, send base64 encoded binary data
+                res.setHeader('Content-Type', 'application/json');
+                return res.status(200).json({
+                    success: true,
+                    data: result.data, // Base64 encoded Excel file
+                    format: result.format
+                });
             }
 
             res.setHeader('Content-Type', 'application/json');

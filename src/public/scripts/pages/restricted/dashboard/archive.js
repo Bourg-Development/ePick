@@ -315,6 +315,21 @@ function initializePage() {
         if(exportForm) {
             exportForm.addEventListener('submit', handleExportSubmit);
         }
+
+        // Column selection buttons
+        const selectAllColumnsBtn = document.getElementById('selectAllColumnsBtn');
+        const selectNoneColumnsBtn = document.getElementById('selectNoneColumnsBtn');
+        const selectSafeColumnsBtn = document.getElementById('selectSafeColumnsBtn');
+
+        if(selectAllColumnsBtn) {
+            selectAllColumnsBtn.addEventListener('click', () => selectAllColumns());
+        }
+        if(selectNoneColumnsBtn) {
+            selectNoneColumnsBtn.addEventListener('click', () => selectNoneColumns());
+        }
+        if(selectSafeColumnsBtn) {
+            selectSafeColumnsBtn.addEventListener('click', () => selectSafeColumns());
+        }
     }
 
     function setupModalEventListeners() {
@@ -387,8 +402,8 @@ function initializePage() {
             case 'export-quick-csv':
                 performQuickExport('csv');
                 break;
-            case 'export-quick-json':
-                performQuickExport('json');
+            case 'export-quick-excel':
+                performQuickExport('excel');
                 break;
         }
     }
@@ -396,6 +411,9 @@ function initializePage() {
     function showExportModal() {
         // Update current filters display
         updateCurrentFiltersDisplay();
+        
+        // Populate column selection
+        populateColumnSelection();
 
         // Reset form
         const exportForm = document.getElementById('exportForm');
@@ -460,12 +478,24 @@ function initializePage() {
     async function handleExportSubmit(e) {
         e.preventDefault();
 
+        const password = document.getElementById('exportPassword').value;
         const formatRadio = document.querySelector('input[name="exportFormat"]:checked');
         const format = formatRadio ? formatRadio.value : 'csv';
+        const selectedColumns = getSelectedColumns();
+
+        if (!password) {
+            showToast(__('export.passwordRequired'), 'error');
+            return;
+        }
+
+        if (selectedColumns.length === 0) {
+            showToast(__('export.selectAtLeastOneColumn'), 'error');
+            return;
+        }
 
         try {
             showExportProgress(true);
-            await performExport(format);
+            await performExport(format, password, selectedColumns);
             exportModal.classList.remove('show');
             showToast(`${__('messages.export.completed')} (${format.toUpperCase()})`, 'success');
         } catch (error) {
@@ -485,24 +515,59 @@ function initializePage() {
             formatRadio.checked = true;
         }
 
-        showToast(`${__('export.quickCsv')} ${__('common.loading')}`, 'info');
+        // Auto-submit the form after a brief delay
+        setTimeout(() => {
+            const exportForm = document.getElementById('exportForm');
+            if(exportForm) {
+                // Set a default password prompt
+                const passwordInput = document.getElementById('exportPassword');
+                if(passwordInput && !passwordInput.value) {
+                    passwordInput.focus();
+                    showToast(__('export.enterPasswordToContinue'), 'info');
+                }
+            }
+        }, 100);
     }
 
-    async function performExport(format) {
+    async function performExport(format, password, columns) {
         const exportData = {
             filters: getCurrentFilters(),
-            format: format
+            format: format,
+            password: password,
+            columns: columns
         };
 
         try {
-            const data = await api.post('/archive/export', exportData);
+            // For CSV, we need to handle the response differently since it returns plain text
+            if (format === 'csv') {
+                const response = await fetch(api.buildUrl('/archive/export'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(exportData)
+                });
 
-            const dateStr = window.formatDate ? window.formatDate(new Date()).replace(/\/|\.|\s/g, '-') : new Date().toISOString().split('T')[0];
-            if (format === 'json') {
-                downloadJsonFile(data.data, `archived_analyses_export_${dateStr}.json`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP Error: ${response.status}`);
+                }
+
+                const csvData = await response.text();
+                const dateStr = window.formatDate ? window.formatDate(new Date()).replace(/\/|\.|\s/g, '-') : new Date().toISOString().split('T')[0];
+                downloadTextFile(csvData, `archived_analyses_export_${dateStr}.csv`, 'text/csv');
             } else {
-                // For CSV, data.data should contain the CSV string
-                downloadTextFile(data.data, `archived_analyses_export_${dateStr}.csv`, 'text/csv');
+                // For JSON and Excel, use the API wrapper
+                const data = await api.post('/archive/export', exportData);
+                const dateStr = window.formatDate ? window.formatDate(new Date()).replace(/\/|\.|\s/g, '-') : new Date().toISOString().split('T')[0];
+                
+                if (format === 'json') {
+                    downloadJsonFile(data.data, `archived_analyses_export_${dateStr}.json`);
+                } else if (format === 'excel') {
+                    // For Excel, we need to handle binary data
+                    downloadBinaryFile(data.data, `archived_analyses_export_${dateStr}.xlsx`, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                }
             }
         } catch (error) {
             console.error('Export request error:', error);
@@ -1304,5 +1369,100 @@ function initializePage() {
             loadArchivedAnalyses();
         }
     };
+
+    // Column selection functions
+    function populateColumnSelection() {
+        const columnGrid = document.getElementById('columnGrid');
+        if (!columnGrid) return;
+
+        const columns = [
+            { id: 'analysis_date', label: __('table.analysisDate'), safe: true },
+            { id: 'archived_at', label: __('table.archivedDate'), safe: true },
+            { id: 'patient_name', label: __('table.patient'), safe: false, sensitive: true },
+            { id: 'patient_matricule', label: __('patient.matricule'), safe: false, sensitive: true },
+            { id: 'doctor_name', label: __('table.doctor'), safe: true },
+            { id: 'room_number', label: __('table.room'), safe: true },
+            { id: 'analysis_type', label: __('table.type'), safe: true },
+            { id: 'status', label: __('table.status'), safe: true },
+            { id: 'postponed_count', label: __('table.postponements'), safe: true },
+            { id: 'priority', label: __('table.priority'), safe: true },
+            { id: 'completed_at', label: __('analysis.completedDate'), safe: true },
+            { id: 'notes', label: __('table.notes'), safe: false }
+        ];
+
+        columnGrid.innerHTML = columns.map(col => `
+            <div class="column-checkbox ${col.sensitive ? 'sensitive' : ''}">
+                <input type="checkbox" id="col_${col.id}" name="columns" value="${col.id}" ${col.safe ? 'checked' : ''}>
+                <label for="col_${col.id}">${col.label}</label>
+            </div>
+        `).join('');
+
+        // Update sensitive warning visibility
+        updateSensitiveWarning();
+
+        // Add change listeners
+        columnGrid.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateSensitiveWarning);
+        });
+    }
+
+    function selectAllColumns() {
+        document.querySelectorAll('#columnGrid input[type="checkbox"]').forEach(cb => {
+            cb.checked = true;
+        });
+        updateSensitiveWarning();
+    }
+
+    function selectNoneColumns() {
+        document.querySelectorAll('#columnGrid input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+        updateSensitiveWarning();
+    }
+
+    function selectSafeColumns() {
+        document.querySelectorAll('#columnGrid .column-checkbox').forEach(div => {
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !div.classList.contains('sensitive');
+            }
+        });
+        updateSensitiveWarning();
+    }
+
+    function getSelectedColumns() {
+        const selected = [];
+        document.querySelectorAll('#columnGrid input[type="checkbox"]:checked').forEach(cb => {
+            selected.push(cb.value);
+        });
+        return selected;
+    }
+
+    function updateSensitiveWarning() {
+        const hasSensitive = Array.from(document.querySelectorAll('#columnGrid .sensitive input[type="checkbox"]:checked')).length > 0;
+        const sensitiveWarning = document.getElementById('sensitiveWarning');
+        if (sensitiveWarning) {
+            sensitiveWarning.style.display = hasSensitive ? 'flex' : 'none';
+        }
+    }
+
+    function downloadBinaryFile(base64Data, filename, mimeType) {
+        // Convert base64 to binary
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([bytes], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 
 }
