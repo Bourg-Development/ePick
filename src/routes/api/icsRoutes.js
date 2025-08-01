@@ -5,25 +5,22 @@ const { authenticate } = require('../../middleware/authentication');
 const { requirePermission } = require('../../middleware/authorization');
 const { generalRateLimit, settingsRateLimit } = require('../../middleware/rateLimit');
 
-// Authenticated routes
+// Authenticated routes - users can manage their own ICS feeds
 router.post('/enable',
     settingsRateLimit,
     authenticate,
-    requirePermission(['read.own']),
     icsController.enableFeed
 );
 
 router.post('/disable',
     settingsRateLimit,
     authenticate,
-    requirePermission(['read.own']),
     icsController.disableFeed
 );
 
 router.get('/url',
     generalRateLimit,
     authenticate,
-    requirePermission(['read.own']),
     icsController.getFeedUrl
 );
 

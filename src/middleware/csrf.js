@@ -160,8 +160,8 @@ class CSRFProtection {
                 });
             }
 
-            // Mark token as used for one-time use security
-            await this._markTokenUsed(req, submittedToken);
+            // Skip marking token as used to allow reuse in SPAs
+            // await this._markTokenUsed(req, submittedToken);
 
             next();
         } catch (error) {
@@ -282,7 +282,7 @@ class CSRFProtection {
         // Check in-memory store first
         const storedData = this.tokenStore.get(tokenKey);
         if (storedData && this._timingSafeCompare(storedData.token, token) && 
-            storedData.expiresAt > Date.now() && !storedData.used) {
+            storedData.expiresAt > Date.now()) {
             isValid = true;
         }
 
@@ -292,8 +292,7 @@ class CSRFProtection {
                 const dbToken = await db.CSRFToken.findOne({
                     where: {
                         token_key: tokenKey,
-                        expires_at: { [Op.gt]: new Date() },
-                        used: false
+                        expires_at: { [Op.gt]: new Date() }
                     }
                 });
                 
@@ -341,7 +340,7 @@ class CSRFProtection {
         
         // Check in-memory store
         const storedData = this.tokenStore.get(tokenKey);
-        if (storedData && storedData.expiresAt > Date.now() && !storedData.used) {
+        if (storedData && storedData.expiresAt > Date.now()) {
             return storedData.token;
         }
 
@@ -350,8 +349,7 @@ class CSRFProtection {
             const dbToken = await db.CSRFToken.findOne({
                 where: {
                     token_key: tokenKey,
-                    expires_at: { [Op.gt]: new Date() },
-                    used: false
+                    expires_at: { [Op.gt]: new Date() }
                 }
             });
             
