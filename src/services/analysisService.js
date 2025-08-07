@@ -711,6 +711,7 @@ class AnalysisService {
      */
     async postponeAnalysis(analysisId, userId, context, userContext = null, specificDate = null, reason = null) {
         try {
+
             // First check if user can access this analysis
             const analysisCheck = await this.getAnalysisById(analysisId, userContext);
             if (!analysisCheck.success) {
@@ -721,13 +722,17 @@ class AnalysisService {
             let newDate;
 
             if (specificDate) {
+                
                 // Validate the specific date
+                const serviceId = analysis.room?.service?.id || analysis.room?.service_id || 1;
+                
                 const validationResult = await this.validatePostponeDate(
                     specificDate, 
                     analysis.room_id,
-                    analysis.service_id,
+                    serviceId,
                     analysisId
                 );
+
 
                 if (!validationResult.valid) {
                     return {
@@ -1059,10 +1064,13 @@ class AnalysisService {
             // Check service capacity
             const maxAnalysesPerDay = parseInt(await this._getOrganizationSetting('max_analyses_per_day') || '0');
             if (maxAnalysesPerDay > 0) {
+                // Format date for PostgreSQL
+                const formattedDate = date.toISOString().split('T')[0];
+                
                 const existingCount = await db.sequelize.query(
                     'SELECT count_analyses_for_service_and_date(:serviceId, :date) as count',
                     {
-                        replacements: { serviceId, date },
+                        replacements: { serviceId, date: formattedDate },
                         type: db.Sequelize.QueryTypes.SELECT
                     }
                 );

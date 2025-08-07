@@ -631,6 +631,7 @@ class AnalysisController {
             const { postponeDate, reason } = req.body;
             const { userId } = req.auth;
 
+
             const context = {
                 ip: req.ip,
                 deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
@@ -648,6 +649,7 @@ class AnalysisController {
                 postponeDate ? new Date(postponeDate) : null,
                 reason
             );
+
 
             return res.status(result.success ? 200 : 400).json(result);
         } catch (error) {

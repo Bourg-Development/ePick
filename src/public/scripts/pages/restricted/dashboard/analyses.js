@@ -1373,8 +1373,7 @@ function initializePage() {
         
         try {
             // Check if it's a working day
-            const workingDaysResult = await api.get('/organization-settings/working_days');
-            const workingDays = JSON.parse(workingDaysResult.value || '[]');
+            const workingDays = organizationSettings.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
             
             if (!workingDays.includes(dayName)) {
                 validationMsg.textContent = `${dayName} is not a working day. Please select a different date.`;
