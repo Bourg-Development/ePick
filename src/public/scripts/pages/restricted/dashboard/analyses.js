@@ -149,6 +149,7 @@ function initializePage() {
     const cancelAnalysisModal = document.getElementById('cancelAnalysisModal');
     const auditLogsModal = document.getElementById('auditLogsModal');
     const postponeAnalysisModal = document.getElementById('postponeAnalysisModal');
+
     const toast = document.getElementById('toast');
 
     const keybinds = {
@@ -1417,7 +1418,6 @@ function initializePage() {
             }
         }
     }
-
     async function cancelAnalysis(analysisId, reason) {
         try {
             await api.post(`/analyses/${analysisId}/cancel`, { reason });
@@ -3075,6 +3075,7 @@ function initializePage() {
                         break;
                     case 'postpone':
                         showPostponeAnalysisModal(analysisId);
+
                         break;
                     case 'cancel':
                         showCancelAnalysisModal(analysisId);

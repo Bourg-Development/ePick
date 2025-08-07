@@ -650,7 +650,6 @@ class AnalysisController {
                 reason
             );
 
-
             return res.status(result.success ? 200 : 400).json(result);
         } catch (error) {
             console.error('Postpone analysis error:', error);
