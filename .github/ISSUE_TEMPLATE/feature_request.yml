@@ -1,0 +1,74 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or improvement
+title: "[Feature] "
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your suggestion! Please fill out the form below to help us understand and implement your request effectively.
+
+  - type: input
+    id: summary
+    attributes:
+      label: ✏️ Feature Summary
+      description: Short and descriptive title of the feature.
+      placeholder: "e.g. Add date picker for analysis postponing"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📄 Description
+      description: Explain the feature and why it would be useful.
+      placeholder: "Describe what the feature does and the problem it solves."
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: 🎯 User Story
+      description: Use this format — As a [user], I want [goal], so that [reason].
+      placeholder: |
+        As a caregiver,
+        I want to choose a new date using a calendar,
+        So that I can reschedule an analysis accurately.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Acceptance Criteria
+      description: List the conditions that must be met for the feature to be considered complete.
+      placeholder: |
+        - A date picker is shown when postponing an analysis.
+        - The selected date is stored correctly.
+        - Past dates cannot be selected.
+    validations:
+      required: false
+
+  - type: textarea
+    id: test-cases
+    attributes:
+      label: 🧪 Test Cases (Optional)
+      description: Describe any scenarios or tests to validate the feature.
+      placeholder: |
+        - Select future date and confirm it's stored.
+        - Try to select a past date and verify it's blocked.
+
+  - type: input
+    id: stakeholders
+    attributes:
+      label: 👥 Stakeholders (Optional)
+      description: Who is affected by or interested in this feature?
+      placeholder: e.g. Nursing team, medical coordinator
+
+  - type: input
+    id: related
+    attributes:
+      label: 🔗 Related Issues (Optional)
+      description: Link to any related issues or discussions.
+      placeholder: "#123, #456"
