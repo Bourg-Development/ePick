@@ -455,6 +455,37 @@ class EmailService {
                     html = this._loadEmailTemplate('locked')(eventDetails);
                     break;
 
+                case 'export_warning':
+                    subject = 'Suspicious Export Activity Detected';
+                    html = `
+            <h2>Export Activity Warning</h2>
+            <p>Unusual export activity has been detected on your account:</p>
+            <ul>
+              <li><strong>Patterns detected:</strong> ${eventDetails.patterns || 'Multiple suspicious patterns'}</li>
+              <li><strong>Time:</strong> ${this._formatDate(eventDetails.timestamp || new Date(), userDateFormat, userTimeFormat)}</li>
+            </ul>
+            <p>${eventDetails.message || 'Your export activity is being monitored for security reasons.'}</p>
+            <p>If this activity was not initiated by you, please change your password immediately and contact your administrator.</p>
+          `;
+                    break;
+
+                case 'suspicious_export_activity':
+                    subject = `SECURITY ALERT: Suspicious Export Activity - User ${eventDetails.username || eventDetails.userId}`;
+                    html = `
+            <h2>Suspicious Export Activity Alert</h2>
+            <p><strong>ATTENTION:</strong> Suspicious data export activity has been detected.</p>
+            <ul>
+              <li><strong>User:</strong> ${eventDetails.username || 'Unknown'} (ID: ${eventDetails.userId})</li>
+              <li><strong>Risk Score:</strong> ${(eventDetails.riskScore * 100).toFixed(0)}%</li>
+              <li><strong>Patterns Detected:</strong> ${eventDetails.patterns || 'Unknown patterns'}</li>
+              <li><strong>Account Status:</strong> ${eventDetails.accountLocked ? '<span style="color: red;">LOCKED</span>' : 'Active'}</li>
+              <li><strong>Time:</strong> ${this._formatDate(eventDetails.timestamp || new Date(), userDateFormat, userTimeFormat)}</li>
+            </ul>
+            <p><strong>Action Required:</strong> Please review the user's activity immediately.</p>
+            ${eventDetails.accountLocked ? '<p style="color: red;"><strong>The user account has been automatically locked due to high risk activity.</strong></p>' : ''}
+          `;
+                    break;
+
                 default:
                     subject = 'Security Alert';
                     html = `

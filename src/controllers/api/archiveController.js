@@ -1,5 +1,6 @@
 // controllers/archiveController.js
 const archiveService = require('../../services/archiveService');
+const exportMonitoringService = require('../../services/exportMonitoringService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
 const EncryptionHooks = require('../../utils/encryptionHooks');
 
@@ -282,10 +283,42 @@ class ArchiveController {
                 userAgent: req.headers['user-agent'] || 'unknown'
             };
 
+            // Monitor export behavior before proceeding
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                userId,
+                'archived_analyses',
+                1000, // Estimated count
+                format,
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             const result = await archiveService.exportArchivedAnalyses(filters, format, columns, userId, context);
 
             if (!result.success) {
                 return res.status(400).json(result);
+            }
+            
+            // Update monitoring with actual record count
+            await exportMonitoringService.monitorExport(
+                userId,
+                'archived_analyses',
+                result.count || 0,
+                format,
+                context
+            );
+
+            // Add export limit warning headers
+            if (monitoringResult.showWarning) {
+                res.setHeader('X-Export-Warning', 'true');
+                res.setHeader('X-Export-Limits', JSON.stringify(monitoringResult.exportLimits));
+                res.setHeader('X-Export-Message', `Warning: You have ${monitoringResult.exportLimits.hourlyRemaining} export(s) remaining this hour and ${monitoringResult.exportLimits.dailyRemaining} export(s) remaining today.`);
             }
 
             // Set appropriate headers for file download
