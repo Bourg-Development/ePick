@@ -944,6 +944,23 @@ function initializePage() {
                 throw error;
             }
 
+            // Check for export warning headers
+            const hasWarning = response.headers.get('X-Export-Warning') === 'true';
+            if (hasWarning) {
+                const warningMessage = response.headers.get('X-Export-Message');
+                const exportLimits = response.headers.get('X-Export-Limits');
+                
+                if (warningMessage) {
+                    // Show warning toast with longer duration
+                    showToast(warningMessage, 'warning', 8000);
+                }
+                
+                // Log limits for debugging
+                if (exportLimits) {
+                    console.log('Export limits:', JSON.parse(exportLimits));
+                }
+            }
+
             const blob = await response.blob();
             const filename = getFilenameFromResponse(response) ||
                 `analyses_export_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
@@ -3179,7 +3196,7 @@ function initializePage() {
         }
     }
 
-    function showToast(message, type = 'info') {
+    function showToast(message, type = 'info', duration = 5000) {
         if(!toast) return;
 
         const toastIcon = toast.querySelector('.toast-icon');
@@ -3200,7 +3217,7 @@ function initializePage() {
 
         setTimeout(() => {
             toast.classList.remove('show');
-        }, 5000);
+        }, duration);
     }
 
     function debounce(func, wait) {

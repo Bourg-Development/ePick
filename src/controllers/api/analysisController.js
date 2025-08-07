@@ -3,6 +3,7 @@ const analysisService = require('../../services/analysisService');
 const userService = require('../../services/userService');
 const authService = require('../../services/authService');
 const logService = require('../../services/logService');
+const exportMonitoringService = require('../../services/exportMonitoringService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
 const organizationSettingsService = require('../../services/organizationSettingsService');
 
@@ -229,6 +230,42 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
+            // Monitor export behavior before proceeding
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                1000, // Estimated count, will be updated after actual export
+                'json',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await new AnalysisController()._logExportFailure('json', userId, context, 'analyses');
+                
+                // If account was locked, invalidate session immediately
+                if (monitoringResult.action === 'account_locked') {
+                    // Clear authentication cookies
+                    res.clearCookie('accessToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/'
+                    });
+                    res.clearCookie('refreshToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/api/auth/refresh-token'
+                    });
+                }
+                
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions',
+                    locked: monitoringResult.action === 'account_locked'
+                });
+            }
+
             // Export analyses using the service
             const result = await analysisService.exportAnalyses(unifiedFilters, 'json', {
                 includeColumns,
@@ -239,8 +276,17 @@ class AnalysisController {
                 return res.status(400).json(result);
             }
 
-            // Log the export
+            // Log the export with actual count
             await new AnalysisController()._logExportSuccess('json', userId, result.dataCount, filters, context, 'analyses');
+            
+            // Update monitoring with actual record count
+            await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                result.dataCount,
+                'json',
+                context
+            );
 
             // Set headers for file download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.json`;
@@ -316,6 +362,42 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
+            // Monitor export behavior before proceeding
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                1000, // Estimated count
+                'csv',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await new AnalysisController()._logExportFailure('csv', userId, context, 'analyses');
+                
+                // If account was locked, invalidate session immediately
+                if (monitoringResult.action === 'account_locked') {
+                    // Clear authentication cookies
+                    res.clearCookie('accessToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/'
+                    });
+                    res.clearCookie('refreshToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/api/auth/refresh-token'
+                    });
+                }
+                
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions',
+                    locked: monitoringResult.action === 'account_locked'
+                });
+            }
+
             // Export analyses using the service
             const result = await analysisService.exportAnalyses(unifiedFilters, 'csv', {
                 includeColumns,
@@ -326,13 +408,29 @@ class AnalysisController {
                 return res.status(400).json(result);
             }
 
-            // Log the export
+            // Log the export with actual count
             await new AnalysisController()._logExportSuccess('csv', userId, result.dataCount, filters, context, 'analyses');
+            
+            // Update monitoring with actual record count
+            await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                result.dataCount,
+                'csv',
+                context
+            );
 
             // Set headers for CSV download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.csv`;
             res.setHeader('Content-Type', 'text/csv');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            
+            // Add export limit warning headers
+            if (monitoringResult.showWarning) {
+                res.setHeader('X-Export-Warning', 'true');
+                res.setHeader('X-Export-Limits', JSON.stringify(monitoringResult.exportLimits));
+                res.setHeader('X-Export-Message', `Warning: You have ${monitoringResult.exportLimits.hourlyRemaining} export(s) remaining this hour and ${monitoringResult.exportLimits.dailyRemaining} export(s) remaining today.`);
+            }
 
             return res.status(200).send(result.csvData);
         } catch (error) {
@@ -395,6 +493,42 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
+            // Monitor export behavior before proceeding
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                1000, // Estimated count
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await new AnalysisController()._logExportFailure('excel', userId, context, 'analyses');
+                
+                // If account was locked, invalidate session immediately
+                if (monitoringResult.action === 'account_locked') {
+                    // Clear authentication cookies
+                    res.clearCookie('accessToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/'
+                    });
+                    res.clearCookie('refreshToken', {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'strict',
+                        path: '/api/auth/refresh-token'
+                    });
+                }
+                
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions',
+                    locked: monitoringResult.action === 'account_locked'
+                });
+            }
+
             // Export analyses using the service
             const result = await analysisService.exportAnalyses(unifiedFilters, 'excel', {
                 includeColumns,
@@ -405,13 +539,29 @@ class AnalysisController {
                 return res.status(400).json(result);
             }
 
-            // Log the export
+            // Log the export with actual count
             await new AnalysisController()._logExportSuccess('excel', userId, result.dataCount, filters, context, 'analyses');
+            
+            // Update monitoring with actual record count
+            await exportMonitoringService.monitorExport(
+                userId,
+                'analyses',
+                result.dataCount,
+                'excel',
+                context
+            );
 
             // Set headers for Excel download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.xlsx`;
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            
+            // Add export limit warning headers
+            if (monitoringResult.showWarning) {
+                res.setHeader('X-Export-Warning', 'true');
+                res.setHeader('X-Export-Limits', JSON.stringify(monitoringResult.exportLimits));
+                res.setHeader('X-Export-Message', `Warning: You have ${monitoringResult.exportLimits.hourlyRemaining} export(s) remaining this hour and ${monitoringResult.exportLimits.dailyRemaining} export(s) remaining today.`);
+            }
 
             return res.status(200).send(result.excelBuffer);
         } catch (error) {
