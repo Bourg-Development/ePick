@@ -705,26 +705,85 @@ class AnalysisService {
      * @param {number} userId - User ID performing the postponement
      * @param {Object} context - Request context
      * @param {Object} [userContext] - User context for filtering
+     * @param {Date} [specificDate] - Specific date to postpone to
+     * @param {string} [reason] - Reason for postponement
      * @returns {Promise<Object>} Postponement result
      */
-    async postponeAnalysis(analysisId, userId, context, userContext = null) {
+    async postponeAnalysis(analysisId, userId, context, userContext = null, specificDate = null, reason = null) {
         try {
+
             // First check if user can access this analysis
             const analysisCheck = await this.getAnalysisById(analysisId, userContext);
             if (!analysisCheck.success) {
                 return analysisCheck; // Return the same error (not found or permission denied)
             }
 
-            // Use database function to postpone analysis
-            const result = await db.sequelize.query(
-                'SELECT postpone_analysis_by_service(:analysisId, :userId) as new_date',
-                {
-                    replacements: { analysisId, userId },
-                    type: db.Sequelize.QueryTypes.SELECT
-                }
-            );
+            const analysis = analysisCheck.data;
+            let newDate;
 
-            const newDate = result[0].new_date;
+            if (specificDate) {
+                
+                // Validate the specific date
+                const serviceId = analysis.room?.service?.id || analysis.room?.service_id || 1;
+                
+                const validationResult = await this.validatePostponeDate(
+                    specificDate, 
+                    analysis.room_id,
+                    serviceId,
+                    analysisId
+                );
+
+
+                if (!validationResult.valid) {
+                    return {
+                        success: false,
+                        message: validationResult.message
+                    };
+                }
+
+                // Update the analysis directly with the specific date
+                await db.Analysis.update(
+                    {
+                        analysis_date: specificDate,
+                        status: 'Delayed',
+                        postponed_count: db.sequelize.literal('postponed_count + 1'),
+                        original_date: analysis.original_date || analysis.analysis_date,
+                        updated_at: new Date()
+                    },
+                    {
+                        where: { id: analysisId }
+                    }
+                );
+
+                newDate = specificDate;
+
+                // Log the postponement with reason if provided
+                await db.AuditLog.create({
+                    event_type: 'analysis_postponed',
+                    user_id: userId,
+                    target_id: analysisId,
+                    target_type: 'analysis',
+                    metadata: {
+                        from_date: analysis.analysis_date,
+                        to_date: newDate,
+                        postponed_count: (analysis.postponed_count || 0) + 1,
+                        service_id: analysis.service_id,
+                        method: 'user_selected',
+                        reason: reason || null
+                    }
+                });
+            } else {
+                // Use the existing database function for automatic postponement
+                const result = await db.sequelize.query(
+                    'SELECT postpone_analysis_by_service(:analysisId, :userId) as new_date',
+                    {
+                        replacements: { analysisId, userId },
+                        type: db.Sequelize.QueryTypes.SELECT
+                    }
+                );
+
+                newDate = result[0].new_date;
+            }
 
             return {
                 success: true,
@@ -967,6 +1026,235 @@ class AnalysisService {
         }
 
         return false;
+    }
+
+    /**
+     * Validate a postpone date
+     * @param {Date} date - Date to validate
+     * @param {number} roomId - Room ID
+     * @param {number} serviceId - Service ID  
+     * @param {number} [excludeAnalysisId] - Analysis ID to exclude from capacity check
+     * @returns {Promise<Object>} Validation result
+     */
+    async validatePostponeDate(date, roomId, serviceId, excludeAnalysisId = null) {
+        try {
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            // Check if it's a working day
+            const workingDaysResult = await this._getOrganizationSetting('working_days');
+            const workingDays = JSON.parse(workingDaysResult || '[]');
+            
+            if (!workingDays.includes(dayName)) {
+                return {
+                    valid: false,
+                    message: `${dayName} is not a working day`
+                };
+            }
+            
+            // Check date is not in the past
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (date < today) {
+                return {
+                    valid: false,
+                    message: 'Cannot postpone to a past date'
+                };
+            }
+            
+            // Check service capacity
+            const maxAnalysesPerDay = parseInt(await this._getOrganizationSetting('max_analyses_per_day') || '0');
+            if (maxAnalysesPerDay > 0) {
+                // Format date for PostgreSQL
+                const formattedDate = date.toISOString().split('T')[0];
+                
+                const existingCount = await db.sequelize.query(
+                    'SELECT count_analyses_for_service_and_date(:serviceId, :date) as count',
+                    {
+                        replacements: { serviceId, date: formattedDate },
+                        type: db.Sequelize.QueryTypes.SELECT
+                    }
+                );
+                
+                let currentCount = parseInt(existingCount[0].count || 0);
+                
+                // If we're moving an existing analysis, don't count it
+                if (excludeAnalysisId) {
+                    const existingAnalysis = await db.Analysis.findOne({
+                        where: { 
+                            id: excludeAnalysisId,
+                            analysis_date: date,
+                            status: { [db.Sequelize.Op.ne]: 'Cancelled' }
+                        }
+                    });
+                    if (existingAnalysis) {
+                        currentCount -= 1;
+                    }
+                }
+                
+                if (currentCount >= maxAnalysesPerDay) {
+                    return {
+                        valid: false,
+                        message: `Maximum analyses per day (${maxAnalysesPerDay}) exceeded for this date`
+                    };
+                }
+            }
+            
+            return {
+                valid: true,
+                message: 'Date is available'
+            };
+        } catch (error) {
+            console.error('Validate postpone date error:', error);
+            return {
+                valid: false,
+                message: 'Error validating date'
+            };
+        }
+    }
+
+    /**
+     * Check date capacity for postponing
+     * @param {Date} date - Date to check
+     * @param {number} [excludeAnalysisId] - Analysis ID to exclude from capacity check
+     * @param {Object} [userContext] - User context for filtering
+     * @returns {Promise<Object>} Capacity check result
+     */
+    async checkDateCapacity(date, excludeAnalysisId = null, userContext = null) {
+        try {
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            // Check if it's a working day
+            const workingDaysResult = await this._getOrganizationSetting('working_days');
+            const workingDays = JSON.parse(workingDaysResult || '[]');
+            
+            if (!workingDays.includes(dayName)) {
+                return {
+                    available: false,
+                    message: `${dayName} is not a working day`,
+                    suggestions: await this._getNextAvailableDates(date, 3)
+                };
+            }
+            
+            // Check date is not in the past
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (date < today) {
+                return {
+                    available: false,
+                    message: 'Cannot postpone to a past date',
+                    suggestions: await this._getNextAvailableDates(new Date(), 3)
+                };
+            }
+            
+            // Check capacity
+            const maxAnalysesPerDay = parseInt(await this._getOrganizationSetting('max_analyses_per_day') || '0');
+            if (maxAnalysesPerDay > 0) {
+                const existingCount = await db.sequelize.query(
+                    'SELECT COUNT(*) as count FROM analyses WHERE analysis_date = :date AND status != \'Cancelled\'',
+                    {
+                        replacements: { date },
+                        type: db.Sequelize.QueryTypes.SELECT
+                    }
+                );
+                
+                let currentCount = parseInt(existingCount[0].count || 0);
+                
+                // If we're moving an existing analysis, don't count it
+                if (excludeAnalysisId) {
+                    const existingAnalysis = await db.Analysis.findOne({
+                        where: { 
+                            id: excludeAnalysisId,
+                            analysis_date: date,
+                            status: { [db.Sequelize.Op.ne]: 'Cancelled' }
+                        }
+                    });
+                    if (existingAnalysis) {
+                        currentCount -= 1;
+                    }
+                }
+                
+                const remainingCapacity = maxAnalysesPerDay - currentCount;
+                
+                if (remainingCapacity <= 0) {
+                    return {
+                        available: false,
+                        message: `Maximum analyses per day (${maxAnalysesPerDay}) exceeded for this date`,
+                        suggestions: await this._getNextAvailableDates(date, 3)
+                    };
+                }
+                
+                return {
+                    available: true,
+                    remainingCapacity,
+                    message: `${remainingCapacity} slot(s) available for this date`
+                };
+            }
+            
+            return {
+                available: true,
+                message: 'Date is available'
+            };
+        } catch (error) {
+            console.error('Check date capacity error:', error);
+            return {
+                available: false,
+                message: 'Error checking date capacity'
+            };
+        }
+    }
+
+    /**
+     * Get next available dates
+     * @private
+     * @param {Date} fromDate - Starting date
+     * @param {number} count - Number of dates to return
+     * @returns {Promise<Array>} Array of available dates
+     */
+    async _getNextAvailableDates(fromDate, count = 3) {
+        try {
+            const dates = [];
+            let checkDate = new Date(fromDate);
+            checkDate.setDate(checkDate.getDate() + 1); // Start from next day
+            
+            const workingDaysResult = await this._getOrganizationSetting('working_days');
+            const workingDays = JSON.parse(workingDaysResult || '[]');
+            const maxAnalysesPerDay = parseInt(await this._getOrganizationSetting('max_analyses_per_day') || '0');
+            
+            let daysChecked = 0;
+            const maxDaysToCheck = 30; // Prevent infinite loop
+            
+            while (dates.length < count && daysChecked < maxDaysToCheck) {
+                const dayName = checkDate.toLocaleDateString('en-US', { weekday: 'long' });
+                
+                if (workingDays.includes(dayName)) {
+                    if (maxAnalysesPerDay === 0) {
+                        // No limit, add the date
+                        dates.push(new Date(checkDate));
+                    } else {
+                        // Check capacity
+                        const existingCount = await db.sequelize.query(
+                            'SELECT COUNT(*) as count FROM analyses WHERE analysis_date = :date AND status != \'Cancelled\'',
+                            {
+                                replacements: { date: checkDate },
+                                type: db.Sequelize.QueryTypes.SELECT
+                            }
+                        );
+                        
+                        if (parseInt(existingCount[0].count || 0) < maxAnalysesPerDay) {
+                            dates.push(new Date(checkDate));
+                        }
+                    }
+                }
+                
+                checkDate.setDate(checkDate.getDate() + 1);
+                daysChecked++;
+            }
+            
+            return dates;
+        } catch (error) {
+            console.error('Get next available dates error:', error);
+            return [];
+        }
     }
 
     /**

@@ -558,6 +558,51 @@
     </div>
 </div>
 
+<!-- Postpone Analysis Modal -->
+<div class="modal-overlay" id="postponeAnalysisModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Postpone Analysis</h2>
+            <button class="modal-close" id="closePostponeModalBtn">&times;</button>
+        </div>
+        <form id="postponeAnalysisForm">
+            <input type="hidden" id="postponeAnalysisId" name="analysisId">
+            
+            <div class="form-group">
+                <label for="postponeDate">Select New Date <span class="required">*</span></label>
+                <input type="date" 
+                       id="postponeDate" 
+                       name="postponeDate" 
+                       class="form-control" 
+                       required
+                       min="<%= new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] %>"
+                       max="<%= new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0] %>">
+                <small class="form-help">Select a new date for the analysis (must be within the next 30 days)</small>
+                <div id="postponeDateValidation" class="validation-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="postponeReason">Reason (Optional)</label>
+                <textarea id="postponeReason" 
+                          name="postponeReason" 
+                          class="form-control" 
+                          rows="3" 
+                          placeholder="Provide a reason for postponing..."></textarea>
+            </div>
+
+            <div class="info-box" id="postponeInfoBox" style="display: none;">
+                <span class="material-symbols-outlined">info</span>
+                <div class="info-content"></div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelPostponeBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="confirmPostponeBtn">Postpone Analysis</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Toast Notification -->
 <div class="toast" id="toast">
     <div class="toast-content">
@@ -577,6 +622,57 @@
         font-size: 12px;
         color: #6c757d;
         font-style: italic;
+    }
+
+    .validation-message {
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--dark-red);
+        display: none;
+    }
+
+    .validation-message.show {
+        display: block;
+    }
+
+    .validation-message.success {
+        color: var(--success-green);
+    }
+
+    .info-box {
+        background-color: #e3f2fd;
+        border: 1px solid #90caf9;
+        border-radius: 4px;
+        padding: 12px;
+        margin-top: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .info-box .material-symbols-outlined {
+        color: #1976d2;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .info-box .info-content {
+        font-size: 14px;
+        color: #1565c0;
+        line-height: 1.5;
+    }
+
+    .info-box.warning {
+        background-color: #fff3cd;
+        border-color: #ffc107;
+    }
+
+    .info-box.warning .material-symbols-outlined {
+        color: #ff9800;
+    }
+
+    .info-box.warning .info-content {
+        color: #856404;
     }
 
     .analysis-info-section {

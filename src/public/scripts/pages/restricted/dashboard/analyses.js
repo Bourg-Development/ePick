@@ -148,6 +148,8 @@ function initializePage() {
     const addDoctorModal = document.getElementById('addDoctorModal');
     const cancelAnalysisModal = document.getElementById('cancelAnalysisModal');
     const auditLogsModal = document.getElementById('auditLogsModal');
+    const postponeAnalysisModal = document.getElementById('postponeAnalysisModal');
+
     const toast = document.getElementById('toast');
 
     const keybinds = {
@@ -162,6 +164,7 @@ function initializePage() {
             exportModal?.classList.remove('show');
             addDoctorModal?.classList.remove('show');
             cancelAnalysisModal?.classList.remove('show');
+            postponeAnalysisModal?.classList.remove('show');
         },
         'Control+r': () => {
             loadAnalyses();
@@ -574,6 +577,33 @@ function initializePage() {
             cancelConfirmBtn.addEventListener('click', () => {
                 confirmModal.classList.remove('show');
             });
+        }
+
+        // Postpone Analysis Modal
+        const closePostponeModalBtn = document.getElementById('closePostponeModalBtn');
+        const cancelPostponeBtn = document.getElementById('cancelPostponeBtn');
+        const postponeAnalysisForm = document.getElementById('postponeAnalysisForm');
+        const postponeDateInput = document.getElementById('postponeDate');
+
+        if(closePostponeModalBtn) {
+            closePostponeModalBtn.addEventListener('click', () => {
+                postponeAnalysisModal.classList.remove('show');
+                postponeAnalysisForm.reset();
+            });
+        }
+        if(cancelPostponeBtn) {
+            cancelPostponeBtn.addEventListener('click', () => {
+                postponeAnalysisModal.classList.remove('show');
+                postponeAnalysisForm.reset();
+            });
+        }
+
+        if(postponeAnalysisForm) {
+            postponeAnalysisForm.addEventListener('submit', handlePostponeAnalysis);
+        }
+
+        if(postponeDateInput) {
+            postponeDateInput.addEventListener('change', validatePostponeDate);
         }
 
         // Add Doctor Modal
@@ -1264,10 +1294,18 @@ function initializePage() {
         }
     }
 
-    async function postponeAnalysis(analysisId) {
+    async function postponeAnalysis(analysisId, postponeDate = null, reason = null) {
         try {
-            const data = await api.post(`/analyses/${analysisId}/postpone`);
-            showToast(`${__('messages.success.analysisPostponed')} ${data.newDate}`, 'success');
+            const payload = {};
+            if (postponeDate) {
+                payload.postponeDate = postponeDate;
+            }
+            if (reason) {
+                payload.reason = reason;
+            }
+            
+            const data = await api.post(`/analyses/${analysisId}/postpone`, payload);
+            showToast(`${__('messages.success.analysisPostponed')} ${new Date(data.newDate).toLocaleDateString()}`, 'success');
             loadAnalyses();
         } catch (error) {
             console.error('Postpone analysis error:', error);
@@ -1277,6 +1315,109 @@ function initializePage() {
         }
     }
 
+    function showPostponeAnalysisModal(analysisId) {
+        // Reset form and validation
+        const form = document.getElementById('postponeAnalysisForm');
+        const validationMsg = document.getElementById('postponeDateValidation');
+        const infoBox = document.getElementById('postponeInfoBox');
+        
+        form.reset();
+        validationMsg.classList.remove('show');
+        infoBox.style.display = 'none';
+        
+        // Set the analysis ID
+        document.getElementById('postponeAnalysisId').value = analysisId;
+        
+        // Show modal
+        postponeAnalysisModal.classList.add('show');
+    }
+
+    async function handlePostponeAnalysis(e) {
+        e.preventDefault();
+        
+        const analysisId = document.getElementById('postponeAnalysisId').value;
+        const postponeDate = document.getElementById('postponeDate').value;
+        const reason = document.getElementById('postponeReason').value;
+        
+        if (!postponeDate) {
+            showToast('Please select a date', 'error');
+            return;
+        }
+        
+        try {
+            await postponeAnalysis(analysisId, postponeDate, reason);
+            postponeAnalysisModal.classList.remove('show');
+        } catch (error) {
+            // Error already handled in postponeAnalysis
+        }
+    }
+
+    async function validatePostponeDate() {
+        const dateInput = document.getElementById('postponeDate');
+        const validationMsg = document.getElementById('postponeDateValidation');
+        const infoBox = document.getElementById('postponeInfoBox');
+        const infoContent = infoBox.querySelector('.info-content');
+        const confirmBtn = document.getElementById('confirmPostponeBtn');
+        
+        const selectedDate = new Date(dateInput.value);
+        const dayName = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
+        
+        // Reset validation
+        validationMsg.classList.remove('show', 'success');
+        infoBox.style.display = 'none';
+        infoBox.classList.remove('warning');
+        confirmBtn.disabled = false;
+        
+        if (!dateInput.value) {
+            return;
+        }
+        
+        try {
+            // Check if it's a working day
+            const workingDays = organizationSettings.working_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            
+            if (!workingDays.includes(dayName)) {
+                validationMsg.textContent = `${dayName} is not a working day. Please select a different date.`;
+                validationMsg.classList.add('show');
+                confirmBtn.disabled = true;
+                return;
+            }
+            
+            // Check capacity for the selected date
+            const capacityCheck = await api.post('/analyses/check-date-capacity', {
+                date: dateInput.value,
+                analysisId: document.getElementById('postponeAnalysisId').value
+            });
+            
+            if (!capacityCheck.available) {
+                validationMsg.textContent = capacityCheck.message || 'This date is not available.';
+                validationMsg.classList.add('show');
+                confirmBtn.disabled = true;
+                
+                if (capacityCheck.suggestions && capacityCheck.suggestions.length > 0) {
+                    infoBox.style.display = 'flex';
+                    infoBox.classList.add('warning');
+                    infoContent.innerHTML = `<strong>Suggested dates:</strong><br>${capacityCheck.suggestions.map(date => 
+                        new Date(date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })
+                    ).join('<br>')}`;
+                }
+            } else {
+                validationMsg.textContent = 'Date is available';
+                validationMsg.classList.add('show', 'success');
+                
+                if (capacityCheck.remainingCapacity !== undefined) {
+                    infoBox.style.display = 'flex';
+                    infoContent.textContent = `${capacityCheck.remainingCapacity} slot(s) remaining for this date.`;
+                }
+            }
+        } catch (error) {
+            console.error('Date validation error:', error);
+            if (!handleAuthError(error)) {
+                validationMsg.textContent = 'Error validating date. Please try again.';
+                validationMsg.classList.add('show');
+            }
+        }
+    }
     async function cancelAnalysis(analysisId, reason) {
         try {
             await api.post(`/analyses/${analysisId}/cancel`, { reason });
@@ -2933,10 +3074,8 @@ function initializePage() {
                         openPrescriptionValidation(analysisId);
                         break;
                     case 'postpone':
-                        showConfirmModal(
-                            `Are you sure you want to postpone this analysis? It will be rescheduled to the next available date.`,
-                            () => postponeAnalysis(analysisId)
-                        );
+                        showPostponeAnalysisModal(analysisId);
+
                         break;
                     case 'cancel':
                         showCancelAnalysisModal(analysisId);

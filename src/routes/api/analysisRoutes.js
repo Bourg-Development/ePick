@@ -129,4 +129,11 @@ router.get('/scheduling/next-available',
     analysisController.getNextAvailableDate
 );
 
+// Check date capacity for postponing
+router.post('/check-date-capacity',
+    generalRateLimit,
+    requirePermission(['analyses.update', 'write.all']),
+    analysisController.checkDateCapacity
+);
+
 module.exports = router;

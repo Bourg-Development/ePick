@@ -628,7 +628,9 @@ class AnalysisController {
     async postponeAnalysis(req, res) {
         try {
             const { id } = req.params;
+            const { postponeDate, reason } = req.body;
             const { userId } = req.auth;
+
 
             const context = {
                 ip: req.ip,
@@ -643,7 +645,9 @@ class AnalysisController {
                 parseInt(id),
                 userId,
                 context,
-                userContext
+                userContext,
+                postponeDate ? new Date(postponeDate) : null,
+                reason
             );
 
             return res.status(result.success ? 200 : 400).json(result);
@@ -955,6 +959,42 @@ class AnalysisController {
             return res.status(500).json({
                 success: false,
                 message: 'Failed to retrieve audit logs'
+            });
+        }
+    }
+
+    /**
+     * Check date capacity for postponing
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async checkDateCapacity(req, res) {
+        try {
+            const { date, analysisId } = req.body;
+            const { userId } = req.auth;
+
+            if (!date) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Date is required'
+                });
+            }
+
+            // Extract user context for service filtering
+            const userContext = await new AnalysisController()._extractUserContext(req);
+
+            const result = await analysisService.checkDateCapacity(
+                new Date(date),
+                analysisId ? parseInt(analysisId) : null,
+                userContext
+            );
+
+            return res.status(200).json(result);
+        } catch (error) {
+            console.error('Check date capacity error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to check date capacity'
             });
         }
     }
