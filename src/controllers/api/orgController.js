@@ -14,7 +14,7 @@ class OrganizationSettingsController {
         this.exportSettingsJson = this.exportSettingsJson.bind(this);
         this.exportSettingsCsv = this.exportSettingsCsv.bind(this);
         this.exportSettingsExcel = this.exportSettingsExcel.bind(this);
-        this.exportSettingsGeneric = this.exportSettingsGeneric.bind(this);
+        this.exportSettings = this.exportSettings.bind(this);
     }
 
     /**

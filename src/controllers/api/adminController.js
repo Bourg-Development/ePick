@@ -319,11 +319,14 @@ class AdminController {
         this.exportUsersJson = this.exportUsersJson.bind(this);
         this.exportUsersCsv = this.exportUsersCsv.bind(this);
         this.exportUsersExcel = this.exportUsersExcel.bind(this);
-        this.exportServicesGeneric = this.exportServicesGeneric.bind(this);
-        this.exportRoomsGeneric = this.exportRoomsGeneric.bind(this);
-        this.exportPatientsGeneric = this.exportPatientsGeneric.bind(this);
-        this.exportDoctorsGeneric = this.exportDoctorsGeneric.bind(this);
-        this.exportArchivedAnalysesGeneric = this.exportArchivedAnalysesGeneric.bind(this);
+        this.exportServices = this.exportServices.bind(this);
+        this.exportServicesExcel = this.exportServicesExcel.bind(this);
+        this.exportRooms = this.exportRooms.bind(this);
+        this.exportRoomsExcel = this.exportRoomsExcel.bind(this);
+        this.exportDoctorsExcel = this.exportDoctorsExcel.bind(this);
+        this.exportPatientsCsv = this.exportPatientsCsv.bind(this);
+        this.exportPatientsExcel = this.exportPatientsExcel.bind(this);
+        this.exportPatientsJson = this.exportPatientsJson.bind(this);
     }
 
     /**
