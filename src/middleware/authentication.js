@@ -54,9 +54,11 @@ const authenticate = async (req, res, next) => {
         // Extract token from headers
         const token = req.cookies.accessToken; // or similar code to extract the token
         if (!token) {
+            // Check if this is an API request or expects JSON response
             const isApiRequest = req.path.startsWith('/api/') || 
-                               req.headers.accept?.includes('application/json') ||
-                               req.headers['content-type']?.includes('application/json');
+                                req.headers.accept?.includes('application/json') ||
+                                req.headers['content-type']?.includes('application/json');
+
             
             if (isApiRequest) {
                 return res.status(401).json({
