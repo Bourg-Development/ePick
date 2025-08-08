@@ -274,34 +274,6 @@ const authenticate = async (req, res, next) => {
             }
         }
 
-        // Check if user account is locked
-        const user = await db.User.findByPk(decoded.userId);
-        if (user.account_locked) {
-            if (user.account_locked_until && user.account_locked_until <= new Date()) {
-                // Auto-unlock expired lockouts
-                user.account_locked = false;
-                user.account_locked_until = null;
-                await user.save();
-            } else {
-                // Invalidate session and deny access
-                session.is_valid = false;
-                session.invalidated_at = new Date();
-                session.invalidation_reason = 'account_locked';
-                await session.save();
-                clearAuthCookies(res);
-                
-                const errorResponse = secureErrorHandler.handleAuthError('account_locked', req, {
-                    userId: user.id,
-                    lockedUntil: user.account_locked_until
-                });
-
-                if (req.headers.accept?.includes('text/html')) {
-                    return res.redirect('/auth/login?error=account_locked');
-                }
-                return res.status(401).json(errorResponse);
-            }
-        }
-
         // Store auth info temporarily
         const authInfo = {
             userId: decoded.userId,
