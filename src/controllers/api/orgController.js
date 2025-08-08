@@ -9,6 +9,14 @@ const schedulerService = require('../../services/schedulerService');
  * Organization Settings controller for managing system settings
  */
 class OrganizationSettingsController {
+    constructor() {
+        // Bind methods that use private methods to maintain proper context
+        this.exportSettingsJson = this.exportSettingsJson.bind(this);
+        this.exportSettingsCsv = this.exportSettingsCsv.bind(this);
+        this.exportSettingsExcel = this.exportSettingsExcel.bind(this);
+        this.exportSettings = this.exportSettings.bind(this);
+    }
+
     /**
      * Get analysis types
      * @param {Object} req - Express request

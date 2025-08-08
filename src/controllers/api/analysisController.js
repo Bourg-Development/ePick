@@ -230,11 +230,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count, will be updated after actual export
+                actualCount, // Use actual count instead of hardcoded estimate
                 'json',
                 context
             );
@@ -278,15 +282,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('json', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'json',
-                context
-            );
 
             // Set headers for file download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.json`;
@@ -362,11 +357,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count
+                actualCount, // Use actual count instead of hardcoded estimate
                 'csv',
                 context
             );
@@ -410,15 +409,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('csv', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'csv',
-                context
-            );
 
             // Set headers for CSV download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.csv`;
@@ -493,11 +483,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count
+                actualCount, // Use actual count instead of hardcoded estimate
                 'excel',
                 context
             );
@@ -541,15 +535,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('excel', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'excel',
-                context
-            );
 
             // Set headers for Excel download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.xlsx`;

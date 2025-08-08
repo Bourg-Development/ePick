@@ -283,11 +283,15 @@ class ArchiveController {
                 userAgent: req.headers['user-agent'] || 'unknown'
             };
 
-            // Monitor export behavior before proceeding
+            // Get actual count of archived analyses that will be exported
+            const countResult = await archiveService.getArchivedAnalyses(filters || {}, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'archived_analyses',
-                1000, // Estimated count
+                actualCount, // Use actual count instead of hardcoded estimate
                 format,
                 context
             );
@@ -304,15 +308,6 @@ class ArchiveController {
             if (!result.success) {
                 return res.status(400).json(result);
             }
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'archived_analyses',
-                result.count || 0,
-                format,
-                context
-            );
 
             // Add export limit warning headers
             if (monitoringResult.showWarning) {

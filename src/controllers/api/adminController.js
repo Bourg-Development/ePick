@@ -4,6 +4,7 @@ const referenceCodeService = require('../../services/referenceCodeService');
 const serviceService = require('../../services/serviceService');
 const logService = require('../../services/logService');
 const authService = require('../../services/authService');
+const exportMonitoringService = require('../../services/exportMonitoringService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
 
 /**
@@ -313,6 +314,21 @@ function formatDetailsForDisplay(eventType, metadata, targetType, targetId) {
  * Admin controller for managing users, roles, reference codes, and services
  */
 class AdminController {
+    constructor() {
+        // Bind methods that use private methods to maintain proper context
+        this.exportUsersJson = this.exportUsersJson.bind(this);
+        this.exportUsersCsv = this.exportUsersCsv.bind(this);
+        this.exportUsersExcel = this.exportUsersExcel.bind(this);
+        this.exportServices = this.exportServices.bind(this);
+        this.exportServicesExcel = this.exportServicesExcel.bind(this);
+        this.exportRooms = this.exportRooms.bind(this);
+        this.exportRoomsExcel = this.exportRoomsExcel.bind(this);
+        this.exportDoctorsExcel = this.exportDoctorsExcel.bind(this);
+        this.exportPatientsCsv = this.exportPatientsCsv.bind(this);
+        this.exportPatientsExcel = this.exportPatientsExcel.bind(this);
+        this.exportPatientsJson = this.exportPatientsJson.bind(this);
+    }
+
     /**
      * Generate a reference code for an existing user
      * @param {Object} req - Express request
@@ -470,6 +486,27 @@ class AdminController {
                 serviceId: filters.serviceId ? parseInt(filters.serviceId) : undefined
             };
 
+            // Get actual count of users that will be exported
+            const countResult = await userService.getUsers(unifiedFilters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'users',
+                actualCount,
+                'json',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await this._logExportFailure('json', adminId, context);
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             // Export users using the refactored service
             const result = await userService.exportUsers(unifiedFilters, 'json', {
                 includeColumns,
@@ -549,6 +586,27 @@ class AdminController {
                 serviceId: filters.serviceId ? parseInt(filters.serviceId) : undefined
             };
 
+            // Get actual count of users that will be exported
+            const countResult = await userService.getUsers(unifiedFilters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'users',
+                actualCount,
+                'csv',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await this._logExportFailure('csv', adminId, context);
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             // Export users using the refactored service
             const result = await userService.exportUsers(unifiedFilters, 'csv', {
                 includeColumns,
@@ -620,6 +678,26 @@ class AdminController {
                 serviceId: filters.serviceId ? parseInt(filters.serviceId) : undefined
             };
 
+            // Get actual count of users that will be exported
+            const countResult = await userService.getUsers(unifiedFilters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'users',
+                actualCount,
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await this._logExportFailure('excel', adminId, context);
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
 
             // Export users using the refactored service
             const result = await userService.exportUsers(unifiedFilters, 'excel', {
@@ -1808,6 +1886,27 @@ class AdminController {
                 });
             }
 
+            // Get actual count of services that will be exported
+            const countResult = await serviceService.getServices({}, 1, 1);
+            const actualCount = countResult.success ? countResult.pagination.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'services',
+                actualCount,
+                format,
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await this._logExportFailure(format, adminId, context, 'services');
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             // Get services data (same method as frontend)
             const result = await serviceService.getServices({}, 1, 10000); // Get all services with high limit
             const services = result.data || [];
@@ -2074,6 +2173,28 @@ class AdminController {
             }
 
             const roomService = require('../../services/roomService');
+
+            // Get actual count of rooms that will be exported
+            const countResult = await roomService.getRooms({}, 1, 1);
+            const actualCount = countResult.total || 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'rooms',
+                actualCount,
+                format,
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await new AdminController()._logExportFailure(format, adminId, context, 'rooms');
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             const roomResult = await roomService.getRooms({}, 1, 10000); // Get all rooms with high limit
             const rooms = roomResult.data || [];
             
@@ -2178,6 +2299,28 @@ class AdminController {
             const docService = require('../../services/docService');
             const roomService = require('../../services/roomService');
             
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of rooms that will be exported
+            const countResult = await roomService.getRooms({}, 1, 1);
+            const actualCount = countResult.total || 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'rooms',
+                actualCount,
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+            
             // Get room data
             const roomResult = await roomService.getRooms({}, 1, 10000); // Get all rooms with high limit
             
@@ -2272,6 +2415,7 @@ class AdminController {
             const result = await docService.exportData(formattedRooms, 'excel', roomExportOptions);
 
             if (result.success) {
+
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `ePick-Rooms-Export-${timestamp}.xlsx`;
@@ -2324,6 +2468,28 @@ class AdminController {
             // Use the professional doc service for formatted Excel export
             const docService = require('../../services/docService');
             const serviceService = require('../../services/serviceService');
+            
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of services that will be exported
+            const countResult = await serviceService.getServices({}, 1, 1);
+            const actualCount = countResult.success ? countResult.pagination.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'services',
+                actualCount,
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
             
             // Get service data (same method as frontend)
             const result = await serviceService.getServices({}, 1, 10000); // Get all services with high limit
@@ -2425,6 +2591,7 @@ class AdminController {
             const exportResult = await docService.exportData(formattedServices, 'excel', serviceExportOptions);
 
             if (exportResult.success) {
+
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `ePick-Services-Export-${timestamp}.xlsx`;
@@ -2478,6 +2645,31 @@ class AdminController {
             const docService = require('../../services/docService');
             const doctorService = require('../../services/doctorService');
             const cryptoService = require('../../services/cryptoService');
+            
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of doctors that will be exported
+            const countResult = await doctorService.getDoctors({
+                search: filters.search,
+                active: true
+            }, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'doctors',
+                actualCount,
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
             
             // Get doctor data
             const doctorResult = await doctorService.getDoctors({
@@ -2610,6 +2802,7 @@ class AdminController {
             const result = await docService.exportData(formattedDoctors, 'excel', doctorExportOptions);
 
             if (result.success) {
+
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `ePick-Doctors-Export-${timestamp}.xlsx`;
@@ -2908,6 +3101,29 @@ class AdminController {
                 });
             }
 
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of patients that will be exported
+            const patientService = require('../../services/patientService');
+            const countResult = await patientService.getPatients(filters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'patients',
+                actualCount,
+                'csv',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             // Use the new data export service
             const dataImportExportService = require('../../services/dataImportExportService');
             const result = await dataImportExportService.exportData({
@@ -2923,6 +3139,7 @@ class AdminController {
             });
 
             if (result.success) {
+
                 // Set appropriate headers
                 const contentType = 'text/csv';
                 res.setHeader('Content-Type', contentType);
@@ -2984,6 +3201,30 @@ class AdminController {
             const docService = require('../../services/docService');
             const patientService = require('../../services/patientService');
             const cryptoService = require('../../services/cryptoService');
+            
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of patients that will be exported
+            const countResult = await patientService.getPatients({
+                name: filters.search,
+            }, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'patients',
+                actualCount,
+                'excel',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
             
             // Get patient data - fetch all patients for export (no pagination)
             const patientResult = await patientService.getPatients({
@@ -3148,6 +3389,7 @@ class AdminController {
             const result = await docService.exportData(formattedPatients, 'excel', patientExportOptions);
 
             if (result.success) {
+
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `ePick-Patients-Export-${timestamp}.xlsx`;
@@ -3197,6 +3439,29 @@ class AdminController {
                 });
             }
 
+            const context = new AdminController()._getRequestContext(req);
+
+            // Get actual count of patients that will be exported
+            const patientService = require('../../services/patientService');
+            const countResult = await patientService.getPatients(filters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior before proceeding with actual count
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'patients',
+                actualCount,
+                'json',
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
             // Use the new data export service
             const dataImportExportService = require('../../services/dataImportExportService');
             const result = await dataImportExportService.exportData({
@@ -3212,6 +3477,7 @@ class AdminController {
             });
 
             if (result.success) {
+
                 // For JSON, return the data directly
                 const fs = require('fs');
                 const jsonData = await fs.promises.readFile(result.filePath, 'utf-8');

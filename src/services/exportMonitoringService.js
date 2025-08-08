@@ -77,10 +77,10 @@ class ExportMonitoringService {
             const exportLimits = {
                 hourlyUsed: frequencyCheck.exportsLastHour || 0,
                 hourlyLimit: this.thresholds.maxExportsPerHour,
-                hourlyRemaining: Math.max(0, this.thresholds.maxExportsPerHour - (frequencyCheck.exportsLastHour || 0) - 1),
+                hourlyRemaining: Math.max(0, this.thresholds.maxExportsPerHour - (frequencyCheck.exportsLastHour || 0)),
                 dailyUsed: frequencyCheck.exportsLastDay || 0,
                 dailyLimit: this.thresholds.maxExportsPerDay,
-                dailyRemaining: Math.max(0, this.thresholds.maxExportsPerDay - (frequencyCheck.exportsLastDay || 0) - 1)
+                dailyRemaining: Math.max(0, this.thresholds.maxExportsPerDay - (frequencyCheck.exportsLastDay || 0))
             };
             
             return {
@@ -140,21 +140,23 @@ class ExportMonitoringService {
             now - new Date(e.created_at).getTime() < this.timeWindows.day
         ).length;
         
-        // Add 1 to count the current export attempt
+        // For checking if we should block, we need to see if THIS would be the 4th export
+        // So we add 1 to the count to include the current attempt
         const totalExportsLastHour = exportsLastHour + 1;
         const totalExportsLastDay = exportsLastDay + 1;
         
-        console.log(`Export frequency check - User ${userId}: ${totalExportsLastHour} exports in last hour (including current), ${totalExportsLastDay} in last day`);
+        console.log(`Export frequency check - User ${userId}: ${exportsLastHour} exports in last hour (would be ${totalExportsLastHour} with current), ${exportsLastDay} in last day`);
         
         let riskScore = 0;
         let suspicious = false;
         let pattern = null;
         
-        if (totalExportsLastHour >= this.thresholds.maxExportsPerHour) {
+        // Block on the 4th attempt (when count would be > 3)
+        if (totalExportsLastHour > this.thresholds.maxExportsPerHour) {
             riskScore = 1.0;
             suspicious = true;
             pattern = 'excessive_exports_per_hour';
-        } else if (totalExportsLastDay >= this.thresholds.maxExportsPerDay) {
+        } else if (totalExportsLastDay > this.thresholds.maxExportsPerDay) {
             riskScore = 0.8;
             suspicious = true;
             pattern = 'excessive_exports_per_day';
@@ -188,31 +190,35 @@ class ExportMonitoringService {
             .reduce((sum, e) => {
                 const metadata = typeof e.metadata === 'string' ? JSON.parse(e.metadata || '{}') : (e.metadata || {});
                 return sum + (metadata.recordCount || metadata.dataCount || 0);
-            }, 0) + currentRecordCount;
+            }, 0);
             
         const recordsLastDay = exportHistory
             .filter(e => now - new Date(e.created_at).getTime() < this.timeWindows.day)
             .reduce((sum, e) => {
                 const metadata = typeof e.metadata === 'string' ? JSON.parse(e.metadata || '{}') : (e.metadata || {});
                 return sum + (metadata.recordCount || metadata.dataCount || 0);
-            }, 0) + currentRecordCount;
+            }, 0);
+        
+        // Add current record count to see if this export would exceed limits
+        const totalRecordsWithCurrent = recordsLastHour + currentRecordCount;
+        const totalRecordsDayWithCurrent = recordsLastDay + currentRecordCount;
         
         let riskScore = 0;
         let suspicious = false;
         let pattern = null;
         
-        if (recordsLastHour > this.thresholds.maxRecordsPerHour) {
+        if (totalRecordsWithCurrent > this.thresholds.maxRecordsPerHour) {
             riskScore = 1.0;
             suspicious = true;
             pattern = 'excessive_data_volume_per_hour';
-        } else if (recordsLastDay > this.thresholds.maxRecordsPerDay) {
+        } else if (totalRecordsDayWithCurrent > this.thresholds.maxRecordsPerDay) {
             riskScore = 0.8;
             suspicious = true;
             pattern = 'excessive_data_volume_per_day';
         } else {
             riskScore = Math.max(
-                recordsLastHour / this.thresholds.maxRecordsPerHour,
-                recordsLastDay / this.thresholds.maxRecordsPerDay
+                totalRecordsWithCurrent / this.thresholds.maxRecordsPerHour,
+                totalRecordsDayWithCurrent / this.thresholds.maxRecordsPerDay
             ) * 0.6;
         }
         
