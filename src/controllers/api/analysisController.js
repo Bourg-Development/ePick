@@ -232,7 +232,7 @@ class AnalysisController {
 
             // Get actual count of analyses that will be exported
             const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
-            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+            const actualCount = countResult.success ? countResult.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
@@ -368,7 +368,7 @@ class AnalysisController {
 
             // Get actual count of analyses that will be exported
             const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
-            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+            const actualCount = countResult.success ? countResult.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
@@ -503,7 +503,7 @@ class AnalysisController {
 
             // Get actual count of analyses that will be exported
             const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
-            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+            const actualCount = countResult.success ? countResult.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
