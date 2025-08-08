@@ -587,29 +587,10 @@ function initializePage() {
                 ...currentFilters
             });
 
-            const response = await fetch(api.buildUrl(`/api/doctors/export?${params}`), {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${api.getToken()}`,
-                    'X-CSRF-Token': api.getCsrfToken()
-                }
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `doctors-export.${format}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                showNotification(__('export.success'), 'success');
-            } else {
-                throw new Error('Export failed');
-            }
+            // Use the API's download method for file exports
+            await api.download(`/admin/doctors/export?${params}`, `doctors-export.${format}`);
+            
+            showNotification(__('export.success'), 'success');
         } catch (error) {
             console.error('Export error:', error);
             showNotification(__('export.error'), 'error');
@@ -633,30 +614,11 @@ function initializePage() {
             showLoading(true);
             const params = new URLSearchParams(exportData);
 
-            const response = await fetch(api.buildUrl(`/api/doctors/export?${params}`), {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${api.getToken()}`,
-                    'X-CSRF-Token': api.getCsrfToken()
-                }
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `doctors-export.${exportData.format}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                showNotification(__('export.success'), 'success');
-                closeExportModal();
-            } else {
-                throw new Error('Export failed');
-            }
+            // Use the API's download method for file exports
+            await api.download(`/admin/doctors/export?${params}`, `doctors-export.${exportData.format}`);
+            
+            showNotification(__('export.success'), 'success');
+            closeExportModal();
         } catch (error) {
             console.error('Export error:', error);
             showNotification(__('export.error'), 'error');

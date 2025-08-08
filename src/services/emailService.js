@@ -486,6 +486,28 @@ class EmailService {
           `;
                     break;
 
+                case 'admin_user_account_locked':
+                    subject = 'ePick Security Alert - User Account Locked';
+                    html = this._loadEmailTemplate('admin_lockout')({
+                        ...eventDetails,
+                        riskScorePercent: Math.round((eventDetails.riskScore || 0) * 100),
+                        timestamp: formatDateTime(eventDetails.timestamp),
+                        lockedUntil: formatDateTime(eventDetails.lockedUntil),
+                        ...this._getBaseTemplateVars()
+                    });
+                    break;
+
+                case 'admin_suspicious_export_activity':
+                    subject = `ePick Security Alert - Suspicious Export Activity (Risk: ${Math.round((eventDetails.riskScore || 0) * 100)}%)`;
+                    html = this._loadEmailTemplate('admin_suspicious_activity')({
+                        ...eventDetails,
+                        riskScorePercent: Math.round((eventDetails.riskScore || 0) * 100),
+                        timestamp: formatDateTime(eventDetails.timestamp),
+                        device_fingerprint: eventDetails.device_fingerprint ? eventDetails.device_fingerprint.substring(0, 16) + '...' : 'N/A',
+                        ...this._getBaseTemplateVars()
+                    });
+                    break;
+
                 default:
                     subject = 'Security Alert';
                     html = `
