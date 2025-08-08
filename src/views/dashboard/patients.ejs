@@ -11,7 +11,7 @@
         <% } %>
 
         <!-- Export Dropdown -->
-        <% if (permissions.includes('patients.export') || permissions.includes('export.all')) { %>
+        <% if (role === 'system_admin' || permissions.includes('patients.export') || permissions.includes('export.all')) { %>
         <div class="dropdown-container export-dropdown-container">
             <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
                 <span class="material-symbols-outlined" style="font-size: 16px;">

@@ -1027,13 +1027,13 @@ function initializePage() {
         let endpoint;
         switch (format) {
             case 'csv':
-                endpoint = '/patients/export/csv';
+                endpoint = '/admin/patients/export/csv';
                 break;
             case 'excel':
-                endpoint = '/patients/export/excel';
+                endpoint = '/admin/patients/export/excel';
                 break;
             case 'json':
-                endpoint = '/patients/export/json';
+                endpoint = '/admin/patients/export/json';
                 break;
             default:
                 throw new Error('Invalid export format');
@@ -1244,13 +1244,13 @@ function initializePage() {
         let endpoint;
         switch (format) {
             case 'csv':
-                endpoint = '/patients/export/csv';
+                endpoint = '/admin/patients/export/csv';
                 break;
             case 'excel':
-                endpoint = '/patients/export/excel';
+                endpoint = '/admin/patients/export/excel';
                 break;
             case 'json':
-                endpoint = '/patients/export/json';
+                endpoint = '/admin/patients/export/json';
                 break;
             default:
                 throw new Error('Invalid export format');

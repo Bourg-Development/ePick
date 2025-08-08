@@ -390,6 +390,29 @@ router.get('/doctors',
     adminController.getDoctors
 );
 
+// Generic doctor export endpoint (GET with format query param)
+router.get('/doctors/export',
+    settingsRateLimit,
+    requirePermission(['doctors.export', 'export.all']),
+    adminController.exportDoctors
+);
+
+// Export doctors to JSON
+router.post('/doctors/export/json',
+    settingsRateLimit,
+    requirePermission(['doctors.export', 'export.all']),
+    validation.validateExportRequest,
+    adminController.exportDoctorsJson
+);
+
+// Export doctors to CSV
+router.post('/doctors/export/csv',
+    settingsRateLimit,
+    requirePermission(['doctors.export', 'export.all']),
+    validation.validateExportRequest,
+    adminController.exportDoctorsCsv
+);
+
 // Export doctors to Excel
 router.post('/doctors/export/excel',
     settingsRateLimit,
