@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePick Security Alert - Suspicious Export Activity</title>
+    <style>
+        /* Reset styles for email clients */
+        body, p, h1, h2, h3, h4, h5, h6, table, td {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(to right, #e63946, #333333);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-circle-1 {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            top: -60px;
+            left: -60px;
+        }
+
+        .header-circle-2 {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            opacity: 0.05;
+            bottom: -40px;
+            left: 40px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .header-subtitle {
+            color: white;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .alert-badge {
+            background-color: #e63946;
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .alert-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        .alert-message {
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .details-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #e63946;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .details-box.warning {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .details-box.info {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .details-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .details-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .details-label {
+            font-weight: bold;
+            color: #666666;
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .details-value {
+            color: #333333;
+            flex-grow: 1;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .action-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .action-list li {
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .action-button {
+            display: inline-block;
+            background-color: #e63946;
+            color: white;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            transition: background-color 0.2s;
+            margin: 5px;
+        }
+
+        .action-button:hover {
+            background-color: #c1121f;
+        }
+
+        .secondary-button {
+            display: inline-block;
+            border: 2px solid #333333;
+            color: #333333;
+            background-color: transparent;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 5px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .secondary-button:hover {
+            background-color: #333333;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e6e6e6;
+            margin: 30px 0;
+        }
+
+        .notice {
+            background-color: rgba(23, 162, 184, 0.1);
+            border: 1px solid #17a2b8;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background-color: #333333;
+            padding: 25px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .footer-logo {
+            margin-bottom: 15px;
+        }
+
+        .footer-text {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #e63946;
+        }
+
+        @media (max-width: 600px) {
+            .details-row {
+                flex-direction: column;
+            }
+
+            .details-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .secondary-button {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-circle-1"></div>
+        <div class="header-circle-2"></div>
+        <div class="header-content">
+            <img alt="ePick logo" src='data:image/svg+xml;base64,ICAgICAgICAgICAgPHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgNDAwIDIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgICAgICAgICAgICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwMCwgMTAwKSI+CiAgICAgICAgICAgICAgICAgICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU1LCA1KSBzY2FsZSgwLjcpIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHRleHQgeD0iLTEyMCIgeT0iMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj5lPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8dGV4dCB4PSIxNSIgeT0iMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj5QPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8cmVjdCB4PSI5NSIgeT0iLTYwIiB3aWR0aD0iMTgiIGhlaWdodD0iNjAiIGZpbGw9IndoaXRlIiByeD0iMiIgcnk9IjIiLz4KICAgICAgICAgICAgICAgICAgICAgICAgPHRleHQgeD0iMTI1IiB5PSIwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiPmNrPC90ZXh0PgogICAgICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTA1LC0xMTAgQzExMCwtOTkgMTE0LC04OSAxMTYsLTgwIEMxMTgsLTcwIDExMiwtNjMgMTA1LC02MyBDOTgsLTYzIDkyLC03MCA5NCwtODAgQzk2LC04OSAxMDAsLTk5IDEwNSwtMTEwWiIgZmlsbD0id2hpdGUiIC8+CiAgICAgICAgICAgICAgICAgICAgICAgIDxsaW5lIHgxPSItMTIwIiB5MT0iMzAiIHgyPSIyMzAiIHkyPSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSI4IiAvPgogICAgICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9zdmc+Cg=='/>            <h1 class="header-title">Security Alert</h1>
+            <p class="header-subtitle">Suspicious Export Activity Detected</p>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="alert-badge">High Risk Alert</div>
+
+        <h2 class="alert-title">Suspicious Export Activity Requires Review</h2>
+
+        <div class="alert-message">
+            <p><strong>ATTENTION REQUIRED:</strong> Unusual data export activity has been detected by our security monitoring system. Please review the user's activity patterns and take appropriate action.</p>
+        </div>
+
+        <div class="notice">
+            <p><strong>NOTE:</strong> The user account has NOT been locked. This is a monitoring alert for review purposes only.</p>
+        </div>
+
+        <div class="details-box">
+            <h3 style="color: #e63946; margin-top: 0; margin-bottom: 15px;">Affected User Details</h3>
+            <div class="details-row">
+                <div class="details-label">Username:</div>
+                <div class="details-value">{{affectedUsername}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">User ID:</div>
+                <div class="details-value">{{affectedUserId}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Email:</div>
+                <div class="details-value">{{affectedUserEmail}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Account Status:</div>
+                <div class="details-value status-active">ACTIVE (Under Review)</div>
+            </div>
+        </div>
+
+        <div class="details-box">
+            <h3 style="color: #e63946; margin-top: 0; margin-bottom: 15px;">Security Alert Details</h3>
+            <div class="details-row">
+                <div class="details-label">Risk Score:</div>
+                <div class="details-value status-warning">{{riskScorePercent}}% (High Risk)</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Patterns Detected:</div>
+                <div class="details-value">{{patterns}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Detection Time:</div>
+                <div class="details-value">{{timestamp}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">IP Address:</div>
+                <div class="details-value">{{ip_address}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Device ID:</div>
+                <div class="details-value">{{device_fingerprint}}</div>
+            </div>
+            <div class="details-row">
+                <div class="details-label">Browser:</div>
+                <div class="details-value">{{user_agent}}</div>
+            </div>
+        </div>
+
+        <div class="details-box warning">
+            <h3 style="color: #856404; margin-top: 0; margin-bottom: 15px;">Recommended Actions</h3>
+            <ol class="action-list">
+                <li><strong>Review export activity</strong> patterns and verify they are legitimate</li>
+                <li><strong>Contact the user</strong> to verify recent export activities</li>
+                <li><strong>Forward this alert to the user's supervisor</strong> for awareness</li>
+                <li><strong>Monitor ongoing activity</strong> for this user closely</li>
+                <li><strong>Consider additional security measures</strong> if patterns continue</li>
+            </ol>
+        </div>
+
+        <div class="details-box info">
+            <h3 style="color: #0c5460; margin-top: 0; margin-bottom: 15px;">Important Notes</h3>
+            <ul class="action-list">
+                <li>The user can still access the system normally</li>
+                <li>This is a monitoring alert, not an account lockout</li>
+                <li>Export activities are being closely monitored</li>
+                <li>Further suspicious activity may result in automatic account lockout</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{base_url}}/admin/dashboard" class="action-button">Admin Dashboard</a>
+            <a href="{{base_url}}/admin/audit-logs" class="secondary-button">View Audit Logs</a>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+        <div class="footer-logo">
+            <svg width="100" height="40" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(200, 100)">
+                    <g transform="translate(-55, 5) scale(0.5)">
+                        <text x="-120" y="0" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="white">e</text>
+                        <text x="15" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">P</text>
+                        <rect x="95" y="-60" width="18" height="60" fill="#e63946" rx="2" ry="2"/>
+                        <text x="125" y="0" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e63946">ck</text>
+                        <path d="M105,-110 C110,-99 114,-89 116,-80 C118,-70 112,-63 105,-63 C98,-63 92,-70 94,-80 C96,-89 100,-99 105,-110Z" fill="#c1121f" />
+                        <line x1="-120" y1="30" x2="230" y2="30" stroke="white" stroke-width="8" />
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <p class="footer-text">This is an automated security notification from ePick. Please review immediately.</p>
+
+        <div class="footer-links">
+            <a href="{{base_url}}/admin/dashboard">Admin Dashboard</a> |
+            <a href="{{base_url}}/admin/audit-logs">Audit Logs</a> |
+            <a href="{{base_url}}/help">Help Center</a>
+        </div>
+
+        <p class="footer-text" style="margin-top:15px;">© 2025 Fondation J.P. Pescatore. All Rights Reserved.</p>
+    </div>
+</div>
+</body>
+</html>
