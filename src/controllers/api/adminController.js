@@ -314,6 +314,18 @@ function formatDetailsForDisplay(eventType, metadata, targetType, targetId) {
  * Admin controller for managing users, roles, reference codes, and services
  */
 class AdminController {
+    constructor() {
+        // Bind methods that use private methods to maintain proper context
+        this.exportUsersJson = this.exportUsersJson.bind(this);
+        this.exportUsersCsv = this.exportUsersCsv.bind(this);
+        this.exportUsersExcel = this.exportUsersExcel.bind(this);
+        this.exportServicesGeneric = this.exportServicesGeneric.bind(this);
+        this.exportRoomsGeneric = this.exportRoomsGeneric.bind(this);
+        this.exportPatientsGeneric = this.exportPatientsGeneric.bind(this);
+        this.exportDoctorsGeneric = this.exportDoctorsGeneric.bind(this);
+        this.exportArchivedAnalysesGeneric = this.exportArchivedAnalysesGeneric.bind(this);
+    }
+
     /**
      * Generate a reference code for an existing user
      * @param {Object} req - Express request
