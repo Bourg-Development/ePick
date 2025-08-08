@@ -140,11 +140,11 @@ class ExportMonitoringService {
             now - new Date(e.created_at).getTime() < this.timeWindows.day
         ).length;
         
-        // Add 1 to count the current export attempt
-        const totalExportsLastHour = exportsLastHour + 1;
-        const totalExportsLastDay = exportsLastDay + 1;
+        // Don't add 1 since we're checking against actual logged exports
+        const totalExportsLastHour = exportsLastHour;
+        const totalExportsLastDay = exportsLastDay;
         
-        console.log(`Export frequency check - User ${userId}: ${totalExportsLastHour} exports in last hour (including current), ${totalExportsLastDay} in last day`);
+        console.log(`Export frequency check - User ${userId}: ${totalExportsLastHour} exports in last hour, ${totalExportsLastDay} in last day`);
         
         let riskScore = 0;
         let suspicious = false;
@@ -188,14 +188,14 @@ class ExportMonitoringService {
             .reduce((sum, e) => {
                 const metadata = typeof e.metadata === 'string' ? JSON.parse(e.metadata || '{}') : (e.metadata || {});
                 return sum + (metadata.recordCount || metadata.dataCount || 0);
-            }, 0) + currentRecordCount;
+            }, 0);
             
         const recordsLastDay = exportHistory
             .filter(e => now - new Date(e.created_at).getTime() < this.timeWindows.day)
             .reduce((sum, e) => {
                 const metadata = typeof e.metadata === 'string' ? JSON.parse(e.metadata || '{}') : (e.metadata || {});
                 return sum + (metadata.recordCount || metadata.dataCount || 0);
-            }, 0) + currentRecordCount;
+            }, 0);
         
         let riskScore = 0;
         let suspicious = false;

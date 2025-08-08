@@ -505,15 +505,6 @@ class AdminController {
 
             // Log the export
             await new AdminController()._logExportSuccess('json', adminId, result.dataCount, filters, context);
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                adminId,
-                'users',
-                result.dataCount,
-                'json',
-                context
-            );
 
             // Set headers for file download
             const filename = `users_export_${new Date().toISOString().split('T')[0]}.json`;
@@ -614,15 +605,6 @@ class AdminController {
 
             // Log the export
             await new AdminController()._logExportSuccess('csv', adminId, result.dataCount, filters, context);
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                adminId,
-                'users',
-                result.dataCount,
-                'csv',
-                context
-            );
 
             // Set headers for CSV download
             const filename = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
@@ -715,15 +697,6 @@ class AdminController {
 
             // Log the export
             await new AdminController()._logExportSuccess('excel', adminId, result.dataCount, filters, context);
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                adminId,
-                'users',
-                result.dataCount,
-                'excel',
-                context
-            );
 
             // Set headers for Excel download
             const filename = `users_export_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -1924,15 +1897,6 @@ class AdminController {
             const services = result.data || [];
             
             await new AdminController()._logExportSuccess(format, adminId, services.length, filters, context, 'services');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                adminId,
-                'services',
-                services.length,
-                format,
-                context
-            );
 
             // Return appropriate format
             if (format === 'json') {
@@ -2220,15 +2184,6 @@ class AdminController {
             const rooms = roomResult.data || [];
             
             await new AdminController()._logExportSuccess(format, adminId, rooms.length, filters, context, 'rooms');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                adminId,
-                'rooms',
-                rooms.length,
-                format,
-                context
-            );
 
             if (format === 'json') {
                 // JSON format - return JSON with data
@@ -2445,14 +2400,6 @@ class AdminController {
             const result = await docService.exportData(formattedRooms, 'excel', roomExportOptions);
 
             if (result.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'rooms',
-                    formattedRooms.length,
-                    'excel',
-                    context
-                );
 
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -2629,14 +2576,6 @@ class AdminController {
             const exportResult = await docService.exportData(formattedServices, 'excel', serviceExportOptions);
 
             if (exportResult.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'services',
-                    formattedServices.length,
-                    'excel',
-                    context
-                );
 
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -2848,14 +2787,6 @@ class AdminController {
             const result = await docService.exportData(formattedDoctors, 'excel', doctorExportOptions);
 
             if (result.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'doctors',
-                    formattedDoctors.length,
-                    'excel',
-                    context
-                );
 
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -3193,14 +3124,6 @@ class AdminController {
             });
 
             if (result.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'patients',
-                    result.recordCount || actualCount,
-                    'csv',
-                    context
-                );
 
                 // Set appropriate headers
                 const contentType = 'text/csv';
@@ -3451,14 +3374,6 @@ class AdminController {
             const result = await docService.exportData(formattedPatients, 'excel', patientExportOptions);
 
             if (result.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'patients',
-                    formattedPatients.length,
-                    'excel',
-                    context
-                );
 
                 // Set appropriate headers for direct buffer response
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -3547,14 +3462,6 @@ class AdminController {
             });
 
             if (result.success) {
-                // Update monitoring with actual record count
-                await exportMonitoringService.monitorExport(
-                    adminId,
-                    'patients',
-                    result.recordCount || actualCount,
-                    'json',
-                    context
-                );
 
                 // For JSON, return the data directly
                 const fs = require('fs');

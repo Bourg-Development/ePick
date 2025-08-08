@@ -282,15 +282,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('json', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'json',
-                context
-            );
 
             // Set headers for file download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.json`;
@@ -418,15 +409,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('csv', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'csv',
-                context
-            );
 
             // Set headers for CSV download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.csv`;
@@ -553,15 +535,6 @@ class AnalysisController {
 
             // Log the export with actual count
             await new AnalysisController()._logExportSuccess('excel', userId, result.dataCount, filters, context, 'analyses');
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'analyses',
-                result.dataCount,
-                'excel',
-                context
-            );
 
             // Set headers for Excel download
             const filename = `analyses_export_${new Date().toISOString().split('T')[0]}.xlsx`;

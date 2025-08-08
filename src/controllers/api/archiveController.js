@@ -308,15 +308,6 @@ class ArchiveController {
             if (!result.success) {
                 return res.status(400).json(result);
             }
-            
-            // Update monitoring with actual record count
-            await exportMonitoringService.monitorExport(
-                userId,
-                'archived_analyses',
-                result.count || 0,
-                format,
-                context
-            );
 
             // Add export limit warning headers
             if (monitoringResult.showWarning) {
