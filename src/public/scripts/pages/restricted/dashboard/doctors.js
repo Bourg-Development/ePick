@@ -587,7 +587,7 @@ function initializePage() {
                 ...currentFilters
             });
 
-            const response = await fetch(api.buildUrl(`/api/doctors/export?${params}`), {
+            const response = await fetch(api.buildUrl(`/api/admin/doctors/export?${params}`), {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${api.getToken()}`,
@@ -633,7 +633,7 @@ function initializePage() {
             showLoading(true);
             const params = new URLSearchParams(exportData);
 
-            const response = await fetch(api.buildUrl(`/api/doctors/export?${params}`), {
+            const response = await fetch(api.buildUrl(`/api/admin/doctors/export?${params}`), {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${api.getToken()}`,
