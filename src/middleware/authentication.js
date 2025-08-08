@@ -148,6 +148,74 @@ const authenticate = async (req, res, next) => {
             return res.status(401).json(errorResponse);
         }
 
+        // Check if user account is locked
+        const user = await db.User.findByPk(decoded.userId);
+        if (!user) {
+            const errorResponse = secureErrorHandler.handleAuthError('user_not_found', req, {
+                userId: decoded.userId
+            });
+            
+            if (req.headers.accept?.includes('text/html')) {
+                return res.redirect('/auth/login?error=user_not_found');
+            }
+            return res.status(401).json(errorResponse);
+        }
+
+        if (user.account_locked) {
+            // Check if the lockout period has expired
+            if (user.account_locked_until && user.account_locked_until <= new Date()) {
+                // Unlock the account automatically
+                user.account_locked = false;
+                user.account_locked_until = null;
+                await user.save();
+                
+                // Log the automatic unlock
+                await logService.securityLog({
+                    eventType: 'user.account_auto_unlocked',
+                    severity: 'medium',
+                    userId: user.id,
+                    ipAddress: req.ip,
+                    metadata: {
+                        reason: 'lockout_period_expired',
+                        userAgent: req.headers['user-agent'] || 'unknown'
+                    }
+                });
+            } else {
+                // Account is still locked - invalidate session and deny access
+                session.is_valid = false;
+                session.invalidated_at = new Date();
+                session.invalidation_reason = 'account_locked';
+                await session.save();
+
+                // Clear authentication cookies
+                clearAuthCookies(res);
+
+                // Log the blocked access attempt
+                await logService.securityLog({
+                    eventType: 'auth.access_denied_account_locked',
+                    severity: 'medium',
+                    userId: user.id,
+                    ipAddress: req.ip,
+                    metadata: {
+                        tokenId: decoded.id,
+                        sessionId: session.id,
+                        lockedUntil: user.account_locked_until,
+                        userAgent: req.headers['user-agent'] || 'unknown'
+                    }
+                });
+
+                const errorResponse = secureErrorHandler.handleAuthError('account_locked', req, {
+                    userId: user.id,
+                    lockedUntil: user.account_locked_until
+                });
+
+                if (req.headers.accept?.includes('text/html')) {
+                    return res.redirect('/auth/login?error=account_locked');
+                }
+                return res.status(401).json(errorResponse);
+            }
+        }
+
         // Enhanced device fingerprint validation with anti-spoofing
         if (session.device_fingerprint) {
             // Use secure validation that checks against server calculation
