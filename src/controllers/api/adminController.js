@@ -324,6 +324,9 @@ class AdminController {
         this.exportRooms = this.exportRooms.bind(this);
         this.exportRoomsExcel = this.exportRoomsExcel.bind(this);
         this.exportDoctorsExcel = this.exportDoctorsExcel.bind(this);
+        this.exportDoctors = this.exportDoctors.bind(this);
+        this.exportDoctorsJson = this.exportDoctorsJson.bind(this);
+        this.exportDoctorsCsv = this.exportDoctorsCsv.bind(this);
         this.exportPatientsCsv = this.exportPatientsCsv.bind(this);
         this.exportPatientsExcel = this.exportPatientsExcel.bind(this);
         this.exportPatientsJson = this.exportPatientsJson.bind(this);
@@ -2823,6 +2826,137 @@ class AdminController {
                 message: 'Failed to export doctors'
             });
         }
+    }
+
+    /**
+     * Generic doctor export endpoint (handles multiple formats via query param)
+     */
+    async exportDoctors(req, res) {
+        try {
+            const format = req.query.format || 'json';
+            const doctorService = require('../../services/doctorService');
+            const context = new AdminController()._getRequestContext(req);
+            const { userId: adminId, permissions, role } = req.auth;
+
+            // Check permissions
+            if (role !== 'system_admin' && !permissions.includes('doctors.export') && !permissions.includes('export.all')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Permission denied'
+                });
+            }
+
+            // Get filters from query
+            const filters = {
+                search: req.query.search,
+                specialty: req.query.specialty,
+                active: req.query.active !== undefined ? req.query.active === 'true' : undefined
+            };
+
+            // Get doctors count for monitoring
+            const countResult = await doctorService.getDoctors(filters, 1, 1);
+            const actualCount = countResult.success ? countResult.total : 0;
+
+            // Monitor export behavior
+            const monitoringResult = await exportMonitoringService.monitorExport(
+                adminId,
+                'doctors',
+                actualCount,
+                format,
+                context
+            );
+
+            if (!monitoringResult.allowed) {
+                await new AdminController()._logExportFailure(format, adminId, context, 'doctors');
+                return res.status(403).json({
+                    success: false,
+                    message: monitoringResult.message || 'Export not allowed due to security restrictions'
+                });
+            }
+
+            // Get all doctors for export
+            const result = await doctorService.getDoctors(filters, 1, 10000);
+            
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+
+            await new AdminController()._logExportSuccess(format, adminId, result.doctors.length, filters, context, 'doctors');
+
+            // Return based on format
+            if (format === 'json') {
+                res.json({
+                    success: true,
+                    data: result.doctors,
+                    count: result.doctors.length
+                });
+            } else if (format === 'csv') {
+                const csv = this._convertDoctorsToCSV(result.doctors);
+                res.setHeader('Content-Type', 'text/csv');
+                res.setHeader('Content-Disposition', 'attachment; filename="doctors-export.csv"');
+                res.send(csv);
+            } else if (format === 'excel') {
+                // Redirect to the Excel endpoint
+                return this.exportDoctorsExcel(req, res);
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: 'Invalid export format'
+                });
+            }
+        } catch (error) {
+            console.error('Export doctors error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to export doctors'
+            });
+        }
+    }
+
+    /**
+     * Export doctors to JSON format
+     */
+    async exportDoctorsJson(req, res) {
+        req.query.format = 'json';
+        return this.exportDoctors(req, res);
+    }
+
+    /**
+     * Export doctors to CSV format
+     */
+    async exportDoctorsCsv(req, res) {
+        req.query.format = 'csv';
+        return this.exportDoctors(req, res);
+    }
+
+    /**
+     * Convert doctors array to CSV
+     * @private
+     */
+    _convertDoctorsToCSV(doctors) {
+        if (!doctors || doctors.length === 0) {
+            return 'No data to export';
+        }
+
+        // Define CSV headers
+        const headers = ['ID', 'Name', 'Specialty', 'Email', 'Phone', 'Active', 'Created Date'];
+        const rows = [headers.join(',')];
+
+        // Add data rows
+        doctors.forEach(doctor => {
+            const row = [
+                doctor.id,
+                `"${(doctor.name || '').replace(/"/g, '""')}"`,
+                `"${(doctor.specialty || '').replace(/"/g, '""')}"`,
+                `"${(doctor.email || '').replace(/"/g, '""')}"`,
+                `"${(doctor.phone || '').replace(/"/g, '""')}"`,
+                doctor.active ? 'Yes' : 'No',
+                doctor.created_at ? new Date(doctor.created_at).toISOString().split('T')[0] : ''
+            ];
+            rows.push(row.join(','));
+        });
+
+        return rows.join('\n');
     }
 
     /**
