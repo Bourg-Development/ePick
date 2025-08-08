@@ -230,11 +230,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count, will be updated after actual export
+                actualCount, // Use actual count instead of hardcoded estimate
                 'json',
                 context
             );
@@ -362,11 +366,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count
+                actualCount, // Use actual count instead of hardcoded estimate
                 'csv',
                 context
             );
@@ -493,11 +501,15 @@ class AnalysisController {
             // Extract user context for service filtering
             const userContext = await new AnalysisController()._extractUserContext(req);
 
-            // Monitor export behavior before proceeding
+            // Get actual count of analyses that will be exported
+            const countResult = await analysisService.getAnalyses(unifiedFilters, 1, 1, userContext);
+            const actualCount = countResult.success ? countResult.pagination.totalCount : 0;
+
+            // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
                 userId,
                 'analyses',
-                1000, // Estimated count
+                actualCount, // Use actual count instead of hardcoded estimate
                 'excel',
                 context
             );
