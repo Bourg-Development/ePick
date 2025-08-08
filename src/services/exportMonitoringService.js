@@ -114,10 +114,11 @@ class ExportMonitoringService {
     async getExportHistory(userId, timeWindow = this.timeWindows.week) {
         const since = new Date(Date.now() - timeWindow);
         
+        // Only count export attempts, not both attempts and success events
         return await db.AuditLog.findAll({
             where: {
                 user_id: userId,
-                event_type: { [Op.in]: ['export', 'export_success', 'export_attempt', 'analyses.exported', 'archived_analyses.exported'] },
+                event_type: { [Op.in]: ['export_attempt'] },
                 created_at: { [Op.gte]: since }
             },
             order: [['created_at', 'DESC']],

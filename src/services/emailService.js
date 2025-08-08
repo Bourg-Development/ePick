@@ -498,12 +498,12 @@ class EmailService {
                     break;
 
                 case 'admin_suspicious_export_activity':
-                    subject = 'ePick Security Alert - Suspicious Export Activity';
-                    html = this._loadEmailTemplate('admin_lockout')({
+                    subject = `ePick Security Alert - Suspicious Export Activity (Risk: ${Math.round((eventDetails.riskScore || 0) * 100)}%)`;
+                    html = this._loadEmailTemplate('admin_suspicious_activity')({
                         ...eventDetails,
                         riskScorePercent: Math.round((eventDetails.riskScore || 0) * 100),
                         timestamp: formatDateTime(eventDetails.timestamp),
-                        lockedUntil: eventDetails.lockedUntil ? formatDateTime(eventDetails.lockedUntil) : 'Not locked',
+                        device_fingerprint: eventDetails.device_fingerprint ? eventDetails.device_fingerprint.substring(0, 16) + '...' : 'N/A',
                         ...this._getBaseTemplateVars()
                     });
                     break;
