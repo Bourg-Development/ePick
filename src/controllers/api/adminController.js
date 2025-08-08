@@ -1900,7 +1900,7 @@ class AdminController {
 
             // Get actual count of services that will be exported
             const countResult = await serviceService.getServices({}, 1, 1);
-            const actualCount = countResult.total || 0;
+            const actualCount = countResult.success ? countResult.pagination.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
@@ -2511,7 +2511,7 @@ class AdminController {
 
             // Get actual count of services that will be exported
             const countResult = await serviceService.getServices({}, 1, 1);
-            const actualCount = countResult.total || 0;
+            const actualCount = countResult.success ? countResult.pagination.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
@@ -2699,7 +2699,7 @@ class AdminController {
                 search: filters.search,
                 active: true
             }, 1, 1);
-            const actualCount = countResult.success ? countResult.pagination.total : 0;
+            const actualCount = countResult.success ? countResult.total : 0;
 
             // Monitor export behavior before proceeding with actual count
             const monitoringResult = await exportMonitoringService.monitorExport(
