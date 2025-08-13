@@ -3,18 +3,15 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        // Insert only essential roles - admin and system_admin
-        await queryInterface.bulkInsert('roles', [
-            {
-                name: 'admin',
-                description: 'Full system access',
-                created_at: new Date(),
-                updated_at: new Date()
-            }
-        ]);
+        // Insert only essential roles - admin and system_admin (with conflict handling)
+        await queryInterface.sequelize.query(`
+            INSERT INTO roles (name, description, created_at, updated_at)
+            VALUES ('admin', 'Full system access', NOW(), NOW())
+            ON CONFLICT (name) DO NOTHING;
+        `);
 
-        // Insert comprehensive permissions
-        await queryInterface.bulkInsert('permissions', [
+        // Insert comprehensive permissions (with conflict handling)
+        const permissions = [
             // General permissions
             {
                 name: 'read.all',
@@ -252,7 +249,16 @@ module.exports = {
                 description: 'Deactivate recurring analysis patterns',
                 created_at: new Date()
             }
-        ]);
+        ];
+
+        // Insert permissions with conflict handling
+        for (const permission of permissions) {
+            await queryInterface.sequelize.query(`
+                INSERT INTO permissions (name, description, created_at)
+                VALUES ('${permission.name}', '${permission.description}', NOW())
+                ON CONFLICT (name) DO NOTHING;
+            `);
+        }
 
         // Get role and permission IDs
         const roles = await queryInterface.sequelize.query(
@@ -283,19 +289,21 @@ module.exports = {
         }));
 
         // Insert role permissions
-        await queryInterface.bulkInsert('role_permissions', rolePermissions);
+        // Insert role permissions with conflict handling
+        for (const rolePermission of rolePermissions) {
+            await queryInterface.sequelize.query(`
+                INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at)
+                VALUES (${rolePermission.role_id}, ${rolePermission.permission_id}, NOW(), NOW())
+                ON CONFLICT (role_id, permission_id) DO NOTHING;
+            `);
+        }
 
-        // Insert default service
-        await queryInterface.bulkInsert('services', [
-            {
-                name: 'Blood Analysis Laboratory',
-                email: 'lab@hospital.com',
-                description: 'Blood Analysis Management Service',
-                active: true,
-                created_at: new Date(),
-                updated_at: new Date()
-            }
-        ]);
+        // Insert default service with conflict handling
+        await queryInterface.sequelize.query(`
+            INSERT INTO services (name, email, description, active, created_at, updated_at)
+            VALUES ('Blood Analysis Laboratory', 'lab@hospital.com', 'Blood Analysis Management Service', true, NOW(), NOW())
+            ON CONFLICT (name) DO NOTHING;
+        `);
     },
 
     down: async (queryInterface, Sequelize) => {
