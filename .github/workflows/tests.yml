@@ -1,0 +1,118 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: epick_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create test environment file
+      run: |
+        cat > .env.test << EOF
+        NODE_ENV=test
+        PORT=3001
+        DB_HOST=localhost
+        DB_PORT=5432
+        DB_NAME=epick_test
+        DB_USER=postgres
+        DB_PASSWORD=postgres
+        DB_SSL=false
+        JWT_ACCESS_SECRET=test-access-secret-key-for-testing-only
+        JWT_REFRESH_SECRET=test-refresh-secret-key-for-testing-only
+        JWT_RESET_SECRET=test-reset-secret-key-for-testing-only
+        ACCESS_TOKEN_SECRET=test-access-secret-key-for-testing-only
+        REFRESH_TOKEN_SECRET=test-refresh-secret-key-for-testing-only
+        ACCESS_TOKEN_EXPIRY=300
+        REFRESH_TOKEN_EXPIRY=3600
+        RESET_TOKEN_EXPIRY=600
+        EMAIL_ENABLED=false
+        ENCRYPTION_KEY=test-encryption-key-32-characters
+        CRYPTO_SECRET=test-encryption-key-32-characters
+        TOTP_SECRET=test-totp-secret-for-testing
+        PEPPER=test-pepper-value-16-chars-min!!
+        RATE_LIMIT_ENABLED=false
+        LOG_LEVEL=error
+        EOF
+    
+    - name: Run database migrations
+      run: npm run migrate
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: epick_test
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+    
+    - name: Run unit tests
+      run: npm run test:unit
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Run all tests with coverage
+      run: npm run test:coverage
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: matrix.node-version == '20.x'
+      with:
+        name: coverage-report
+        path: coverage/
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Check for security vulnerabilities
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Check for outdated dependencies
+      run: npm outdated
+      continue-on-error: true

@@ -7,7 +7,13 @@
     "start": "node src/bin/www",
     "migrate": "node src/db/migrations/run-migrations.js",
     "create-admin": "node src/commands/create-admin.js",
-    "archive-cancelled": "node src/commands/archive-cancelled.js"
+    "archive-cancelled": "node src/commands/archive-cancelled.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:integration": "jest --testPathPattern=tests/integration",
+    "test:ci": "jest --testPathPattern=tests/unit"
   },
   "keywords": [],
   "author": "",
@@ -62,7 +68,10 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.5",
     "nodemon": "^3.1.9",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "supertest": "^7.1.4"
   }
 }

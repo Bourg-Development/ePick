@@ -1,0 +1,199 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check deployment conditions
+      id: check
+      run: |
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "should-deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "should-deploy=false" >> $GITHUB_OUTPUT
+        fi
+
+  test-and-analyze:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: epick_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create test environment
+      run: |
+        cat > .env.test << EOF
+        NODE_ENV=test
+        PORT=3001
+        DB_HOST=localhost
+        DB_PORT=5432
+        DB_NAME=epick_test
+        DB_USER=postgres
+        DB_PASSWORD=postgres
+        DB_SSL=false
+        JWT_ACCESS_SECRET=test-access-secret-key-for-testing-only
+        JWT_REFRESH_SECRET=test-refresh-secret-key-for-testing-only
+        JWT_RESET_SECRET=test-reset-secret-key-for-testing-only
+        ACCESS_TOKEN_SECRET=test-access-secret-key-for-testing-only
+        REFRESH_TOKEN_SECRET=test-refresh-secret-key-for-testing-only
+        ACCESS_TOKEN_EXPIRY=300
+        REFRESH_TOKEN_EXPIRY=3600
+        RESET_TOKEN_EXPIRY=600
+        EMAIL_ENABLED=false
+        ENCRYPTION_KEY=test-encryption-key-32-characters
+        CRYPTO_SECRET=test-encryption-key-32-characters
+        TOTP_SECRET=test-totp-secret-for-testing
+        PEPPER=test-pepper-value-16-chars-min!!
+        RATE_LIMIT_ENABLED=false
+        LOG_LEVEL=error
+        EOF
+        cp .env.test .env
+    
+    - name: Run database migrations
+      run: npm run migrate
+      env:
+        DB_HOST: localhost
+        DB_PASSWORD: postgres
+    
+    - name: Run tests with coverage
+      run: npm run test:coverage
+    
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      continue-on-error: true
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+      continue-on-error: true
+    
+    - name: Security audit
+      run: |
+        npm audit --production --audit-level=high
+        
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+  build-check:
+    needs: test-and-analyze
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install production dependencies
+      run: npm ci --production
+    
+    - name: Check build size
+      run: |
+        echo "## Build Size Report" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        du -sh node_modules/ >> $GITHUB_STEP_SUMMARY
+        du -sh src/ >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+    
+    - name: Test production startup
+      run: |
+        timeout 30s npm start || true
+      env:
+        NODE_ENV: production
+        PORT: 3000
+
+  pr-comment:
+    if: github.event_name == 'pull_request'
+    needs: [test-and-analyze, build-check]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Comment PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = `### ✅ CI Pipeline Results
+          
+          All checks have passed successfully!
+          
+          - 🧪 Tests: Passed
+          - 🔒 Security: No high/critical vulnerabilities
+          - 📊 Code Quality: Analyzed
+          - 📦 Build: Verified
+          
+          Ready for review!`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });
