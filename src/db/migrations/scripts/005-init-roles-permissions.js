@@ -298,12 +298,18 @@ module.exports = {
             `);
         }
 
-        // Insert default service with conflict handling
-        await queryInterface.sequelize.query(`
-            INSERT INTO services (name, email, description, active, created_at, updated_at)
-            VALUES ('Blood Analysis Laboratory', 'lab@hospital.com', 'Blood Analysis Management Service', true, NOW(), NOW())
-            ON CONFLICT (name) DO NOTHING;
-        `);
+        // Insert default service with existence check
+        const existingService = await queryInterface.sequelize.query(
+            `SELECT id FROM services WHERE name = 'Blood Analysis Laboratory'`,
+            { type: queryInterface.sequelize.QueryTypes.SELECT }
+        );
+        
+        if (existingService.length === 0) {
+            await queryInterface.sequelize.query(`
+                INSERT INTO services (name, email, description, active, created_at, updated_at)
+                VALUES ('Blood Analysis Laboratory', 'lab@hospital.com', 'Blood Analysis Management Service', true, NOW(), NOW());
+            `);
+        }
     },
 
     down: async (queryInterface, Sequelize) => {

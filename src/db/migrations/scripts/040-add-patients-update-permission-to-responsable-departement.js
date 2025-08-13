@@ -5,9 +5,17 @@ module.exports = {
         // Add patients.update permission to responsable_departement role
         // Client request from Florence Marth
         
+        // First create the role if it doesn't exist
         await queryInterface.sequelize.query(`
-            INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at)
-            SELECT r.id, p.id, NOW(), NOW()
+            INSERT INTO roles (name, description, created_at, updated_at)
+            VALUES ('responsable_departement', 'Department Manager', NOW(), NOW())
+            ON CONFLICT (name) DO NOTHING;
+        `);
+
+        // Then add the permission (without created_at/updated_at columns that don't exist)
+        await queryInterface.sequelize.query(`
+            INSERT INTO role_permissions (role_id, permission_id)
+            SELECT r.id, p.id
             FROM roles r, permissions p
             WHERE r.name = 'responsable_departement'
             AND p.name = 'patients.update'
