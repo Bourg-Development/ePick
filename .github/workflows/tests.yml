@@ -46,27 +46,71 @@ jobs:
         cat > .env.test << EOF
         NODE_ENV=test
         PORT=3001
+        
+        # Database
         DB_HOST=localhost
         DB_PORT=5432
         DB_NAME=epick_test
         DB_USER=postgres
         DB_PASSWORD=postgres
         DB_SSL=false
-        JWT_ACCESS_SECRET=test-access-secret-key-for-testing-only
-        JWT_REFRESH_SECRET=test-refresh-secret-key-for-testing-only
-        JWT_RESET_SECRET=test-reset-secret-key-for-testing-only
-        ACCESS_TOKEN_SECRET=test-access-secret-key-for-testing-only
-        REFRESH_TOKEN_SECRET=test-refresh-secret-key-for-testing-only
+        
+        # JWT Secrets (32+ characters)
+        JWT_ACCESS_SECRET=${{ secrets.TEST_JWT_ACCESS_SECRET || 'test-jwt-access-secret-32-chars-minimum-for-security' }}
+        JWT_REFRESH_SECRET=${{ secrets.TEST_JWT_REFRESH_SECRET || 'test-jwt-refresh-secret-32-chars-minimum-for-security' }}
+        JWT_RESET_SECRET=${{ secrets.TEST_JWT_RESET_SECRET || 'test-jwt-reset-secret-32-chars-minimum-for-security' }}
+        ACCESS_TOKEN_SECRET=${{ secrets.TEST_ACCESS_TOKEN_SECRET || 'test-access-token-secret-32-chars-minimum-for-security' }}
+        REFRESH_TOKEN_SECRET=${{ secrets.TEST_REFRESH_TOKEN_SECRET || 'test-refresh-token-secret-32-chars-minimum-for-security' }}
+        
+        # Token Expiry
         ACCESS_TOKEN_EXPIRY=300
         REFRESH_TOKEN_EXPIRY=3600
         RESET_TOKEN_EXPIRY=600
+        ACCESS_TOKEN_COOKIE_EXPIRY=86400
+        
+        # Encryption (exactly 32 characters for AES-256)
+        ENCRYPTION_KEY=${{ secrets.TEST_ENCRYPTION_KEY || '12345678901234567890123456789012' }}
+        CRYPTO_SECRET=${{ secrets.TEST_CRYPTO_SECRET || '12345678901234567890123456789012' }}
+        
+        # Security
+        PEPPER=${{ secrets.TEST_PEPPER || 'test-pepper-16-chars-minimum-for-testing!!' }}
+        TOTP_SECRET=${{ secrets.TEST_TOTP_SECRET || 'test-totp-secret-base32-encoded-for-testing' }}
+        
+        # Application Settings
         EMAIL_ENABLED=false
-        ENCRYPTION_KEY=test-encryption-key-32-characters
-        CRYPTO_SECRET=test-encryption-key-32-characters
-        TOTP_SECRET=test-totp-secret-for-testing
-        PEPPER=test-pepper-value-16-chars-min!!
         RATE_LIMIT_ENABLED=false
         LOG_LEVEL=error
+        LOG_ENCRYPTION_ENABLED=false
+        REFERENCE_CODE_EXPIRY_DAYS=7
+        SESSION_DEVICE_BINDING=true
+        
+        # CORS
+        CORS_ORIGIN=*
+        
+        # Email (disabled for tests)
+        EMAIL_FROM=test@example.com
+        EMAIL_FROM_NAME=ePick Test System
+        REPLY_TO=noreply@example.com
+        EMAIL_HOST=smtp.test.com
+        EMAIL_PORT=587
+        EMAIL_USER=testuser
+        EMAIL_PASSWORD=testpass
+        EMAIL_SECURE=false
+        
+        # Password Validation
+        PASSWORD_MIN_LENGTH=8
+        PASSWORD_REQUIRE_UPPERCASE=true
+        PASSWORD_REQUIRE_LOWERCASE=true
+        PASSWORD_REQUIRE_NUMBER=true
+        PASSWORD_REQUIRE_SYMBOL=true
+        
+        # GitHub Integration (disabled for tests)
+        GITHUB_TOKEN=
+        GITHUB_OWNER=
+        GITHUB_REPO=
+        GITHUB_SYNC_ENABLED=false
+        GITHUB_SYNC_INTERVAL=3600000
+        GITHUB_AUTO_PUBLISH=false
         EOF
     
     - name: Run database migrations
