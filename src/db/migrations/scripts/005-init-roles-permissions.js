@@ -292,8 +292,8 @@ module.exports = {
         // Insert role permissions with conflict handling
         for (const rolePermission of rolePermissions) {
             await queryInterface.sequelize.query(`
-                INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at)
-                VALUES (${rolePermission.role_id}, ${rolePermission.permission_id}, NOW(), NOW())
+                INSERT INTO role_permissions (role_id, permission_id)
+                VALUES (${rolePermission.role_id}, ${rolePermission.permission_id})
                 ON CONFLICT (role_id, permission_id) DO NOTHING;
             `);
         }
