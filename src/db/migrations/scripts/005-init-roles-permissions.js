@@ -266,7 +266,7 @@ module.exports = {
             { type: Sequelize.QueryTypes.SELECT }
         );
 
-        const permissions = await queryInterface.sequelize.query(
+        const permissionsFromDb = await queryInterface.sequelize.query(
             'SELECT id, name FROM permissions',
             { type: Sequelize.QueryTypes.SELECT }
         );
@@ -278,12 +278,12 @@ module.exports = {
         });
 
         const permissionMap = {};
-        permissions.forEach(permission => {
+        permissionsFromDb.forEach(permission => {
             permissionMap[permission.name] = permission.id;
         });
 
         // Admin role gets all permissions
-        const rolePermissions = permissions.map(permission => ({
+        const rolePermissions = permissionsFromDb.map(permission => ({
             role_id: roleMap.admin,
             permission_id: permission.id
         }));
