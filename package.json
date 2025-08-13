@@ -8,12 +8,12 @@
     "migrate": "node src/db/migrations/run-migrations.js",
     "create-admin": "node src/commands/create-admin.js",
     "archive-cancelled": "node src/commands/archive-cancelled.js",
-    "test": "jest",
+    "test": "jest --forceExit",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:unit": "jest --testPathPattern=tests/unit",
-    "test:integration": "jest --testPathPattern=tests/integration",
-    "test:ci": "jest --testPathPattern=tests/unit"
+    "test:coverage": "jest --coverage --forceExit",
+    "test:unit": "jest --testPathPatterns=tests/unit --forceExit",
+    "test:integration": "jest --testPathPatterns=tests/integration --forceExit",
+    "test:ci": "jest --testPathPatterns=tests/unit --forceExit"
   },
   "keywords": [],
   "author": "",
