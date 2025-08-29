@@ -20,7 +20,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@simplewebauthn/server": "^13.1.1",
+    "@simplewebauthn/server": "^13.1.2",
     "argon2": "^0.44.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
