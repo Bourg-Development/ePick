@@ -32,7 +32,7 @@
     "crypto-js": "^4.2.0",
     "csv-parse": "^6.0.0",
     "csv-parser": "^3.2.0",
-    "csv-stringify": "^6.5.2",
+    "csv-stringify": "^6.6.0",
     "dotenv": "^17.2.0",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
