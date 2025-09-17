@@ -605,9 +605,9 @@ function initializePage() {
         try {
             let result;
             if (isEdit) {
-                result = await api.put(`/admin/services/${isEdit}`, serviceData);
+                result = await api.put(`/admin/service/${isEdit}`, serviceData);
             } else {
-                result = await api.post('/admin/services', serviceData);
+                result = await api.post('/admin/service', serviceData);
             }
             
             if (result.success) {
