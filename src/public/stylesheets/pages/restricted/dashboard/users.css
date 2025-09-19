@@ -96,23 +96,26 @@
     width: 100%;
 }
 
-/* Column width distribution */
+/* Column width distribution for all 10 columns */
 .table-wrapper th:nth-child(1),
 .table-wrapper td:nth-child(1) { /* Username */
-    width: 10%;
-    min-width: 80px;
+    width: 8%;
+    min-width: 70px;
 }
 
 .table-wrapper th:nth-child(2),
 .table-wrapper td:nth-child(2) { /* Full Name */
-    width: 18%;
-    min-width: 120px;
+    width: 15%;
+    min-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .table-wrapper th:nth-child(3),
 .table-wrapper td:nth-child(3) { /* Email */
-    width: 22%;
-    max-width: 250px;
+    width: 18%;
+    max-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -120,41 +123,60 @@
 
 .table-wrapper th:nth-child(4),
 .table-wrapper td:nth-child(4) { /* Role */
-    width: 12%;
-    min-width: 100px;
+    width: 10%;
+    min-width: 80px;
 }
 
 .table-wrapper th:nth-child(5),
 .table-wrapper td:nth-child(5) { /* Service */
-    width: 15%;
-    min-width: 100px;
+    width: 12%;
+    min-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .table-wrapper th:nth-child(6),
 .table-wrapper td:nth-child(6) { /* Created */
-    width: 10%;
-    min-width: 80px;
+    width: 9%;
+    min-width: 70px;
 }
 
 .table-wrapper th:nth-child(7),
 .table-wrapper td:nth-child(7) { /* Status */
     width: 8%;
-    min-width: 70px;
+    min-width: 60px;
 }
 
 .table-wrapper th:nth-child(8),
-.table-wrapper td:nth-child(8) { /* Actions */
-    width: 5%;
+.table-wrapper td:nth-child(8) { /* Registration */
+    width: 10%;
+    min-width: 80px;
+}
+
+.table-wrapper th:nth-child(9),
+.table-wrapper td:nth-child(9) { /* 2FA */
+    width: 6%;
     min-width: 50px;
 }
 
-/* On hover show full email in tooltip */
-.table-wrapper td:nth-child(3):hover {
+.table-wrapper th:nth-child(10),
+.table-wrapper td:nth-child(10) { /* Actions */
+    width: 4%;
+    min-width: 40px;
+}
+
+/* Tooltip styles for truncated cells */
+.table-wrapper td:nth-child(2):hover,
+.table-wrapper td:nth-child(3):hover,
+.table-wrapper td:nth-child(5):hover {
     position: relative;
     overflow: visible;
 }
 
-.table-wrapper td:nth-child(3)[title]:hover::after {
+.table-wrapper td:nth-child(2)[title]:hover::after,
+.table-wrapper td:nth-child(3)[title]:hover::after,
+.table-wrapper td:nth-child(5)[title]:hover::after {
     content: attr(title);
     position: absolute;
     left: 0;
@@ -168,6 +190,7 @@
     font-size: 12px;
     margin-top: 2px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    max-width: 300px;
 }
 
 /* Mobile responsive table scrolling */
@@ -215,11 +238,21 @@
     /* Adjust column widths for mobile */
     .table-wrapper th:nth-child(3),
     .table-wrapper td:nth-child(3) {
-        max-width: 150px !important;
+        max-width: 120px !important;
     }
 
-    /* Hide tooltip on mobile */
-    .table-wrapper td:nth-child(3)[title]:hover::after {
+    .table-wrapper th:nth-child(2),
+    .table-wrapper td:nth-child(2) {
+        max-width: 100px !important;
+    }
+
+    .table-wrapper th:nth-child(5),
+    .table-wrapper td:nth-child(5) {
+        max-width: 80px !important;
+    }
+
+    /* Hide all tooltips on mobile */
+    .table-wrapper td[title]:hover::after {
         display: none;
     }
 }
