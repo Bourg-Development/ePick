@@ -90,6 +90,86 @@
     overflow: visible !important;
 }
 
+/* Table responsive improvements */
+.table-wrapper table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Column width distribution */
+.table-wrapper th:nth-child(1),
+.table-wrapper td:nth-child(1) { /* Username */
+    width: 10%;
+    min-width: 80px;
+}
+
+.table-wrapper th:nth-child(2),
+.table-wrapper td:nth-child(2) { /* Full Name */
+    width: 18%;
+    min-width: 120px;
+}
+
+.table-wrapper th:nth-child(3),
+.table-wrapper td:nth-child(3) { /* Email */
+    width: 22%;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-wrapper th:nth-child(4),
+.table-wrapper td:nth-child(4) { /* Role */
+    width: 12%;
+    min-width: 100px;
+}
+
+.table-wrapper th:nth-child(5),
+.table-wrapper td:nth-child(5) { /* Service */
+    width: 15%;
+    min-width: 100px;
+}
+
+.table-wrapper th:nth-child(6),
+.table-wrapper td:nth-child(6) { /* Created */
+    width: 10%;
+    min-width: 80px;
+}
+
+.table-wrapper th:nth-child(7),
+.table-wrapper td:nth-child(7) { /* Status */
+    width: 8%;
+    min-width: 70px;
+}
+
+.table-wrapper th:nth-child(8),
+.table-wrapper td:nth-child(8) { /* Actions */
+    width: 5%;
+    min-width: 50px;
+}
+
+/* On hover show full email in tooltip */
+.table-wrapper td:nth-child(3):hover {
+    position: relative;
+    overflow: visible;
+}
+
+.table-wrapper td:nth-child(3)[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 1000;
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 12px;
+    margin-top: 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
 /* Mobile responsive table scrolling */
 @media (max-width: 768px) {
     .table-wrapper {
@@ -127,9 +207,20 @@
     }
     
     .table-wrapper table {
-        min-width: 800px !important;
-        width: 800px !important;
+        min-width: 700px !important;
+        width: 100% !important;
         table-layout: auto !important;
+    }
+
+    /* Adjust column widths for mobile */
+    .table-wrapper th:nth-child(3),
+    .table-wrapper td:nth-child(3) {
+        max-width: 150px !important;
+    }
+
+    /* Hide tooltip on mobile */
+    .table-wrapper td:nth-child(3)[title]:hover::after {
+        display: none;
     }
 }
 
