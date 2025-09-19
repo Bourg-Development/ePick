@@ -1037,10 +1037,10 @@ function initializePage() {
 
             row.innerHTML = `
                 <td>${user.username}</td>
-                <td title="${user.full_name || 'Not set'}">${fullNameDisplay}</td>
-                <td title="${user.email || 'N/A'}">${user.email || 'N/A'}</td>
+                <td>${fullNameDisplay}</td>
+                <td>${user.email || 'N/A'}</td>
                 <td>${user.role ? user.role.name : 'N/A'}</td>
-                <td title="${user.service ? user.service.name : 'N/A'}">${serviceDisplay}</td>
+                <td>${serviceDisplay}</td>
                 <td>${createdDate}</td>
                 <td>
                     <span class="status-badge ${statusClass}">${statusText}</span>

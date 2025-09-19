@@ -196,51 +196,6 @@
     min-width: 120px;
 }
 
-/* Tooltip styles for truncated cells */
-.table-wrapper td:nth-child(2):hover,
-.table-wrapper td:nth-child(3):hover,
-.table-wrapper td:nth-child(5):hover {
-    position: relative;
-    overflow: visible;
-}
-
-.table-wrapper td:nth-child(2)[title]:hover::after,
-.table-wrapper td:nth-child(3)[title]:hover::after,
-.table-wrapper td:nth-child(5)[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    left: 50%;
-    top: -35px;
-    transform: translateX(-50%);
-    z-index: 1001;
-    background: #333;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    white-space: nowrap;
-    font-size: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    max-width: 250px;
-    pointer-events: none;
-}
-
-/* Add arrow pointer to tooltip */
-.table-wrapper td:nth-child(2)[title]:hover::before,
-.table-wrapper td:nth-child(3)[title]:hover::before,
-.table-wrapper td:nth-child(5)[title]:hover::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: -8px;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid #333;
-    z-index: 1000;
-    pointer-events: none;
-}
 
 /* Mobile responsive table scrolling */
 @media (max-width: 768px) {
@@ -300,10 +255,6 @@
         max-width: 80px !important;
     }
 
-    /* Hide all tooltips on mobile */
-    .table-wrapper td[title]:hover::after {
-        display: none;
-    }
 }
 
 /* Status badges */
