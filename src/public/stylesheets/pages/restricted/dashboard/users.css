@@ -94,19 +94,49 @@
 .table-wrapper table {
     table-layout: fixed;
     width: 100%;
+    max-width: 100%;
+}
+
+/* Force table to stay within bounds */
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+/* Ensure parent containers don't allow overflow */
+.main-content {
+    overflow-x: hidden;
+}
+
+/* Additional constraint for very small screens */
+@media (max-width: 1200px) {
+    .table-wrapper th:nth-child(3),
+    .table-wrapper td:nth-child(3) { /* Email */
+        width: 14%;
+        max-width: 130px;
+    }
+
+    .table-wrapper th:nth-child(2),
+    .table-wrapper td:nth-child(2) { /* Full Name */
+        width: 11%;
+        max-width: 100px;
+    }
 }
 
 /* Column width distribution for all 10 columns */
 .table-wrapper th:nth-child(1),
 .table-wrapper td:nth-child(1) { /* Username */
-    width: 8%;
-    min-width: 70px;
+    width: 7%;
+    min-width: 60px;
 }
 
 .table-wrapper th:nth-child(2),
 .table-wrapper td:nth-child(2) { /* Full Name */
-    width: 15%;
-    min-width: 100px;
+    width: 13%;
+    min-width: 90px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -114,8 +144,8 @@
 
 .table-wrapper th:nth-child(3),
 .table-wrapper td:nth-child(3) { /* Email */
-    width: 18%;
-    max-width: 180px;
+    width: 16%;
+    max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -123,14 +153,14 @@
 
 .table-wrapper th:nth-child(4),
 .table-wrapper td:nth-child(4) { /* Role */
-    width: 10%;
-    min-width: 80px;
+    width: 9%;
+    min-width: 70px;
 }
 
 .table-wrapper th:nth-child(5),
 .table-wrapper td:nth-child(5) { /* Service */
-    width: 12%;
-    min-width: 90px;
+    width: 11%;
+    min-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -138,32 +168,32 @@
 
 .table-wrapper th:nth-child(6),
 .table-wrapper td:nth-child(6) { /* Created */
-    width: 9%;
-    min-width: 70px;
-}
-
-.table-wrapper th:nth-child(7),
-.table-wrapper td:nth-child(7) { /* Status */
     width: 8%;
     min-width: 60px;
 }
 
+.table-wrapper th:nth-child(7),
+.table-wrapper td:nth-child(7) { /* Status */
+    width: 7%;
+    min-width: 55px;
+}
+
 .table-wrapper th:nth-child(8),
 .table-wrapper td:nth-child(8) { /* Registration */
-    width: 10%;
-    min-width: 80px;
+    width: 9%;
+    min-width: 70px;
 }
 
 .table-wrapper th:nth-child(9),
 .table-wrapper td:nth-child(9) { /* 2FA */
-    width: 6%;
-    min-width: 50px;
+    width: 5%;
+    min-width: 45px;
 }
 
 .table-wrapper th:nth-child(10),
 .table-wrapper td:nth-child(10) { /* Actions */
-    width: 4%;
-    min-width: 40px;
+    width: 15%;
+    min-width: 120px;
 }
 
 /* Tooltip styles for truncated cells */
