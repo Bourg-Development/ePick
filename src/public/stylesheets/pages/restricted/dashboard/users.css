@@ -115,8 +115,8 @@
 @media (max-width: 1200px) {
     .table-wrapper th:nth-child(3),
     .table-wrapper td:nth-child(3) { /* Email */
-        width: 14%;
-        max-width: 130px;
+        width: 12%;
+        max-width: 100px;
     }
 
     .table-wrapper th:nth-child(2),
@@ -144,8 +144,8 @@
 
 .table-wrapper th:nth-child(3),
 .table-wrapper td:nth-child(3) { /* Email */
-    width: 16%;
-    max-width: 150px;
+    width: 14%;
+    max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -192,7 +192,7 @@
 
 .table-wrapper th:nth-child(10),
 .table-wrapper td:nth-child(10) { /* Actions */
-    width: 15%;
+    width: 17%;
     min-width: 120px;
 }
 
@@ -242,7 +242,7 @@
     /* Adjust column widths for mobile */
     .table-wrapper th:nth-child(3),
     .table-wrapper td:nth-child(3) {
-        max-width: 120px !important;
+        max-width: 90px !important;
     }
 
     .table-wrapper th:nth-child(2),
