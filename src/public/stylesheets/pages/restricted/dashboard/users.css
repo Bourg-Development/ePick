@@ -209,18 +209,37 @@
 .table-wrapper td:nth-child(5)[title]:hover::after {
     content: attr(title);
     position: absolute;
-    left: 0;
-    top: 100%;
-    z-index: 1000;
+    left: 50%;
+    top: -35px;
+    transform: translateX(-50%);
+    z-index: 1001;
     background: #333;
     color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     white-space: nowrap;
     font-size: 12px;
-    margin-top: 2px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 250px;
+    pointer-events: none;
+}
+
+/* Add arrow pointer to tooltip */
+.table-wrapper td:nth-child(2)[title]:hover::before,
+.table-wrapper td:nth-child(3)[title]:hover::before,
+.table-wrapper td:nth-child(5)[title]:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 /* Mobile responsive table scrolling */
