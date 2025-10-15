@@ -4035,15 +4035,18 @@ class AdminController {
             // Enrich metadata with patient names for analysis-related logs
             const db = require('../../db');
             const enrichedLogs = await Promise.all(result.logs.map(async (log) => {
-                let enrichedMetadata = { ...log.metadata };
-                
+                // Ensure log is a plain object
+                const plainLog = log.toJSON ? log.toJSON() : log;
+                let enrichedMetadata = { ...(plainLog.metadata || {}) };
+
                 // For analysis-related events that have a patientId, fetch patient name
-                if (log.event_type.includes('analysis') && log.metadata && log.metadata.patientId) {
+                if (plainLog.event_type && plainLog.event_type.includes('analysis') && enrichedMetadata && enrichedMetadata.patientId) {
                     try {
-                        const patient = await db.Patient.findByPk(log.metadata.patientId, {
-                            attributes: ['name']
+                        const patient = await db.Patient.findByPk(enrichedMetadata.patientId, {
+                            attributes: ['name'],
+                            raw: true  // Return plain object instead of Sequelize instance
                         });
-                        
+
                         if (patient) {
                             enrichedMetadata.patient_name = patient.name;
                         }
@@ -4052,9 +4055,9 @@ class AdminController {
                         // Continue without patient name if lookup fails
                     }
                 }
-                
+
                 return {
-                    ...log,
+                    ...plainLog,
                     metadata: enrichedMetadata
                 };
             }));
