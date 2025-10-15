@@ -71,6 +71,11 @@ function formatEventTypeForDisplay(eventType) {
         'system.update_published': 'Published System Update'
     };
 
+    // Handle undefined or null eventType
+    if (!eventType) {
+        return 'Unknown Event';
+    }
+
     return eventMap[eventType] || eventType.replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
