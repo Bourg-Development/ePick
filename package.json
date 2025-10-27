@@ -52,7 +52,7 @@
     "multer": "^2.0.1",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.5",
+    "nodemailer": "^7.0.10",
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
     "pi": "^2.0.5",
