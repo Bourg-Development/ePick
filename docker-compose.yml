@@ -1,5 +1,3 @@
-# version: "3.8"
-
 services:
   postgres:
     image: postgres:16
@@ -12,6 +10,30 @@ services:
       - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U epick_dev -d epick_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  epick:
+    build: .
+    container_name: epick_app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: epick_dev
+      DB_USER: epick_dev
+      DB_PASSWORD: epick_fjpp
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   pgdata:
