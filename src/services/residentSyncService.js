@@ -111,22 +111,64 @@ class ResidentSyncService {
     }
 
     /**
-     * Sync a single resident to the database
+     * Ensure all rooms from residents exist in the database
+     * @param {Array} residents - Array of resident data from API
+     * @param {number} systemUserId - System user ID for created_by field
+     * @returns {Promise<Map>} Map of room_number -> room_id
+     */
+    async ensureRoomsExist(residents, systemUserId = null) {
+        const roomMap = new Map();
+
+        // Collect unique valid room numbers
+        const uniqueRoomNumbers = new Set();
+        for (const resident of residents) {
+            const roomNumber = resident.RoomNumber;
+            if (roomNumber && /^\d{4}$/.test(roomNumber)) {
+                uniqueRoomNumbers.add(roomNumber);
+            }
+        }
+
+        // Find existing rooms
+        const existingRooms = await db.Room.findAll({
+            where: {
+                room_number: Array.from(uniqueRoomNumbers)
+            }
+        });
+
+        // Add existing rooms to map
+        for (const room of existingRooms) {
+            roomMap.set(room.room_number, room.id);
+        }
+
+        // Create missing rooms
+        const existingRoomNumbers = new Set(existingRooms.map(r => r.room_number));
+        for (const roomNumber of uniqueRoomNumbers) {
+            if (!existingRoomNumbers.has(roomNumber)) {
+                const newRoom = await db.Room.create({
+                    room_number: roomNumber,
+                    service_id: null,
+                    created_by: systemUserId
+                });
+                roomMap.set(roomNumber, newRoom.id);
+            }
+        }
+
+        console.log(`Room sync: ${existingRooms.length} existing, ${uniqueRoomNumbers.size - existingRooms.length} created`);
+        return roomMap;
+    }
+
+    /**
+     * Sync a single resident to the database with pre-resolved room ID
      * @param {Object} mappedResident - Mapped resident data
+     * @param {number|null} roomId - Pre-resolved room ID
      * @param {number} systemUserId - System user ID for audit trail
      * @returns {Promise<Object>} Sync result for this resident
      */
-    async syncResident(mappedResident, systemUserId = null) {
-        const transaction = await db.sequelize.transaction();
-
+    async syncResidentWithRoom(mappedResident, roomId, systemUserId = null) {
         try {
-            // Find room
-            const roomId = await this.findOrCreateRoom(mappedResident.roomNumber, systemUserId);
-
             // Check if patient already exists by matricule national
             const existingPatient = await db.Patient.findOne({
-                where: { matricule_national: mappedResident.matriculeNational },
-                transaction
+                where: { matricule_national: mappedResident.matriculeNational }
             });
 
             // Create search hashes
@@ -145,15 +187,14 @@ class ResidentSyncService {
                     room_id: roomId,
                     active: true,
                     ...searchHashes
-                }, { transaction });
-
-                await transaction.commit();
+                });
 
                 return {
                     action: 'updated',
                     patientId: existingPatient.id,
                     externalId: mappedResident.externalId,
-                    name: mappedResident.fullName
+                    name: mappedResident.fullName,
+                    roomId: roomId
                 };
             } else {
                 // Create new patient
@@ -167,19 +208,17 @@ class ResidentSyncService {
                     active: true,
                     created_by: systemUserId,
                     ...searchHashes
-                }, { transaction });
-
-                await transaction.commit();
+                });
 
                 return {
                     action: 'created',
                     patientId: newPatient.id,
                     externalId: mappedResident.externalId,
-                    name: mappedResident.fullName
+                    name: mappedResident.fullName,
+                    roomId: roomId
                 };
             }
         } catch (error) {
-            await transaction.rollback();
             return {
                 action: 'error',
                 externalId: mappedResident.externalId,
@@ -187,6 +226,18 @@ class ResidentSyncService {
                 error: error.message
             };
         }
+    }
+
+    /**
+     * Sync a single resident to the database (legacy method, kept for manual triggers)
+     * @param {Object} mappedResident - Mapped resident data
+     * @param {number} systemUserId - System user ID for audit trail
+     * @returns {Promise<Object>} Sync result for this resident
+     */
+    async syncResident(mappedResident, systemUserId = null) {
+        // Find or create room first
+        const roomId = await this.findOrCreateRoom(mappedResident.roomNumber, systemUserId);
+        return this.syncResidentWithRoom(mappedResident, roomId, systemUserId);
     }
 
     /**
@@ -211,6 +262,9 @@ class ResidentSyncService {
             const residents = await this.fetchResidentsFromApi();
             results.totalFromApi = residents.length;
 
+            // Pre-create all rooms first and build a map of room_number -> room_id
+            const roomMap = await this.ensureRoomsExist(residents, userId);
+
             // Process each resident
             for (const resident of residents) {
                 const mappedResident = this.mapResidentToPatient(resident);
@@ -226,7 +280,10 @@ class ResidentSyncService {
                     continue;
                 }
 
-                const syncResult = await this.syncResident(mappedResident, userId);
+                // Get room ID from pre-built map
+                const roomId = roomMap.get(mappedResident.roomNumber) || null;
+
+                const syncResult = await this.syncResidentWithRoom(mappedResident, roomId, userId);
                 results.details.push(syncResult);
 
                 if (syncResult.action === 'created') {
