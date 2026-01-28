@@ -1,5 +1,6 @@
 // services/residentSyncService.js
 const axios = require('axios');
+const https = require('https');
 const db = require('../db');
 const logService = require('./logService');
 const encryptedSearchService = require('./encryptedSearchService');
@@ -11,6 +12,8 @@ class ResidentSyncService {
     constructor() {
         this.apiUrl = process.env.RESIDENT_API_URL;
         this.apiKey = process.env.RESIDENT_API_KEY;
+        // Allow skipping SSL verification for internal APIs with self-signed/mismatched certs
+        this.skipSslVerification = process.env.RESIDENT_API_SKIP_SSL === 'true';
     }
 
     /**
@@ -22,13 +25,22 @@ class ResidentSyncService {
             throw new Error('Resident API configuration missing. Check RESIDENT_API_URL and RESIDENT_API_KEY in .env');
         }
 
-        const response = await axios.get(this.apiUrl, {
+        const axiosConfig = {
             headers: {
                 'X-Api-Key': this.apiKey,
                 'Content-Type': 'application/json'
             },
             timeout: 30000
-        });
+        };
+
+        // Skip SSL verification if configured (for internal APIs with cert issues)
+        if (this.skipSslVerification) {
+            axiosConfig.httpsAgent = new https.Agent({
+                rejectUnauthorized: false
+            });
+        }
+
+        const response = await axios.get(this.apiUrl, axiosConfig);
 
         if (!Array.isArray(response.data)) {
             throw new Error('Invalid API response: expected array of residents');
@@ -285,13 +297,22 @@ class ResidentSyncService {
         }
 
         try {
-            const response = await axios.get(this.apiUrl, {
+            const axiosConfig = {
                 headers: {
                     'X-Api-Key': this.apiKey,
                     'Content-Type': 'application/json'
                 },
                 timeout: 10000
-            });
+            };
+
+            // Skip SSL verification if configured
+            if (this.skipSslVerification) {
+                axiosConfig.httpsAgent = new https.Agent({
+                    rejectUnauthorized: false
+                });
+            }
+
+            const response = await axios.get(this.apiUrl, axiosConfig);
 
             return {
                 configured: true,
