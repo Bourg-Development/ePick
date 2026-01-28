@@ -100,17 +100,13 @@ async function createSystemAdminUser() {
 
         if (roleResult.rows.length === 0) {
             console.error('Error: System Administrator role not found. Please run migrations first.');
-            rl.close();
-            await pool.end();
             return;
         }
 
         const systemAdminRole = roleResult.rows[0];
-        
+
         if (!systemAdminRole.is_system) {
             console.error('Error: system_admin role is not marked as a system role.');
-            rl.close();
-            await pool.end();
             return;
         }
 
@@ -123,8 +119,6 @@ async function createSystemAdminUser() {
 
         if (parseInt(userResult.rows[0].count) > 0) {
             console.log('System Administrator user already exists with username 000000.');
-            rl.close();
-            await pool.end();
             return;
         }
 
@@ -136,8 +130,6 @@ async function createSystemAdminUser() {
 
         if (!email || !email.includes('@')) {
             console.error('Error: Valid email is required.');
-            rl.close();
-            await pool.end();
             return;
         }
 

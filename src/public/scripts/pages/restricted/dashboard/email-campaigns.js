@@ -871,13 +871,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate inputs
         if (!newText) {
-            alert('Button text is required');
+            alert(__('messages.validation.buttonTextRequired'));
             document.getElementById('buttonText').focus();
             return;
         }
 
         if (!newUrl || newUrl === '#') {
-            if (!confirm('No URL specified. The button will not be clickable. Continue?')) {
+            if (!confirm(__('messages.confirm.noUrlSpecified'))) {
                 document.getElementById('buttonUrl').focus();
                 return;
             }
@@ -1422,16 +1422,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate required fields
         if (!data.list_id || !data.name || !data.subject || (!data.content_html && !data.content_text)) {
-            showToast('Please fill in all required fields', 'error');
+            showToast(__('messages.validation.fillRequiredFields'), 'error');
             return;
         }
-        
+
         // Check content size and warn if large
         const contentSize = new Blob([JSON.stringify(data)]).size;
         const maxSafeSize = 8 * 1024 * 1024; // 8MB
-        
+
         if (contentSize > maxSafeSize) {
-            showToast('Campaign content is very large. Consider reducing image sizes.', 'warning');
+            showToast(__('messages.warning.contentTooLarge'), 'warning');
         }
         
         try {
@@ -1462,7 +1462,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         showToast(sendResponse.message || 'Campaign saved but failed to send', 'warning');
                     }
                 } else {
-                    showToast('Campaign saved as draft', 'success');
+                    showToast(__('messages.success.campaignSavedDraft'), 'success');
                 }
                 
                 closeModal();
@@ -1501,15 +1501,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await api.post(`/mailing/campaign/${selectedCampaignId}/cancel`);
             if (response.success) {
-                showToast('Campaign cancelled successfully', 'success');
+                showToast(__('messages.success.campaignCancelled'), 'success');
                 closeDeleteModal();
                 loadCampaigns();
             } else {
-                showToast(response.message || 'Failed to cancel campaign', 'error');
+                showToast(response.message || __('messages.error.failedCancelCampaign'), 'error');
             }
         } catch (error) {
             console.error('Error cancelling campaign:', error);
-            showToast('Failed to cancel campaign', 'error');
+            showToast(__('messages.error.failedCancelCampaign'), 'error');
         }
     });
 

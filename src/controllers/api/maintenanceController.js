@@ -1,6 +1,5 @@
 // controllers/api/maintenanceController.js
-const maintenanceSchedulingService = require('../../services/maintenanceSchedulingService');
-const maintenanceModeService = require('../../services/maintenanceModeService');
+const maintenanceService = require('../../services/maintenanceService');
 const logService = require('../../services/logService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
 
@@ -31,7 +30,7 @@ class MaintenanceController {
             }
 
             // Schedule the maintenance
-            const result = await maintenanceSchedulingService.scheduleMaintenance(maintenanceData, userId);
+            const result = await maintenanceService.scheduleMaintenance(maintenanceData, userId);
             
             if (result.success) {
                 // Log the scheduling action
@@ -81,7 +80,7 @@ class MaintenanceController {
                 offset: req.query.offset
             };
 
-            const result = await maintenanceSchedulingService.getScheduledMaintenance(filters);
+            const result = await maintenanceService.getScheduledMaintenance(filters);
             
             if (result.success) {
                 return res.status(200).json(result);
@@ -106,7 +105,7 @@ class MaintenanceController {
         try {
             const { maintenanceId } = req.params;
             
-            const result = await maintenanceSchedulingService.getScheduledMaintenance({ 
+            const result = await maintenanceService.getScheduledMaintenance({ 
                 limit: 1,
                 offset: 0 
             });
@@ -163,7 +162,7 @@ class MaintenanceController {
                 });
             }
 
-            const result = await maintenanceSchedulingService.updateMaintenanceStatus(
+            const result = await maintenanceService.updateMaintenanceStatus(
                 parseInt(maintenanceId), 
                 status, 
                 userId
@@ -215,7 +214,7 @@ class MaintenanceController {
                 });
             }
 
-            const result = await maintenanceSchedulingService.cancelMaintenance(
+            const result = await maintenanceService.cancelMaintenance(
                 parseInt(maintenanceId), 
                 reason.trim(), 
                 userId
@@ -268,7 +267,7 @@ class MaintenanceController {
                 });
             }
 
-            const result = await maintenanceSchedulingService.sendMaintenanceNotification(
+            const result = await maintenanceService.sendMaintenanceNotification(
                 parseInt(maintenanceId), 
                 notificationType
             );
@@ -312,10 +311,10 @@ class MaintenanceController {
             const { userId } = req.auth;
 
             // Process pending notifications
-            const notificationResult = await maintenanceSchedulingService.processPendingNotifications();
+            const notificationResult = await maintenanceService.processPendingNotifications();
             
             // Process maintenance activation
-            const activationResult = await maintenanceSchedulingService.processMaintenanceActivation();
+            const activationResult = await maintenanceService.processMaintenanceActivation();
 
             // Log the processing
             await logService.auditLog({
@@ -356,7 +355,7 @@ class MaintenanceController {
      */
     async getMaintenanceModeStatus(req, res) {
         try {
-            const status = maintenanceModeService.getMaintenanceModeStatus();
+            const status = maintenanceService.getMaintenanceModeStatus();
             
             return res.status(200).json({
                 success: true,
@@ -388,7 +387,7 @@ class MaintenanceController {
                 });
             }
 
-            const result = await maintenanceModeService.enableMaintenanceMode({
+            const result = await maintenanceService.enableMaintenanceMode({
                 message: message.trim(),
                 enabledBy: userId
             });
@@ -430,7 +429,7 @@ class MaintenanceController {
         try {
             const { userId } = req.auth;
 
-            const result = await maintenanceModeService.disableMaintenanceMode(userId);
+            const result = await maintenanceService.disableMaintenanceMode(userId);
             
             if (result.success) {
                 // Log the manual disablement
@@ -477,7 +476,7 @@ class MaintenanceController {
                 });
             }
 
-            const result = await maintenanceModeService.updateMaintenanceMessage(message.trim(), userId);
+            const result = await maintenanceService.updateMaintenanceMessage(message.trim(), userId);
             
             if (result.success) {
                 // Log the message update

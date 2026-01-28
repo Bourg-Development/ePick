@@ -31,7 +31,7 @@ class PatientController {
             if (!firstName || !matriculeNational) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Patient first name and national ID are required'
+                    message: req.i18n.__('errors.api.validation.patientRequired')
                 });
             }
 
@@ -39,7 +39,7 @@ class PatientController {
             if (gender && !['Male', 'Female', 'Other'].includes(gender)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid gender value'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'gender')
                 });
             }
 
@@ -67,7 +67,7 @@ class PatientController {
             console.error('Create patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create patient'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -95,7 +95,7 @@ class PatientController {
             console.error('Get patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patient'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -151,7 +151,7 @@ class PatientController {
             console.error('Get patients error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patients'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }
@@ -182,7 +182,7 @@ class PatientController {
             if (gender && !['Male', 'Female', 'Other'].includes(gender)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid gender value'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'gender')
                 });
             }
 
@@ -217,7 +217,7 @@ class PatientController {
             console.error('Update patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update patient'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -249,7 +249,7 @@ class PatientController {
             console.error('Deactivate patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to deactivate patient'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -281,7 +281,7 @@ class PatientController {
             console.error('Reactivate patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to reactivate patient'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -316,7 +316,7 @@ class PatientController {
             console.error('Get patient analysis history error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patient analysis history'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -338,7 +338,7 @@ class PatientController {
             console.error('Search patients error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to search patients'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }

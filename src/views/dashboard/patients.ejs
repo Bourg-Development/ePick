@@ -223,34 +223,34 @@
 
             <!-- Password Verification -->
             <div class="form-section">
-                <label class="form-label" for="exportPassword">Your Password <span class="required">*</span></label>
-                <input type="password" class="form-control" id="exportPassword" name="exportPassword" required placeholder="Enter your password" autocomplete="current-password">
-                <small class="form-help">Required for security verification</small>
+                <label class="form-label" for="exportPassword"><%= __('modals.export.password') %> <span class="required">*</span></label>
+                <input type="password" class="form-control" id="exportPassword" name="exportPassword" required placeholder="<%= __('modals.export.passwordPlaceholder') %>" autocomplete="current-password">
+                <small class="form-help"><%= __('modals.export.passwordHelp') %></small>
             </div>
 
             <!-- Export Format -->
             <div class="form-section">
-                <label class="form-label">Export Format <span class="required">*</span></label>
+                <label class="form-label"><%= __('modals.export.exportFormat') %> <span class="required">*</span></label>
                 <div class="format-options">
                     <label class="format-option">
                         <input type="radio" name="exportFormat" value="csv" checked>
                         <span class="format-details">
-                            <strong>CSV (Comma Separated)</strong>
-                            <small>Compatible with Excel, spreadsheet applications</small>
+                            <strong><%= __('modals.export.csv') %></strong>
+                            <small><%= __('modals.export.csvDescription') %></small>
                         </span>
                     </label>
                     <label class="format-option">
                         <input type="radio" name="exportFormat" value="excel">
                         <span class="format-details">
-                            <strong>Excel (.xlsx)</strong>
-                            <small>Native Excel format with formatting</small>
+                            <strong><%= __('modals.export.excel') %></strong>
+                            <small><%= __('modals.export.excelDescription') %></small>
                         </span>
                     </label>
                     <label class="format-option">
                         <input type="radio" name="exportFormat" value="json">
                         <span class="format-details">
-                            <strong>JSON (Data)</strong>
-                            <small>Structured data format for applications</small>
+                            <strong><%= __('modals.export.json') %></strong>
+                            <small><%= __('modals.export.jsonDescription') %></small>
                         </span>
                     </label>
                 </div>
@@ -258,11 +258,11 @@
 
             <!-- Column Selection -->
             <div class="form-section">
-                <label class="form-label">Column Selection</label>
+                <label class="form-label"><%= __('modals.export.columnSelection') %></label>
                 <div class="column-selection-header">
-                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn">Select All</button>
-                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn">Select None</button>
-                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn">Safe Columns Only</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumnsBtn"><%= __('modals.export.selectAll') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectNoneColumnsBtn"><%= __('modals.export.selectNone') %></button>
+                    <button type="button" class="btn btn-sm btn-outline" id="selectSafeColumnsBtn"><%= __('modals.export.safeColumns') %></button>
                 </div>
                 <div class="column-grid" id="columnGrid">
                     <!-- Populated dynamically -->
@@ -271,7 +271,7 @@
 
             <!-- Current Filters Info -->
             <div class="form-section">
-                <label class="form-label">Applied Filters</label>
+                <label class="form-label"><%= __('modals.export.appliedFilters') %></label>
                 <div class="current-filters" id="currentFilters">
                     <span class="filter-info"><%= __('modals.export.usingCurrentPageFilters') %></span>
                 </div>
@@ -281,7 +281,7 @@
             <div class="sensitive-warning" id="sensitiveWarning" style="display: none;">
                 <span class="material-symbols-outlined warning-icon">error</span>
                 <div class="warning-content">
-                    <strong>Sensitive Data Selected</strong>
+                    <strong><%= __('modals.export.sensitiveDataSelected') %></strong>
                     <p><%= __('modals.export.sensitivePatientData') %></p>
                 </div>
             </div>
@@ -289,14 +289,14 @@
             <!-- Export Progress -->
             <div class="export-progress" id="exportProgress" style="display: none;">
                 <div class="export-spinner"></div>
-                Exporting...
+                <%= __('modals.export.preparingExport') %>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelExportBtn"><%= __('common.cancel') %></button>
                 <button type="submit" class="btn btn-primary" id="executeExportBtn">
                     <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
-                    Export Data
+                    <%= __('modals.export.exportData') %>
                 </button>
             </div>
         </form>

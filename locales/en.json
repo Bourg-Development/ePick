@@ -52,7 +52,120 @@
     "createdAt": "Created At",
     "updatedAt": "Updated At",
     "clearFilters": "Clear Filters",
-    "retry": "Retry"
+    "retry": "Retry",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "selected": "selected",
+    "exporting": "Exporting",
+    "keepAnalysis": "Keep Analysis",
+    "confirmAction": "Confirm Action"
+  },
+  "modals": {
+    "updateStatus": {
+      "title": "Update Analysis Status",
+      "newStatus": "New Status",
+      "selectStatus": "Select status"
+    },
+    "cancelAnalysis": {
+      "title": "Cancel Analysis",
+      "reason": "Reason for Cancellation",
+      "reasonPlaceholder": "Please provide a detailed reason for cancelling this analysis...",
+      "reasonHelp": "This reason will be recorded and may be required for reporting purposes",
+      "button": "Cancel Analysis",
+      "keepAnalysis": "Keep Analysis"
+    },
+    "bulkCancel": {
+      "title": "Bulk Cancel Analyses",
+      "details": "Cancellation Details",
+      "aboutToCancel": "You are about to cancel",
+      "analyses": "analyses",
+      "cannotUndo": "This action cannot be undone.",
+      "reason": "Cancellation Reason",
+      "reasonHelp": "This reason will be recorded for all cancelled analyses. A minimum length is required.",
+      "button": "Cancel Selected Analyses"
+    },
+    "postpone": {
+      "title": "Postpone Analysis",
+      "selectNewDate": "Select New Date",
+      "dateHelp": "Select a new date for the analysis (must be within the next 30 days)",
+      "reasonOptional": "Reason (Optional)",
+      "button": "Postpone Analysis"
+    },
+    "addDoctor": {
+      "title": "Add New Doctor",
+      "doctorName": "Doctor Name",
+      "nameHelp": "This name was entered in the search field",
+      "specialization": "Specialization",
+      "specializationHelp": "Enter the doctor's medical specialization",
+      "phoneNumber": "Phone Number",
+      "phoneHelp": "Optional - Doctor's contact phone number",
+      "emailAddress": "Email Address",
+      "emailHelp": "Optional - Doctor's email address"
+    },
+    "auditLogs": {
+      "title": "Audit Logs",
+      "action": "Action",
+      "user": "User"
+    },
+    "confirm": {
+      "title": "Confirm Action"
+    }
+  },
+  "labels": {
+    "bulkActions": "Bulk Actions",
+    "cancelSelected": "Cancel Selected",
+    "analysisInformation": "Analysis Information",
+    "patient": "Patient",
+    "type": "Type",
+    "currentStatus": "Current Status",
+    "date": "Date",
+    "includingFirstAnalysis": "Including the first analysis",
+    "schedulePreview": "Schedule Preview"
+  },
+  "export": {
+    "title": "Export Data",
+    "yourPassword": "Your Password",
+    "passwordPlaceholder": "Enter your password",
+    "passwordHelp": "Required for security verification",
+    "format": "Export Format",
+    "csv": "CSV (Comma Separated)",
+    "csvDescription": "Compatible with Excel, spreadsheet applications",
+    "excel": "Excel (.xlsx)",
+    "excelDescription": "Native Excel format with formatting",
+    "json": "JSON (Data)",
+    "jsonDescription": "Structured data format for applications",
+    "columnSelection": "Column Selection",
+    "selectAll": "Select All",
+    "selectNone": "Select None",
+    "safeColumnsOnly": "Safe Columns Only",
+    "appliedFilters": "Applied Filters",
+    "sensitiveDataWarning": "Sensitive Data Selected",
+    "button": "Export Data"
+  },
+  "preferences": {
+    "massPreferences": "Mass Preferences",
+    "targetUsers": "Target Users",
+    "allActiveUsers": "All active users",
+    "selectedUsersOnly": "Selected users only",
+    "selectUsers": "Select Users",
+    "resetOptions": "Reset Options",
+    "resetAllDefaults": "Reset all preferences to defaults",
+    "resetSpecificOnly": "Reset specific preferences only",
+    "selectPreferences": "Select preferences to reset",
+    "language": "Language",
+    "dateFormat": "Date Format",
+    "timeFormat": "Time Format",
+    "timezone": "Timezone",
+    "emailNotifications": "Email Notifications",
+    "twelveHour": "12 Hour",
+    "twentyFourHour": "24 Hour"
+  },
+  "messages": {
+    "itemsSelected": "{0} selected",
+    "noAnalysesSelected": "No analyses selected",
+    "analysesCancelled": "Successfully cancelled {0} analyses",
+    "operationSuccess": "Operation completed successfully",
+    "operationFailed": "Operation failed"
   },
   "auth": {
     "loginTitle": "Login to your account",
@@ -205,9 +318,16 @@
     "allRoles": "All Roles",
     "allServices": "All Services",
     "allStatuses": "All Statuses",
+    "selectRole": "Select a role",
     "allTypes": "All Types",
     "allPriorities": "All Priorities",
     "allEvents": "All Events",
+    "analysisActions": "Analysis Actions",
+    "patientManagement": "Patient Management",
+    "doctorManagement": "Doctor Management",
+    "roomManagement": "Room Management",
+    "userAccountActions": "User Account Actions",
+    "systemOperations": "System Operations",
     "searchPlaceholder": "Search by patient, doctor, or room...",
     "startDate": "Start Date",
     "endDate": "End Date",
@@ -279,6 +399,9 @@
     "cancellationPlaceholder": "Please provide a detailed reason for cancelling this analysis...",
     "cancellationHelp": "This reason will be recorded and may be required for reporting purposes",
     "keepAnalysis": "Keep Analysis",
+    "validatePrescription": "Validate Prescription",
+    "viewAuditLogs": "View Audit Logs",
+    "noAnalysesFound": "No analyses found",
     "messages": {
       "created": "Analysis scheduled successfully",
       "updated": "Analysis updated successfully",
@@ -288,6 +411,11 @@
       "postponed": "Analysis postponed to {0}",
       "limitReached": "Daily analysis limit reached for {0}",
       "conflictExists": "Patient already has an analysis scheduled for this date"
+    },
+    "prescriptionValidation": {
+      "title": "Validate Prescription",
+      "message": "Please confirm that you have received a valid prescription for this analysis.",
+      "confirmButton": "Confirm Prescription"
     }
   },
   "patient": {
@@ -412,6 +540,12 @@
     "editUser": "Edit User",
     "updateUser": "Update User",
     "generateRefCode": "Generate Reference Code",
+    "resetPassword": "Reset Password",
+    "viewServiceInfo": "View Service Info",
+    "lockUser": "Lock User",
+    "unlockUser": "Unlock User",
+    "noUsersFound": "No users found",
+    "viewAuditLogs": "View Audit Logs",
     "userInformation": "User Information",
     "userDetails": "User Details",
     "basicInfo": "Basic Information",
@@ -428,7 +562,15 @@
     "printCode": "Print Code",
     "totpEnabled": "TOTP Enabled",
     "webauthnEnabled": "WebAuthn Enabled",
-    "require2FANextLogin": "Require 2FA on next login"
+    "require2FANextLogin": "Require 2FA on next login",
+    "targetUsers": "Target Users",
+    "allActiveUsers": "All active users",
+    "selectedUsersOnly": "Selected users only",
+    "selectUsers": "Select Users",
+    "resetOptions": "Reset Options",
+    "resetAllDefaults": "Reset all preferences to defaults",
+    "resetSpecificOnly": "Reset specific preferences only",
+    "selectPrefsToReset": "Select preferences to reset"
   },
   "errors": {
     "pageNotFound": "Page not found",
@@ -445,7 +587,77 @@
     "requiredField": "This field is required",
     "invalidEmail": "Invalid email format",
     "passwordTooShort": "Password must be at least 8 characters",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "api": {
+      "permission": {
+        "denied": "Permission denied",
+        "insufficientPermissions": "Insufficient permissions",
+        "authenticationRequired": "Authentication required",
+        "systemPermissionRequired": "System permission required"
+      },
+      "validation": {
+        "required": "{0} is required",
+        "invalidFormat": "Invalid {0} format",
+        "mustBeBoolean": "{0} must be a boolean value",
+        "userIdRequired": "User ID is required",
+        "usernameDigits": "Username must be exactly 6 digits",
+        "usernameAndRoleRequired": "Username and role ID are required",
+        "passwordRequired": "Password is required",
+        "passwordRequiredForExport": "Password is required for export",
+        "invalidPassword": "Invalid password",
+        "invalidCredentials": "Invalid credentials",
+        "roleIdRequired": "Role ID is required",
+        "serviceIdRequired": "Service ID is required",
+        "referenceCodeRequired": "Reference code is required",
+        "targetUserIdRequired": "Target user ID is required",
+        "userIdAndRoleRequired": "User ID and role ID are required",
+        "userIdAndServiceRequired": "User ID and service ID are required",
+        "userIdAndLockStatusRequired": "User ID and lock status are required",
+        "serviceNameAndEmailRequired": "Service name and email are required",
+        "analysisDateRequired": "Analysis date, patient, doctor, room, and analysis type are required",
+        "patientRequired": "Patient first name and national ID are required"
+      },
+      "operations": {
+        "failedToCreate": "Failed to create {0}",
+        "failedToUpdate": "Failed to update {0}",
+        "failedToDelete": "Failed to delete {0}",
+        "failedToRetrieve": "Failed to retrieve {0}",
+        "failedToExport": "Failed to export {0}",
+        "failedToGenerate": "Failed to generate {0}",
+        "failedToList": "Failed to list {0}",
+        "failedToRevoke": "Failed to revoke {0}",
+        "failedToManage": "Failed to manage {0}"
+      },
+      "resources": {
+        "user": "user",
+        "users": "users",
+        "service": "service",
+        "services": "services",
+        "room": "room",
+        "rooms": "rooms",
+        "patient": "patient",
+        "patients": "patients",
+        "doctor": "doctor",
+        "doctors": "doctors",
+        "analysis": "analysis",
+        "analyses": "analyses",
+        "referenceCode": "reference code",
+        "referenceCodes": "reference codes",
+        "passwordResetCode": "password reset code",
+        "notification": "notification",
+        "notifications": "notifications",
+        "auditLogs": "audit logs",
+        "analysisTypes": "analysis types configuration",
+        "twoFactorSettings": "2FA settings",
+        "accountLockStatus": "account lock status",
+        "fullName": "user full name",
+        "userRole": "user role",
+        "userService": "user service",
+        "userEmail": "user email",
+        "analysisPermissions": "analysis permissions",
+        "analysisStatus": "analysis status"
+      }
+    }
   },
   "time": {
     "today": "Today",
@@ -1293,7 +1505,16 @@
       "totalOccurrencesMin": "Total occurrences must be at least 2",
       "intervalMin": "Interval days must be at least 1",
       "validInterval": "Please specify a valid interval for custom frequency",
-      "totalOccurrencesRange": "Total occurrences must be between 2 and 100"
+      "totalOccurrencesRange": "Total occurrences must be between 2 and 100",
+      "noAnalysesSelected": "No analyses selected",
+      "pleaseSelectDate": "Please select a date",
+      "passwordRequired": "Password is required",
+      "selectAtLeastOneColumn": "Please select at least one column",
+      "codeNameRequired": "Code and name are required",
+      "analysisTypeCodeExists": "An analysis type with this code already exists",
+      "enterReferenceCode": "Please enter a reference code",
+      "buttonTextRequired": "Button text is required",
+      "fillRequiredFields": "Please fill in all required fields"
     },
     "success": {
       "userCreated": "User created successfully",
@@ -1314,7 +1535,22 @@
       "recurringCreated": "Recurring analysis created successfully",
       "analysisScheduled": "Analysis scheduled successfully",
       "autoFilled": "Auto-filled from patient record",
-      "noAssignment": "Patient selected - no assigned doctor or room found"
+      "noAssignment": "Patient selected - no assigned doctor or room found",
+      "settingsLoaded": "Settings loaded successfully",
+      "prescriptionIntervalSaved": "Prescription interval saved successfully",
+      "settingsSaved": "Settings saved successfully",
+      "configExported": "Configuration exported successfully",
+      "analysisTypeAdded": "Analysis type added successfully",
+      "analysisTypeUpdated": "Analysis type updated successfully",
+      "analysisTypeDeleted": "Analysis type deleted successfully",
+      "cacheCleared": "Cache cleared successfully",
+      "logsDownloaded": "Logs downloaded successfully",
+      "updateCreated": "Update created successfully",
+      "updatePublished": "Update published successfully",
+      "updateDeleted": "Update deleted successfully",
+      "notificationsSent": "Notifications sent successfully",
+      "campaignSavedDraft": "Campaign saved as draft",
+      "campaignCancelled": "Campaign cancelled successfully"
     },
     "error": {
       "loadingAnalysisTypes": "Failed to load analysis types",
@@ -1329,12 +1565,60 @@
       "prescriptionFailed": "Failed to validate prescription",
       "errorValidatingPrescription": "Error validating prescription",
       "sessionExpired": "Your session has expired. Please log in again.",
-      "copyFailed": "Failed to copy to clipboard"
+      "copyFailed": "Failed to copy to clipboard",
+      "failedLoadAuditLogs": "Failed to load audit logs",
+      "failedGenerateDocument": "Failed to generate document",
+      "failedDownloadPDF": "Failed to download PDF",
+      "failedGeneratePreview": "Failed to generate preview",
+      "authenticationRequired": "Authentication required",
+      "permissionDenied": "Permission denied",
+      "networkError": "Network error - please check your connection",
+      "serverError": "Server error - please try again later",
+      "unexpected": "An unexpected error occurred",
+      "failedLoadSettings": "Failed to load settings",
+      "failedSaveChanges": "Failed to save changes",
+      "failedExportConfig": "Failed to export configuration",
+      "failedLoadAnalysisTypes": "Failed to load analysis types",
+      "failedSaveAnalysisType": "Failed to save analysis type",
+      "failedDeleteAnalysisType": "Failed to delete analysis type",
+      "failedLoadSystemStats": "Failed to load system statistics",
+      "failedClearCache": "Failed to clear cache",
+      "failedDownloadLogs": "Failed to download logs",
+      "failedShutdown": "Failed to initiate shutdown",
+      "failedCreateUpdate": "Failed to create update",
+      "failedLoadUpdateDetails": "Failed to load update details",
+      "failedPublishUpdate": "Failed to publish update",
+      "failedDeleteUpdate": "Failed to delete update",
+      "failedResendNotifications": "Failed to resend notifications",
+      "failedSyncGitHub": "Failed to sync with GitHub",
+      "failedImportRelease": "Failed to import release",
+      "failedAutoPublish": "Failed to auto-publish releases",
+      "failedCancelCampaign": "Failed to cancel campaign"
     },
     "info": {
       "loadingPatient": "Loading patient details...",
       "noChanges": "No changes detected",
-      "serviceUsers": "Users: loading..."
+      "serviceUsers": "Users: loading...",
+      "loadingSettings": "Loading settings...",
+      "noChangesToSave": "No changes to save",
+      "savingChanges": "Saving changes...",
+      "changesDiscarded": "Changes discarded",
+      "autoSaving": "Auto-saving...",
+      "shutdownInitiated": "Shutdown initiated",
+      "editFutureUpdate": "Editing future update",
+      "syncingGitHub": "Syncing with GitHub...",
+      "importingRelease": "Importing release...",
+      "autoPublishingReleases": "Auto-publishing releases..."
+    },
+    "warning": {
+      "systemShuttingDown": "System is shutting down...",
+      "contentTooLarge": "Content is too large"
+    },
+    "confirm": {
+      "deleteAnalysisType": "Are you sure you want to delete this analysis type?",
+      "deleteUpdate": "Are you sure you want to delete this update?",
+      "resendNotifications": "Are you sure you want to resend notifications?",
+      "noUrlSpecified": "No URL specified. Continue anyway?"
     },
     "validation_errors": "Validation errors:"
   },
@@ -1343,6 +1627,8 @@
     "intervalDays": "e.g., 3",
     "totalOccurrences": "e.g., 5",
     "cancellationReason": "Please provide a detailed reason for cancelling this analysis...",
+    "bulkCancellationReason": "Please provide a detailed reason for cancelling these analyses...",
+    "postponeReason": "Provide a reason for postponing...",
     "doctorSpecialization": "e.g., General Medicine, Cardiology, Neurology",
     "doctorPhone": "+1234567890",
     "doctorEmail": "doctor@hospital.com",
@@ -1543,6 +1829,13 @@
   "notifications": {
     "title": "Notification Settings",
     "subtitle": "Configure how and when you receive notifications from the system.",
+    "massPreferences": {
+      "selectOneUser": "Please select at least one user",
+      "selectOnePreference": "Please select at least one preference to update",
+      "selectOnePreferenceReset": "Please select at least one preference to reset",
+      "errorUpdating": "Error updating preferences",
+      "errorResetting": "Error resetting preferences"
+    },
     "email": {
       "title": "Email Notifications",
       "subtitle": "Control which email notifications you receive",
@@ -1873,5 +2166,13 @@
     "loading": "Loading...",
     "recordCount": "Showing {start} to {end} of {total} records",
     "pageInfo": "Page {current} of {total} ({count} records)"
+  },
+  "system": {
+    "shutdownSystem": "Shutdown System",
+    "shutdownConfirmMessage": "Are you sure you want to shutdown the system? This will disconnect all users.",
+    "shutdown": "Shutdown"
+  },
+  "campaigns": {
+    "campaignSent": "Campaign sent successfully"
   }
 }

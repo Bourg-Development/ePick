@@ -34,7 +34,7 @@ class NotificationController {
             console.error('Error fetching user notifications:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to fetch notifications',
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notifications')),
                 error: error.message
             });
         }
@@ -57,7 +57,7 @@ class NotificationController {
             console.error('Error fetching notification counts:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to fetch notification counts',
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notifications')),
                 error: error.message
             });
         }
@@ -76,7 +76,7 @@ class NotificationController {
             if (!success) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Notification not found or does not belong to user'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notification'))
                 });
             }
 
@@ -89,7 +89,7 @@ class NotificationController {
             console.error('Error marking notification as read:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to mark notification as read',
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.notification')),
                 error: error.message
             });
         }
@@ -115,7 +115,7 @@ class NotificationController {
             console.error('Error marking notifications as read:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to mark notifications as read',
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.notifications')),
                 error: error.message
             });
         }
@@ -134,7 +134,7 @@ class NotificationController {
             if (!success) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Notification not found or does not belong to user'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notification'))
                 });
             }
 
@@ -147,7 +147,7 @@ class NotificationController {
             console.error('Error dismissing notification:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to dismiss notification',
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.notification')),
                 error: error.message
             });
         }
@@ -173,7 +173,7 @@ class NotificationController {
             if (!notification) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Notification not found'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notification'))
                 });
             }
 
@@ -186,7 +186,7 @@ class NotificationController {
             console.error('Error fetching notification:', error);
             res.status(500).json({
                 success: false,
-                message: 'Failed to fetch notification',
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.notification')),
                 error: error.message
             });
         }

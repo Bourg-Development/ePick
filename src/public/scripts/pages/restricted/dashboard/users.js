@@ -37,30 +37,7 @@ function initializePage() {
     // Translation fallback function
     if (typeof __ === 'undefined') {
         window.__ = function(key) {
-            // Temporary hardcoded translations for testing
-            const hardcodedTranslations = {
-                'editUser': 'Modifier l\'utilisateur',
-                'generateRefCode': 'Générer le code de référence',
-                'resetPassword': 'Réinitialiser le mot de passe',
-                'viewServiceInfo': 'Voir les infos du service',
-                'lockUser': 'Verrouiller l\'utilisateur',
-                'unlockUser': 'Déverrouiller l\'utilisateur',
-                'notifications.massPreferences.selectOneUser': 'Veuillez sélectionner au moins un utilisateur',
-                'notifications.massPreferences.selectOnePreference': 'Veuillez sélectionner au moins une préférence à mettre à jour',
-                'notifications.massPreferences.selectOnePreferenceReset': 'Veuillez sélectionner au moins une préférence à réinitialiser',
-                'notifications.massPreferences.errorUpdating': 'Erreur lors de la mise à jour des préférences',
-                'notifications.massPreferences.errorResetting': 'Erreur lors de la réinitialisation des préférences',
-                'users.noUsersFound': 'Aucun utilisateur trouvé',
-                'export.noFiltersAppliedUsers': 'Aucun filtre appliqué - export de tous les utilisateurs',
-                'filter.allRoles': 'Tous les rôles',
-                'filter.selectRole': 'Sélectionner un rôle',
-                'filter.allServices': 'Tous les services'
-            };
-            
-            if (hardcodedTranslations[key]) {
-                return hardcodedTranslations[key];
-            }
-            
+            // Check window.translations first
             if (window.translations) {
                 const keys = key.split('.');
                 let value = window.translations;
@@ -68,7 +45,9 @@ function initializePage() {
                     value = value[k];
                     if (!value) break;
                 }
-                return value || key;
+                if (value && typeof value === 'string') {
+                    return value;
+                }
             }
             return key;
         };
@@ -1594,7 +1573,7 @@ function initializePage() {
         let dropdownHTML = `
             <div class="dropdown-item" data-action="edit">
                 <span class="material-symbols-outlined">edit</span>
-                ${__('editUser')}
+                ${__('users.editUser')}
             </div>
         `;
 
@@ -1602,14 +1581,14 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="generate-ref-code">
                     <span class="material-symbols-outlined">qr_code</span>
-                    ${__('generateRefCode')}
+                    ${__('users.generateRefCode')}
                 </div>
             `;
         } else {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="reset-password">
                     <span class="material-symbols-outlined">lock_reset</span>
-                    ${__('resetPassword')}
+                    ${__('users.resetPassword')}
                 </div>
             `;
         }
@@ -1618,7 +1597,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="view-service">
                     <span class="material-symbols-outlined">business</span>
-                    ${__('viewServiceInfo')}
+                    ${__('users.viewServiceInfo')}
                 </div>
             `;
         }
@@ -1626,7 +1605,7 @@ function initializePage() {
         dropdownHTML += `
             <div class="dropdown-item" data-action="toggle-lock">
                 <span class="material-symbols-outlined">${user.account_locked ? 'lock_open' : 'lock'}</span>
-                ${user.account_locked ? __('unlockUser') : __('lockUser')}
+                ${user.account_locked ? __('users.unlockUser') : __('users.lockUser')}
             </div>
         `;
 
@@ -1795,7 +1774,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Print failed:', error);
-            alert('Failed to generate document for printing: ' + error.message);
+            alert(__('messages.error.failedGenerateDocument') + ': ' + error.message);
         }
     }
 
@@ -1846,7 +1825,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('PDF download failed:', error);
-            alert('Failed to download PDF: ' + error.message);
+            alert(__('messages.error.failedDownloadPDF') + ': ' + error.message);
         }
     }
 
@@ -1873,7 +1852,7 @@ function initializePage() {
 
         } catch (error) {
             console.error('Preview failed:', error);
-            alert('Failed to generate preview: ' + error.message);
+            alert(__('messages.error.failedGeneratePreview') + ': ' + error.message);
         }
     }
 
@@ -1919,7 +1898,7 @@ function initializePage() {
     function handlePrintRefCode() {
         const refCode = document.getElementById('refCodeInput').value;
         if (!refCode) {
-            alert('Please enter a reference code');
+            alert(__('messages.validation.enterReferenceCode'));
             return;
         }
         printRefCode(refCode);
@@ -1929,7 +1908,7 @@ function initializePage() {
     function handleDownloadRefCode() {
         const refCode = document.getElementById('refCodeInput').value;
         if (!refCode) {
-            alert('Please enter a reference code');
+            alert(__('messages.validation.enterReferenceCode'));
             return;
         }
         downloadRefCodePDF(refCode);
@@ -1939,19 +1918,19 @@ function initializePage() {
     // Utility Functions
     function getErrorMessage(error) {
         if (error.status === 401) {
-            return 'Authentication required. Please log in again.';
+            return __('messages.error.authenticationRequired');
         }
 
         if (error.status === 403) {
-            return 'You do not have permission to perform this action.';
+            return __('messages.error.permissionDenied');
         }
 
         if (error.message.includes('Network error')) {
-            return 'Network error. Please check your connection and try again.';
+            return __('messages.error.networkError');
         }
 
         if (error.message.includes('body stream already read')) {
-            return 'Server error occurred. Please try again.';
+            return __('messages.error.serverError');
         }
 
         if (error.data && typeof error.data === 'object' && error.data.message) {

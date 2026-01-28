@@ -350,7 +350,7 @@ class AdminController {
             if (!permissions.includes('write.users') && !permissions.includes('manage.refcodes')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -363,7 +363,7 @@ class AdminController {
             if (!userId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID is required'
+                    message: req.i18n.__('errors.api.validation.userIdRequired')
                 });
             }
 
@@ -382,7 +382,7 @@ class AdminController {
             console.error('Generate reference code error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to generate reference code'
+                message: req.i18n.__('errors.api.operations.failedToGenerate', req.i18n.__('errors.api.resources.referenceCode'))
             });
         }
     }
@@ -400,7 +400,7 @@ class AdminController {
             if (!permissions.includes('write.users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -416,7 +416,7 @@ class AdminController {
             if (!username || !roleId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Username and role ID are required'
+                    message: req.i18n.__('errors.api.validation.usernameAndRoleRequired')
                 });
             }
 
@@ -424,7 +424,7 @@ class AdminController {
             if (!username.match(/^\d{6}$/)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Username must be exactly 6 digits'
+                    message: req.i18n.__('errors.api.validation.usernameDigits')
                 });
             }
 
@@ -446,7 +446,7 @@ class AdminController {
             console.error('Create user error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create user'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.user'))
             });
         }
     }
@@ -463,7 +463,7 @@ class AdminController {
             if (!permissions.includes('read.users') && !permissions.includes('read.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -472,7 +472,7 @@ class AdminController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -484,7 +484,7 @@ class AdminController {
                 await this._logExportFailure('json', adminId, context);
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -546,7 +546,7 @@ class AdminController {
             console.error('Export users JSON error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export users'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -563,7 +563,7 @@ class AdminController {
             if (!permissions.includes('read.users') && !permissions.includes('read.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -572,7 +572,7 @@ class AdminController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -584,7 +584,7 @@ class AdminController {
                 await this._logExportFailure('csv', adminId, context);
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -639,7 +639,7 @@ class AdminController {
             console.error('Export users CSV error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export users'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -656,7 +656,7 @@ class AdminController {
             if (!permissions.includes('read.users') && !permissions.includes('read.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -665,7 +665,7 @@ class AdminController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -677,7 +677,7 @@ class AdminController {
                 await this._logExportFailure('excel', adminId, context);
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
             const unifiedFilters = {
@@ -731,7 +731,7 @@ class AdminController {
             console.error('Export users Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export users'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -752,7 +752,7 @@ class AdminController {
                 !permissions.includes('manage.refcodes')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -770,7 +770,7 @@ class AdminController {
             console.error('List reference codes error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to list reference codes'
+                message: req.i18n.__('errors.api.operations.failedToList', req.i18n.__('errors.api.resources.referenceCodes'))
             });
         }
     }
@@ -788,7 +788,7 @@ class AdminController {
             if (!permissions.includes('manage.refcodes') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -797,7 +797,7 @@ class AdminController {
             if (!code) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Reference code is required'
+                    message: req.i18n.__('errors.api.validation.referenceCodeRequired')
                 });
             }
 
@@ -816,7 +816,7 @@ class AdminController {
             console.error('Revoke reference code error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to revoke reference code'
+                message: req.i18n.__('errors.api.operations.failedToRevoke', req.i18n.__('errors.api.resources.referenceCode'))
             });
         }
     }
@@ -834,7 +834,7 @@ class AdminController {
             if (!permissions.includes('write.users') ) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -843,7 +843,7 @@ class AdminController {
             if (!targetUserId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Target user ID is required'
+                    message: req.i18n.__('errors.api.validation.targetUserIdRequired')
                 });
             }
 
@@ -863,7 +863,7 @@ class AdminController {
             console.error('Generate password reset code error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to generate password reset code'
+                message: req.i18n.__('errors.api.operations.failedToGenerate', req.i18n.__('errors.api.resources.passwordResetCode'))
             });
         }
     }
@@ -881,7 +881,7 @@ class AdminController {
             if (!permissions.includes('read.users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -902,7 +902,7 @@ class AdminController {
             console.error('List users error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to list users'
+                message: req.i18n.__('errors.api.operations.failedToList', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -920,7 +920,7 @@ class AdminController {
             if (!permissions.includes('read.users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -929,7 +929,7 @@ class AdminController {
             if (!userId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID is required'
+                    message: req.i18n.__('errors.api.validation.userIdRequired')
                 });
             }
 
@@ -945,7 +945,7 @@ class AdminController {
             console.error('Get user error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to get user'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.user'))
             });
         }
     }
@@ -963,7 +963,7 @@ class AdminController {
             if (!permissions.includes('write.users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -973,7 +973,7 @@ class AdminController {
             if (!userId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID is required'
+                    message: req.i18n.__('errors.api.validation.userIdRequired')
                 });
             }
 
@@ -993,7 +993,7 @@ class AdminController {
             console.error('Update user full name error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update user full name'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.fullName'))
             });
         }
     }
@@ -1014,7 +1014,7 @@ class AdminController {
             if (!hasPermission) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Insufficient permissions'
+                    message: req.i18n.__('errors.api.permission.insufficientPermissions')
                 });
             }
 
@@ -1025,7 +1025,7 @@ class AdminController {
             if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid email format'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'email')
                 });
             }
 
@@ -1044,7 +1044,7 @@ class AdminController {
             console.error('Update user email error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update user email'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.userEmail'))
             });
         }
     }
@@ -1062,7 +1062,7 @@ class AdminController {
             if (!permissions.includes('manage.roles') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1072,7 +1072,7 @@ class AdminController {
             if (!userId || !roleId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID and role ID are required'
+                    message: req.i18n.__('errors.api.validation.userIdAndRoleRequired')
                 });
             }
 
@@ -1092,7 +1092,7 @@ class AdminController {
             console.error('Update user role error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update user role'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.userRole'))
             });
         }
     }
@@ -1110,7 +1110,7 @@ class AdminController {
             if (!permissions.includes('write.users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1120,7 +1120,7 @@ class AdminController {
             if (!userId || serviceId === undefined) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID and service ID are required'
+                    message: req.i18n.__('errors.api.validation.userIdAndServiceRequired')
                 });
             }
 
@@ -1140,7 +1140,7 @@ class AdminController {
             console.error('Update user service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update user service'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.userService'))
             });
         }
     }
@@ -1158,7 +1158,7 @@ class AdminController {
             if (!permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1168,14 +1168,14 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
             if (typeof canViewAllAnalyses !== 'boolean') {
                 return res.status(400).json({
                     success: false,
-                    message: 'canViewAllAnalyses must be a boolean value'
+                    message: req.i18n.__('errors.api.validation.mustBeBoolean', 'canViewAllAnalyses')
                 });
             }
 
@@ -1195,7 +1195,7 @@ class AdminController {
             console.error('Update service analysis permissions error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update analysis permissions'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.analysisPermissions'))
             });
         }
     }
@@ -1213,7 +1213,7 @@ class AdminController {
             if (role !== 'admin' && role !== 'system_admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1227,7 +1227,7 @@ class AdminController {
             if (!userId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID is required'
+                    message: req.i18n.__('errors.api.validation.userIdRequired')
                 });
             }
 
@@ -1251,7 +1251,7 @@ class AdminController {
             console.error('Manage 2FA error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to manage 2FA settings'
+                message: req.i18n.__('errors.api.operations.failedToManage', req.i18n.__('errors.api.resources.twoFactorSettings'))
             });
         }
     }
@@ -1269,7 +1269,7 @@ class AdminController {
             if (role !== 'admin' && role !== 'system_admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1279,7 +1279,7 @@ class AdminController {
             if (!userId || locked === undefined) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID and lock status are required'
+                    message: req.i18n.__('errors.api.validation.userIdAndLockStatusRequired')
                 });
             }
 
@@ -1300,7 +1300,7 @@ class AdminController {
             console.error('Toggle account lock error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update account lock status'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.accountLockStatus'))
             });
         }
     }
@@ -1319,7 +1319,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1340,7 +1340,7 @@ class AdminController {
             console.error('Get services error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve services'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.services'))
             });
         }
     }
@@ -1358,7 +1358,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1367,7 +1367,7 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
@@ -1379,7 +1379,7 @@ class AdminController {
             console.error('Get service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve service'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1397,7 +1397,7 @@ class AdminController {
             if (!permissions.includes('services.create') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1407,7 +1407,7 @@ class AdminController {
             if (!name || !email) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service name and email are required'
+                    message: req.i18n.__('errors.api.validation.serviceNameAndEmailRequired')
                 });
             }
 
@@ -1416,7 +1416,7 @@ class AdminController {
             if (!emailRegex.test(email)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid email format'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'email')
                 });
             }
 
@@ -1436,7 +1436,7 @@ class AdminController {
             console.error('Create service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create service'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1454,7 +1454,7 @@ class AdminController {
             if (!permissions.includes('services.update') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1464,7 +1464,7 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
@@ -1474,7 +1474,7 @@ class AdminController {
                 if (!emailRegex.test(email)) {
                     return res.status(400).json({
                         success: false,
-                        message: 'Invalid email format'
+                        message: req.i18n.__('errors.api.validation.invalidFormat', 'email')
                     });
                 }
             }
@@ -1496,7 +1496,7 @@ class AdminController {
             console.error('Update service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update service'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1515,7 +1515,7 @@ class AdminController {
                 !permissions.includes('services.delete') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1524,7 +1524,7 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
@@ -1543,7 +1543,7 @@ class AdminController {
             console.error('Deactivate service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to deactivate service'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1561,7 +1561,7 @@ class AdminController {
             if (!permissions.includes('services.update') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1570,7 +1570,7 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
@@ -1589,7 +1589,7 @@ class AdminController {
             console.error('Reactivate service error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to reactivate service'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1607,7 +1607,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1616,7 +1616,7 @@ class AdminController {
             if (!serviceId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Service ID is required'
+                    message: req.i18n.__('errors.api.validation.serviceIdRequired')
                 });
             }
 
@@ -1628,7 +1628,7 @@ class AdminController {
             console.error('Get service statistics error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve service statistics'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.service'))
             });
         }
     }
@@ -1646,7 +1646,7 @@ class AdminController {
             if (!permissions.includes('services.manage_users') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1683,7 +1683,7 @@ class AdminController {
             console.error('Transfer users error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to transfer users'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -1701,7 +1701,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1723,7 +1723,7 @@ class AdminController {
             console.error('Search services error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to search services'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.services'))
             });
         }
     }
@@ -1743,7 +1743,7 @@ class AdminController {
             console.error('Get roles error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to get roles'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'roles')
             });
         }
     }
@@ -1761,7 +1761,7 @@ class AdminController {
             if (!permissions.includes('read.logs') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1783,7 +1783,7 @@ class AdminController {
             console.error('Get audit logs error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve audit logs'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.auditLogs'))
             });
         }
     }
@@ -1803,7 +1803,7 @@ class AdminController {
                 !permissions.includes('access.security')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1825,7 +1825,7 @@ class AdminController {
             console.error('Get security logs error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve security logs'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.auditLogs'))
             });
         }
     }
@@ -1843,7 +1843,7 @@ class AdminController {
             if (!permissions.includes('access.security') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1861,7 +1861,7 @@ class AdminController {
             console.error('Verify log integrity error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to verify log integrity'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.auditLogs'))
             });
         }
     }
@@ -1876,7 +1876,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1890,7 +1890,7 @@ class AdminController {
                 await this._logExportFailure(format, adminId, context, 'services');
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -1946,7 +1946,7 @@ class AdminController {
             console.error('Export services error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export services'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.services'))
             });
         }
     }
@@ -1963,7 +1963,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -1999,7 +1999,7 @@ class AdminController {
             console.error('Get rooms error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve rooms'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.rooms'))
             });
         }
     }
@@ -2016,7 +2016,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2039,7 +2039,7 @@ class AdminController {
             console.error('Get room error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve room'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.room'))
             });
         }
     }
@@ -2054,7 +2054,7 @@ class AdminController {
             if (!permissions.includes('rooms.manage') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2074,7 +2074,7 @@ class AdminController {
             console.error('Create room error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create room'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.room'))
             });
         }
     }
@@ -2089,7 +2089,7 @@ class AdminController {
             if (!permissions.includes('rooms.manage') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2110,7 +2110,7 @@ class AdminController {
             console.error('Update room error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update room'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.room'))
             });
         }
     }
@@ -2126,7 +2126,7 @@ class AdminController {
                 !permissions.includes('rooms.manage') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2147,7 +2147,7 @@ class AdminController {
             console.error('Delete room error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to delete room'
+                message: req.i18n.__('errors.api.operations.failedToDelete', req.i18n.__('errors.api.resources.room'))
             });
         }
     }
@@ -2162,7 +2162,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('rooms.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2176,7 +2176,7 @@ class AdminController {
                 await new AdminController()._logExportFailure(format, adminId, context, 'rooms');
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -2232,7 +2232,7 @@ class AdminController {
             console.error('Export rooms error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export rooms'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.rooms'))
             });
         }
     }
@@ -2249,7 +2249,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2271,7 +2271,7 @@ class AdminController {
             console.error('Search rooms error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to search rooms'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.rooms'))
             });
         }
     }
@@ -2287,7 +2287,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('rooms.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2299,7 +2299,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -2335,7 +2335,7 @@ class AdminController {
             if (!roomResult.success) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Failed to retrieve room data'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.room'))
                 });
             }
             
@@ -2441,7 +2441,7 @@ class AdminController {
             console.error('Export rooms Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export rooms'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.rooms'))
             });
         }
     }
@@ -2457,7 +2457,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('services.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2469,7 +2469,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -2506,7 +2506,7 @@ class AdminController {
             if (!services || !Array.isArray(services)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Failed to retrieve service data'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.service'))
                 });
             }
             
@@ -2617,7 +2617,7 @@ class AdminController {
             console.error('Export services Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export services'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.services'))
             });
         }
     }
@@ -2633,7 +2633,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('doctors.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2645,7 +2645,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -2688,7 +2688,7 @@ class AdminController {
             if (!doctorResult.success) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Failed to retrieve doctor data'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.doctor'))
                 });
             }
             
@@ -2828,7 +2828,7 @@ class AdminController {
             console.error('Export doctors Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export doctors'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.doctors'))
             });
         }
     }
@@ -2847,7 +2847,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('doctors.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -2913,7 +2913,7 @@ class AdminController {
             console.error('Export doctors error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export doctors'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.doctors'))
             });
         }
     }
@@ -2976,7 +2976,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3018,7 +3018,7 @@ class AdminController {
             console.error('Get patients error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patients'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }
@@ -3033,7 +3033,7 @@ class AdminController {
             if (!permissions.includes('patients.manage') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3056,7 +3056,7 @@ class AdminController {
             console.error('Get patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patient'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -3071,7 +3071,7 @@ class AdminController {
             if (!permissions.includes('patients.manage') && !permissions.includes('admin') && !permissions.includes('write.all') && !permissions.includes('system.bypass_restrictions')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3106,7 +3106,7 @@ class AdminController {
             console.error('Create patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create patient'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -3121,7 +3121,7 @@ class AdminController {
             if (!permissions.includes('patients.manage') && !permissions.includes('admin') && !permissions.includes('write.all') && !permissions.includes('system.bypass_restrictions')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3146,7 +3146,7 @@ class AdminController {
             console.error('Update patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update patient'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -3162,7 +3162,7 @@ class AdminController {
                 !permissions.includes('patients.manage') && !permissions.includes('write.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3177,7 +3177,7 @@ class AdminController {
             console.error('Delete patient error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to delete patient'
+                message: req.i18n.__('errors.api.operations.failedToDelete', req.i18n.__('errors.api.resources.patient'))
             });
         }
     }
@@ -3192,7 +3192,7 @@ class AdminController {
             if (!permissions.includes('patients.view') && !permissions.includes('patients.manage') && !permissions.includes('admin') && !permissions.includes('read.all') && !permissions.includes('system.bypass_restrictions')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3208,7 +3208,7 @@ class AdminController {
             console.error('Get patient analyses error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve patient analyses'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -3224,7 +3224,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('patients.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3236,7 +3236,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -3304,7 +3304,7 @@ class AdminController {
             console.error('Export patients error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export patients'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }
@@ -3320,7 +3320,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('patients.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3332,7 +3332,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -3374,7 +3374,7 @@ class AdminController {
             if (!patientResult.success) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Failed to retrieve patient data'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patient'))
                 });
             }
             
@@ -3546,7 +3546,7 @@ class AdminController {
             console.error('Export patients Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export patients'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }
@@ -3562,7 +3562,7 @@ class AdminController {
             if (role !== 'system_admin' && !permissions.includes('patients.export') && !permissions.includes('export.all')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3574,7 +3574,7 @@ class AdminController {
             if (!passwordResult.success) {
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -3642,7 +3642,7 @@ class AdminController {
             console.error('Export patients JSON error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export patients'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.patients'))
             });
         }
     }
@@ -3672,7 +3672,7 @@ class AdminController {
                 !permissions.includes('read.all') && !permissions.includes('read.users')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3687,7 +3687,7 @@ class AdminController {
             console.error('Get doctors error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve doctors'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.doctors'))
             });
         }
     }
@@ -3702,7 +3702,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3717,7 +3717,7 @@ class AdminController {
             console.error('Get service users error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve service users'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.users'))
             });
         }
     }
@@ -3732,7 +3732,7 @@ class AdminController {
             if (!permissions.includes('services.view') && !permissions.includes('admin')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -3748,7 +3748,7 @@ class AdminController {
             console.error('Get service rooms error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve service rooms'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.rooms'))
             });
         }
     }
@@ -3931,7 +3931,7 @@ class AdminController {
             console.error('Update room error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update room'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.room'))
             });
         }
     }
@@ -4086,7 +4086,7 @@ class AdminController {
             console.error('Get user audit logs error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to fetch user audit logs'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.auditLogs'))
             });
         }
     }
@@ -4168,7 +4168,7 @@ class AdminController {
             console.error('Get user preferences summary error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to fetch user preferences summary'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'user preferences')
             });
         }
     }
@@ -4287,7 +4287,7 @@ class AdminController {
             console.error('Mass update user preferences error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update user preferences'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', 'user preferences')
             });
         }
     }
@@ -4400,7 +4400,7 @@ class AdminController {
             console.error('Reset user preferences error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to reset user preferences'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', 'user preferences')
             });
         }
     }

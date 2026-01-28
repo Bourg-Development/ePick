@@ -424,12 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedColumns = Array.from(document.querySelectorAll('.column-checkbox:checked')).map(cb => cb.value);
 
         if (!password) {
-            showToast('Password is required for export', 'error');
+            showToast(__('messages.validation.passwordRequired'), 'error');
             return;
         }
 
         if (selectedColumns.length === 0) {
-            showToast('Please select at least one column to export', 'error');
+            showToast(__('messages.validation.selectAtLeastOneColumn'), 'error');
             return;
         }
 
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // API Functions
     async function loadSettings() {
         try {
-            showToast('Loading settings...', 'info');
+            showToast(__('messages.info.loadingSettings'), 'info');
 
             const data = await api.get('/org-settings/');
             settings = {};
@@ -744,10 +744,10 @@ document.addEventListener('DOMContentLoaded', function() {
             pendingChanges = {};
             updateChangesSummary();
 
-            showToast('Settings loaded successfully', 'success');
+            showToast(__('messages.success.settingsLoaded'), 'success');
         } catch (error) {
             console.error('Load settings error:', error);
-            showToast('Failed to load settings: ' + getErrorMessage(error), 'error');
+            showToast(__('messages.error.failedLoadSettings') + ': ' + getErrorMessage(error), 'error');
         }
     }
 
@@ -989,7 +989,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 3000);
             }
 
-            showToast('Prescription check interval saved successfully', 'success');
+            showToast(__('messages.success.prescriptionIntervalSaved'), 'success');
 
         } catch (error) {
             console.error('Save multiple settings error:', error);
@@ -1103,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showSaveConfirmation() {
         if (Object.keys(pendingChanges).length === 0) {
-            showToast('No changes to save', 'info');
+            showToast(__('messages.info.noChangesToSave'), 'info');
             return;
         }
 
@@ -1148,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         try {
-            showToast('Saving changes...', 'info');
+            showToast(__('messages.info.savingChanges'), 'info');
 
             if (saveAllBtn) {
                 saveAllBtn.classList.add('loading');
@@ -1167,11 +1167,11 @@ document.addEventListener('DOMContentLoaded', function() {
             pendingChanges = {};
             updateChangesSummary();
 
-            showToast(`Successfully saved ${Object.keys(settingsToUpdate).length} settings`, 'success');
+            showToast(__('messages.success.settingsSaved', Object.keys(settingsToUpdate).length), 'success');
 
         } catch (error) {
             console.error('Bulk save error:', error);
-            showToast('Failed to save changes: ' + getErrorMessage(error), 'error');
+            showToast(__('messages.error.failedSaveChanges') + ': ' + getErrorMessage(error), 'error');
         } finally {
             if (saveAllBtn) {
                 saveAllBtn.classList.remove('loading');
@@ -1185,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resetSingleSetting(key);
         });
 
-        showToast('All changes discarded', 'info');
+        showToast(__('messages.info.changesDiscarded'), 'info');
     }
 
     function toggleAdvancedSettings() {
@@ -1223,20 +1223,20 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast('Configuration exported successfully', 'success');
+            showToast(__('messages.success.configExported'), 'success');
         } catch (error) {
             console.error('Export error:', error);
-            showToast('Failed to export configuration: ' + getErrorMessage(error), 'error');
+            showToast(__('messages.error.failedExportConfig') + ': ' + getErrorMessage(error), 'error');
         }
     }
 
     // Utility Functions
     function getErrorMessage(error) {
         if (error.status === 401) {
-            return 'Authentication required. Please log in again.';
+            return __('messages.error.authenticationRequired');
         }
         if (error.status === 403) {
-            return 'You do not have permission to perform this action.';
+            return __('messages.error.permissionDenied');
         }
         if (error.data && typeof error.data === 'object' && error.data.message) {
             return error.data.message;
@@ -1249,7 +1249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return error.data;
             }
         }
-        return error.message || 'An unexpected error occurred';
+        return error.message || __('messages.error.unexpected');
     }
 
     function showToast(message, type = 'info') {
@@ -1280,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(() => {
             if (Object.keys(pendingChanges).length > 0) {
-                showToast('Auto-saving changes...', 'info');
+                showToast(__('messages.info.autoSaving'), 'info');
                 saveAllChanges();
             }
         }, 30000); // Auto-save after 30 seconds of inactivity
@@ -1311,11 +1311,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderAnalysisTypes();
             } else {
                 console.error('Failed to load analysis types:', response.message);
-                showToast('Failed to load analysis types', 'error');
+                showToast(__('messages.error.failedLoadAnalysisTypes'), 'error');
             }
         } catch (error) {
             console.error('Error loading analysis types:', error);
-            showToast('Error loading analysis types', 'error');
+            showToast(__('messages.error.failedLoadAnalysisTypes'), 'error');
         }
     }
     
@@ -1431,65 +1431,65 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate
         if (!analysisType.code || !analysisType.name) {
-            showToast('Code and name are required', 'error');
+            showToast(__('messages.validation.codeNameRequired'), 'error');
             return;
         }
-        
+
         // Check for duplicate codes (only when adding or changing code)
         if (!isEdit || analysisType.code !== document.getElementById('analysisTypeId').value) {
             if (analysisTypes.some(t => t.code === analysisType.code)) {
-                showToast('Analysis type code already exists', 'error');
+                showToast(__('messages.validation.analysisTypeCodeExists'), 'error');
                 return;
             }
         }
-        
+
         try {
             let newAnalysisTypes;
             if (isEdit) {
-                newAnalysisTypes = analysisTypes.map(t => 
+                newAnalysisTypes = analysisTypes.map(t =>
                     t.code === document.getElementById('analysisTypeId').value ? analysisType : t
                 );
             } else {
                 newAnalysisTypes = [...analysisTypes, analysisType];
             }
-            
+
             const response = await api.put('/org-settings/analysis-types', { analysisTypes: newAnalysisTypes });
-            
+
             if (response.success) {
                 analysisTypes = newAnalysisTypes;
                 renderAnalysisTypes();
                 closeAnalysisTypeModal();
-                showToast(`Analysis type ${isEdit ? 'updated' : 'added'} successfully`, 'success');
+                showToast(isEdit ? __('messages.success.analysisTypeUpdated') : __('messages.success.analysisTypeAdded'), 'success');
                 analysisTypesModified = true;
             } else {
-                showToast(response.message || 'Failed to save analysis type', 'error');
+                showToast(response.message || __('messages.error.failedSaveAnalysisType'), 'error');
             }
         } catch (error) {
             console.error('Error saving analysis type:', error);
             showToast(getErrorMessage(error), 'error');
         }
     }
-    
+
     window.editAnalysisType = function(code) {
         openAnalysisTypeModal(code);
     };
-    
+
     window.deleteAnalysisType = async function(code) {
-        if (!confirm(`Are you sure you want to delete the analysis type "${code}"?`)) {
+        if (!confirm(__('messages.confirm.deleteAnalysisType', code))) {
             return;
         }
-        
+
         try {
             const newAnalysisTypes = analysisTypes.filter(t => t.code !== code);
             const response = await api.put('/org-settings/analysis-types', { analysisTypes: newAnalysisTypes });
-            
+
             if (response.success) {
                 analysisTypes = newAnalysisTypes;
                 renderAnalysisTypes();
-                showToast('Analysis type deleted successfully', 'success');
+                showToast(__('messages.success.analysisTypeDeleted'), 'success');
                 analysisTypesModified = true;
             } else {
-                showToast(response.message || 'Failed to delete analysis type', 'error');
+                showToast(response.message || __('messages.error.failedDeleteAnalysisType'), 'error');
             }
         } catch (error) {
             console.error('Error deleting analysis type:', error);

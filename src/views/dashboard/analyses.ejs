@@ -48,13 +48,13 @@
         
         <!-- Bulk Actions -->
         <div class="bulk-actions-container" id="bulkActionsContainer" style="display: none;">
-            <span class="bulk-selection-info" id="bulkSelectionInfo">0 selected</span>
+            <span class="bulk-selection-info" id="bulkSelectionInfo">0 <%= __('common.selected') %></span>
             <div class="dropdown">
                 <button class="btn btn-secondary" id="bulkActionsBtn">
                     <span class="material-symbols-outlined" style="font-size: 16px;">
                         checklist
                     </span>
-                    Bulk Actions
+                    <%= __('labels.bulkActions') %>
                     <span class="material-symbols-outlined dropdown-arrow" style="font-size: 16px;">
                         arrow_drop_down
                     </span>
@@ -63,7 +63,7 @@
                     <% if (permissions.includes('analyses.update') || permissions.includes('write.all')) { %>
                     <a href="#" data-action="cancel-selected">
                         <span class="material-symbols-outlined">cancel</span>
-                        Cancel Selected
+                        <%= __('labels.cancelSelected') %>
                     </a>
                     <% } %>
                 </div>
@@ -236,12 +236,12 @@
                         <div class="form-group">
                             <label class="form-label" for="totalOccurrences"><%= __('labels.totalOccurrences') %> <span class="required">*</span></label>
                             <input type="number" class="form-control" id="totalOccurrences" min="2" max="100" placeholder="<%= __('placeholders.totalOccurrences') %>">
-                            <small class="form-help">Including the first analysis</small>
+                            <small class="form-help"><%= __('labels.includingFirstAnalysis') %></small>
                         </div>
                     </div>
                     
                     <div class="recurring-preview" id="recurringPreview" style="display: none;">
-                        <h4>Schedule Preview</h4>
+                        <h4><%= __('labels.schedulePreview') %></h4>
                         <div class="preview-content" id="previewContent">
                             <!-- Preview will be populated by JavaScript -->
                         </div>
@@ -250,7 +250,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAddBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelAddBtn"><%= __('common.cancel') %></button>
                 <button type="submit" class="btn btn-primary"><%= __('labels.scheduleAnalysis') %></button>
             </div>
         </form>
@@ -261,41 +261,41 @@
 <div class="modal-overlay" id="updateStatusModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Update Analysis Status</h2>
+            <h2><%= __('modals.updateStatus.title') %></h2>
             <button class="modal-close" id="closeUpdateStatusModalBtn">&times;</button>
         </div>
         <form id="updateStatusForm">
             <input type="hidden" id="updateStatusAnalysisId">
 
             <div class="analysis-info-section">
-                <h3>Analysis Information</h3>
+                <h3><%= __('labels.analysisInformation') %></h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Patient:</span>
+                        <span class="info-label"><%= __('labels.patient') %>:</span>
                         <span class="info-value" id="updateStatusPatientName"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Type:</span>
+                        <span class="info-label"><%= __('labels.type') %>:</span>
                         <span class="info-value" id="updateStatusAnalysisType"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Current Status:</span>
+                        <span class="info-label"><%= __('labels.currentStatus') %>:</span>
                         <span class="info-value" id="updateStatusCurrentStatus"></span>
                     </div>
                 </div>
             </div>
 
-            <label class="form-label" for="updateStatusNewStatus">New Status <span class="required">*</span></label>
+            <label class="form-label" for="updateStatusNewStatus"><%= __('modals.updateStatus.newStatus') %> <span class="required">*</span></label>
             <select class="form-control" id="updateStatusNewStatus" required>
-                <option value="">Select status</option>
-                <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value=""><%= __('modals.updateStatus.selectStatus') %></option>
+                <option value="Pending"><%= __('status.pending') %></option>
+                <option value="In Progress"><%= __('status.inProgress') %></option>
+                <option value="Completed"><%= __('status.completed') %></option>
+                <option value="Cancelled"><%= __('status.cancelled') %></option>
             </select>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelUpdateStatusBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelUpdateStatusBtn"><%= __('common.cancel') %></button>
                 <button type="submit" class="btn btn-primary"><%= __('labels.updateStatus') %></button>
             </div>
         </form>
@@ -307,37 +307,37 @@
 <div class="modal-overlay" id="cancelAnalysisModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Cancel Analysis</h2>
+            <h2><%= __('modals.cancelAnalysis.title') %></h2>
             <button class="modal-close" id="closeCancelAnalysisModalBtn">&times;</button>
         </div>
         <form id="cancelAnalysisForm">
             <input type="hidden" id="cancelAnalysisId" value="">
 
             <div class="analysis-info-section">
-                <h3>Analysis Information</h3>
+                <h3><%= __('labels.analysisInformation') %></h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Patient:</span>
+                        <span class="info-label"><%= __('labels.patient') %>:</span>
                         <span class="info-value" id="cancelAnalysisPatientName"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Type:</span>
+                        <span class="info-label"><%= __('labels.type') %>:</span>
                         <span class="info-value" id="cancelAnalysisType"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Date:</span>
+                        <span class="info-label"><%= __('labels.date') %>:</span>
                         <span class="info-value" id="cancelAnalysisDate"></span>
                     </div>
                 </div>
             </div>
 
-            <label class="form-label" for="cancelAnalysisReason">Reason for Cancellation <span class="required">*</span></label>
+            <label class="form-label" for="cancelAnalysisReason"><%= __('modals.cancelAnalysis.reason') %> <span class="required">*</span></label>
             <textarea class="form-control" id="cancelAnalysisReason" rows="4" required placeholder="<%= __('placeholders.cancellationReason') %>"></textarea>
-            <small class="form-help">This reason will be recorded and may be required for reporting purposes. A minimum length is required.</small>
+            <small class="form-help"><%= __('modals.cancelAnalysis.reasonHelp') %></small>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelCancelAnalysisBtn">Keep Analysis</button>
-                <button type="submit" class="btn btn-danger">Cancel Analysis</button>
+                <button type="button" class="btn btn-secondary" id="cancelCancelAnalysisBtn"><%= __('modals.cancelAnalysis.keepAnalysis') %></button>
+                <button type="submit" class="btn btn-danger"><%= __('modals.cancelAnalysis.button') %></button>
             </div>
         </form>
     </div>
@@ -347,23 +347,23 @@
 <div class="modal-overlay" id="bulkCancelAnalysisModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Bulk Cancel Analyses</h2>
+            <h2><%= __('modals.bulkCancel.title') %></h2>
             <button class="modal-close" id="closeBulkCancelModalBtn">&times;</button>
         </div>
         <form id="bulkCancelAnalysisForm">
             <div class="analysis-info-section">
-                <h3>Cancellation Details</h3>
-                <p id="bulkCancelCount">You are about to cancel <strong id="bulkCancelAnalysisCount">0</strong> analyses.</p>
-                <p style="color: #dc3545; font-weight: 500;">This action cannot be undone.</p>
+                <h3><%= __('modals.bulkCancel.details') %></h3>
+                <p id="bulkCancelCount"><%= __('modals.bulkCancel.aboutToCancel') %> <strong id="bulkCancelAnalysisCount">0</strong> <%= __('modals.bulkCancel.analyses') %>.</p>
+                <p style="color: #dc3545; font-weight: 500;"><%= __('modals.bulkCancel.cannotUndo') %></p>
             </div>
 
-            <label class="form-label" for="bulkCancelReason">Cancellation Reason <span class="required">*</span></label>
-            <textarea class="form-control" id="bulkCancelReason" rows="3" required placeholder="Please provide a detailed reason for cancelling these analyses..."></textarea>
-            <small class="form-help">This reason will be recorded for all cancelled analyses. A minimum length is required.</small>
+            <label class="form-label" for="bulkCancelReason"><%= __('modals.bulkCancel.reason') %> <span class="required">*</span></label>
+            <textarea class="form-control" id="bulkCancelReason" rows="3" required placeholder="<%= __('placeholders.bulkCancellationReason') %>"></textarea>
+            <small class="form-help"><%= __('modals.bulkCancel.reasonHelp') %></small>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="cancelBulkCancelBtn">Cancel</button>
-                <button type="submit" class="btn btn-danger">Cancel Selected Analyses</button>
+                <button type="button" class="btn btn-secondary" id="cancelBulkCancelBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-danger"><%= __('modals.bulkCancel.button') %></button>
             </div>
         </form>
     </div>
@@ -373,30 +373,30 @@
 <div class="modal-overlay" id="addDoctorModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Add New Doctor</h2>
+            <h2><%= __('modals.addDoctor.title') %></h2>
             <button class="modal-close" id="closeAddDoctorModalBtn">&times;</button>
         </div>
         <form id="addDoctorForm">
             <input type="hidden" id="doctorSearchInput" value="">
 
-            <label class="form-label" for="newDoctorName">Doctor Name <span class="required">*</span></label>
+            <label class="form-label" for="newDoctorName"><%= __('modals.addDoctor.doctorName') %> <span class="required">*</span></label>
             <input type="text" class="form-control" id="newDoctorName" required maxlength="255" readonly>
-            <small class="form-help">This name was entered in the search field</small>
+            <small class="form-help"><%= __('modals.addDoctor.nameHelp') %></small>
 
-            <label class="form-label" for="newDoctorSpecialization">Specialization <span class="required">*</span></label>
+            <label class="form-label" for="newDoctorSpecialization"><%= __('modals.addDoctor.specialization') %> <span class="required">*</span></label>
             <input type="text" class="form-control" id="newDoctorSpecialization" required maxlength="255" placeholder="<%= __('placeholders.doctorSpecialization') %>">
-            <small class="form-help">Enter the doctor's medical specialization</small>
+            <small class="form-help"><%= __('modals.addDoctor.specializationHelp') %></small>
 
-            <label class="form-label" for="newDoctorPhone">Phone Number</label>
+            <label class="form-label" for="newDoctorPhone"><%= __('modals.addDoctor.phoneNumber') %></label>
             <input type="tel" class="form-control" id="newDoctorPhone" placeholder="<%= __('placeholders.doctorPhone') %>">
-            <small class="form-help">Optional - Doctor's contact phone number</small>
+            <small class="form-help"><%= __('modals.addDoctor.phoneHelp') %></small>
 
-            <label class="form-label" for="newDoctorEmail">Email Address</label>
+            <label class="form-label" for="newDoctorEmail"><%= __('modals.addDoctor.emailAddress') %></label>
             <input type="email" class="form-control" id="newDoctorEmail" placeholder="<%= __('placeholders.doctorEmail') %>">
-            <small class="form-help">Optional - Doctor's email address</small>
+            <small class="form-help"><%= __('modals.addDoctor.emailHelp') %></small>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelAddDoctorBtn"><%= __('common.cancel') %></button>
                 <button type="submit" class="btn btn-primary"><%= __('labels.createDoctor') %></button>
             </div>
         </form>
@@ -501,23 +501,23 @@
 <div class="modal-overlay" id="auditLogsModal">
     <div class="modal audit-logs-modal">
         <div class="modal-header">
-            <h2>Audit Logs</h2>
+            <h2><%= __('modals.auditLogs.title') %></h2>
             <button class="modal-close" id="closeAuditLogsModalBtn">&times;</button>
         </div>
         <div class="audit-logs-content">
             <div class="analysis-info-section">
-                <h3>Analysis Information</h3>
+                <h3><%= __('labels.analysisInformation') %></h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <span class="info-label">Patient:</span>
+                        <span class="info-label"><%= __('labels.patient') %>:</span>
                         <span class="info-value" id="auditLogsPatientName"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Type:</span>
+                        <span class="info-label"><%= __('labels.type') %>:</span>
                         <span class="info-value" id="auditLogsAnalysisType"></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Date:</span>
+                        <span class="info-label"><%= __('labels.date') %>:</span>
                         <span class="info-value" id="auditLogsAnalysisDate"></span>
                     </div>
                 </div>
@@ -526,9 +526,9 @@
                 <table id="auditLogsTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Action</th>
-                            <th>User</th>
+                            <th><%= __('table.date') %></th>
+                            <th><%= __('modals.auditLogs.action') %></th>
+                            <th><%= __('modals.auditLogs.user') %></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -538,7 +538,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" id="closeAuditLogsBtn">Close</button>
+            <button class="btn btn-primary" id="closeAuditLogsBtn"><%= __('common.close') %></button>
         </div>
     </div>
 </div>
@@ -547,12 +547,12 @@
 <div class="modal-overlay" id="confirmModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Confirm Action</h2>
+            <h2><%= __('modals.confirm.title') %></h2>
             <button class="modal-close" id="closeConfirmBtn">&times;</button>
         </div>
         <p id="confirmMessage" style="margin-bottom: 20px;"></p>
         <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+            <button class="btn btn-secondary" id="cancelConfirmBtn"><%= __('common.cancel') %></button>
             <button class="btn btn-primary" id="confirmBtn"><%= __('labels.confirm') %></button>
         </div>
     </div>
@@ -562,42 +562,42 @@
 <div class="modal-overlay" id="postponeAnalysisModal">
     <div class="modal">
         <div class="modal-header">
-            <h2>Postpone Analysis</h2>
+            <h2><%= __('modals.postpone.title') %></h2>
             <button class="modal-close" id="closePostponeModalBtn">&times;</button>
         </div>
         <form id="postponeAnalysisForm">
             <input type="hidden" id="postponeAnalysisId" name="analysisId">
-            
+
             <div class="form-group">
-                <label for="postponeDate">Select New Date <span class="required">*</span></label>
-                <input type="date" 
-                       id="postponeDate" 
-                       name="postponeDate" 
-                       class="form-control" 
+                <label for="postponeDate"><%= __('modals.postpone.selectNewDate') %> <span class="required">*</span></label>
+                <input type="date"
+                       id="postponeDate"
+                       name="postponeDate"
+                       class="form-control"
                        required
                        min="<%= new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0] %>"
                        max="<%= new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0] %>">
-                <small class="form-help">Select a new date for the analysis (must be within the next 30 days)</small>
+                <small class="form-help"><%= __('modals.postpone.dateHelp') %></small>
                 <div id="postponeDateValidation" class="validation-message"></div>
             </div>
 
             <div class="form-group">
-                <label for="postponeReason">Reason (Optional)</label>
-                <textarea id="postponeReason" 
-                          name="postponeReason" 
-                          class="form-control" 
-                          rows="3" 
-                          placeholder="Provide a reason for postponing..."></textarea>
+                <label for="postponeReason"><%= __('modals.postpone.reasonOptional') %></label>
+                <textarea id="postponeReason"
+                          name="postponeReason"
+                          class="form-control"
+                          rows="3"
+                          placeholder="<%= __('placeholders.postponeReason') %>"></textarea>
             </div>
 
             <div class="info-box" id="postponeInfoBox" style="display: none;">
                 <span class="material-symbols-outlined">info</span>
                 <div class="info-content"></div>
             </div>
-            
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelPostponeBtn">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="confirmPostponeBtn">Postpone Analysis</button>
+                <button type="button" class="btn btn-secondary" id="cancelPostponeBtn"><%= __('common.cancel') %></button>
+                <button type="submit" class="btn btn-primary" id="confirmPostponeBtn"><%= __('modals.postpone.button') %></button>
             </div>
         </form>
     </div>
@@ -1066,7 +1066,7 @@
             let actionsColumnIndex = -1;
 
             headers.forEach((header, index) => {
-                if (header.textContent.trim() === 'Actions') {
+                if (header.textContent.trim() === '<%= __('table.actions') %>') {
                     actionsColumnIndex = index;
                 }
             });

@@ -183,8 +183,6 @@ class OrganizationSettingsController {
             const { value } = req.body;
             const { userId } = req.auth;
 
-            console.log(`[DEBUG] updateSetting called with key: ${key}, value: ${value}`);
-
             if (value === undefined) {
                 return res.status(400).json({
                     success: false,
@@ -244,8 +242,6 @@ class OrganizationSettingsController {
                 userId,
                 context
             );
-
-            console.log(`[DEBUG] updateSetting result for ${key}:`, result);
 
             // If prescription check interval was updated successfully, reconfigure the scheduler
             if (result.success && (key === 'prescription_check_interval_value' || key === 'prescription_check_interval_unit')) {
@@ -331,8 +327,6 @@ class OrganizationSettingsController {
             const { settings } = req.body;
             const { userId } = req.auth;
 
-            console.log(`[DEBUG] updateMultipleSettings called with settings:`, settings);
-
             if (!settings || typeof settings !== 'object') {
                 return res.status(400).json({
                     success: false,
@@ -395,8 +389,6 @@ class OrganizationSettingsController {
                 userId,
                 context
             );
-
-            console.log(`[DEBUG] updateMultipleSettings result:`, result);
 
             // If prescription check interval was updated successfully, reconfigure the scheduler
             if (result.success && (settings.prescription_check_interval_value || settings.prescription_check_interval_unit)) {

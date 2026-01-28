@@ -52,7 +52,7 @@
                 <span class="material-symbols-outlined" style="font-size: 16px;">
                     tune
                 </span>
-                Mass Preferences
+                <%= __('preferences.massPreferences') %>
             </button>
         <% } %>
     </div>
@@ -1338,12 +1338,12 @@
                     <div class="audit-controls">
                         <select id="auditEventFilter">
                             <option value=""><%= __('filter.allEvents') %></option>
-                            <option value="analysis_">Analysis Actions</option>
-                            <option value="patient_">Patient Management</option>
-                            <option value="doctor_">Doctor Management</option>
-                            <option value="room_">Room Management</option>
-                            <option value="user_">User Account Actions</option>
-                            <option value="system_">System Operations</option>
+                            <option value="analysis_"><%= __('filter.analysisActions') %></option>
+                            <option value="patient_"><%= __('filter.patientManagement') %></option>
+                            <option value="doctor_"><%= __('filter.doctorManagement') %></option>
+                            <option value="room_"><%= __('filter.roomManagement') %></option>
+                            <option value="user_"><%= __('filter.userAccountActions') %></option>
+                            <option value="system_"><%= __('filter.systemOperations') %></option>
                         </select>
                         <button class="btn btn-sm btn-secondary" id="refreshAuditBtn">
                             <span class="material-symbols-outlined">refresh</span>
@@ -1517,19 +1517,19 @@
             <!-- Reset Tab -->
             <div class="tab-content" id="reset-tab">
                 <div class="form-section">
-                    <h4>Target Users</h4>
+                    <h4><%= __('users.targetUsers') %></h4>
                     <div class="form-group">
                         <label>
                             <input type="radio" name="resetTarget" value="all" checked>
-                            All active users
+                            <%= __('users.allActiveUsers') %>
                         </label>
                         <label>
                             <input type="radio" name="resetTarget" value="selected">
-                            Selected users only
+                            <%= __('users.selectedUsersOnly') %>
                         </label>
                     </div>
                     <div class="form-group" id="resetSelectedUsersGroup" style="display: none;">
-                        <label>Select Users:</label>
+                        <label><%= __('users.selectUsers') %>:</label>
                         <div class="user-selection" id="resetUserSelection">
                             <!-- Populated dynamically -->
                         </div>
@@ -1537,26 +1537,26 @@
                 </div>
 
                 <div class="form-section">
-                    <h4>Reset Options</h4>
+                    <h4><%= __('users.resetOptions') %></h4>
                     <div class="form-group">
                         <label>
                             <input type="radio" name="resetMode" value="all" checked>
-                            Reset all preferences to defaults
+                            <%= __('users.resetAllDefaults') %>
                         </label>
                         <label>
                             <input type="radio" name="resetMode" value="specific">
-                            Reset specific preferences only
+                            <%= __('users.resetSpecificOnly') %>
                         </label>
                     </div>
 
                     <div class="form-group" id="specificPreferencesGroup" style="display: none;">
-                        <label>Select preferences to reset:</label>
+                        <label><%= __('users.selectPrefsToReset') %>:</label>
                         <div class="preference-checkboxes">
-                            <label><input type="checkbox" name="resetPrefs" value="language"> Language</label>
-                            <label><input type="checkbox" name="resetPrefs" value="dateFormat"> Date Format</label>
-                            <label><input type="checkbox" name="resetPrefs" value="timeFormat"> Time Format</label>
-                            <label><input type="checkbox" name="resetPrefs" value="timezone"> Timezone</label>
-                            <label><input type="checkbox" name="resetPrefs" value="emailNotifications"> Email Notifications</label>
+                            <label><input type="checkbox" name="resetPrefs" value="language"> <%= __('preferences.language') %></label>
+                            <label><input type="checkbox" name="resetPrefs" value="dateFormat"> <%= __('preferences.dateFormat') %></label>
+                            <label><input type="checkbox" name="resetPrefs" value="timeFormat"> <%= __('preferences.timeFormat') %></label>
+                            <label><input type="checkbox" name="resetPrefs" value="timezone"> <%= __('preferences.timezone') %></label>
+                            <label><input type="checkbox" name="resetPrefs" value="emailNotifications"> <%= __('preferences.emailNotifications') %></label>
                         </div>
                     </div>
                 </div>

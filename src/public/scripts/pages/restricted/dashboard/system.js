@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateSystemStats(response.data);
             } else {
                 console.error('Failed to load system stats:', response.message);
-                showToast('Failed to load system statistics', 'error');
+                showToast(__('messages.error.failedLoadSystemStats'), 'error');
             }
         } catch (error) {
             console.error('Error loading system stats:', error);
@@ -220,13 +220,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.post('/admin/system/clear-cache');
 
             if (response.success) {
-                showToast('Cache cleared successfully', 'success');
+                showToast(__('messages.success.cacheCleared'), 'success');
             } else {
-                showToast('Failed to clear cache', 'error');
+                showToast(__('messages.error.failedClearCache'), 'error');
             }
         } catch (error) {
             console.error('Error clearing cache:', error);
-            showToast('Failed to clear cache', 'error');
+            showToast(__('messages.error.failedClearCache'), 'error');
         }
     }
 
@@ -288,22 +288,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
 
-                showToast('Logs downloaded successfully', 'success');
+                showToast(__('messages.success.logsDownloaded'), 'success');
             } else {
-                showToast('Failed to download logs', 'error');
+                showToast(__('messages.error.failedDownloadLogs'), 'error');
             }
         } catch (error) {
             console.error('Error downloading logs:', error);
-            showToast('Failed to download logs', 'error');
+            showToast(__('messages.error.failedDownloadLogs'), 'error');
         }
     }
 
     // Confirm system shutdown
     function confirmSystemShutdown() {
         showConfirmModal(
-            'Shutdown System',
-            'Are you sure you want to shutdown the system? This will disconnect all users and stop the server.',
-            'Shutdown',
+            __('system.shutdownSystem'),
+            __('system.shutdownConfirmMessage'),
+            __('system.shutdown'),
             shutdownSystem
         );
     }
@@ -314,17 +314,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.post('/admin/system/shutdown');
 
             if (response.success) {
-                showToast('System shutdown initiated', 'info');
+                showToast(__('messages.info.shutdownInitiated'), 'info');
                 closeConfirmModal();
-                
+
                 // Show message about system shutdown
-                showToast('System is shutting down...', 'warning');
+                showToast(__('messages.warning.systemShuttingDown'), 'warning');
             } else {
-                showToast('Failed to shutdown system', 'error');
+                showToast(__('messages.error.failedShutdown'), 'error');
             }
         } catch (error) {
             console.error('Error shutting down system:', error);
-            showToast('Failed to shutdown system', 'error');
+            showToast(__('messages.error.failedShutdown'), 'error');
         }
     }
 
@@ -538,18 +538,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await api.post('/system-updates', formData);
             
             if (response.success) {
-                showToast('System update created successfully', 'success');
+                showToast(__('messages.success.updateCreated'), 'success');
                 closeCreateUpdateModal();
                 // Refresh updates list if open
                 if (document.getElementById('viewUpdatesModal').classList.contains('show')) {
                     loadSystemUpdates();
                 }
             } else {
-                showToast('Failed to create system update: ' + response.message, 'error');
+                showToast(__('messages.error.failedCreateUpdate') + ': ' + response.message, 'error');
             }
         } catch (error) {
             console.error('Create system update error:', error);
-            showToast('Failed to create system update: ' + error.message, 'error');
+            showToast(__('messages.error.failedCreateUpdate') + ': ' + error.message, 'error');
         }
     }
 
@@ -639,10 +639,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderUpdateDetails(response.data);
                 document.getElementById('updateDetailsModal').classList.add('show');
             } else {
-                showToast('Failed to load update details', 'error');
+                showToast(__('messages.error.failedLoadUpdateDetails'), 'error');
             }
         } catch (error) {
-            showToast('Failed to load update details', 'error');
+            showToast(__('messages.error.failedLoadUpdateDetails'), 'error');
         }
     };
 
@@ -792,62 +792,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const response = await api.post(`/system-updates/${updateId}/publish`);
-            
+
             if (response.success) {
-                showToast('Update published successfully', 'success');
+                showToast(__('messages.success.updatePublished'), 'success');
                 loadSystemUpdates();
                 closeUpdateDetailsModal();
             } else {
-                showToast('Failed to publish update', 'error');
+                showToast(__('messages.error.failedPublishUpdate'), 'error');
             }
         } catch (error) {
-            showToast('Failed to publish update', 'error');
+            showToast(__('messages.error.failedPublishUpdate'), 'error');
         }
     };
 
     // Delete update
     window.deleteUpdate = async function(updateId) {
-        if (!confirm('Are you sure you want to delete this update? This action cannot be undone.')) {
+        if (!confirm(__('messages.confirm.deleteUpdate'))) {
             return;
         }
 
         try {
             const response = await api.delete(`/system-updates/${updateId}`);
-            
+
             if (response.success) {
-                showToast('Update deleted successfully', 'success');
+                showToast(__('messages.success.updateDeleted'), 'success');
                 loadSystemUpdates();
                 closeUpdateDetailsModal();
             } else {
-                showToast('Failed to delete update', 'error');
+                showToast(__('messages.error.failedDeleteUpdate'), 'error');
             }
         } catch (error) {
-            showToast('Failed to delete update', 'error');
+            showToast(__('messages.error.failedDeleteUpdate'), 'error');
         }
     };
 
     // Resend notifications
     window.resendNotifications = async function(updateId) {
-        if (!confirm('Are you sure you want to resend notifications for this update?')) {
+        if (!confirm(__('messages.confirm.resendNotifications'))) {
             return;
         }
 
         try {
             const response = await api.post(`/system-updates/${updateId}/resend-notifications`);
-            
+
             if (response.success) {
-                showToast(`Notifications sent to ${response.data.sent} users`, 'success');
+                showToast(__('messages.success.notificationsSent', response.data.sent), 'success');
             } else {
-                showToast('Failed to resend notifications', 'error');
+                showToast(__('messages.error.failedResendNotifications'), 'error');
             }
         } catch (error) {
-            showToast('Failed to resend notifications', 'error');
+            showToast(__('messages.error.failedResendNotifications'), 'error');
         }
     };
 
     // Edit update (placeholder for future implementation)
     window.editUpdate = function(updateId) {
-        showToast('Edit functionality will be implemented in a future update', 'info');
+        showToast(__('messages.info.editFutureUpdate'), 'info');
     };
 
     // Get update stats (placeholder for future implementation)
@@ -981,65 +981,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sync with GitHub
     window.syncWithGitHub = async function() {
         try {
-            showToast('Syncing with GitHub...', 'info');
+            showToast(__('messages.info.syncingGitHub'), 'info');
             const response = await api.post('/system-updates/sync-github');
-            
+
             if (response.success) {
                 showToast(response.message, 'success');
                 loadGitHubStatus(); // Refresh status
-                
+
                 // Refresh the updates list if it's open
                 if (document.getElementById('viewUpdatesModal').classList.contains('show')) {
                     loadSystemUpdates();
                 }
             } else {
-                showToast('Failed to sync with GitHub: ' + response.message, 'error');
+                showToast(__('messages.error.failedSyncGitHub') + ': ' + response.message, 'error');
             }
         } catch (error) {
-            showToast('Failed to sync with GitHub: ' + error.message, 'error');
+            showToast(__('messages.error.failedSyncGitHub') + ': ' + error.message, 'error');
         }
     };
 
     // Import specific GitHub release
     window.importGitHubRelease = async function(tag) {
         try {
-            showToast(`Importing release ${tag}...`, 'info');
+            showToast(__('messages.info.importingRelease', tag), 'info');
             const response = await api.post(`/system-updates/import-github/${tag}`);
-            
+
             if (response.success) {
                 showToast(response.message, 'success');
                 loadGitHubStatus(); // Refresh status
-                
+
                 // Refresh the updates list if it's open
                 if (document.getElementById('viewUpdatesModal').classList.contains('show')) {
                     loadSystemUpdates();
                 }
             } else {
-                showToast('Failed to import release: ' + response.message, 'error');
+                showToast(__('messages.error.failedImportRelease') + ': ' + response.message, 'error');
             }
         } catch (error) {
-            showToast('Failed to import release: ' + error.message, 'error');
+            showToast(__('messages.error.failedImportRelease') + ': ' + error.message, 'error');
         }
     };
 
     // Auto-publish GitHub releases
     window.autoPublishGitHubReleases = async function() {
         try {
-            showToast('Auto-publishing GitHub releases...', 'info');
+            showToast(__('messages.info.autoPublishingReleases'), 'info');
             const response = await api.post('/system-updates/auto-publish-github');
-            
+
             if (response.success) {
                 showToast(response.message, 'success');
-                
+
                 // Refresh the updates list if it's open
                 if (document.getElementById('viewUpdatesModal').classList.contains('show')) {
                     loadSystemUpdates();
                 }
             } else {
-                showToast('Failed to auto-publish releases: ' + response.message, 'error');
+                showToast(__('messages.error.failedAutoPublish') + ': ' + response.message, 'error');
             }
         } catch (error) {
-            showToast('Failed to auto-publish releases: ' + error.message, 'error');
+            showToast(__('messages.error.failedAutoPublish') + ': ' + error.message, 'error');
         }
     };
 

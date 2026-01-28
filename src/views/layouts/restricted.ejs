@@ -38,15 +38,21 @@ window.translations = {
     common: {
         active: "<%= __('common.active') %>",
         inactive: "<%= __('common.inactive') %>",
-        loading: "<%= __('common.loading') %>"
+        loading: "<%= __('common.loading') %>",
+        cancel: "<%= __('common.cancel') %>"
     },
     patients: {
         roomPrefix: "<%= locale === 'fr' ? 'Chambre' : locale === 'es' ? 'Habitación' : 'Room' %>",
         unassigned: "<%= __('patients.unassigned') %>",
-        // Helper function to format room number
         formatRoomNumber: function(roomNumber) {
             return this.roomPrefix + ' ' + roomNumber;
         }
+    },
+    filter: {
+        allRoles: "<%= __('filter.allRoles') %>",
+        allServices: "<%= __('filter.allServices') %>",
+        allStatuses: "<%= __('filter.allStatuses') %>",
+        selectRole: "<%= __('filter.selectRole') %>"
     },
     filters: {
         allSpecialties: "<%= __('filters.allSpecialties') %>"
@@ -81,6 +87,133 @@ window.translations = {
         page: "<%= __('pagination.page') %>",
         of: "<%= __('pagination.of') %>",
         pageInfo: "<%= __('pagination.pageInfo') %>"
+    },
+    messages: {
+        validation: {
+            noAnalysesSelected: "<%= __('messages.validation.noAnalysesSelected') %>",
+            pleaseSelectDate: "<%= __('messages.validation.pleaseSelectDate') %>",
+            passwordRequired: "<%= __('messages.validation.passwordRequired') %>",
+            selectAtLeastOneColumn: "<%= __('messages.validation.selectAtLeastOneColumn') %>",
+            codeNameRequired: "<%= __('messages.validation.codeNameRequired') %>",
+            analysisTypeCodeExists: "<%= __('messages.validation.analysisTypeCodeExists') %>",
+            enterReferenceCode: "<%= __('messages.validation.enterReferenceCode') %>",
+            buttonTextRequired: "<%= __('messages.validation.buttonTextRequired') %>",
+            fillRequiredFields: "<%= __('messages.validation.fillRequiredFields') %>"
+        },
+        error: {
+            failedLoadAuditLogs: "<%= __('messages.error.failedLoadAuditLogs') %>",
+            failedGenerateDocument: "<%= __('messages.error.failedGenerateDocument') %>",
+            failedDownloadPDF: "<%= __('messages.error.failedDownloadPDF') %>",
+            failedGeneratePreview: "<%= __('messages.error.failedGeneratePreview') %>",
+            authenticationRequired: "<%= __('messages.error.authenticationRequired') %>",
+            permissionDenied: "<%= __('messages.error.permissionDenied') %>",
+            networkError: "<%= __('messages.error.networkError') %>",
+            serverError: "<%= __('messages.error.serverError') %>",
+            unexpected: "<%= __('messages.error.unexpected') %>",
+            failedLoadSettings: "<%= __('messages.error.failedLoadSettings') %>",
+            failedSaveChanges: "<%= __('messages.error.failedSaveChanges') %>",
+            failedExportConfig: "<%= __('messages.error.failedExportConfig') %>",
+            failedLoadAnalysisTypes: "<%= __('messages.error.failedLoadAnalysisTypes') %>",
+            failedSaveAnalysisType: "<%= __('messages.error.failedSaveAnalysisType') %>",
+            failedDeleteAnalysisType: "<%= __('messages.error.failedDeleteAnalysisType') %>",
+            failedLoadSystemStats: "<%= __('messages.error.failedLoadSystemStats') %>",
+            failedClearCache: "<%= __('messages.error.failedClearCache') %>",
+            failedDownloadLogs: "<%= __('messages.error.failedDownloadLogs') %>",
+            failedShutdown: "<%= __('messages.error.failedShutdown') %>",
+            failedCreateUpdate: "<%= __('messages.error.failedCreateUpdate') %>",
+            failedLoadUpdateDetails: "<%= __('messages.error.failedLoadUpdateDetails') %>",
+            failedPublishUpdate: "<%= __('messages.error.failedPublishUpdate') %>",
+            failedDeleteUpdate: "<%= __('messages.error.failedDeleteUpdate') %>",
+            failedResendNotifications: "<%= __('messages.error.failedResendNotifications') %>",
+            failedSyncGitHub: "<%= __('messages.error.failedSyncGitHub') %>",
+            failedImportRelease: "<%= __('messages.error.failedImportRelease') %>",
+            failedAutoPublish: "<%= __('messages.error.failedAutoPublish') %>",
+            failedCancelCampaign: "<%= __('messages.error.failedCancelCampaign') %>"
+        },
+        success: {
+            settingsLoaded: "<%= __('messages.success.settingsLoaded') %>",
+            prescriptionIntervalSaved: "<%= __('messages.success.prescriptionIntervalSaved') %>",
+            settingsSaved: "<%= __('messages.success.settingsSaved') %>",
+            configExported: "<%= __('messages.success.configExported') %>",
+            analysisTypeAdded: "<%= __('messages.success.analysisTypeAdded') %>",
+            analysisTypeUpdated: "<%= __('messages.success.analysisTypeUpdated') %>",
+            analysisTypeDeleted: "<%= __('messages.success.analysisTypeDeleted') %>",
+            cacheCleared: "<%= __('messages.success.cacheCleared') %>",
+            logsDownloaded: "<%= __('messages.success.logsDownloaded') %>",
+            updateCreated: "<%= __('messages.success.updateCreated') %>",
+            updatePublished: "<%= __('messages.success.updatePublished') %>",
+            updateDeleted: "<%= __('messages.success.updateDeleted') %>",
+            notificationsSent: "<%= __('messages.success.notificationsSent') %>",
+            campaignSavedDraft: "<%= __('messages.success.campaignSavedDraft') %>",
+            campaignCancelled: "<%= __('messages.success.campaignCancelled') %>"
+        },
+        info: {
+            loadingSettings: "<%= __('messages.info.loadingSettings') %>",
+            noChangesToSave: "<%= __('messages.info.noChangesToSave') %>",
+            savingChanges: "<%= __('messages.info.savingChanges') %>",
+            changesDiscarded: "<%= __('messages.info.changesDiscarded') %>",
+            autoSaving: "<%= __('messages.info.autoSaving') %>",
+            shutdownInitiated: "<%= __('messages.info.shutdownInitiated') %>",
+            editFutureUpdate: "<%= __('messages.info.editFutureUpdate') %>",
+            syncingGitHub: "<%= __('messages.info.syncingGitHub') %>",
+            importingRelease: "<%= __('messages.info.importingRelease') %>",
+            autoPublishingReleases: "<%= __('messages.info.autoPublishingReleases') %>"
+        },
+        warning: {
+            systemShuttingDown: "<%= __('messages.warning.systemShuttingDown') %>",
+            contentTooLarge: "<%= __('messages.warning.contentTooLarge') %>"
+        },
+        confirm: {
+            deleteAnalysisType: "<%= __('messages.confirm.deleteAnalysisType') %>",
+            deleteUpdate: "<%= __('messages.confirm.deleteUpdate') %>",
+            resendNotifications: "<%= __('messages.confirm.resendNotifications') %>",
+            noUrlSpecified: "<%= __('messages.confirm.noUrlSpecified') %>"
+        }
+    },
+    system: {
+        shutdownSystem: "<%= __('system.shutdownSystem') %>",
+        shutdownConfirmMessage: "<%= __('system.shutdownConfirmMessage') %>",
+        shutdown: "<%= __('system.shutdown') %>"
+    },
+    campaigns: {
+        campaignSent: "<%= __('campaigns.campaignSent') %>"
+    },
+    users: {
+        editUser: "<%= __('users.editUser') %>",
+        generateRefCode: "<%= __('users.generateRefCode') %>",
+        resetPassword: "<%= __('users.resetPassword') %>",
+        viewServiceInfo: "<%= __('users.viewServiceInfo') %>",
+        lockUser: "<%= __('users.lockUser') %>",
+        unlockUser: "<%= __('users.unlockUser') %>",
+        noUsersFound: "<%= __('users.noUsersFound') %>",
+        viewAuditLogs: "<%= __('users.viewAuditLogs') %>"
+    },
+    preferences: {
+        massPreferences: "<%= __('preferences.massPreferences') %>"
+    },
+    notifications: {
+        massPreferences: {
+            selectOneUser: "<%= __('notifications.massPreferences.selectOneUser') %>",
+            selectOnePreference: "<%= __('notifications.massPreferences.selectOnePreference') %>",
+            selectOnePreferenceReset: "<%= __('notifications.massPreferences.selectOnePreferenceReset') %>",
+            errorUpdating: "<%= __('notifications.massPreferences.errorUpdating') %>",
+            errorResetting: "<%= __('notifications.massPreferences.errorResetting') %>"
+        }
+    },
+    analysis: {
+        validatePrescription: "<%= __('analysis.validatePrescription') %>",
+        updateStatus: "<%= __('analysis.updateStatus') %>",
+        cancelAnalysis: "<%= __('analysis.cancelAnalysis') %>",
+        viewAuditLogs: "<%= __('analysis.viewAuditLogs') %>",
+        noAnalysesFound: "<%= __('analysis.noAnalysesFound') %>",
+        actions: {
+            postpone: "<%= __('analysis.actions.postpone') %>"
+        },
+        prescriptionValidation: {
+            title: "<%= __('analysis.prescriptionValidation.title') %>",
+            message: "<%= __('analysis.prescriptionValidation.message') %>",
+            confirmButton: "<%= __('analysis.prescriptionValidation.confirmButton') %>"
+        }
     }
 };
 </script>

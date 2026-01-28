@@ -1474,7 +1474,7 @@ class UserService {
             const hasPersonalEmail = user && user.email;
 
             let preferences = {
-                dateFormat: 'MM/DD/YYYY',
+                dateFormat: 'DD/MM/YYYY',
                 notifications: {
                     email: false
                 }
@@ -1482,7 +1482,7 @@ class UserService {
 
             if (userPrefs && userPrefs.preferences) {
                 preferences = {
-                    dateFormat: userPrefs.preferences.dateFormat || 'MM/DD/YYYY',
+                    dateFormat: userPrefs.preferences.dateFormat || 'DD/MM/YYYY',
                     notifications: userPrefs.preferences.notifications || { email: false },
                     ...userPrefs.preferences
                 };

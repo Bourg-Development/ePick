@@ -33,7 +33,7 @@ class AnalysisController {
             if (!analysisDate || !patientId || !doctorId || !roomId || !analysisType) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Analysis date, patient, doctor, room, and analysis type are required'
+                    message: req.i18n.__('errors.api.validation.analysisDateRequired')
                 });
             }
 
@@ -42,7 +42,7 @@ class AnalysisController {
             if (!analysisTypesResult.success) {
                 return res.status(500).json({
                     success: false,
-                    message: 'Failed to retrieve analysis types configuration'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.analysisTypes'))
                 });
             }
             
@@ -75,7 +75,7 @@ class AnalysisController {
             console.error('Create analysis error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to create analysis'
+                message: req.i18n.__('errors.api.operations.failedToCreate', req.i18n.__('errors.api.resources.analysis'))
             });
         }
     }
@@ -109,7 +109,7 @@ class AnalysisController {
             console.error('Get analysis error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve analysis'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.analysis'))
             });
         }
     }
@@ -174,7 +174,7 @@ class AnalysisController {
             console.error('Get analyses error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve analyses'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -191,7 +191,7 @@ class AnalysisController {
             if (!permissions.includes('analyses.view') && !permissions.includes('analyses.export')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -200,7 +200,7 @@ class AnalysisController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -212,7 +212,7 @@ class AnalysisController {
                 await new AnalysisController()._logExportFailure('json', userId, context, 'analyses');
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -301,7 +301,7 @@ class AnalysisController {
             console.error('Export analyses JSON error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export analyses'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -318,7 +318,7 @@ class AnalysisController {
             if (!permissions.includes('analyses.view') && !permissions.includes('analyses.export')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -327,7 +327,7 @@ class AnalysisController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -339,7 +339,7 @@ class AnalysisController {
                 await new AnalysisController()._logExportFailure('csv', userId, context, 'analyses');
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -427,7 +427,7 @@ class AnalysisController {
             console.error('Export analyses CSV error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export analyses'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -444,7 +444,7 @@ class AnalysisController {
             if (!permissions.includes('analyses.view') && !permissions.includes('analyses.export')) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -453,7 +453,7 @@ class AnalysisController {
             if (!password) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Password is required for export'
+                    message: req.i18n.__('errors.api.validation.passwordRequiredForExport')
                 });
             }
 
@@ -465,7 +465,7 @@ class AnalysisController {
                 await new AnalysisController()._logExportFailure('excel', userId, context, 'analyses');
                 return res.status(401).json({
                     success: false,
-                    message: 'Invalid password'
+                    message: req.i18n.__('errors.api.validation.invalidPassword')
                 });
             }
 
@@ -553,7 +553,7 @@ class AnalysisController {
             console.error('Export analyses Excel error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to export analyses'
+                message: req.i18n.__('errors.api.operations.failedToExport', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -574,7 +574,7 @@ class AnalysisController {
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid status'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'status')
                 });
             }
 
@@ -600,7 +600,7 @@ class AnalysisController {
             console.error('Update analysis status error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update analysis status'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.analysisStatus'))
             });
         }
     }
@@ -640,7 +640,7 @@ class AnalysisController {
             console.error('Postpone analysis error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to postpone analysis'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.analysis'))
             });
         }
     }
@@ -659,7 +659,7 @@ class AnalysisController {
             if (!reason) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Cancellation reason is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Cancellation reason')
                 });
             }
 
@@ -685,7 +685,7 @@ class AnalysisController {
             console.error('Cancel analysis error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to cancel analysis'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.analysis'))
             });
         }
     }
@@ -703,14 +703,14 @@ class AnalysisController {
             if (!analysisIds || !Array.isArray(analysisIds) || analysisIds.length === 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Analysis IDs array is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Analysis IDs')
                 });
             }
 
             if (!reason) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Cancellation reason is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Cancellation reason')
                 });
             }
 
@@ -769,7 +769,7 @@ class AnalysisController {
             console.error('Bulk cancel analyses error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to process bulk cancellation'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', req.i18n.__('errors.api.resources.analyses'))
             });
         }
     }
@@ -797,7 +797,7 @@ class AnalysisController {
             console.error('Get analysis statistics error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve statistics'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'statistics')
             });
         }
     }
@@ -819,7 +819,7 @@ class AnalysisController {
             console.error('Get dashboard error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve dashboard data'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'dashboard data')
             });
         }
     }
@@ -842,7 +842,7 @@ class AnalysisController {
             console.error('Get next available date error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to get next available date'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'next available date')
             });
         }
     }
@@ -921,7 +921,7 @@ class AnalysisController {
                 role !== 'system_admin') {
                 return res.status(403).json({
                     success: false,
-                    message: 'Permission denied'
+                    message: req.i18n.__('errors.api.permission.denied')
                 });
             }
 
@@ -943,7 +943,7 @@ class AnalysisController {
             console.error('Get analysis audit logs error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to retrieve audit logs'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.auditLogs'))
             });
         }
     }
@@ -961,7 +961,7 @@ class AnalysisController {
             if (!date) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Date is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Date')
                 });
             }
 
@@ -979,7 +979,7 @@ class AnalysisController {
             console.error('Check date capacity error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to check date capacity'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'date capacity')
             });
         }
     }

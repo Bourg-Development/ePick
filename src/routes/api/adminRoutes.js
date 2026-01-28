@@ -158,6 +158,7 @@ router.post('/password-reset',
 // Get all services
 router.get('/services',
     apiRateLimit,
+    requirePermission(['services.view', 'read.all']),
     adminController.getServices
 );
 
@@ -251,6 +252,7 @@ router.post('/services/export/excel',
 // Get all rooms
 router.get('/rooms',
     apiRateLimit,
+    requirePermission(['rooms.view', 'read.all']),
     validation.validateRoomFilters,
     adminController.getRooms
 );
@@ -316,6 +318,7 @@ router.get('/rooms/search/:term',
 // Get all patients
 router.get('/patients',
     apiRateLimit,
+    requirePermission(['patients.view', 'read.all']),
     adminController.getPatients
 );
 
@@ -387,6 +390,7 @@ router.post('/patients/export/excel',
 // Get all doctors
 router.get('/doctors',
     apiRateLimit,
+    requirePermission(['doctors.view', 'read.all']),
     adminController.getDoctors
 );
 
@@ -441,6 +445,7 @@ router.get('/services/:serviceId/rooms',
 // Get roles list
 router.get('/roles',
     apiRateLimit,
+    requirePermission(['manage.roles', 'read.all']),
     adminController.getRoles
 );
 

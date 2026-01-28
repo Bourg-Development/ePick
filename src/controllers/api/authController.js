@@ -144,7 +144,7 @@ class AuthController {
             if (!totpCode.match(/^\d{6}$/)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid verification code format'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'verification code')
                 });
             }
 
@@ -173,7 +173,7 @@ class AuthController {
             console.error('TOTP verification error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Verification failed'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'verification')
             });
         }
     }
@@ -190,7 +190,7 @@ class AuthController {
             if (!userId || !credential) {
                 return res.status(400).json({
                     success: false,
-                    message: 'User ID and WebAuthn credential are required'
+                    message: req.i18n.__('errors.api.validation.required', 'User ID and WebAuthn credential')
                 });
             }
 
@@ -219,7 +219,7 @@ class AuthController {
             console.error('WebAuthn verification error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Verification failed'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'verification')
             });
         }
     }
@@ -252,7 +252,7 @@ class AuthController {
             console.error('Logout error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Logout failed'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'logout')
             });
         }
     }
@@ -269,7 +269,7 @@ class AuthController {
             if (!refreshToken) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Refresh token is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Refresh token')
                 });
             }
 
@@ -292,7 +292,7 @@ class AuthController {
                     // For API requests, return a generic error without details
                     return res.status(401).json({
                         success: false,
-                        message: 'Authentication expired'
+                        message: req.i18n.__('errors.api.permission.authenticationRequired')
                     });
                 } else {
                     // For browser requests, redirect to login
@@ -378,7 +378,7 @@ class AuthController {
                 // For API requests, return error
                 return res.status(500).json({
                     success: false,
-                    message: 'Token refresh failed'
+                    message: req.i18n.__('errors.api.operations.failedToUpdate', 'token')
                 });
             } else {
                 // For browser requests, redirect to login
@@ -408,7 +408,7 @@ class AuthController {
                 }
                 return res.status(400).json({
                     success: false,
-                    message: 'Reference code and password are required'
+                    message: req.i18n.__('errors.api.validation.required', 'Reference code and password')
                 });
             }
 
@@ -423,7 +423,7 @@ class AuthController {
                 }
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid reference code format'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'reference code')
                 });
             }
 
@@ -438,7 +438,7 @@ class AuthController {
                 }
                 return res.status(400).json({
                     success: false,
-                    message: 'Passwords do not match'
+                    message: req.i18n.__('errors.passwordsDoNotMatch')
                 });
             }
 
@@ -510,7 +510,7 @@ class AuthController {
             }
             return res.status(500).json({
                 success: false,
-                message: 'Registration failed'
+                message: req.i18n.__('errors.api.operations.failedToCreate', 'registration')
             });
         }
     }
@@ -542,7 +542,7 @@ class AuthController {
             console.error('TOTP setup error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'TOTP setup failed'
+                message: req.i18n.__('errors.api.operations.failedToCreate', 'TOTP setup')
             });
         }
     }
@@ -560,7 +560,7 @@ class AuthController {
             if (!totpCode) {
                 return res.status(400).json({
                     success: false,
-                    message: 'TOTP code is required'
+                    message: req.i18n.__('errors.api.validation.required', 'TOTP code')
                 });
             }
 
@@ -568,7 +568,7 @@ class AuthController {
             if (!totpCode.match(/^\d{6}$/)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid verification code format'
+                    message: req.i18n.__('errors.api.validation.invalidFormat', 'verification code')
                 });
             }
 
@@ -583,7 +583,7 @@ class AuthController {
             console.error('TOTP enable error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to enable TOTP'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', 'TOTP')
             });
         }
     }
@@ -602,7 +602,7 @@ class AuthController {
             if (!currentPassword || !newPassword || !confirmPassword) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Current password and new password are required'
+                    message: req.i18n.__('errors.api.validation.required', 'Current password and new password')
                 });
             }
 
@@ -610,7 +610,7 @@ class AuthController {
             if (newPassword !== confirmPassword) {
                 return res.status(400).json({
                     success: false,
-                    message: 'New passwords do not match'
+                    message: req.i18n.__('errors.passwordsDoNotMatch')
                 });
             }
 
@@ -639,7 +639,7 @@ class AuthController {
             console.error('Password change error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Password change failed'
+                message: req.i18n.__('errors.api.operations.failedToUpdate', 'password')
             });
         }
     }
@@ -656,7 +656,7 @@ class AuthController {
             if (!code) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Reference code is required'
+                    message: req.i18n.__('errors.api.validation.referenceCodeRequired')
                 });
             }
 
@@ -668,7 +668,7 @@ class AuthController {
             console.error('Reference code validation error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Validation failed'
+                message: req.i18n.__('errors.validationError')
             });
         }
     }
@@ -699,7 +699,7 @@ class AuthController {
             console.error('WebAuthn registration options error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to generate WebAuthn registration options'
+                message: req.i18n.__('errors.api.operations.failedToGenerate', 'WebAuthn options')
             });
         }
     }
@@ -717,7 +717,7 @@ class AuthController {
             if (!credential) {
                 return res.status(400).json({
                     success: false,
-                    message: 'WebAuthn credential is required'
+                    message: req.i18n.__('errors.api.validation.required', 'WebAuthn credential')
                 });
             }
 
@@ -736,7 +736,7 @@ class AuthController {
             console.error('WebAuthn registration error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to register WebAuthn credential'
+                message: req.i18n.__('errors.api.operations.failedToCreate', 'WebAuthn credential')
             });
         }
     }
@@ -756,7 +756,7 @@ class AuthController {
             if (!user.success) {
                 return res.status(404).json({
                     success: false,
-                    message: 'User not found'
+                    message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.user'))
                 });
             }
 
@@ -778,7 +778,7 @@ class AuthController {
             console.error('Auth status check error:', error);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to check authentication status'
+                message: req.i18n.__('errors.api.operations.failedToRetrieve', 'authentication status')
             });
         }
     }
@@ -795,7 +795,7 @@ class AuthController {
             if (!username) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Username is required'
+                    message: req.i18n.__('errors.api.validation.required', 'Username')
                 });
             }
 

@@ -313,9 +313,10 @@ class OrganizationSettingsService {
             }
 
             // Update the setting
-            setting.setting_value = serializedValue;
-            setting.updated_by = userId;
-            await setting.save();
+            await setting.update({
+                setting_value: serializedValue,
+                updated_by: userId
+            });
 
             // Log the update
             await logService.auditLog({

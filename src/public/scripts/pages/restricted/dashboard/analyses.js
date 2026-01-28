@@ -42,30 +42,17 @@ function initializePage() {
     // Translation function fallback
     if (typeof __ === 'undefined') {
         window.__ = function(key) {
-            // Temporary hardcoded translations for testing
-            const hardcodedTranslations = {
-                'updateStatus': 'Mettre à jour le statut',
-                'validatePrescription': 'Valider la prescription',
-                'cancelAnalysis': 'Annuler l\'analyse',
-                'viewAuditLogs': 'Voir les journaux d\'audit',
-                'actions.postpone': 'Reporter',
-                'analyses.noAnalysesFound': 'Aucune analyse trouvée',
-                'export.noFiltersApplied': 'Aucun filtre appliqué - export de toutes les analyses'
-            };
-            
-            if (hardcodedTranslations[key]) {
-                return hardcodedTranslations[key];
-            }
-            
+            // Check window.translations first (proper i18n)
             if (window.translations) {
                 const keys = key.split('.');
                 let value = window.translations;
                 for (const k of keys) {
-                    value = value[k];
+                    value = value?.[k];
                     if (!value) break;
                 }
-                return value || key;
+                if (value && typeof value === 'string') return value;
             }
+            // Return key as fallback
             return key;
         };
     }
@@ -295,7 +282,7 @@ function initializePage() {
         }
         
         if (!analysisIds || analysisIds.length === 0) {
-            showToast('No analyses selected', 'error');
+            showToast(__('messages.validation.noAnalysesSelected'), 'error');
             return;
         }
         
@@ -1340,7 +1327,7 @@ function initializePage() {
         const reason = document.getElementById('postponeReason').value;
         
         if (!postponeDate) {
-            showToast('Please select a date', 'error');
+            showToast(__('messages.validation.pleaseSelectDate'), 'error');
             return;
         }
         
@@ -2232,13 +2219,13 @@ function initializePage() {
                     `).join('');
                 }
             } else {
-                auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">Failed to load audit logs</td></tr>';
-                showToast(__('messages.success.bulkAction.failedLoadAuditLogs'), 'error');
+                auditLogsTableBody.innerHTML = `<tr><td colspan="3" class="audit-logs-empty">${__('messages.error.failedLoadAuditLogs')}</td></tr>`;
+                showToast(__('messages.error.failedLoadAuditLogs'), 'error');
             }
         } catch (error) {
             console.error('Error loading audit logs:', error);
-            auditLogsTableBody.innerHTML = '<tr><td colspan="3" class="audit-logs-empty">Error loading audit logs</td></tr>';
-            showToast('Error loading audit logs', 'error');
+            auditLogsTableBody.innerHTML = `<tr><td colspan="3" class="audit-logs-empty">${__('messages.error.failedLoadAuditLogs')}</td></tr>`;
+            showToast(__('messages.error.failedLoadAuditLogs'), 'error');
         }
     }
 
@@ -3001,7 +2988,7 @@ function initializePage() {
         let dropdownHTML = `
             <div class="dropdown-item" data-action="update-status">
                 <span class="material-symbols-outlined">edit</span>
-                ${__('updateStatus')}
+                ${__('analysis.updateStatus')}
             </div>
         `;
 
@@ -3010,7 +2997,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="validate-prescription">
                     <span class="material-symbols-outlined">medication</span>
-                    ${__('validatePrescription')}
+                    ${__('analysis.validatePrescription')}
                 </div>
             `;
         }
@@ -3019,7 +3006,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="postpone">
                     <span class="material-symbols-outlined">schedule</span>
-                    ${__('actions.postpone')}
+                    ${__('analysis.actions.postpone')}
                 </div>
             `;
         }
@@ -3028,7 +3015,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="cancel">
                     <span class="material-symbols-outlined">cancel</span>
-                    ${__('cancelAnalysis')}
+                    ${__('analysis.cancelAnalysis')}
                 </div>
             `;
         }
@@ -3052,7 +3039,7 @@ function initializePage() {
             dropdownHTML += `
                 <div class="dropdown-item" data-action="view-audit-logs">
                     <span class="material-symbols-outlined">history</span>
-                    ${__('viewAuditLogs')}
+                    ${__('analysis.viewAuditLogs')}
                 </div>
             `;
         }
@@ -3186,15 +3173,15 @@ function initializePage() {
             <div class="modal-overlay" id="prescription-validation-modal">
                 <div class="modal">
                     <div class="modal-header">
-                        <h3>Validate Prescription</h3>
+                        <h3>${__('analysis.prescriptionValidation.title')}</h3>
                         <button type="button" class="modal-close" id="close-prescription-modal">×</button>
                     </div>
                     <div style="padding: 20px;">
-                        <p style="margin-bottom: 20px; color: #333; font-size: 14px; line-height: 1.4;">Please confirm that you have received a valid prescription for this analysis.</p>
+                        <p style="margin-bottom: 20px; color: #333; font-size: 14px; line-height: 1.4;">${__('analysis.prescriptionValidation.message')}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="cancel-prescription-modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirm-prescription-btn" data-recurring-id="${recurringAnalysisId}" data-analysis-id="${analysisId}">Confirm Prescription</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-prescription-modal">${__('common.cancel')}</button>
+                        <button type="button" class="btn btn-primary" id="confirm-prescription-btn" data-recurring-id="${recurringAnalysisId}" data-analysis-id="${analysisId}">${__('analysis.prescriptionValidation.confirmButton')}</button>
                     </div>
                 </div>
             </div>
