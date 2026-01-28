@@ -1,5 +1,6 @@
 // controllers/patientController.js
 const patientService = require('../../services/patientService');
+const residentSyncService = require('../../services/residentSyncService');
 const deviceFingerprintUtil = require('../../utils/deviceFingerprint');
 
 /**
@@ -339,6 +340,55 @@ class PatientController {
             return res.status(500).json({
                 success: false,
                 message: req.i18n.__('errors.api.operations.failedToRetrieve', req.i18n.__('errors.api.resources.patients'))
+            });
+        }
+    }
+
+    /**
+     * Sync residents from external API
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async syncResidents(req, res) {
+        try {
+            const { userId } = req.auth;
+
+            const context = {
+                ip: req.ip,
+                deviceFingerprint: deviceFingerprintUtil.getFingerprint(req),
+                userAgent: req.headers['user-agent'] || 'unknown'
+            };
+
+            const result = await residentSyncService.syncAllResidents(userId, context);
+
+            return res.status(result.success ? 200 : 500).json(result);
+        } catch (error) {
+            console.error('Sync residents error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to sync residents from external API'
+            });
+        }
+    }
+
+    /**
+     * Check resident API health
+     * @param {Object} req - Express request
+     * @param {Object} res - Express response
+     */
+    async checkResidentApiHealth(req, res) {
+        try {
+            const result = await residentSyncService.checkApiHealth();
+
+            return res.status(200).json({
+                success: true,
+                ...result
+            });
+        } catch (error) {
+            console.error('Check resident API health error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to check resident API health'
             });
         }
     }

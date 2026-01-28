@@ -28,6 +28,20 @@ router.get('/search/:term',
     patientController.searchPatients
 );
 
+// Sync residents from external API (admin only)
+router.post('/sync',
+    generalRateLimit,
+    requireRole(['admin', 'super_admin']),
+    patientController.syncResidents
+);
+
+// Check resident API health status
+router.get('/sync/health',
+    generalRateLimit,
+    requireRole(['admin', 'super_admin']),
+    patientController.checkResidentApiHealth
+);
+
 // Get specific patient by ID
 router.get('/:id',
     generalRateLimit,

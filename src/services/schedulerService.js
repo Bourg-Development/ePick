@@ -6,8 +6,13 @@ const prescriptionNotificationService = require('./prescriptionNotificationServi
 const notificationService = require('./notificationService');
 const organizationSettingsService = require('./organizationSettingsService');
 const statusPageService = require('./statusPageService');
+const residentSyncService = require('./residentSyncService');
 const cron = require('node-cron');
 const { GITHUB_SYNC_ENABLED, GITHUB_SYNC_INTERVAL, GITHUB_AUTO_PUBLISH } = require('../config/environment');
+
+// Resident sync configuration from environment
+const RESIDENT_SYNC_ENABLED = process.env.RESIDENT_SYNC_ENABLED === 'true';
+const RESIDENT_SYNC_INTERVAL = process.env.RESIDENT_SYNC_INTERVAL || '0 */6 * * *'; // Default: every 6 hours
 
 /**
  * Service for running scheduled tasks
@@ -65,6 +70,11 @@ class SchedulerService {
 
         // System status checking job (runs every 5 minutes)
         this.setupStatusCheckingJob();
+
+        // Resident sync job (if enabled)
+        if (RESIDENT_SYNC_ENABLED) {
+            this.setupResidentSyncJob();
+        }
 
         this.isRunning = true;
         console.log('System scheduler started');
@@ -640,7 +650,7 @@ class SchedulerService {
      */
     setupStatusCheckingJob() {
         const jobName = 'status-checking';
-        
+
         // Stop existing job if it exists
         if (this.cronJobs.has(jobName)) {
             this.cronJobs.get(jobName).stop();
@@ -653,13 +663,13 @@ class SchedulerService {
                 console.log('Running scheduled system status check...');
                 const result = await statusPageService.checkAllComponents();
                 console.log(`Status check completed: ${result.successful} successful, ${result.failed} failed out of ${result.checked} components`);
-                
+
                 if (result.failed > 0) {
-                    console.warn(`Status check found ${result.failed} failing components:`, 
-                        result.components.filter(c => c.status !== 'operational').map(c => ({ 
-                            component: c.component, 
-                            status: c.status, 
-                            error: c.error 
+                    console.warn(`Status check found ${result.failed} failing components:`,
+                        result.components.filter(c => c.status !== 'operational').map(c => ({
+                            component: c.component,
+                            status: c.status,
+                            error: c.error
                         }))
                     );
                 }
@@ -673,8 +683,97 @@ class SchedulerService {
 
         this.cronJobs.set(jobName, job);
         job.start();
-        
+
         console.log(`Scheduled job '${jobName}' created and started (runs every 5 minutes)`);
+    }
+
+    /**
+     * Setup resident sync job
+     * Syncs residents from external API at configured interval
+     */
+    setupResidentSyncJob() {
+        const jobName = 'resident-sync';
+
+        // Stop existing job if it exists
+        if (this.cronJobs.has(jobName)) {
+            this.cronJobs.get(jobName).stop();
+            this.cronJobs.delete(jobName);
+        }
+
+        const job = cron.schedule(RESIDENT_SYNC_INTERVAL, async () => {
+            console.log('Starting scheduled resident sync...');
+
+            try {
+                const result = await residentSyncService.syncAllResidents(null, {
+                    ip: 'scheduler',
+                    userAgent: 'ePick Scheduler'
+                });
+
+                if (result.success) {
+                    console.log(`Resident sync completed: ${result.created} created, ${result.updated} updated, ${result.errors} errors`);
+                } else {
+                    console.error('Resident sync failed:', result.error);
+                }
+            } catch (error) {
+                console.error('Error in scheduled resident sync:', error);
+            }
+        }, {
+            scheduled: false,
+            timezone: "America/New_York"
+        });
+
+        this.cronJobs.set(jobName, job);
+        job.start();
+
+        console.log(`Scheduled job '${jobName}' created and started (cron: ${RESIDENT_SYNC_INTERVAL})`);
+
+        // Run initial sync after 60 seconds to allow system to fully start
+        setTimeout(async () => {
+            try {
+                console.log('Running initial resident sync...');
+                const result = await residentSyncService.syncAllResidents(null, {
+                    ip: 'scheduler',
+                    userAgent: 'ePick Scheduler (initial)'
+                });
+
+                if (result.success) {
+                    console.log(`Initial resident sync completed: ${result.created} created, ${result.updated} updated, ${result.errors} errors`);
+                } else {
+                    console.error('Initial resident sync failed:', result.error);
+                }
+            } catch (error) {
+                console.error('Error in initial resident sync:', error);
+            }
+        }, 60000);
+    }
+
+    /**
+     * Manually trigger resident sync (for testing/admin use)
+     */
+    async triggerResidentSync() {
+        console.log('Manually triggering resident sync...');
+
+        try {
+            const result = await residentSyncService.syncAllResidents(null, {
+                ip: 'manual',
+                userAgent: 'ePick Manual Trigger'
+            });
+
+            console.log(`Manual resident sync completed:`, {
+                success: result.success,
+                created: result.created,
+                updated: result.updated,
+                errors: result.errors
+            });
+
+            return result;
+        } catch (error) {
+            console.error('Error in manual resident sync:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
     }
 }
 
