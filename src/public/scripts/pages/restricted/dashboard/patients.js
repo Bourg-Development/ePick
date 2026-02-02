@@ -189,7 +189,7 @@ function initializePage() {
     // Load rooms from API
     async function loadRooms() {
         try {
-            const result = await api.get('/rooms');
+            const result = await api.get('/rooms?limit=100');
             if (result.success) {
                 roomsData = result.data || [];
             } else {
@@ -262,7 +262,7 @@ function initializePage() {
         if (!elements.patientsTableBody) return;
 
         elements.patientsTableBody.innerHTML = patientsData.map(patient => {
-            const room = roomsData.find(r => r.id === patient.room_id);
+            const room = patient.room || roomsData.find(r => r.id === patient.room_id);
             const doctor = doctorsData.find(d => d.id === patient.doctor_id);
             
             
@@ -713,7 +713,7 @@ function initializePage() {
 
         renderFilteredTable(filteredData);
         updateFilteredStats(filteredData);
-        updatePaginationInfo(filteredData.length);
+        updateFilteredPaginationInfo(filteredData.length);
     }
 
     // Render filtered table
@@ -721,7 +721,7 @@ function initializePage() {
         if (!elements.patientsTableBody) return;
 
         elements.patientsTableBody.innerHTML = data.map(patient => {
-            const room = roomsData.find(r => r.id === patient.room_id);
+            const room = patient.room || roomsData.find(r => r.id === patient.room_id);
             const doctor = doctorsData.find(d => d.id === patient.doctor_id);
             
             return `
@@ -795,7 +795,7 @@ function initializePage() {
         currentFilters = {};
         renderPatientsTable();
         updateStats();
-        updatePaginationInfo();
+        updateFilteredPaginationInfo();
         showNotification('Filters cleared', 'success');
     }
 
@@ -932,7 +932,7 @@ function initializePage() {
             // Handle room search input
             const roomSearchInput = document.getElementById('roomIdSearch');
             if (roomSearchInput && patient.room_id) {
-                const room = roomsData.find(r => r.id === patient.room_id);
+                const room = patient.room || roomsData.find(r => r.id === patient.room_id);
                 if (room) {
                     roomSearchInput.value = room.room_number;
                     roomSearchInput.setAttribute('data-selected-id', patient.room_id);
@@ -951,7 +951,7 @@ function initializePage() {
 
     // Show patient details modal
     function showPatientDetailsModal(patient) {
-        const room = roomsData.find(r => r.id === patient.room_id);
+        const room = patient.room || roomsData.find(r => r.id === patient.room_id);
         const doctor = doctorsData.find(d => d.id === patient.doctor_id);
         const age = calculateAge(patient.date_of_birth);
         
@@ -1428,8 +1428,8 @@ function initializePage() {
         URL.revokeObjectURL(url);
     }
 
-    // Update pagination info
-    function updatePaginationInfo(filteredCount = null) {
+    // Update pagination info for client-side filtering
+    function updateFilteredPaginationInfo(filteredCount = null) {
         if (elements.paginationInfo) {
             const count = filteredCount !== null ? filteredCount : patientsData.length;
             const total = patientsData.length;
@@ -2059,5 +2059,5 @@ function initializePage() {
 
     // Initialize the page
     init();
-    updatePaginationInfo();
+    updateFilteredPaginationInfo();
 }

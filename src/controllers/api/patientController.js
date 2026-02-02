@@ -142,7 +142,7 @@ class PatientController {
                 success: true,
                 data: result.patients,
                 pagination: {
-                    page: result.page,
+                    currentPage: result.page,
                     limit: result.limit,
                     total: result.total,
                     totalPages: result.totalPages

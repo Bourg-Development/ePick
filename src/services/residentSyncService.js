@@ -69,6 +69,9 @@ class ResidentSyncService {
             gender = 'Female';
         }
 
+        // Extract date of birth from matricule (YYYYMMDD in first 8 digits)
+        const dateOfBirth = this.extractDateFromMatricule(resident.SocialSecurityNumber);
+
         return {
             externalId: resident.Id,
             firstName: firstName,
@@ -78,8 +81,44 @@ class ResidentSyncService {
                 : firstName || lastName,
             matriculeNational: resident.SocialSecurityNumber,
             gender: gender,
+            dateOfBirth: dateOfBirth,
             roomNumber: resident.RoomNumber
         };
+    }
+
+    /**
+     * Extract date of birth from matricule national (YYYYMMDD in first 8 digits)
+     * @param {string} matricule - National ID number
+     * @returns {Date|null} Date of birth or null if invalid
+     */
+    extractDateFromMatricule(matricule) {
+        try {
+            if (!matricule || matricule.length < 8) return null;
+
+            const dateStr = matricule.substring(0, 8);
+            if (!/^\d{8}$/.test(dateStr)) return null;
+
+            const year = parseInt(dateStr.substring(0, 4));
+            const month = parseInt(dateStr.substring(4, 6));
+            const day = parseInt(dateStr.substring(6, 8));
+
+            if (year < 1900 || year > new Date().getFullYear()) return null;
+            if (month < 1 || month > 12) return null;
+            if (day < 1 || day > 31) return null;
+
+            const date = new Date(year, month - 1, day);
+
+            // Verify the date is valid (handles invalid dates like Feb 30)
+            if (date.getFullYear() !== year ||
+                date.getMonth() !== month - 1 ||
+                date.getDate() !== day) {
+                return null;
+            }
+
+            return date;
+        } catch (error) {
+            return null;
+        }
     }
 
     /**
@@ -166,15 +205,16 @@ class ResidentSyncService {
      */
     async syncResidentWithRoom(mappedResident, roomId, systemUserId = null) {
         try {
-            // Check if patient already exists by matricule national
-            const existingPatient = await db.Patient.findOne({
-                where: { matricule_national: mappedResident.matriculeNational }
-            });
-
-            // Create search hashes
+            // Create search hashes first (needed for both lookup and create/update)
             const searchHashes = encryptedSearchService.createPatientSearchHashes({
                 name: mappedResident.fullName,
                 matricule_national: mappedResident.matriculeNational
+            });
+
+            // Check if patient already exists using the matricule hash
+            // (matricule_national is encrypted, so we must search by hash)
+            const existingPatient = await db.Patient.findOne({
+                where: { matricule_hash: searchHashes.matricule_hash }
             });
 
             if (existingPatient) {
@@ -184,6 +224,7 @@ class ResidentSyncService {
                     first_name: mappedResident.firstName,
                     last_name: mappedResident.lastName,
                     gender: mappedResident.gender,
+                    date_of_birth: mappedResident.dateOfBirth,
                     room_id: roomId,
                     active: true,
                     ...searchHashes
@@ -204,6 +245,7 @@ class ResidentSyncService {
                     last_name: mappedResident.lastName,
                     matricule_national: mappedResident.matriculeNational,
                     gender: mappedResident.gender,
+                    date_of_birth: mappedResident.dateOfBirth,
                     room_id: roomId,
                     active: true,
                     created_by: systemUserId,
