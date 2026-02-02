@@ -1827,7 +1827,8 @@
       "fullName": "Nom complet",
       "searchPlaceholder": "Rechercher par nom, matricule, ou chambre...",
       "roomNumber": "Chambre {0}",
-      "unassigned": "Non assigné"
+      "unassigned": "Non assigné",
+      "years": "ans"
     }
   },
   "account": {

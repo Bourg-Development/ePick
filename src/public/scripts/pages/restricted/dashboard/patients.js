@@ -276,7 +276,7 @@ function initializePage() {
                     </td>
                     <td>
                         <div class="patient-age">
-                            <span class="age-years">${calculateAge(patient.date_of_birth)} years</span>
+                            <span class="age-years">${calculateAge(patient.date_of_birth)} ${__('patients.years')}</span>
                             <small>${window.formatDate ? window.formatDate(patient.date_of_birth) : formatDate(patient.date_of_birth)}</small>
                         </div>
                     </td>
@@ -734,7 +734,7 @@ function initializePage() {
                     </td>
                     <td>
                         <div class="patient-age">
-                            <span class="age-years">${calculateAge(patient.date_of_birth)} years</span>
+                            <span class="age-years">${calculateAge(patient.date_of_birth)} ${__('patients.years')}</span>
                             <small>${window.formatDate ? window.formatDate(patient.date_of_birth) : formatDate(patient.date_of_birth)}</small>
                         </div>
                     </td>
@@ -955,7 +955,7 @@ function initializePage() {
         const doctor = doctorsData.find(d => d.id === patient.doctor_id);
         const age = calculateAge(patient.date_of_birth);
         
-        const details = `Patient Details:\n\nName: ${patient.first_name} ${patient.last_name}\nMatricule National: ${patient.matricule_national}\nAge: ${age} years\nDate of Birth: ${formatDate(patient.date_of_birth)}\nGender: ${getGenderLabel(patient.gender)}\nRoom: ${room ? `Room ${room.room_number}` : 'Unassigned'}\nDoctor: ${doctor ? doctor.name : 'Unassigned'}`;
+        const details = `${__('patients.patientDetails')}:\n\n${__('patients.fullName')}: ${patient.first_name} ${patient.last_name}\n${__('patients.matricule')}: ${patient.matricule_national}\n${__('patients.age')}: ${age} ${__('patients.years')}\n${__('patients.dateOfBirth')}: ${formatDate(patient.date_of_birth)}\n${__('patients.gender')}: ${getGenderLabel(patient.gender)}\n${__('patients.room')}: ${room ? room.room_number : __('patients.unassigned')}\n${__('patients.doctor')}: ${doctor ? doctor.name : __('patients.unassigned')}`;
         alert(details);
     }
 
@@ -1467,12 +1467,12 @@ function initializePage() {
 
     function getGenderLabel(gender) {
         switch (gender) {
-            case 'M': return 'Male';
-            case 'F': return 'Female';
-            case 'Male': return 'Male';
-            case 'Female': return 'Female';
-            case 'Other': return 'Other';
-            default: return 'Other';
+            case 'M':
+            case 'Male': return __('patients.male');
+            case 'F':
+            case 'Female': return __('patients.female');
+            case 'Other': return __('patients.other');
+            default: return __('patients.other');
         }
     }
 

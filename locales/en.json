@@ -1474,7 +1474,8 @@
       "fullName": "Full Name",
       "searchPlaceholder": "Search by name, matricule, or room...",
       "roomNumber": "Room {0}",
-      "unassigned": "Unassigned"
+      "unassigned": "Unassigned",
+      "years": "years"
     }
   },
   "messages": {

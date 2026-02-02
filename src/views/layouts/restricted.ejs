@@ -44,6 +44,18 @@ window.translations = {
     patients: {
         roomPrefix: "<%= locale === 'fr' ? 'Chambre' : locale === 'es' ? 'Habitación' : 'Room' %>",
         unassigned: "<%= __('patients.unassigned') %>",
+        male: "<%= __('patients.male') %>",
+        female: "<%= __('patients.female') %>",
+        other: "<%= __('patients.other') %>",
+        years: "<%= __('patients.years') %>",
+        age: "<%= __('patients.age') %>",
+        gender: "<%= __('patients.gender') %>",
+        room: "<%= __('patients.room') %>",
+        doctor: "<%= __('patients.doctor') %>",
+        matricule: "<%= __('patients.matricule') %>",
+        fullName: "<%= __('patients.fullName') %>",
+        dateOfBirth: "<%= __('patients.dateOfBirth') %>",
+        patientDetails: "<%= __('patients.patientDetails') %>",
         formatRoomNumber: function(roomNumber) {
             return this.roomPrefix + ' ' + roomNumber;
         }

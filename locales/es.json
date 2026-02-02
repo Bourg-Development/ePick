@@ -1839,7 +1839,8 @@
       "female": "Femenino",
       "other": "Otro",
       "roomNumber": "Habitación {0}",
-      "unassigned": "Sin asignar"
+      "unassigned": "Sin asignar",
+      "years": "años"
     },
     "doctors": {
       "title": "Médicos",

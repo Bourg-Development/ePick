@@ -10,7 +10,8 @@ const app = require('../app'); // Assuming `app` is your Express app
 const http = require('http');
 const https = require('https');
 const Logger = require('../utils/logger'); // Import Winston Logger
-console.log(1)
+const db = require('../db');
+const schedulerService = require('../services/schedulerService');
 
 /**
  * Load environment variables from .env file
@@ -145,6 +146,21 @@ process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
 /**
- * Start the server.
+ * Start the server and initialize services.
  */
-server.listen(port);
+async function startServer() {
+  try {
+    await db.sequelize.authenticate();
+    Logger.info('Database connection established successfully.');
+
+    schedulerService.start();
+    Logger.info('Scheduler service started successfully.');
+
+    server.listen(port);
+  } catch (error) {
+    Logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
