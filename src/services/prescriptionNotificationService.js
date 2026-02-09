@@ -253,7 +253,7 @@ class PrescriptionNotificationService {
                 
                 // Get user's date format preference
                 const userPreferencesResult = await userService.getUserDisplayPreferences(agent.id);
-                const dateFormat = userPreferencesResult.preferences?.dateFormat || 'MM/DD/YYYY';
+                const dateFormat = userPreferencesResult.preferences?.dateFormat || 'DD/MM/YYYY';
                 
                 // Format the date according to user's preference
                 const formattedDate = DateFormatter.formatDate(analysis.analysis_date, dateFormat);

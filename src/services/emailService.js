@@ -686,7 +686,7 @@ class EmailService {
                 email: email,
                 role: role,
                 organization: organization || 'ePick',
-                created_date: DateFormatter.formatDate(createdDate, userDateFormat || 'MM/DD/YYYY')
+                created_date: DateFormatter.formatDate(createdDate, userDateFormat || 'DD/MM/YYYY')
             };
 
             // Generate HTML from template

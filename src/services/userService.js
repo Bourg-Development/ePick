@@ -1412,7 +1412,7 @@ class UserService {
                 success: true,
                 message: 'Display preferences updated successfully',
                 preferences: {
-                    dateFormat: updatedPrefs.dateFormat || 'MM/DD/YYYY'
+                    dateFormat: updatedPrefs.dateFormat || 'DD/MM/YYYY'
                 }
             };
         } catch (error) {
@@ -1436,12 +1436,12 @@ class UserService {
             });
 
             let preferences = {
-                dateFormat: 'MM/DD/YYYY'
+                dateFormat: 'DD/MM/YYYY'
             };
 
             if (userPrefs && userPrefs.preferences) {
                 preferences = {
-                    dateFormat: userPrefs.preferences.dateFormat || 'MM/DD/YYYY'
+                    dateFormat: userPrefs.preferences.dateFormat || 'DD/MM/YYYY'
                 };
             }
 
