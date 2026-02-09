@@ -78,6 +78,12 @@ class CSRFProtection {
      */
     setToken = async (req, res, next) => {
         try {
+            // Only generate/refresh tokens on safe methods (GET, HEAD, OPTIONS)
+            // POST/PUT/PATCH/DELETE should already have a token from a prior page load
+            if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+                return next();
+            }
+
             // Don't generate new token if one already exists and is valid
             const existingToken = await this._getValidToken(req);
             if (existingToken) {
@@ -87,10 +93,10 @@ class CSRFProtection {
 
             // Generate new token
             const token = await this.generateToken(req);
-            
+
             // Set token in response locals for templates
             res.locals.csrfToken = token;
-            
+
             // Set cookie with same-site protection
             res.cookie('_csrf', token, {
                 httpOnly: false, // Frontend needs to read this
