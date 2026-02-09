@@ -18,20 +18,20 @@ router.use(generalRateLimit);
  * @desc    Get a new CSRF token
  * @access  Public (but rate limited)
  */
-router.get('/token', optionalAuth, csrfController.getToken);
+router.get('/token', csrfController.getToken);
 
 /**
  * @route   GET /api/csrf/status
  * @desc    Get CSRF protection status
  * @access  Public (but rate limited)
  */
-router.get('/status', optionalAuth, csrfController.getStatus);
+router.get('/status', csrfController.getStatus);
 
 /**
  * @route   POST /api/csrf/verify
  * @desc    Verify CSRF token (for testing)
  * @access  Public (but rate limited)
  */
-router.post('/verify', optionalAuth, verifyCSRFToken, csrfController.verifyToken);
+router.post('/verify', verifyCSRFToken, csrfController.verifyToken);
 
 module.exports = router;
