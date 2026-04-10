@@ -4,6 +4,7 @@ const db = require('../db');
 const logService = require('./logService');
 const docService = require('./docService');
 const cryptoService = require('./cryptoService');
+const encryptedSearchService = require('./encryptedSearchService');
 
 /**
  * Service for managing blood analyses
@@ -252,53 +253,51 @@ class AnalysisService {
 
             // Handle search functionality
             if (filters.search && filters.search.trim()) {
-                const searchTerm = `%${filters.search.trim().toLowerCase()}%`;
+                const searchTerm = filters.search.trim();
+                const searchLike = `%${searchTerm.toLowerCase()}%`;
 
-                whereClause[Op.or] = [
-                    // Search in patient name
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('patient.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    // Search in patient matricule
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('patient.matricule_national')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    // Search in doctor name
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('doctor.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    // Search in room number
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('room.room_number')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    // Search in room service name
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('room.service.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    // Search in notes
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('Analysis.notes')),
-                        Op.like,
-                        searchTerm
-                    )
-                ];
+                // Search encrypted patient fields via hash-based lookup, then verify against decrypted names
+                const patientResults = await encryptedSearchService.searchPatients(searchTerm, {
+                    limit: 100,
+                    includeInactive: true,
+                    activeOnly: false
+                });
+                const searchLower = searchTerm.toLowerCase();
+                const matchingPatientIds = (patientResults.patients || [])
+                    .filter(p => {
+                        const name = (p.name || '').toLowerCase();
+                        const firstName = (p.first_name || '').toLowerCase();
+                        const lastName = (p.last_name || '').toLowerCase();
+                        const matricule = (p.matricule_national || '').toLowerCase();
+                        return name.includes(searchLower) || firstName.includes(searchLower) ||
+                               lastName.includes(searchLower) || matricule.includes(searchLower);
+                    })
+                    .map(p => p.id);
 
-                // Make patient, doctor, and room associations required when searching
-                includeOptions[0].required = true; // patient
-                includeOptions[1].required = true; // doctor
-                if (!includeOptions[2].required) {
-                    includeOptions[2].required = true; // room (if not already required by service filtering)
+                // Search encrypted doctor names by decrypting and filtering
+                const allDoctors = await db.Doctor.findAll({ attributes: ['id', 'name'] });
+                const matchingDoctorIds = allDoctors
+                    .filter(d => d.name && d.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map(d => d.id);
+
+                // Build OR conditions using IDs for encrypted fields, LIKE for non-encrypted fields
+                const orConditions = [];
+
+                if (matchingPatientIds.length > 0) {
+                    orConditions.push({ patient_id: { [Op.in]: matchingPatientIds } });
                 }
+                if (matchingDoctorIds.length > 0) {
+                    orConditions.push({ doctor_id: { [Op.in]: matchingDoctorIds } });
+                }
+
+                // Search in non-encrypted fields using $alias.column$ syntax for associated tables
+                orConditions.push(
+                    { '$room.room_number$': { [Op.iLike]: searchLike } },
+                    { '$room.service.name$': { [Op.iLike]: searchLike } },
+                    { notes: { [Op.iLike]: searchLike } }
+                );
+
+                whereClause[Op.or] = orConditions;
             }
 
             // Apply other filters
@@ -338,7 +337,9 @@ class AnalysisService {
             const offset = (page - 1) * limit;
 
             // Get analyses with pagination
-            const { count, rows } = await db.Analysis.findAndCountAll({
+            // Disable subQuery when searching on associated table columns to avoid
+            // "missing FROM-clause" errors (WHERE references joined tables)
+            const queryOptions = {
                 where: whereClause,
                 include: includeOptions,
                 order: [
@@ -346,8 +347,12 @@ class AnalysisService {
                 ],
                 limit,
                 offset,
-                distinct: true // Important when using includes with filtering
-            });
+                distinct: true
+            };
+            if (filters.search && filters.search.trim()) {
+                queryOptions.subQuery = false;
+            }
+            const { count, rows } = await db.Analysis.findAndCountAll(queryOptions);
 
             // Process analyses to add prescription status and decrypt data
             const processedAnalyses = await Promise.all(rows.map(async analysis => {
@@ -447,46 +452,49 @@ class AnalysisService {
 
             // Handle search functionality
             if (filters.search && filters.search.trim()) {
-                const searchTerm = `%${filters.search.trim().toLowerCase()}%`;
+                const searchTerm = filters.search.trim();
+                const searchLike = `%${searchTerm.toLowerCase()}%`;
 
-                whereClause[Op.or] = [
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('patient.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('patient.matricule_national')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('doctor.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('room.room_number')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('room.service.name')),
-                        Op.like,
-                        searchTerm
-                    ),
-                    db.Sequelize.where(
-                        db.Sequelize.fn('LOWER', db.Sequelize.col('Analysis.notes')),
-                        Op.like,
-                        searchTerm
-                    )
-                ];
+                // Search encrypted patient fields via hash-based lookup, then verify against decrypted names
+                const patientResults = await encryptedSearchService.searchPatients(searchTerm, {
+                    limit: 100,
+                    includeInactive: true,
+                    activeOnly: false
+                });
+                const searchLower = searchTerm.toLowerCase();
+                const matchingPatientIds = (patientResults.patients || [])
+                    .filter(p => {
+                        const name = (p.name || '').toLowerCase();
+                        const firstName = (p.first_name || '').toLowerCase();
+                        const lastName = (p.last_name || '').toLowerCase();
+                        const matricule = (p.matricule_national || '').toLowerCase();
+                        return name.includes(searchLower) || firstName.includes(searchLower) ||
+                               lastName.includes(searchLower) || matricule.includes(searchLower);
+                    })
+                    .map(p => p.id);
 
-                includeOptions[0].required = true; // patient
-                includeOptions[1].required = true; // doctor
-                if (!includeOptions[2].required) {
-                    includeOptions[2].required = true; // room
+                // Search encrypted doctor names by decrypting and filtering
+                const allDoctors = await db.Doctor.findAll({ attributes: ['id', 'name'] });
+                const matchingDoctorIds = allDoctors
+                    .filter(d => d.name && d.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map(d => d.id);
+
+                const orConditions = [];
+
+                if (matchingPatientIds.length > 0) {
+                    orConditions.push({ patient_id: { [Op.in]: matchingPatientIds } });
                 }
+                if (matchingDoctorIds.length > 0) {
+                    orConditions.push({ doctor_id: { [Op.in]: matchingDoctorIds } });
+                }
+
+                orConditions.push(
+                    { '$room.room_number$': { [Op.iLike]: searchLike } },
+                    { '$room.service.name$': { [Op.iLike]: searchLike } },
+                    { notes: { [Op.iLike]: searchLike } }
+                );
+
+                whereClause[Op.or] = orConditions;
             }
 
             // Apply other filters
@@ -524,14 +532,16 @@ class AnalysisService {
             }
 
             // Get all matching analyses (no pagination for export)
-            const analyses = await db.Analysis.findAll({
+            const queryOptions = {
                 where: whereClause,
                 include: includeOptions,
                 order: [['analysis_date', 'ASC']],
                 distinct: true
-            });
-
-            console.log(analyses)
+            };
+            if (filters.search && filters.search.trim()) {
+                queryOptions.subQuery = false;
+            }
+            const analyses = await db.Analysis.findAll(queryOptions);
 
             // Format analyses for export
             const formattedAnalyses = analyses.map(analysis => this._formatAnalysisForExport(analysis));

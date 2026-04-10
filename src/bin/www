@@ -32,6 +32,7 @@ app.set('port', port);
  * Look for certificates in the environment variables or check paths.
  */
 const useHttps = process.env.NODE_ENV === 'production' &&
+                 process.env.SSL_KEY_PATH && process.env.SSL_CERT_PATH && process.env.SSL_CA_PATH &&
                  fs.existsSync(path.resolve(__dirname, process.env.SSL_KEY_PATH)) &&
                  fs.existsSync(path.resolve(__dirname, process.env.SSL_CERT_PATH)) &&
                  fs.existsSync(path.resolve(__dirname, process.env.SSL_CA_PATH));

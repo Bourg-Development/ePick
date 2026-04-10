@@ -1,4 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof __ === 'undefined') {
+        window.__ = function(key) {
+            if (window.translations) {
+                const keys = key.split('.');
+                let value = window.translations;
+                for (const k of keys) {
+                    value = value?.[k];
+                    if (!value) break;
+                }
+                if (value && typeof value === 'string') return value;
+            }
+            return key;
+        };
+    }
+
     api.setConfig({
         baseURL: '/api',
         timeout: 15000

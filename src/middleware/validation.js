@@ -1722,10 +1722,9 @@ const validation = {
             }
         }
 
-        // Validate analysis type filter
+        // Validate analysis type filter (basic string validation, types are dynamic from org settings)
         if (analysisType) {
-            const validTypes = ['XY', 'YZ', 'ZG', 'HG'];
-            if (!validTypes.includes(analysisType)) {
+            if (typeof analysisType !== 'string' || analysisType.length > 20) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid analysis type filter'
@@ -1846,10 +1845,9 @@ const validation = {
             });
         }
 
-        // Validate enum filters
+        // Validate analysis type filter (types are dynamic from org settings)
         if (analysisType) {
-            const validTypes = ['XY', 'YZ', 'ZG', 'HG'];
-            if (!validTypes.includes(analysisType)) {
+            if (typeof analysisType !== 'string' || analysisType.length > 20) {
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid analysis type filter'
