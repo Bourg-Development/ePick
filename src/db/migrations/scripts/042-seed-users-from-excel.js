@@ -7,21 +7,21 @@ const argon2 = require('argon2');
 const crypto = require('crypto');
 
 /**
- * Import users from an Excel file (e.g. example.xlsx).
+ * Import users from Epick.xlsx
  *
- * Expected columns (header row 1):
- *   username | full_name | password | role | service_id | email | preferred_language
+ * Excel columns:
+ *   A: Titre       (ignored)
+ *   B: Prénom      → first name
+ *   C: Nom         → last name
+ *   D: Code interne → username (6-digit)
+ *   E: Fonction    (ignored)
+ *   F: Date sortie (ignored)
  *
- * - username:           6-digit numeric string (e.g. "100001")
- * - full_name:          optional
- * - password:           plain-text — will be hashed with Argon2id + salt + pepper
- * - role:               role name (must already exist in `roles` table)
- * - service_id:         optional integer FK → services
- * - email:              optional
- * - preferred_language: optional, defaults to 'en'
+ * All users are assigned the "nurse" role and the first service.
+ * Password defaults to "Changeme1!" (users should reset on first login).
  */
 
-const EXCEL_PATH = path.resolve(__dirname, '..', '..', '..', 'example.xlsx');
+const EXCEL_PATH = path.resolve(__dirname, '..', '..', '..', '..', 'example.xlsx');
 
 async function hashPassword(password, pepper) {
     const salt = crypto.randomBytes(32).toString('hex');
@@ -47,65 +47,60 @@ module.exports = {
             return;
         }
 
-        // Read the PEPPER from env (same as the app uses)
         const pepper = process.env.PEPPER || '';
         if (!pepper) {
             console.warn('WARNING: PEPPER env variable is not set. Passwords will be hashed without pepper.');
         }
 
-        // Build a role-name → id lookup
+        // Get the "nurse" role ID
         const [roles] = await queryInterface.sequelize.query(
-            'SELECT id, name FROM roles'
+            `SELECT id FROM roles WHERE name = 'nurse' LIMIT 1`
         );
-        const roleMap = {};
-        for (const r of roles) {
-            roleMap[r.name.toLowerCase()] = r.id;
+        if (roles.length === 0) {
+            throw new Error('Role "nurse" not found — cannot import users.');
         }
+        const nurseRoleId = roles[0].id;
 
-        // Parse header row to get column indices
-        const headerRow = sheet.getRow(1);
-        const headers = {};
-        headerRow.eachCell((cell, colNumber) => {
-            headers[String(cell.value).trim().toLowerCase()] = colNumber;
-        });
+        // Get the first service ID
+        const [services] = await queryInterface.sequelize.query(
+            `SELECT id FROM services ORDER BY id ASC LIMIT 1`
+        );
+        if (services.length === 0) {
+            throw new Error('No services found — cannot import users.');
+        }
+        const defaultServiceId = services[0].id;
+
+        console.log(`Using role_id=${nurseRoleId} (nurse), service_id=${defaultServiceId}`);
 
         const users = [];
         const now = new Date();
+        const defaultPassword = 'Changeme1!';
 
         for (let i = 2; i <= sheet.rowCount; i++) {
             const row = sheet.getRow(i);
-            const get = (col) => {
-                const idx = headers[col];
-                if (!idx) return null;
-                const val = row.getCell(idx).value;
-                return val != null ? String(val).trim() : null;
-            };
 
-            const username = get('username');
-            if (!username) continue; // skip empty rows
+            const username = row.getCell(4).value; // D: Code interne
+            if (!username) continue;
 
-            const password = get('password') || 'Changeme1!';
-            const roleName = (get('role') || 'admin').toLowerCase();
-            const roleId = roleMap[roleName];
+            const prenom = row.getCell(2).value;   // B: Prénom
+            const nom = row.getCell(3).value;       // C: Nom
 
-            if (!roleId) {
-                console.warn(`Row ${i}: unknown role "${roleName}" — skipping user ${username}`);
-                continue;
-            }
+            const fullName = [prenom, nom]
+                .filter(Boolean)
+                .map(s => String(s).trim())
+                .join(' ') || null;
 
-            const { hash, salt } = await hashPassword(password, pepper);
-
-            const serviceId = get('service_id');
+            const { hash, salt } = await hashPassword(defaultPassword, pepper);
 
             users.push({
-                username,
-                full_name: get('full_name') || null,
+                username: String(username).trim(),
+                full_name: fullName,
                 password_hash: hash,
                 salt,
-                role_id: roleId,
-                service_id: serviceId ? parseInt(serviceId, 10) : null,
-                email: get('email') || null,
-                preferred_language: get('preferred_language') || 'en',
+                role_id: nurseRoleId,
+                service_id: defaultServiceId,
+                email: null,
+                preferred_language: 'fr',
                 totp_enabled: false,
                 webauthn_enabled: false,
                 failed_login_attempts: 0,
@@ -120,11 +115,11 @@ module.exports = {
             return;
         }
 
-        console.log(`Inserting ${users.length} user(s) from ${EXCEL_PATH}...`);
+        console.log(`Inserting ${users.length} user(s) from Excel...`);
 
-        // Insert with ON CONFLICT to avoid duplicates
+        let inserted = 0;
         for (const user of users) {
-            await queryInterface.sequelize.query(
+            const [, meta] = await queryInterface.sequelize.query(
                 `INSERT INTO users (username, full_name, password_hash, salt, role_id, service_id,
                                     email, preferred_language, totp_enabled, webauthn_enabled,
                                     failed_login_attempts, account_locked, created_at, updated_at)
@@ -134,13 +129,13 @@ module.exports = {
                  ON CONFLICT (username) DO NOTHING`,
                 { replacements: user }
             );
+            if (meta) inserted++;
         }
 
-        console.log('User import complete.');
+        console.log(`User import complete. ${inserted} inserted, ${users.length - inserted} skipped (already existed).`);
     },
 
     down: async (queryInterface, Sequelize) => {
-        // Read the same Excel to know which usernames to remove
         const workbook = new ExcelJS.Workbook();
         try {
             await workbook.xlsx.readFile(EXCEL_PATH);
@@ -152,18 +147,9 @@ module.exports = {
         const sheet = workbook.worksheets[0];
         if (!sheet || sheet.rowCount < 2) return;
 
-        const headerRow = sheet.getRow(1);
-        const headers = {};
-        headerRow.eachCell((cell, colNumber) => {
-            headers[String(cell.value).trim().toLowerCase()] = colNumber;
-        });
-
         const usernames = [];
         for (let i = 2; i <= sheet.rowCount; i++) {
-            const row = sheet.getRow(i);
-            const idx = headers['username'];
-            if (!idx) continue;
-            const val = row.getCell(idx).value;
+            const val = sheet.getRow(i).getCell(4).value; // D: Code interne
             if (val) usernames.push(String(val).trim());
         }
 
