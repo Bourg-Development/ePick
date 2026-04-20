@@ -3,11 +3,10 @@
 
 const path = require('path');
 const ExcelJS = require('exceljs');
-const argon2 = require('argon2');
 const crypto = require('crypto');
 
 /**
- * Import users from Epick.xlsx
+ * Import users from Epick.xlsx and generate reference codes.
  *
  * Excel columns:
  *   A: Titre       (ignored)
@@ -18,22 +17,22 @@ const crypto = require('crypto');
  *   F: Date sortie (ignored)
  *
  * All users are assigned the "nurse" role and the first service.
- * Password defaults to "Changeme1!" (users should reset on first login).
+ * Users are created WITHOUT a password — they must register via the
+ * generated reference code.
  */
 
 const EXCEL_PATH = path.resolve(__dirname, '..', '..', '..', '..', 'example.xlsx');
 
-async function hashPassword(password, pepper) {
-    const salt = crypto.randomBytes(32).toString('hex');
-    const pepperedPassword = `${password}${salt}${pepper}`;
-    const hash = await argon2.hash(pepperedPassword, {
-        type: argon2.argon2id,
-        memoryCost: 65536,
-        timeCost: 3,
-        parallelism: 4,
-        hashLength: 32
-    });
-    return { hash, salt };
+function generateCode() {
+    const digits = [];
+    for (let i = 0; i < 9; i++) {
+        digits.push(crypto.randomInt(0, 10));
+    }
+    return [
+        digits.slice(0, 3).join(''),
+        digits.slice(3, 6).join(''),
+        digits.slice(6, 9).join('')
+    ].join('-');
 }
 
 module.exports = {
@@ -45,11 +44,6 @@ module.exports = {
         if (!sheet || sheet.rowCount < 2) {
             console.log('Excel file is empty or has no data rows — skipping.');
             return;
-        }
-
-        const pepper = process.env.PEPPER || '';
-        if (!pepper) {
-            console.warn('WARNING: PEPPER env variable is not set. Passwords will be hashed without pepper.');
         }
 
         // Get the "nurse" role ID
@@ -70,11 +64,19 @@ module.exports = {
         }
         const defaultServiceId = services[0].id;
 
+        // Get admin user (id=1) as the creator for ref codes
+        const [admins] = await queryInterface.sequelize.query(
+            `SELECT id FROM users ORDER BY id ASC LIMIT 1`
+        );
+        const adminId = admins.length > 0 ? admins[0].id : null;
+
         console.log(`Using role_id=${nurseRoleId} (nurse), service_id=${defaultServiceId}`);
 
-        const users = [];
         const now = new Date();
-        const defaultPassword = 'Changeme1!';
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // 30-day expiry for bulk import
+
+        const results = [];
 
         for (let i = 2; i <= sheet.rowCount; i++) {
             const row = sheet.getRow(i);
@@ -90,49 +92,66 @@ module.exports = {
                 .map(s => String(s).trim())
                 .join(' ') || null;
 
-            const { hash, salt } = await hashPassword(defaultPassword, pepper);
+            const usernameStr = String(username).trim();
 
-            users.push({
-                username: String(username).trim(),
-                full_name: fullName,
-                password_hash: hash,
-                salt,
-                role_id: nurseRoleId,
-                service_id: defaultServiceId,
-                email: null,
-                preferred_language: 'fr',
-                totp_enabled: false,
-                webauthn_enabled: false,
-                failed_login_attempts: 0,
-                account_locked: false,
-                created_at: now,
-                updated_at: now
-            });
+            // Insert user without password (empty hash/salt — must register via ref code)
+            const [inserted] = await queryInterface.sequelize.query(
+                `INSERT INTO users (username, full_name, password_hash, salt, role_id, service_id,
+                                    preferred_language, totp_enabled, webauthn_enabled,
+                                    failed_login_attempts, account_locked, created_at, updated_at)
+                 VALUES (:username, :full_name, '', '', :role_id, :service_id,
+                         'fr', false, false, 0, false, :created_at, :updated_at)
+                 ON CONFLICT (username) DO NOTHING
+                 RETURNING id, username`,
+                {
+                    replacements: {
+                        username: usernameStr,
+                        full_name: fullName,
+                        role_id: nurseRoleId,
+                        service_id: defaultServiceId,
+                        created_at: now,
+                        updated_at: now
+                    }
+                }
+            );
+
+            // Only generate ref code if user was actually inserted (not a duplicate)
+            if (inserted && inserted.length > 0) {
+                const userId = inserted[0].id;
+                const code = generateCode();
+
+                await queryInterface.sequelize.query(
+                    `INSERT INTO reference_codes (code, user_id, created_by, expires_at, status, require_2fa, created_at)
+                     VALUES (:code, :user_id, :created_by, :expires_at, 'active', false, :created_at)`,
+                    {
+                        replacements: {
+                            code,
+                            user_id: userId,
+                            created_by: adminId,
+                            expires_at: expiresAt,
+                            created_at: now
+                        }
+                    }
+                );
+
+                results.push({ username: usernameStr, fullName, code });
+            }
         }
 
-        if (users.length === 0) {
-            console.log('No valid users found in Excel — skipping.');
+        if (results.length === 0) {
+            console.log('No new users to import (all already exist) — skipping.');
             return;
         }
 
-        console.log(`Inserting ${users.length} user(s) from Excel...`);
-
-        let inserted = 0;
-        for (const user of users) {
-            const [, meta] = await queryInterface.sequelize.query(
-                `INSERT INTO users (username, full_name, password_hash, salt, role_id, service_id,
-                                    email, preferred_language, totp_enabled, webauthn_enabled,
-                                    failed_login_attempts, account_locked, created_at, updated_at)
-                 VALUES (:username, :full_name, :password_hash, :salt, :role_id, :service_id,
-                         :email, :preferred_language, :totp_enabled, :webauthn_enabled,
-                         :failed_login_attempts, :account_locked, :created_at, :updated_at)
-                 ON CONFLICT (username) DO NOTHING`,
-                { replacements: user }
-            );
-            if (meta) inserted++;
+        console.log(`\n=== Imported ${results.length} user(s) with reference codes ===\n`);
+        console.log('Username | Name                          | Reference Code');
+        console.log('---------|-------------------------------|---------------');
+        for (const r of results) {
+            const name = (r.fullName || '').padEnd(30);
+            console.log(`${r.username}  | ${name} | ${r.code}`);
         }
-
-        console.log(`User import complete. ${inserted} inserted, ${users.length - inserted} skipped (already existed).`);
+        console.log(`\nCodes expire: ${expiresAt.toISOString().split('T')[0]}`);
+        console.log('Users must register at /auth/register?refCode=xxx-xxx-xxx\n');
     },
 
     down: async (queryInterface, Sequelize) => {
@@ -154,10 +173,22 @@ module.exports = {
         }
 
         if (usernames.length > 0) {
-            await queryInterface.bulkDelete('users', {
-                username: usernames
-            });
-            console.log(`Rolled back ${usernames.length} imported user(s).`);
+            // Delete ref codes for these users first (FK constraint)
+            await queryInterface.sequelize.query(
+                `DELETE FROM reference_codes WHERE user_id IN (
+                    SELECT id FROM users WHERE username IN (:usernames)
+                    AND password_hash = ''
+                )`,
+                { replacements: { usernames } }
+            );
+
+            // Only delete users that never registered (empty password_hash)
+            await queryInterface.sequelize.query(
+                `DELETE FROM users WHERE username IN (:usernames) AND password_hash = ''`,
+                { replacements: { usernames } }
+            );
+
+            console.log(`Rolled back imported users (only those who hadn't registered yet).`);
         }
     }
 };
