@@ -593,18 +593,33 @@ class AnalysisService {
     _formatAnalysisForExport(analysis) {
         const analysisData = analysis.toJSON();
 
+        // Sequelize's afterFind hook does not reliably decrypt fields on included
+        // associations, so decrypt them manually here for export.
+        const decrypt = (value) => {
+            if (!value || typeof value !== 'string') return value;
+            const parts = value.split(':');
+            if (parts.length !== 2 || parts[0].length !== 32 || !/^[0-9a-f]+$/i.test(parts[0])) {
+                return value;
+            }
+            try {
+                return cryptoService.decrypt(value);
+            } catch {
+                return value;
+            }
+        };
+
         return {
             id: analysisData.id,
             analysisDate: analysisData.analysis_date,
             status: analysisData.status,
             analysisType: analysisData.analysis_type,
-            notes: analysisData.notes,
+            notes: decrypt(analysisData.notes),
             patientId: analysisData.patient_id,
-            patientName: analysisData.patient ? analysisData.patient.name : null,
-            patientMatricule: analysisData.patient ? analysisData.patient.matricule_national : null,
+            patientName: analysisData.patient ? decrypt(analysisData.patient.name) : null,
+            patientMatricule: analysisData.patient ? decrypt(analysisData.patient.matricule_national) : null,
             doctorId: analysisData.doctor_id,
-            doctorName: analysisData.doctor ? analysisData.doctor.name : null,
-            doctorSpecialization: analysisData.doctor ? analysisData.doctor.specialization : null,
+            doctorName: analysisData.doctor ? decrypt(analysisData.doctor.name) : null,
+            doctorSpecialization: analysisData.doctor ? decrypt(analysisData.doctor.specialization) : null,
             roomId: analysisData.room_id,
             roomNumber: analysisData.room ? analysisData.room.room_number : null,
             serviceName: analysisData.room?.service ? analysisData.room.service.name : null,
