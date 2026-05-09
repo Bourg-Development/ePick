@@ -1459,7 +1459,7 @@ class AdminController {
             }
 
             const { serviceId } = req.params;
-            const { name, email, description, active } = req.body;
+            const { name, email, description, active, canViewAllAnalyses } = req.body;
 
             if (!serviceId) {
                 return res.status(400).json({
@@ -1488,6 +1488,7 @@ class AdminController {
                 email: email ? email.trim().toLowerCase() : undefined,
                 description: description !== undefined ? (description ? description.trim() : null) : undefined,
                 active: active !== undefined ? active : undefined,
+                canViewAllAnalyses: canViewAllAnalyses !== undefined ? canViewAllAnalyses : undefined,
                 updatedBy: adminId
             }, context);
 

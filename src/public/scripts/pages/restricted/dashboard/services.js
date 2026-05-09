@@ -407,7 +407,7 @@ function initializePage() {
             if (emailInput) emailInput.value = service.email || '';
             if (activeInput) activeInput.checked = service.active || false;
             if (descriptionInput) descriptionInput.value = service.description || '';
-            if (canViewAllInput) canViewAllInput.checked = service.can_view_all_analyses || false;
+            if (canViewAllInput) canViewAllInput.checked = service.canViewAllAnalyses ?? service.can_view_all_analyses ?? false;
         } else {
             // Clear form for new service
             if (form) form.reset();

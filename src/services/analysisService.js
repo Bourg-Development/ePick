@@ -1034,14 +1034,19 @@ class AnalysisService {
      */
     _canViewAllAnalyses(userContext) {
         if (!userContext) return false;
-        
+
         // System admin can view all analyses
         if (userContext.role === 'system_admin') {
             return true;
         }
-        
+
         // Regular admins can view all analyses
         if (userContext.role === 'admin' || (userContext.permissions && userContext.permissions.includes('admin'))) {
+            return true;
+        }
+
+        // Nurses can view all analyses
+        if (userContext.role === 'nurse') {
             return true;
         }
 
